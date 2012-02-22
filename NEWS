@@ -1,0 +1,11 @@
+
+#~~~~~~~~~~~~~~~~
+# 2011/06/03
+#~~~~~~~~~~~~~~~~
+* Main function is now called 'BEIA'
+* In SMFB the catch can be produced by different production functions, (at the moment: "ageBased.CobbDoug", "aggregated.CobbDoug"),
+  the change within the function is in the calculation of effort that is now calculated by a 'call' to the correct function.
+* Due to the previous points some changes have had to be made in other functions:
+	- alpha and beta slots in FLcatch can have dimension '1' or 'na' in quant dimension.
+	- "updateCatch" function call to the appropiate function to calculate the catch at age.
+	 
