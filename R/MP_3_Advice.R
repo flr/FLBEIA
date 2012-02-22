@@ -17,7 +17,7 @@ advice.mp <- function(stocks, fleets.obs, indices, covars, advice, advice.ctrl, 
     
     #cat(stknm,'\n')
     
-      #  la siguiente linea era para permitir gestion en diferentes seasons y pluriannual por ahora esta idea está parada.
+      #  la siguiente linea era para permitir gestion en diferentes seasons y pluriannual por ahora esta idea estYYY parada.
       #  if(!(year %in% advice.ctrl[[stknm]]$ass.year & season %in% advice.ctrl[[stknm]]$ass.season))  next
 
      cat('----------------- ', stknm, ' -----------------\n')

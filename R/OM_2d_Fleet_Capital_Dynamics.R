@@ -6,7 +6,7 @@
 #    - 'fixedCapital' - The capacity and catchability are given as input, 
 #                   just return the object as it is.
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 01/12/2010 11:43:09
 # Changed:01/12/2010 11:43:04
 #-------------------------------------------------------------------------------

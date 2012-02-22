@@ -4,7 +4,7 @@
 #   - fwdBD(stock,fwdControl)       
 #   - biomass.tg, catch.tg, discards.tg, f.tg, fdisc.tg, fland.tg, landings.tg
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 15/12/2010 19:58:56
 # Changed: 16/12/2010 12:35:50
 #-------------------------------------------------------------------------------

@@ -7,7 +7,7 @@
 #       age level.
 #  - updateCatch: Update the slots related to catch using the appropiate function.
 # 
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 28/10/2010 12:33:04
 # Changed:03/06/2011 07:53:53
 #-------------------------------------------------------------------------------
@@ -70,12 +70,12 @@ CobbDouglasBio.CatchFleet <- function(effort, Ba, B, q.m, efs.m, alpha.m, beta.m
 #-------------------------------------------------------------------------------
 CobbDouglasAge.CatchFleet <- function(effort, Ba, q.m, efs.m, alpha.m, beta.m,...){
 
-    Ba      <- Ba[,,,,,,drop=T]         # [na¿?,nu¿?,it¿?]   nu and(or it can be equal 1 => the dimension would be dropped
+    Ba      <- Ba[,,,,,,drop=T]         # [naYYY?,nuYYY?,itYYY?]   nu and(or it can be equal 1 => the dimension would be dropped
     
     dimq  <- dim(q.m)
     zz    <- ifelse(dimq == 1, FALSE, TRUE)
     
-    Ba <- array(Ba, dim = c(dim(q.m)[2:4], dim(q.m)[1]))  # [na,nu¿?,it¿?,mt]
+    Ba <- array(Ba, dim = c(dim(q.m)[2:4], dim(q.m)[1]))  # [na,nuYYY?,itYYY?,mt]
     Ba <- aperm(Ba, c(4,1:3))  # [mt,na,nu,it]
     
     effort <- array(effort, dim = c(length(effort), dim(q.m)[1:3])) # [it,mt,na,nu]

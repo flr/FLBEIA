@@ -2,7 +2,7 @@
 #                           Observation models
 #   - observation.mp 
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 21/12/2010 14:34:47
 # Changed: 27/04/2011 09:23:01
 #-------------------------------------------------------------------------------

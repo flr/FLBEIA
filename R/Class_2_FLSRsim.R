@@ -47,7 +47,7 @@ setClass("FLSRsim",
 		"FLComp",
         rec               = "FLQuant",        # [1,ny,1,ns,1,it]
 		ssb               = "FLQuant",        # [1,ny,1,ns,1,it]
-		covar             = "FLQuants",       # [1?¿,ny,1,ns,1,it]
+		covar             = "FLQuants",       # [1?YYY,ny,1,ns,1,it]
 		uncertainty       = "FLQuant",        # [1,ny,1,ns,1,it]
 		proportion        = "FLQuant",        # [1,ny,1,ns,1,it]
 		model             = "character", # [it] - different model by iteration.
@@ -60,7 +60,7 @@ setClass("FLSRsim",
 		range    =unlist(list(min=NA, max=NA, plusgroup=NA, minyear=1, maxyear=1)),
         rec               = FLQuant(),        # [1,ny,1,ns,1,it]
 		ssb               = FLQuant(),        # [1,ny,1,ns,1,it]
-		covar             = FLQuants(),       # [1?¿,ny,1,ns,1,it]
+		covar             = FLQuants(),       # [1?YYY,ny,1,ns,1,it]
 		uncertainty       = FLQuant(),        # [1,ny,1,ns,1,it]
 		proportion        = FLQuant(),        # [1,ny,1,ns,1,it]
 		model             = as.character(NA), # [it] - different model by iteration.

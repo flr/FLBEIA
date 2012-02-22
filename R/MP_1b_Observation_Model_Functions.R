@@ -310,7 +310,7 @@ Obs.btot <- function(biol, varia.btot, yr){
 #stknm : character, identifier of the stock
 #Details
 #A value of 0 for varia.tland and a value of 1 for lrep.bias means that the observation of the total landings is perfect.
-Obs.tland <- function(fleets, varia.tland,  yr, stknm){                                                                       ç
+Obs.tland <- function(fleets, varia.tland,  yr, stknm){                                                                       YYY
     ny        <- yr - 1
     tland     <- unitSums(seasonSums(tlandStock(fleets, stknm)))[,1:ny]
     tland     <- tland*varia.tland[,1:ny]

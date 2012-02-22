@@ -4,7 +4,7 @@
 #  Reference Points: Btrigger, Blim and Fmsy.
 #   No formal porposal for any of this, usually :
 #           - Btrigger = Bpa
-#           - Blim  = ??? Blim?¿?
+#           - Blim  = ??? Blim?YYY?
 #           - Fmsy = F0.1, Fmax....
 #
 #  - TAC advice depending on F in relation to BRP is:
@@ -132,7 +132,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             stki <- fwdBD(stki, fwd.ctrl, growth.years)
         }
 
-        sl <- advice.ctrl[[stknm]][['advice']] # catch or landings?¿¿?¿
+        sl <- advice.ctrl[[stknm]][['advice']] # catch or landings?YYYYYY?YYY
         advice[['TAC']][stknm,year+1,,,,i] <- slot(stki, sl)[,year+1]
 
 #        cat('---------------- HCR------------------------\n')

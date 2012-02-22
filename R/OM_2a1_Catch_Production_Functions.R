@@ -9,7 +9,7 @@
 #   - CobbDouglasBio.effort - Effort from Cobb-Douglass production function aggregated in biomass
 #   - CobbDouglasAge.effort - Effort from Cobb-Douglass production function by age.
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 03/06/2011 10:35:14
 # Changed: 03/06/2011 10:35:18
 #-------------------------------------------------------------------------------
@@ -19,7 +19,7 @@
 #  CobbDouglasBio: E[it], B[it], q.m,efs.m,alpha.m,beta.m :: [mt,it] 
 #       The functions _works_ with iterations
 #-------------------------------------------------------------------------------
-CobbDouglasBio   <- function(E,B,q.m,efs.m,alpha.m,beta.m,...)  # dga: añado a como argumento.
+CobbDouglasBio   <- function(E,B,q.m,efs.m,alpha.m,beta.m,...)  # dga: aYYYado a como argumento.
                 {
     Ef  <- matrix(E,dim(efs.m)[1],dim(efs.m)[2], byrow = T)*efs.m
     B   <- matrix(B,dim(efs.m)[2], byrow = T)

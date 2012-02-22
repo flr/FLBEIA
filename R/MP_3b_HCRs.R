@@ -2,7 +2,7 @@
 #                          HCRs
 #   - annualTAC.
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 20/12/2010 13:26:13
 # Changed: 20/12/2010 13:26:18
 #-------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
             stki <- fwdBD(stki, fwd.ctrl, growth.years) 
         }
     
-        sl <- advice.ctrl[[stknm]][['advice']] # catch or landings?¿¿?¿
+        sl <- advice.ctrl[[stknm]][['advice']] # catch or landings?YYYYYY?YYY
         advice[['TAC']][stknm,year+1,,,,i] <- slot(stki, sl)[,year+1]
         
 #        cat('---------------- HCR------------------------\n')

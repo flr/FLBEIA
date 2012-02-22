@@ -5,7 +5,7 @@
 #    - 'fixedPrice'   - The Price is given as input, just return the object as it is.
 #    - 'elasticPrice.total' - elasticity function to model the price (total landings). (Kraak. 2004)
 #    - 'elasticPrice.fleet' - elasticity function to model the price (fleets' landings). (Kraak. 2004)
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 09/11/2010 09:56:11
 # Changed:30/11/2010 12:22:06
 #-------------------------------------------------------------------------------

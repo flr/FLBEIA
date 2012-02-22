@@ -2,7 +2,7 @@
 #           OBSERVATION MODEL FUNCTIONS
 #   - fwdBD(stock,fwdControl)  
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 16/12/2010 07:57:24
 # Changed: 16/12/2010 07:57:19
 #-------------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 #        except effort that is updated based on landings or catch share 
 #       (condition: each metier of the fleet targets only one stock)
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 28/10/2010 12:33:04
 # Changed: 2011-02-28 16:17:37 (ssanchez)
 #-------------------------------------------------------------------------------

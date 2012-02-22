@@ -30,7 +30,7 @@
 #   - bioInd: Update a FLIndex aggregated in biomass from an age structured or 
 #             biomass aggregated FLBiol (multiplicative error)  (dga)
 #
-# Dorleta García
+# Dorleta GarcYYYa
 # Created: 09/12/2010 14:37:43
 # Changed: 26/04/2011 15:12:08 
 #(rroa's functions inserted)
