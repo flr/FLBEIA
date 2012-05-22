@@ -125,21 +125,21 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1,...){
 #       obs.ctrl <- obs.ctrl[[stknm]][['stockObs']] when calling to age2age in obs.model function.
 #-------------------------------------------------------------------------------
 age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
-                         
-    error.ages <- obs.ctrl$error.ages
-    varia.mort <- obs.ctrl$varia.mort
-    varia.mwgt <- obs.ctrl$varia.mwgt
-    varia.dwgt <- obs.ctrl$varia.dwgt
-    varia.fec  <- obs.ctrl$varia.fec  
-    TAC.ovrsht <- obs.ctrl$TAC.ovrsht
-    varia.ltot <- obs.ctrl$varia.ltot
-    varia.dtot <- obs.ctrl$varia.dtot   
     
     yr <- year
                                  
     na                <- dim(biol@n)[1]
     ny                <- yr - 1
     it                <- dim(biol@n)[6]
+                                                                        
+    error.ages <- obs.ctrl$error.ages
+    varia.mort <- obs.ctrl$varia.mort[,1:ny]
+    varia.mwgt <- obs.ctrl$varia.mwgt[,1:ny]
+    varia.dwgt <- obs.ctrl$varia.dwgt[,1:ny]
+    varia.fec  <- obs.ctrl$varia.fec[,1:ny]  
+    TAC.ovrsht <- obs.ctrl$TAC.ovrsht[,1:ny]
+    varia.ltot <- obs.ctrl$varia.ltot[,1:ny]
+    varia.dtot <- obs.ctrl$varia.dtot[,1:ny]   
     
     if(is.null(error.ages)){
         error.ages <- array(0,dim = c(na, na, ny,it))
@@ -260,16 +260,17 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------    
 bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 
-    varia.btot     <- obs.ctrl$varia.btot  
-    varia.tland    <- obs.ctrl$varia.tland 
-    TAC.ovrsht     <- obs.ctrl$TAC.ovrsht  
-    varia.tdisc    <- obs.ctrl$varia.tdisc 
     yr             <- year
     stknm     <- stknm
-
+    
+    varia.btot     <- obs.ctrl$varia.btot[,1:(yr-1)]  
+    varia.ltot    <- obs.ctrl$varia.ltot[,1:(yr-1)] 
+    TAC.ovrsht     <- obs.ctrl$TAC.ovrsht[,1:(yr-1)]  
+    varia.tdisc    <- obs.ctrl$varia.tdisc[,1:(yr-1)] 
+   
     stck              <- as(biol, "FLStock")[,1:(yr-1)]
 
-    stck@landings     <- Obs.tland(fleets, varia.tland,  yr, stknm)
+    stck@landings     <- Obs.tland(fleets, varia.ltot,  yr, stknm)
     stck@landings     <- FLQuant(ifelse(stck@landings > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
     stck@discards     <- Obs.tdisc(fleets, varia.tdisc, yr, stknm)
     stck@catch        <- stck@landings + stck@discards
@@ -287,7 +288,7 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 bio2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 
     varia.btot     <- obs.ctrl$varia.btot  
-    varia.tland    <- obs.ctrl$varia.tland 
+    varia.ltot    <- obs.ctrl$varia.ltot 
     varia.tdisc    <- obs.ctrl$varia.tdisc 
     yr             <- year
     stknm     <- stknm
@@ -306,20 +307,31 @@ bio2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------   
 age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
                          
-    varia.btas   <- obs.ctrl$varia.btas  
-    varia.tland  <- obs.ctrl$varia.tland 
-    TAC.ovrsht   <- obs.ctrl$TAC.ovrsht  
-    varia.tdisc  <- obs.ctrl$varia.tdisc  
     yr         <- year
-         
-    stck                <- as(biol, "FLStock")[,1:(yr-1)]
-    stck@landings       <- Obs.tlaas(fleets, varia.tland,  yr, stknm)
+    
+    ny <- yr - 1
+    it <- dim(biol@n)[6]
+    
+    varia.btas   <- obs.ctrl$varia.btas[,1:(yr-1)]  
+    varia.ltot   <- obs.ctrl$varia.ltot[,1:(yr-1)] 
+    TAC.ovrsht   <- obs.ctrl$TAC.ovrsht[,1:(yr-1)]  
+    varia.tdisc  <- obs.ctrl$varia.tdisc[,1:(yr-1)]  
+             
+    biolbio <- setPlusGroup(biol,biol@range[1])
+    stck                <- as(biolbio, "FLStock")[,1:(yr-1)]
+    stck@landings       <- Obs.tlaas(fleets, varia.ltot,  yr, stknm)
     stck@landings[]     <- ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings)
     stck@discards       <- Obs.tdias(fleets, varia.tdisc, yr, stknm)
     stck@catch          <- stck@landings + stck@discards
+    stck@catch.n[]        <- stck@catch 
+    stck@landings.n[]     <- stck@landings 
+    stck@discards.n[]     <- stck@discards 
+    stck@catch.wt[]     <- stck@discards.wt[] <- stck@landings.wt[] <- 1 
     stck@harvest.spwn[] <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
     stck@m.spwn[]       <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
+    stck@mat[]          <- 1
     stck@range[5]       <- yr-1
+    stck@range[6:7]     <- 1
     return(stck)
 }
 
@@ -353,6 +365,7 @@ ageInd <- function(biol, index, obs.ctrl, year, stknm,...){
     it <- dim(biol@n)[6]
     ns <- dim(biol@n)[4]
     na <- dim(biol@n)[1]
+    ny <- dim(biol@n)[2]
     
     error.ages <- obs.ctrl[['error.ages']]
     
@@ -385,7 +398,7 @@ ageInd <- function(biol, index, obs.ctrl, year, stknm,...){
     ages.n   <- dimnames(biol@n)[[1]]
     ages.sel <- which(ages.n %in% ages.ind)
     
-    for(i in it){
+    for(i in 1:it){
         N <- unitSums(biol@n[ages.sel,yrnm.1,,sInd,,i])
         index@index[,yrnm.1,,,,i] <- (N%*%error.ages[ages.sel,ages.sel,yrnm.1,i])*
                                        index@index.q[,yrnm.1,,,,i, drop=T]*

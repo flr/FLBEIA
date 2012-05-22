@@ -29,8 +29,10 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 
-    stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
+    stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
+   # if(dim(stk@m)[1] == 1)    stk@harvest[] <- stk@catch.n[]/stk@stock.n[] 
+    
     ref.pts <- advice.ctrl[[stknm]]$ref.pts # matrix[6,it]  rows = Bmsy, MSY, alpha_0, alpha_1, alpha_2, beta
 
     iter     <- dim(stk@m)[6]
@@ -59,7 +61,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
     for(i in 1:iter){
     
-        if(Ftg[i] == 0){
+        if(is.na(Ftg[i]) | Ftg[i] == 0){
             advice[['TAC']][stknm,year+1,,,,i] <- 0
             next
         }
@@ -106,7 +108,15 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                     rec <- rec[, -(1:rec.age),]
                     ssb <- ssb[, 1:(dim(ssb)[2] - rec.age),]
                 }
-                sr.pars <- params(sr(FLSR(rec = rec, ssb = ssb, model = sr.model)))
+                
+                if(sr.model != 'geomean') sr.pars <- try(params(sr(FLSR(rec = rec, ssb = ssb, model = sr.model))), silent = TRUE) 
+                
+                if(class(sr.pars) == 'try-error' | sr.model == 'geomean'){
+                    sr.model <- 'geomean'
+                    sr.pars <- c(prod(c(rec))^(1/length(c(rec))))
+                    sr.pars <- FLPar(a = ifelse(is.na(sr.pars), 0, sr.pars))
+                }
+                 
                 sr1 <- sr.pars
             }
             else{ # sr.pars not null
@@ -128,7 +138,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                 nyrs  <- as.numeric(advice.ctrl[[stknm]]$growth.years['num.years'])
                 growth.years <- yrsnames[(year-y.rm-nyrs + 1):(year-y.rm)]
             }
-
+            
             stki <- fwdBD(stki, fwd.ctrl, growth.years)
         }
 

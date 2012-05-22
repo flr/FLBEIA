@@ -46,9 +46,9 @@ XSAboot <- function(Stock, Indices, control, parametric = TRUE, mvnorm = TRUE){
             # residuals in log-scale
             logres     <- xsa.base@index.res[[i]][drop = TRUE]
             # correlation at age of log-residuals
-            cor_logres <- cor(t(xsa.base@index.res[[i]][drop = TRUE]))
+            cor_logres <- cor(t(xsa.base@index.res[[i]][drop = TRUE]), use = "na.or.complete")
             # stdev at age of log-residuals
-            std_logres <- sqrt(apply(logres,1, var))
+            std_logres <- sqrt(apply(logres,1, var, na.rm=T))
             # covariance at age of log-residuals
             cov_logres <- cor_logres
             na <- dim(cor_logres)[1]

@@ -33,8 +33,10 @@ updateCatch <- function(fleets, biols, advice, fleets.ctrl, year = 1, season = 1
     
      fleets <- FLFleetsExt(fleets)
     
-    # Correct the catch in case Ca > Ba Or C > B
-    fleets <- CorrectCatch(fleets = fleets, biols = biols, year = year, season = season)
+    # Correct the catch in case:
+    # Age structured: Ca > (Ba*catch.threshold)
+    # Biomass: C > (B*catch.threshold)
+    fleets <- CorrectCatch(fleets = fleets, biols = biols, fleets.ctrl = fleets.ctrl, year = year, season = season)
     
     
     return(fleets)
@@ -162,8 +164,8 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
             dsa <- sa - lsa
 
             if(dim(biols[[st]]@n)[1] == 1){
-                cobj@discards[,yr,,ss]   <- Ctotal*dsa/(sa*tac.disc)
-                cobj@landings[,yr,,ss]   <- Ctotal*lsa*tac.disc/sa
+                cobj@discards[,yr,,ss]   <- Ctotal*dsa # /(sa*tac.disc)
+                cobj@landings[,yr,,ss]   <- Ctotal*lsa # *tac.disc/sa
                 cobj@discards.n[,yr,,ss] <- cobj@discards[,yr,,ss]/cobj@discards.wt[,yr,,ss]
                 cobj@landings.n[,yr,,ss] <- cobj@landings[,yr,,ss]/cobj@landings.wt[,yr,,ss]
           
@@ -304,7 +306,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
 # for doing so the catch production function should be used.
 #-------------------------------------------------------------------------------
 
-CorrectCatch <- function(fleets, biols, year = 1, season = 1,...){
+CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
 
   #  fleets <- unclass(fleets)
     yr <- year
@@ -313,7 +315,10 @@ CorrectCatch <- function(fleets, biols, year = 1, season = 1,...){
     nst <- length(biols)
     
     stnms <- names(biols)
-    flnms <- names(fleets)
+    flnms <- names(fleets)             
+    
+    cth <-  matrix(fleets.ctrl$catch.threshold[,year,,season,drop=T],nst,it, 
+                dimnames = list(dimnames(fleets.ctrl$catch.threshold)[[1]], 1:it)) # matrix[nstk,nit]
 
     Ba   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,it] if age structured, [1,it] if biomass.
                             if(dim(biols[[x]]@n)[1] > 1)
@@ -328,8 +333,9 @@ CorrectCatch <- function(fleets, biols, year = 1, season = 1,...){
 
 
     for(st in stnms){
+    
    #    print(st)
-#   if(st == 'CANK') browser()
+ #  if(st == 'RNG' & yr == 23) browser()
         if(dim(Ba[[st]])[1] > 1){ # age structured
 
             Cat  <- catchStock(fleets, st)[,yr,,ss]
@@ -342,13 +348,13 @@ CorrectCatch <- function(fleets, biols, year = 1, season = 1,...){
             # CORRECT Ca if Ca > Ba, the correction is common for all the fleets.
             for(i in 1:it){
 
-                if(any((Ba[[st]][,,,,,i] - Cat[,,,,,i]) < 0)){
+                if(any((Ba[[st]][,,,,,i]*cth[st,i] - Cat[,,,,,i]) < 0)){
 
-                    cat('Ba < Ca, for some "a" in stock',st, ', and iteration ', i,  '\n')
+                    cat('Ba*cth < Ca, for some "a" in stock',st, ', and iteration ', i,  '\n')
 
-                    a.minus         <- which(Ba.[,,,i] < Cat.[,,,i])
-                    a.plus          <- which(Ba.[,,,i] >= Cat.[,,,i])
-                    K.[a.minus,,,i] <- 0.99*Ba.[a.minus,,,i]/Cat.[a.minus,,,i]
+                    a.minus         <- which(Ba.[,,,i]*cth[st,i] < Cat.[,,,i])
+                    a.plus          <- which(Ba.[,,,i]*cth[st,i] >= Cat.[,,,i])
+                    K.[a.minus,,,i] <- Ba.[a.minus,,,i]*cth[st,i]/Cat.[a.minus,,,i]
 
                     # The correction below would correspond with a compensation of the decrease in 'a.minus' ages.
                     # K.[a.plus,,,i]  <- (Ct[i] - sum(Ba.[a.minus,,,i]))/sum(Cat.[a.plus,,,i])
@@ -359,14 +365,14 @@ CorrectCatch <- function(fleets, biols, year = 1, season = 1,...){
         }
         else{ # biomass dynamic.
         #   browser()
-            Ct  <- catchWStock(fleets, st)[,yr,,ss,drop = F]
-            Bst <- array(B[st,], dim = c(1,1,1,1,1,it))     # [it]
+            Ct  <- c(catchWStock(fleets, st)[,yr,,ss,drop = F])  #[it]
+            Bst <- c(array(B[st,], dim = c(1,1,1,1,1,it)))     # [it]
             K   <- rep(1,it)  # Catch multipliers
 
-            if(any((Bst[,,,,,i] - Ct[,,,,,i]) < 0)){
-                i.minus <-  which((Bst[,,,,,i] - Ct[,,,,,i]) < 0)
-                cat('B < C, for  stock',st, ', and iteration(s) ', i.minus,  '\n')
-                K[i.minus] <- Bst[i.minus]/Ct[i.minus]
+            if(any((Bst*cth[st,] - Ct) < 0)){
+                i.minus <-  which((Bst*cth[st,] - Ct) < 0)
+                cat('B*cth < C, for  stock',st, ', and iteration(s) ', i.minus,  '\n')
+                K[i.minus] <- Bst[i.minus]*cth[st,i.minus]/Ct[i.minus]
 
             }
 
@@ -387,6 +393,7 @@ CorrectCatch <- function(fleets, biols, year = 1, season = 1,...){
             cobj <- fleets[[fl]][[mt]][[st]]
             
      #       print(c(cobj@landings.n[14,yr,,ss]))
+     
 
             cobj@landings.n[,yr,,ss] <-  cobj@landings.n[,yr,,ss]*K
             cobj@discards.n[,yr,,ss] <-  cobj@discards.n[,yr,,ss]*K
@@ -397,6 +404,13 @@ CorrectCatch <- function(fleets, biols, year = 1, season = 1,...){
              
            fleets[[fl]]@metiers[[mt]]@catches[[st]] <- cobj
         }
+        
+#        if(st == 'RNG'){
+#            print(c(biols[[st]]@n[,yr,,ss]))
+#            print(c(apply(catchWStock(fleets,'RNG'), c(2,6), sum)[,yr,,ss]))
+#            print(c(K))
+#        }
+        
     }
     
 #    fleets <- FLFleetsExt(fleets)

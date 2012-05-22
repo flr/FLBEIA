@@ -87,6 +87,16 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     CT       <- fleets.ctrl$catch.threshold[,yr,,ss, drop=T]  # [ns,it]
     QS.ss    <- matrix(t(sapply(stnms, function(x) apply(QS[[x]],2,sum))), nst,it, dimnames = list(stnms, 1:it))  # [nst,it]
                             
+    for(stknm in names(biols)){
+        tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.dyn
+        if(is.null(tacos.fun))   alpha <- rep(1,it)
+        else{
+            alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
+        }
+        TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
+
+    }
+                            
     TAC <- ifelse(B*CT < TAC.yr*QS.ss, B*CT, TAC.yr*QS.ss) 
     
     # Re-scale QS to fleet share within the season instead of season-fleet share within year.

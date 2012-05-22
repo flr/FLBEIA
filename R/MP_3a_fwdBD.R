@@ -152,9 +152,14 @@ gmeanHistGrowth <- function(stock, years){   # y0:y1, pueden ser numericos o car
     bio <- matrix(quantSums(stock@stock.n*stock@stock.wt)[,years,drop=T],ny,it)  # matrix[ny,it]
     cw  <- matrix(computeCatch(stock)[,years,drop=T],ny,it)                      # matrix[ny,it]
     
-    growth <- matrix(bio[-1,] - bio[-ny,] + cw[-ny,], ny-1,it)
+    # The growth is calculated in percemtage to avoid the problem with negative values 
+    # in the calculation of geometric  mean.
+    growth <- matrix((bio[-1,]+ cw[-ny,])/ bio[-ny,] , ny-1,it)
     
-    res <- apply(growth,2, function(x) prod(x)^(1/(ny-1))) 
+    res <- apply(growth,2, function(x) prod(x)^(1/(ny-1)))
+    
+    # The percentage is applied to last year biomass.
+    res <- bio[ny]*(res - 1)  # res > 1 => positive growth ** res < 1 => negative growth. 
     
     return(res)
     

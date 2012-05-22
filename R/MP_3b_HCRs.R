@@ -42,15 +42,18 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
     fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
     fwd.ctrl@target$rel.year <- fwd.ctrl@target$rel.year + assyrnumb 
     
+    TACvar <- FALSE
     for(i in 1:iter){
         
         stki <- iter(stk, i)
         
         # if in <year 0> quantity = catch => set TAC in <year 0> in val
-        if(fwd.ctrl@target[fwd.ctrl@target$year == assyrnumb,'quantity'] == 'catch'){
-            k <- which(fwd.ctrl@target$year == assyrnumb)
-            fwd.ctrl@target[k,'val']     <- advice$TAC[stknm,year,,,,i]
-            fwd.ctrl@trgtArray[k, 'val',] <- advice$TAC[stknm,year,,,,i] 
+        if(TACvar == TRUE | any(fwd.ctrl@target[fwd.ctrl@target$rel.year == assyrnumb,'quantity'] == 'catch')){
+            k <- which(fwd.ctrl@target$rel.year == assyrnumb & fwd.ctrl@target$quantity == 'catch')
+            fwd.ctrl@target[k,c('min','val', 'max')]      <- fwd.ctrl@target[k,c('min','val', 'max')]*advice$TAC[stknm,year,,,,i]
+            fwd.ctrl@target[k,'rel.year']                 <- NA
+            fwd.ctrl@trgtArray[k,c('min','val', 'max'),]  <- fwd.ctrl@trgtArray[k,c('min','val', 'max'),]*c(advice$TAC[stknm,year,,,,i]) 
+            TACvar <- TRUE
         }
                                
      #   if(stknm == 'CMON') browser()
@@ -75,7 +78,15 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
                     rec <- rec[, -(1:rec.age),]
                     ssb <- ssb[, 1:(dim(ssb)[2] - rec.age),]
                 }
-                sr.pars <- params(sr(FLSR(rec = rec, ssb = ssb, model = sr.model)))
+
+                if(sr.model != 'geomean') sr.pars <- try(params(sr(FLSR(rec = rec, ssb = ssb, model = sr.model))), silent = TRUE) 
+                
+                if(class(sr.pars) == 'try-error' | sr.model == 'geomean'){
+                    sr.model <- 'geomean'
+                    sr.pars <- c(prod(c(rec))^(1/length(c(rec))))
+                    sr.pars <- FLPar(a = ifelse(is.na(sr.pars), 0, sr.pars))
+                }
+                
                 sr1 <- sr.pars
             }
             else{ # sr.pars not null

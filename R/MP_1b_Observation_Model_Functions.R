@@ -167,7 +167,9 @@ Obs.laage <- function(fleets, error.ages, varia.ltot, obs.lwta, yr, stknm){
     Lnew  <- apply(ola.num*obs.lwta, c(2:6), sum)  # [ny,1,1,1,it] (the factors of the * are arrays)
     Lreal <- apply(la.num*mwgt.real, c(2:6), sum)  # [1,ny,1,1,1,it]  (the factors of the * are FLQ-s)
     Lrat <- Lreal/array(Lnew, dim = c(1, dim(Lnew)))
-
+    
+    Lrat[is.na(Lrat)] <- 0
+    
     ola.num <- sweep(ola.num, 2:6, Lrat, "*")
     
     # Apply the error in the observation of the landings due to misreporting.
@@ -336,17 +338,7 @@ Obs.tdisc <- function(fleets, varia.tdisc, drep.bias, yr, stknm){
 ################################################################################
 ############# AGE-STRUCTURED POP OBSERVED BY GLOBAL BIOMASS ####################
 ################################################################################
-## OPERATING ON OBJECTS OF CLASS FLBiols
-#Total biomass observation error
-#biol : an object of class FLBiols
-#varia.btas <- a number or a numeric vector of additive random error in the observation of total biomass
-#yr : integer, the year the stock is observed from
-Obs.btot <- function(biol, varia.btot, yr){
-    btot     <- quantSums(unitSums(biol@n[,,,1,,]*biol@wt[,,,1,,]))
-    ny       <- yr -1
-    btot     <- btot*varia.btot[,1:ny]
-    return(btot)
-}
+
 #OPERATING ON OBJECTS OF CLASS FLFleetExt
 #Total landings observation error
 #fleets : an object of class FLFleetsExt
