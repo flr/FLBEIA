@@ -260,26 +260,26 @@ PellaTom <- function(){
 
 
 ## iter {{{
-setMethod("iter", signature(object="FLBDsim"),
-	  function(object, iter)
+setMethod("iter", signature(obj="FLBDsim"),
+	  function(obj, iter)
 	  {
 		# FLQuant slots
-		names <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
+		names <- names(getSlots(class(obj))[getSlots(class(obj))=="FLQuant"])
 		for(s in names) 
 		{
-			if(dims(slot(object, s))$iter == 1)
-				slot(object, s) <- iter(slot(object, s), 1)
+			if(dims(slot(obj, s))$iter == 1)
+				slot(obj, s) <- iter(slot(obj, s), 1)
 			else
-				slot(object, s) <- iter(slot(object, s), iter)
+				slot(obj, s) <- iter(slot(obj, s), iter)
 		}
 		# covar
-		if(length(object@covar) > 0) slot(object, 'covar') <- iter(slot(object, 'covar'), iter)
+		if(length(obj@covar) > 0) slot(obj, 'covar') <- iter(slot(obj, 'covar'), iter)
         
         #params
-        slot(object, 'params') <-  slot(object, 'params')[,,,iter,drop=F]
-        dimnames(slot(object, 'params'))[[4]] <- 1:length(iter) 
+        slot(obj, 'params') <-  slot(obj, 'params')[,,,iter,drop=F]
+        dimnames(slot(obj, 'params'))[[4]] <- 1:length(iter) 
          
-		return(object)
+		return(obj)
 	  }
 ) # }}}
 

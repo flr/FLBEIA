@@ -208,24 +208,24 @@ setMethod('revenue', signature('FLFleetExt'),
 ) # }}}
 
 ## iter {{{
-setMethod("iter", signature(object="FLFleetExt"),
-	  function(object, iter)
+setMethod("iter", signature(obj="FLFleetExt"),
+	  function(obj, iter)
 	  {
 		# FLQuant slots
-		names <- names(getSlots(class(object))[getSlots(class(object))=="FLQuant"])
+		names <- names(getSlots(class(obj))[getSlots(class(obj))=="FLQuant"])
 		for(s in names) 
 		{
-			if(dims(slot(object, s))$iter == 1)
-				slot(object, s) <- iter(slot(object, s), 1)
+			if(dims(slot(obj, s))$iter == 1)
+				slot(obj, s) <- iter(slot(obj, s), 1)
 			else
-				slot(object, s) <- iter(slot(object, s), iter)
+				slot(obj, s) <- iter(slot(obj, s), iter)
 		}
 		# FLMetiersExt
-		names <- names(object@metiers)
+		names <- names(obj@metiers)
 		for (s in names)
-			metier(object, s) <- iter(metier(object, s), iter)
+			metier(obj, s) <- iter(metier(obj, s), iter)
 		
-		return(object)
+		return(obj)
 	  }
 ) # }}}
 

@@ -95,11 +95,11 @@ age2unit <- function(A,Q){
 
 
 ## iter {{{
-setMethod("iter", signature(object="NULL"),
-	  function(object, iter)
+setMethod("iter", signature(obj="NULL"),
+	  function(obj, iter)
 	  {
 	         
-		return(object)
+		return(obj)
 	  }
 ) # }}}
 
