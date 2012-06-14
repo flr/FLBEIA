@@ -312,7 +312,7 @@ Obs.btot <- function(biol, varia.btot, yr){
 #stknm : character, identifier of the stock
 #Details
 #A value of 0 for varia.tland and a value of 1 for lrep.bias means that the observation of the total landings is perfect.
-Obs.tland <- function(fleets, varia.tland,  yr, stknm){                                                                       YYY
+Obs.tland <- function(fleets, varia.tland,  yr, stknm){                                                                       
     ny        <- yr - 1
     tland     <- unitSums(seasonSums(tlandStock(fleets, stknm)))[,1:ny]
     tland     <- tland*varia.tland[,1:ny]
@@ -327,7 +327,7 @@ Obs.tland <- function(fleets, varia.tland,  yr, stknm){                         
 #stknm : character, identifier of the stock
 #Details
 #A value of 0 for varia.tdisc and a value of 1 for drep.bias means that the observation of the total discards is perfect.
-Obs.tdisc <- function(fleets, varia.tdisc, drep.bias, yr, stknm){
+Obs.tdisc <- function(fleets, varia.tdisc, yr, stknm){
      ny        <- yr -1
      tdisc     <- unitSums(seasonSums(tdiscStock(fleets, stknm)))[,1:ny]
      tdisc     <- tdisc*varia.tdisc[,1:ny]

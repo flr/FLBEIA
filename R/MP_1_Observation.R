@@ -61,6 +61,6 @@ observation.mp <- function(biols, fleets, covars, indices, advice, obs.ctrl, yea
 }  
 
 
-NoObsCatch <- function(...) return(NULL)
+NoObsStock <- function(...) return(NULL)
 
 NoObsIndex <- function(...) return(FLIndex())

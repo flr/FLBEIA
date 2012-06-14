@@ -96,7 +96,7 @@ export(
   "MaxProfit.stkCnst",
   "matrixBDTarget",
   "NoAssessment",
-  "NoObsCatch",
+  "NoObsStock",
   "Obs.ages",
   "Obs.btot",
   "Obs.daage",

@@ -130,9 +130,8 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
     }
     
     # biomass in the middle if age struc. of the season  B[it]
-    B <- ifelse(dim(biols[[st]]@n)[1] > 1,
-                    unitSums(quantSums(biols[[st]]@n*biols[[st]]@wt*exp(-biols[[st]]@m/2)))[,yr,,ss, drop=T],
-                    (biols[[st]]@n*biols[[st]]@wt)[,yr,,ss, drop=T])
+    if(dim(biols[[st]]@n)[1] > 1) B <- unitSums(quantSums(biols[[st]]@n*biols[[st]]@wt*exp(-biols[[st]]@m/2)))[,yr,,ss, drop=T]
+        else  B <- (biols[[st]]@n*biols[[st]]@wt)[,yr,,ss, drop=T]
     
     Ba <- biols[[stknm]]@n[,yr,,ss]*biols[[stknm]]@wt[,yr,,ss]*exp(-biols[[stknm]]@m[,yr,,ss]/2)  # Ba[na,1,1,1,1,it]
             
@@ -153,7 +152,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
 
             Ctotal <- array((eff*efs.m[mt,])^alpha.m*B^beta.m*q.m,dim = c(rep(1,5),it))
 
-            tac.disc <- ifelse(Ctotal[,,,,,,drop=T] < tac, 1, tac/Ctotal[,,,,,,drop=T])
+            tac.disc <- ifelse(Ctotal[,,,,,,drop=T] < tac, rep(1,it), tac/Ctotal[,,,,,,drop=T])
 
             dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
             lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]

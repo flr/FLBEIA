@@ -172,7 +172,7 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
                          vc.m = vc.m, Ba = Ba, fc = fc, stk.cnst = stk.cnst, Cr.f = Cr.f, i = i)
             attach(donlpDat)
             
-            E <- rep(K[i]/nmt,nmt) # c(Et[i]*efs[,i])   
+            E <- rep(K[i]/nmt,nmt)*0.5 # c(Et[i]*efs[,i])   
       #      save(donlpDat,E,K, file = 'inputData.Rdata')
      #       browser()
             res[[i]] <- donlp2(E, fobj.maxprofits, par.upper = rep(Inf,nmt), par.lower = rep(.1, nmt),  # Obj. Function and params. bound
@@ -180,7 +180,7 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
                      nlin = list(nlin.maxprofits), nlin.upper =  Cr.f[stk.cnst,i], nlin.lower = 0)         # Non-Linear constraints
             Et.res[i]   <- sum(res[[i]]$par)
             efs.res[,i] <- res[[i]]$par/sum(res[[i]]$par)
-          cat('Effort share: ', res[[i]]$par, ', ~~~~~ Benefit: ', res[[i]]$fx, '\n')  
+          cat('Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], ', ~~~~~ Benefit: ', res[[i]]$fx, '\n')  
             detach()
         }
         
