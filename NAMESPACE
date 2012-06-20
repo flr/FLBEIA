@@ -72,6 +72,7 @@ export(
   "fixedCapital",
   "fixedCovar",
   "fixedEffort",
+  "fixedPopulation",
   "fixedPrice",
   "FLBDsim",
   "fleets.om",
