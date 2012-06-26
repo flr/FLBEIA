@@ -122,6 +122,7 @@ export(
   "redfishRecModel",
   "replaceRec",
   "revenue_beia",
+  "SCD",
   "Segreg",
   "SelAtAge",
   "showArray",

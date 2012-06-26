@@ -51,6 +51,7 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
             res        <- fleets.om(fleets = fleets, biols = biols, covars = covars, advice = advice, fleets.ctrl = fleets.ctrl, year = yr, season = ss)
             fleets     <- res$fleets
             fleets.ctrl <- res$fleets.ctrl
+            covars     <- res$covars
 
         cat('------------ COVARS OM ------------\n')
             # - Covariables OM. (the covariables can affect the covariables themselfs but also the biols and fleets, biols.ctrl and fleets.ctrl)

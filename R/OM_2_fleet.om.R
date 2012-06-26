@@ -80,13 +80,14 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, year, season){
             res <- eval(call(dyn.model,  fleets = fleets, advice = advice,
                 flnm = fl, year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 
          
-            fleets[[fl]]  <- res[[fl]]
+            fleets <- res$fleets
+            covars <- res$covars
         }
     }
     
     fleets <- FLFleetsExt(fleets)
     
-    return(list(fleets = fleets, fleets.ctrl = fleets.ctrl))
+    return(list(fleets = fleets, covars = covars, fleets.ctrl = fleets.ctrl))
 
 }
 

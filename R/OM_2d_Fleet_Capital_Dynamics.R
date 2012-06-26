@@ -16,5 +16,5 @@
 # fixedCapital(fleets, fleets.ctrl, flnm, year = 1, season = 1) 
 #-------------------------------------------------------------------------------
 fixedCapital <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
-    return(fleets)
+    return(list(fleets = fleets, covars = covars))
 }
