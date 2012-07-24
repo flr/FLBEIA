@@ -7,20 +7,18 @@
 # Dorleta GarcYYYa
 # Created: 21/12/2010 07:55:33
 # Changed: 21/12/2010 07:55:38
+# Changes: 2012-06-15 12:59:05  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 # assessment.mp(stocks, fleets.obs, indices, assess.ctrl)   
 #  For the time being only single stock assessments.
 #-------------------------------------------------------------------------------
-assessment.mp <- function(stocks, fleets.obs, indices, assess.ctrl, datayr){
+assessment.mp <- function(stocks, fleets.obs, indices, assess.ctrl, datayr, stknm){
 
-    stnms <- names(stocks)
+    st <- stknm
      
-    for(st in stnms){
-        
-        if(assess.ctrl[[st]] == "NoAssessment")  next
-        
+    if(assess.ctrl[[st]] != "NoAssessment") {
         
         # trim the indices, fron index specific initial yeaer to the assessment year.
         indST <- indices[[st]]

@@ -28,7 +28,7 @@
 # Changed: 27/10/2010 08:34:17
 #-------------------------------------------------------------------------------
 
-fixedPopulation <- function(biols, SRs, fleets, year, season, stknm, ...)  return(list(biol = biol[[stknm]]))
+fixedPopulation <- function(biols, SRs, fleets, year, season, stknm, ...)  return(list(biol = biols[[stknm]]))
 
 #-------------------------------------------------------------------------------
 # ASPG(biol, SR, fleets, biol.control)
