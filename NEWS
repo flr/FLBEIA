@@ -8,4 +8,11 @@
 * Due to the previous points some changes have had to be made in other functions:
 	- alpha and beta slots in FLcatch can have dimension '1' or 'na' in quant dimension.
 	- "updateCatch" function call to the appropiate function to calculate the catch at age.
-	 
+
+#~~~~~~~~~~~~~~~~
+# 2012/07/24
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.1
+Changes from version 1.0:
+- Changes for allowing assessment in different seasons and multiannual advice
+- Bug fixed in fixedPopulation function	 
