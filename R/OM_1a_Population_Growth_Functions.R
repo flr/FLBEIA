@@ -99,6 +99,8 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
         if(SR@proportion[,yr,,ss,,1] == 1){ 
             SR <- SRsim(SR, year = yr, season = ss, iter = 'all') 
             biol@n[1,yr,,ss] <- SR@rec[,yr,,ss]
+        } else {
+            biol@n[1,yr,,ss] <- 0
         }
     
     }
