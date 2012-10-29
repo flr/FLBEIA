@@ -30,9 +30,6 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     Rev <- revenue_beia(fleet)[,year]
     # CrC
     CrC <- (Rev*fleet@crewshare[,year])  +  covars[['Salaries']][flnm,year]
-    # w1, w2
-    w1 <- covars[['w1']][flnm, year,]
-    w2 <- covars[['w2']][flnm, year,]
     
     x1 <- FuC/Rev
     x2 <- VaC/Rev
@@ -58,7 +55,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
                         ifelse(-Inv < w1, Inv*K, -w1*K),  # Inv < 0
                         ifelse(Inv < w2, Inv*K, w2*K))    # Inv >= 0  
                         
-    print(omega)
+  #  print(omega)
                 
     # Investment in new vessels only occur if the operational days of existing vessesl is equal to capacity and investment saving is >0.
     # In iters where effort == capacity?    
