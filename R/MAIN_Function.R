@@ -4,7 +4,7 @@
 # Dorleta Garcia
 # Created: 20/12/2010 21:07:45
 # Changed: 17/01/2011 12:05:59
-# Changes: 2012-06-15 12:14:20  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
+# Changes: 2012-06-15 12:14:20  Sonia Sanchez - for allowing assessment in different seasons and multiannual advice
 #-------------------------------------------------------------------------------
 
 BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, biols.ctrl, 
@@ -28,9 +28,12 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
        
     # Extract years, check and convert into positions.
     sim.years <- as.numeric(main.ctrl$sim.years)
-    if(!(sim.years[1] %in% as.numeric(minyear):as.numeric(maxyear))) stop('First simulation year is outside year range in the objects')
-    if(!(sim.years[length(sim.years)] %in% as.numeric(minyear):as.numeric(maxyear))) stop('Last simulation year is outside year range in the objects')
-    # convert sim.years in positon is the FLR objects.
+    if(!(sim.years[1] %in% as.numeric(minyear):as.numeric(maxyear)))
+      stop('First simulation year is outside year range in the objects')
+    if(!(sim.years[1] %in% as.numeric(minyear):as.numeric(maxyear)))
+      stop('Last simulation year is outside year range in the objects')
+    
+    # convert sim.years in poisiton is the FLR objects.
     sim.years <- which(sim.years[1] == as.numeric(minyear):as.numeric(maxyear)):which(sim.years[2] == as.numeric(minyear):as.numeric(maxyear))
 
      
@@ -45,28 +48,40 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
         
         cat('------------ BIOLOGICAL OM ------------\n')
             # - Biologic OM.
-            res   <- biols.om (biols = biols, fleets = fleets, SRs = SRs, BDs = BDs, covars = covars, biols.ctrl = biols.ctrl, year = yr, season = ss)
+            res <- biols.om (biols = biols, fleets = fleets, SRs = SRs,
+              BDs = BDs, covars = covars, biols.ctrl = biols.ctrl, year = yr,
+              season = ss)
             biols <- res$biols
-            SRs   <- res$SRs
-            BDs   <- res$BDs
+            SRs <- res$SRs
+            BDs <- res$BDs
 
         cat('------------ FLEETS OM ------------\n')
             # - Fleets OM.
-            res        <- fleets.om(fleets = fleets, biols = biols, covars = covars, advice = advice, fleets.ctrl = fleets.ctrl, year = yr, season = ss)
-            fleets     <- res$fleets
+            res <- fleets.om(fleets = fleets, biols = biols, covars = covars,
+              advice = advice, fleets.ctrl = fleets.ctrl, year = yr, season = ss)
+            fleets <- res$fleets
             fleets.ctrl <- res$fleets.ctrl
             covars     <- res$covars
 
         cat('------------ COVARS OM ------------\n')
             # - Covariables OM. (the covariables can affect the covariables themselfs but also the biols and fleets, biols.ctrl and fleets.ctrl)
-            res    <- covars.om(fleets = fleets, biols = biols, covars = covars, advice = advice, covars.ctrl = covars.ctrl, year = yr, season = ss)
+            res    <- covars.om(fleets = fleets, biols = biols, covars = covars,
+              advice = advice, covars.ctrl = covars.ctrl, year = yr, season = ss)
             covars <- res$covars
             biols  <- res$biols
             fleets <- res$fleets
         
         
-        # In last year of the simulation, if last season, there is no assessment => go to the end.
-        if(yr == sim.years[length(sim.years)] & ss == ns) next    
+        #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
+        cat('************ MANAGEMENT PROCEDURE ****************************\n')
+    
+        # - Observation.
+        cat('----------- OBSERVATION MODEL ------------\n')
+        res <- observation.mp(biols = biols, fleets = fleets, covars = covars,
+          indices = indices, advice = advice, obs.ctrl = obs.ctrl, year = yr)
+        stocks      <- res$stocks
+        fleets.obs  <- res$fleets.obs
+        indices     <- res$indices
             
         stocks         <- vector('list', length(stnms)) 
         names(stocks) <- stnms
@@ -94,45 +109,18 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
             
             yr.man <- ifelse( ass.ss==ns, yr, yr+1)
       
-            #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
-            cat('************ MANAGEMENT PROCEDURE ****************************\n')
-        
-            # - Observation.
-            cat('----------- OBSERVATION MODEL ------------\n')
-            res          <- observation.mp(biols = biols, fleets = fleets, covars = covars, indices = indices, 
-                                advice = advice, obs.ctrl = obs.ctrl, year = yr.man, stknm=st)
-            stocks[[st]] <- res$stock
-            fleets.obs   <- res$fleets.obs
-            indices      <- res$indices
-                
-            # - Assessment.
-            cat('------------ ASSESSMENT MODEL ------------\n')
-            datayr <- dimnames(biols[[1]]@n)[[2]][yr.man-1]
-          
-            stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = datayr, stknm=st)    
-                
-            # - Advice. 
-            cat('----------------- ADVICE -----------------\n')
-            advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
-                                advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
-        
-          }
-        }
-      }
-      #  browser()
-    }
+        stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs,
+          indices = indices, assess.ctrl = assess.ctrl, datayr = datayr)    
+            
+        # - Advice. 
+        cat('----------------- ADVICE -----------------\n')
+        advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs,
+          indices = indices, covars = covars, advice = advice,
+          advice.ctrl = advice.ctrl, year = yr, season = ss)
+    }}}}
     
     if(!exists('stocks'))  stocks <- NULL
     
-    return(list(biols = biols, fleets = fleets, covars = covars,  advice = advice, stocks = stocks, indices = indices,  fleets.ctrl = fleets.ctrl))
+    return(list(biols = biols, fleets = fleets, covars = covars,
+      advice = advice, stocks = stocks, indices = indices,  fleets.ctrl = fleets.ctrl))
 }
-
-
-
-
-
-
-
-
-
-
