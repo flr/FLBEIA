@@ -1,4 +1,6 @@
-import("FLCore")
+import("FLCore",
+  "FLBRP",
+  "FLash")
 
 export(
   "advice.mp",

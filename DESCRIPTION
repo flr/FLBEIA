@@ -3,6 +3,6 @@ Title: Bio-Economic Impact Assessment of Management strategies using FLR
 Version: 1.1
 Author: Dorleta Garcia (Azti-Tecnalia) <dgarcia@azti.es>
 Description: BEIA is a simulation model that describes a fishery system under a Management Strategy Estrategy framework.The objective of the model is to facilitate the Bio-Economic Impact Assessment of a great Variety of Management strategies. The model is multistock, multifleet and seasonal. The simulation is divided in 2 main parts, the Operating Model (OM) and the Management Procedure Model (MPM). At the same time the OM is divided in 3 componenets, the biological component, whcih simulates the stocks dynamics, the fleets component, that simulates de fleets dynamics and the covariables component, that simulates the dynamic of any variable that is not included in biological and fleets component. The MPM is also divided in 3 components, the observation model, which simulates the data collection, the assessment model, which uses the simulated data to produce an 'observed population, and the advice model which produces the advice based on the output of the assessment model. 
-Depends: methods, R(>= 2.15.0), FLCore
+Depends: methods, R(>= 2.15.0), FLCore, FLBRP, FLash
 Maintainer: Dorleta Garcia <dgarcia@azti.es>
 License: GPL-2
