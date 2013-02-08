@@ -20,16 +20,15 @@
 #
 # ** SSFB functions. The following functions have been developed to be used within 
 #           SSFB function, but could be useful for other functions.
-# - capacityRest.SSFB() :: Limits the effort based on total fleet capacity.
-# - updateQS.SSFB():: Updates the quota share (QS) in one season and the next 
-#          if the quota share does not coincide with the actual catch. 
-#          (updates next one only if s < ns and QS(s+1)>0).
+# - effrule.SSFB() :: Limits the effort based on total fleet capacity and distributes the 
+#                     effort between metiers considering expected effort and available quotas.
+# - remQ.SSFB():: Calculates fleets' remanent quota of an stock.
 #
 #
 # Dorleta Garcia
 # Created: 03/08/2010 10:29:51
 # Changed: 01/12/2010 15:23:27  (dga)
-# Changed: 2011-02-17 10:31:06  (ssanchez)
+# Changed: 2011-02-17 10:31:06  (ssanchez) - new functions added
 #-------------------------------------------------------------------------------
 
 
@@ -133,106 +132,130 @@ updateQS.SMFB <- function(QS, TAC, catch, season){
     
 }
 
+
 #-------------------------------------------------------------------------------
-# capacityRest.SSFB(effs, capacity, order.m)
-#       - eff.m[ns,it]  : effort by metier=stock derived from possible catches
-#       - capacity[it]  : fleet capacity
-#       - order.m[nm,it]: order of importance of the metiers (1st = most important)
-#                         (higher importance -> smaller effort reduction)
-#                         if not defined, then reduction proportional to effort share
+# effRule.SSFB(effs, prev.eff, rule)
+#       - ef.m[nmt,it]: effort by metier
+#       - efs.m[nmt,it]: effort share by metier
+#       - rule[character]: rule to be applied to reasign effort if TAC exhausted
 #-------------------------------------------------------------------------------
-capacityRest.SSFB <- function(eff.m, capacity, order.m) {
+# Function to estimate fleet effort depending on pre-defined effort share and
+# available TAC
+# Output: ef.m[nmt,it] - forecasted effort by metier
+
+effRule.SSFB <- function( Ba, B, ef.m, efs.m, q.m, alpha.m, beta.m, fleet, fleet.ctrl, flinfo, Cr.f, Er.f){
+  
+  it      <- ncol(ef.m)
+  sts     <- catchNames(fleet)
+  
+  ef.fl <- apply(ef.m,2,sum)
+  
+  stock.ctrl <- matrix(1,length(sts), it, dimnames = list(sts, 1:it)) # 0 if stock's TAC exhausted [nst,it]
+  for (st in sts) stock.ctrl[st,] <- ifelse(Cr.f[st,] == 0 & ef.m[flinfo[[st]][2],]==0, 0, stock.ctrl[st,])
     
-    it <- ncol(eff.m)
-    mt <- nrow(eff.m)
+  ef.tr <- rep( 0, it) # fleet effort to be reasigned
+  
+  for ( i in 1:it) if (ef.fl[i]!=0) {
     
-    eff <- apply( eff.m, 2, sum)
-    
-    eff.share <- eff.m/eff
-    
-    reduce <- ifelse( eff > capacity, eff - capacity, 0)
-    
-    for (i in 1:it) {
-      if (reduce[i]>0) {
-        if ( missing(order.m)) { 
-            eff.m[,i] <- eff.m[,i] - reduce[i] * eff.share[,i] 
-        } else {
-          effs <- eff.m[order.m[,i],i]
-          if (length(effs)>=3) {
-              red <- Re ( polyroot(c(-capacity[i],sum(effs[-c(1:2)]),effs[2],effs[1]))[1] )
-              #red0 <- effRed( eff1=effs[1], eff2=effs[2], effn=sum(effs[-c(1:2)]), capacity=capacity[i])
-              eff.m[names(effs[1]),i] <- eff.m[names(effs[1]),i] * red^3
-              eff.m[names(effs[2]),i] <- eff.m[names(effs[2]),i] * red^2
-              eff.m[names(effs[-c(1:2)]),i] <- eff.m[names(effs[-c(1:2)]),i] * red
-              #red; red0; capacity[i]; effs[1]*red^3+effs[2]*red^2+sum(effs[-c(1:2)])*red
-          } else if (length(effs)==2) {
-              red <- Re ( polyroot(c(-capacity[i],effs[2],effs[1]))[1] )
-              eff.m[names(effs[1]),i] <- eff.m[names(effs[1]),i] * red^2
-              eff.m[names(effs[2]),i] <- eff.m[names(effs[2]),i] * red
-              #red; capacity[i]; effs[1]*red^2+effs[2]*red
-          } else {
-              red <- Re ( polyroot(c(-capacity[i],effs[1]))[1] )
-              eff.m[names(effs[1]),i] <- eff.m[names(effs[1]),i] * red
-              #red; capacity[i]; effs[1]*red
-          }
+    while ( sum(stock.ctrl[,i]==1)>0 ) {
+      
+      for(st in sts){
+        
+        if (stock.ctrl[st,i]<=0) next
+        
+        mtst <- flinfo[[st]][2]
+        
+        stock.ctrl[st,i] <- -1
+        
+        # Expected catches
+        catchFun <- paste(fleet.ctrl[[st]][['catch.model']], 'CatchFleet', sep = ".")
+        catch <- eval(call(catchFun, Ba = Ba[[st]], B = B[st,], effort = ef.fl, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
+        #catch <- colSums( cobbDoug(Ba = Ba[[st]], B = B[st,], E = ef.fl, efs.m = efs.m, q.m = q.m[[st]][,,,,drop=T], alpha.m = alpha.m[[st]][,,,,drop=T], beta.m = beta.m[[st]][,,,,drop=T]))
+        
+        # Catch restrictions (i.e. remaining quota)
+        if ( catch[i] > Cr.f[st,i] ) {
+          
+          catch[i] <- Cr.f[st,i]
+          eff.new  <- Er.f[mtst,i]
+          ef.tr[i] <- ef.tr[i] + (ef.m[mtst,i] - eff.new)
+          ef.m[mtst,i]  <- eff.new
+          efs.m[mtst,i] <- ef.m[mtst,i]/ef.fl[i]
+          stock.ctrl[st,i] <- 0
+          
+          # Re-allocation of effort
+          rule <- fleet.ctrl$effort.realloc
+          st.a <- sts[!(sts %in% st)]
+          st.a <- st.a[stock.ctrl[st.a,i]!=0]
+          fl.a <- sapply( st.a, function(x) flinfo[[x]][2])
+          
+          if (length(fl.a)==0) next
+          
+          stock.ctrl[st.a,i] <- 1
+          
+          if ( is.null(rule) ) { # Reallocate same proportion for all metiers
+            ef.m[fl.a,i] <- ef.m[fl.a,i] + ef.tr[i]/length(fl.a)
+            efs.m[fl.a,i] <- ef.m[fl.a,i]/ef.fl[i]
+            ef.tr[i] <- 0
+          } else if ( rule == 'curr.eff') { # Reallocate proportionally to currently allocated effort
+            ef.m[fl.a,i] <- ef.m[fl.a,i] + ef.tr[i]*ef.m[fl.a,i]/sum(ef.m[fl.a,i])
+            efs.m[fl.a,i] <- ef.m[fl.a,i]/ef.fl[i]
+            ef.tr[i] <- 0
+          } else { stop( paste("Effort reallocation rule: '", rule,"' is not implemented in SSFB",sep=""))}
         }
+        
+      } # END sts LOOP
+      
+    } # END while
+    
+    #! CHECKING:
+    if (ef.tr[i]==0) {
+      if ( round(ef.fl[i] - sum(ef.m[, i]),10) != 0) stop('Problem in effRule.SSFB function - efforts not correctly reallocated')
+      if ( round(sum( efs.m[,i] - ef.m[,i]/ef.fl[i]),10) != 0) stop('Problem in effRule.SSFB function - effort share not correctly re-estimated')
+    }#! end CHECKING
+    
+  } # END it LOOP
+  
+  return(ef.m)
+}
+
+
+#-------------------------------------------------------------------------------
+# remQ.SSFB (fleets, TAC, QS, ass.ss, year, season, flnm, stknm, ns)
+#       - TAC[st,it]:  TAC set in year
+#       - QS[[st]][fl,it]: quota share for each stock by fleet
+#-------------------------------------------------------------------------------
+# Function to estimate the fleet's remanent quota for an stock
+# Output: remQ[it]
+remQ.SSFB <- function( fleets, TAC, QS, ass.ss, year, season, flnm, stknm, ns){
+  
+  fleet <- FLFleetsExt(fleets[[flnm]])
+  
+  it    <- ncol(TAC)
+  
+  if (is.null(ass.ss)) { ass.ss <- ns } else if (is.na(ass.ss)) { ass.ss <- ns }
+  if (!(ass.ss %in% (1:ns))) stop("Assessment season for: '", stknm, "' outside season range in the objects")
+  
+  TAC.fl <- TAC[stknm,] * QS[[stknm]][flnm,]
+  pc <- rep(0,it)
+  
+  if (stknm %in% catchNames(fleet)) {
+    if (ass.ss==ns & season!=1) { # stocks assessed at the end of the year
+      pc <- apply(catchWStock( fleet,stknm)[,year,,1:(season-1),],c(2,6),sum)[drop=T]
+    } else if (ass.ss!=ns) {
+      if (season==1) {
+        pc <- apply(catchWStock( fleet,stknm)[,year-1,,(ass.ss+1):ns,],c(2,6),sum)[drop=T]
+      } else if (season<=ass.ss) {
+        pc <- apply(catchWStock( fleet,stknm)[,year-1,,(ass.ss+1):ns,],c(2,6),sum)[drop=T]+
+          apply(catchWStock( fleet,stknm)[,year,,1:(season-1),],c(2,6),sum)[drop=T]
+      } else if (season>ass.ss+1) {
+        pc <- apply(catchWStock( fleet,stknm)[,year,,(ass.ss+1):(season-1),],c(2,6),sum)[drop=T]
       }
-    }
-
-  return(eff.m)
-
-}
-
-# effRed: function to estimate the reduction factor to get total.effort=capacity
-##################################################################################
-#effRed <-  function( eff1, eff2, effn, capacity) {
-#
-#    totalEff <- function( x, eff1, eff2, effn, capacity) {
-#                  return( c( abs( eff1 * x^3 + eff2 * x^2 + effn * x - capacity) ) )
-#    }
-#
-#    res <- optimize( totalEff, c(0,1), tol=.Machine$double.eps^0.25, eff1=eff1, eff2=eff2, effn=effn, capacity)$minimum
-#    return(res)
-#
-#}
-
-
-#-------------------------------------------------------------------------------
-# updateQS.SSFB():: Updates the quota share (QS) in one season and the next 
-#          if the quota share does not coincide with the actual catch. 
-#          (updates next one only if s < ns and QS(s+1)>0,
-#           all the exceeding QS is assigned to the following season).
-#       - QS[ns,it]   : quota share (fleet-season) for all the season of certain year.
-#       - TAC[it]     : total year TAC for the stock
-#       - B[it]       : Seasonal biomass
-#       - E[it]       : Predicted effort
-#       - efs.m[mt,it]: Effort share of each metier
-#       - q.m[mt,it], alpha[mt,it], beta[mt,it] : q and CobDog parameters
-#       - season      : the season for which quota share must be updated
-#
-#   x_s (original quota share)
-#   TAC and C (the catch restriction and the actual catch)
-#   x_s' = x_s*(C/TAC) (actual quota share)
-#           x_i' = x_i + (x_s - x_s'), if x_i>0
-#           x_i' = 0                 , if x_i=0
-#   x_i' the new quota share for season s+1<=ns
-#-------------------------------------------------------------------------------
-updateQS.SSFB <- function(QS, TAC, B , E , efs.m, q.m, alpha.m, beta.m, season){
-
-    C    <- colSums(cobbDoug(B = B, E = E, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, q.m = q.m))
-    x_s  <- QS[season, ]
-    x_s. <- C/TAC
-    QS[season,] <- x_s.
-    
-    if(season == dim(QS)[1]) return (QS)
-    
-    x_i  <- QS[season+1,]
-    x_i. <- ifelse(x_i > 0, x_i  + (x_s - x_s.), x_i)
-    x_i. <- ifelse(x_i. < 0, 0, x_i.)
-    
-    QS[season+1,] <- x_i.
-    
-    return(QS)
-    
-}
-
+    }    
+  }
+  
+  remQ <- TAC.fl - pc
+  remQ <- ifelse( remQ<0, 0, remQ)
+  
+  return(remQ)
+  
+} # END function: remQ.SSFB

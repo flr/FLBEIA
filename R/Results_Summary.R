@@ -76,8 +76,16 @@ SSB_beia <- function(obj){
     
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
-    for(stk in stknms){ # SSB 1st season
-        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt*obj$biols[[stk]]@fec)[,,,1], c(2,6), sum, na.rm = TRUE)[drop=T]
+    for(stk in stknms){ # SSB in spawning season
+      # spawning season: first season with fraction of natural mortality before spawning < 1
+      spwn.sson <- 1
+      si <- 0
+      while( (si-spwn.sson)!=0) { 
+        si <- spwn.sson
+        spwn.sson  <- ifelse( sum(obj$biols[[stk]]@spwn[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
+        d  <- si-spwn.sson 
+      }
+        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt*obj$biols[[stk]]@fec)[,,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
     }
     return(res)
 }
@@ -117,10 +125,18 @@ R_beia <- function(obj){
     
     for(stk in stknms){ # 
         na <- dim(obj$biols[[stk]]@n)[1]
+        # Recruitment season: first season with individuals at lower age class (Nage0>0)
+        rec.sson <- 1
+        si <- 0
+        while( (si-rec.sson)!=0) { 
+          si <- rec.sson
+          rec.sson  <- ifelse( sum(obj$biols[[stk]]@n[1, , 1, rec.sson, drop = T]!=0,na.rm=T)==0, rec.sson+1, rec.sson)
+          d  <- si-rec.sson 
+        }
         if(na > 1){
-            res[stk,,] <- obj$biols[[stk]]@n[1,,1,1,drop=T]
+            res[stk,,] <- obj$biols[[stk]]@n[1,,1,rec.sson,drop=T]
             if(dim(obj$biols[[stk]]@n)[3]>1){
-                for(ss in 2:dim(obj$biols[[stk]]@n)[3]) res[stk,,] <- res[stk,,] + obj$biols[[stk]]@n[1,,ss,ss,drop=T]
+                for(ss in (rec.sson+1):dim(obj$biols[[stk]]@n)[3]) res[stk,,] <- res[stk,,] + obj$biols[[stk]]@n[1,,ss,ss,drop=T]
             }
         }else{
             catch <- matrix(apply(catchStock(obj$fleets, stk),c(2,6), sum)[drop = TRUE],ny,it) # [ny,it]
@@ -299,7 +315,7 @@ revenue_beia <- function(fleet){
         for(st in sts){
             if(!(st %in% catchNames(m))) next
             dat <- m@catches[[st]]
-            res <- res + apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum)
+            res <- res + apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum,na.rm=T)
         }
     }
     return(res)               
@@ -403,7 +419,7 @@ price_beia <- function(fleet, stock){
         m <- fleet@metiers[[mt]]
         if(!(stock %in% catchNames(m))) next
         dat <- m@catches[[stock]]
-        res <- res + apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum)
+        res <- res + apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum,na.rm=T)
     }
     
     res <- res/totL
@@ -449,9 +465,9 @@ catchMtSum <- function(fleets, flnms = 'all', stknms = 'all', years){
             
             for(ss in sts){
                 cc <- mt@catches[[ss]]
-                dfm[k:(k+prod(Dim)-1),'landings'] <- c(apply(cc@landings[,years,], c(2,4,6), sum))
-                dfm[k:(k+prod(Dim)-1),'discards'] <- c(apply(cc@discards[,years,], c(2,4,6), sum))
-                revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,4,6), sum)[,years,]
+                dfm[k:(k+prod(Dim)-1),'landings'] <- c(apply(cc@landings[,years,], c(2,4,6), sum, na.rm=T))
+                dfm[k:(k+prod(Dim)-1),'discards'] <- c(apply(cc@discards[,years,], c(2,4,6), sum, na.rm=T))
+                revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,4,6), sum, na.rm=T)[,years,]
                 dfm[k:(k+prod(Dim)-1),'price']  <- c(revst)/dfm[k:(k+prod(Dim)-1),'landings']  
                 k <- k + prod(Dim)
             }

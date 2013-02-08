@@ -16,7 +16,7 @@
 #-------------------------------------------------------------------------------
 # updateCatch(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-updateCatch <- function(fleets, biols, advice, fleets.ctrl, year = 1, season = 1){
+updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl = advice.ctrl, year = 1, season = 1){
 
     fleet.names <- names(fleets)
     
@@ -27,7 +27,7 @@ updateCatch <- function(fleets, biols, advice, fleets.ctrl, year = 1, season = 1
         flsts <- catchNames(fleets[[flnm]])
         for(st in flsts){
             catch.model <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CAA', sep = ".")
-            fleets <- eval(call(catch.model, fleets = fleets, biols = biols, fleets.ctrl = fleets.ctrl, advice = advice, year = year, season = season, flnm = flnm, stknm = st))
+            fleets <- eval(call(catch.model, fleets = fleets, biols = biols, fleets.ctrl = fleets.ctrl, advice = advice, advice.ctrl = advice.ctrl, year = year, season = season, flnm = flnm, stknm = st))
         }
     }
     
@@ -167,6 +167,10 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
                 cobj@landings[,yr,,ss]   <- Ctotal*lsa # *tac.disc/sa
                 cobj@discards.n[,yr,,ss] <- cobj@discards[,yr,,ss]/cobj@discards.wt[,yr,,ss]
                 cobj@landings.n[,yr,,ss] <- cobj@landings[,yr,,ss]/cobj@landings.wt[,yr,,ss]
+                
+                # When land.wt = 0 <-  land.n = NA => change to 0. (idem for disc.wt)
+                cobj@landings.n[,yr,,ss][is.na(cobj@landings.n[,yr,,ss])] <- 0
+                cobj@discards.n[,yr,,ss][is.na(cobj@discards.n[,yr,,ss])] <- 0
           
                 fl@metiers[[mt]]@catches[[st]] <- cobj
             }
@@ -291,7 +295,118 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     
     return(fleets)
 }
-            
+
+
+#-------------------------------------------------------------------------------
+# seasonshare.CAA(fleets, biols, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...)
+#-------------------------------------------------------------------------------
+# Estimates catch at age, when catches are derived from fixed season share allocation by metier
+
+seasonshare.CAA  <- function(fleets, biols, fleets.ctrl, advice, advice.ctrl, year = 1, season = 1, flnm = 1, stknm = 1, ...){
+  
+  # No overshoot allowed
+  
+  nf    <- length(fleets)
+  flnms <- names(fleets)
+  stnms <- names(biols)
+  nst   <- length(stnms)
+  ns    <- dim(biols[[1]]@n)[4] 
+  it    <- dim(biols[[1]]@n)[6]
+  
+  yr <- year
+  ss <- season
+  f  <- flnm
+  st <- stknm
+  
+  ass.ss <- advice.ctrl[[st]][['ass.season']]
+  if (is.null(ass.ss)) { ass.ss <- ns } else if (is.na(ass.ss)) { ass.ss <- ns }
+  
+  fleets <- unclass(fleets)
+  
+  fl    <- fleets[[f]]
+  sts   <- catchNames(fl)
+  mtnms <- names(fl@metiers)
+  
+  if(!(st %in% sts)) return(fleets)
+  
+  yy <- ifelse( ss > ass.ss | ass.ss == ns, yr, yr-1)  # for cases when TAC it's not set for natural year
+  TAC <- advice$TAC[st,yy]
+  
+  
+  # Find dependencies:
+  fl.rel <- fleets.ctrl[[flnm]][[stknm]]$catch.dependence
+  if (!is.null(fl.rel)) {
+    if (!(fl.rel %in% flnms)) 
+      stop("catch.dependence value not valid for '",flnm,"' fleet and '",stknm,"' stock, fleet '",fl.rel,"' not found")
+    fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss,] <- fleets.ctrl$seasonal.share[[stknm]][fl.rel,yr,,ss,]
+  }
+  
+  yr.share    <- advice$quota.share[[stknm]][flnm,yr,, drop=T]              # [it]
+  ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
+  QS          <- yr.share*ss.share                                          # [it]
+  QS[is.na(QS)] <- 0
+  
+  Ctotal <- (TAC*QS)[drop=T]
+  
+  Ba <- biols[[stknm]]@n[,yr,,ss]*biols[[stknm]]@wt[,yr,,ss]*exp(-biols[[stknm]]@m[,yr,,ss]/2)  # Ba[na,1,1,1,1,it]
+  B  <- apply(Ba, c(2:6), sum)[drop=T]                                                          # B [it]
+  
+  CT  <- fleets.ctrl$catch.threshold[st,yr,,ss, drop=T]  # [ns,it]
+  
+  Ctotal <- ifelse(B*CT < Ctotal, B*CT, Ctotal)
+  
+  # Check that each metier target only one stock and vice verse
+  fl. <- FLFleetsExt(fl); names(fl.) <- flnm
+  flinfo     <- stock.fleetInfo(fl.)
+  if ( sum(colSums(stock.fleetInfo(fl.))>1)!=0 )
+    stop( paste("There is a metier targeting more than one stock, therefore not possible 
+                  to use 'seasonshare' catch.model for '",flnm,"' fleet",sep=""))
+  if ( sum(rowSums(stock.fleetInfo(fl.))>1)!=0 )
+    stop( paste("There is a metier targeting more than one stock, therefore not possible 
+                  to use 'seasonshare' catch.model for '",flnm,"' fleet",sep=""))
+  flinfo <-  strsplit(apply(flinfo, 1,function(x) names(which(x == 1))[1]), '&&')
+  mt <- flinfo[[st]][2] # metier that captures stock st
+  
+  cobj <- fl@metiers[[mt]]@catches[[st]]
+  
+  dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
+  lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
+  sa  <- (dsa + lsa)  
+  
+  if(dim(biols[[st]]@n)[1] == 1){
+    cobj@discards[,yr,,ss]   <- Ctotal*dsa # /(sa*tac.disc)
+    cobj@landings[,yr,,ss]   <- Ctotal*lsa # *tac.disc/sa
+    cobj@discards.n[,yr,,ss] <- cobj@discards[,yr,,ss]/cobj@discards.wt[,yr,,ss]
+    cobj@landings.n[,yr,,ss] <- cobj@landings[,yr,,ss]/cobj@landings.wt[,yr,,ss]
+    
+    fl@metiers[[mt]]@catches[[st]] <- cobj
+  }
+  else{ # age structured stock
+    #     browser() 
+    Bs <- apply(sa*Ba, 6,sum)           # it
+    Ca <- sweep(sa*Ba, c(2,4:6), Ctotal/Bs, "*") # [na,nu,it]
+    Ca <- ifelse( is.na(Ca), 0, Ca)
+    
+    cobj@discards.n[,yr,,ss] <- Ca*dsa/sa/cobj@discards.wt[,yr,,ss]
+    cobj@landings.n[,yr,,ss] <- Ca*lsa/sa/cobj@landings.wt[,yr,,ss]
+    
+    # When sa = 0 <-  land.n & dis.n = NA => change to 0.
+    cobj@landings.n[,yr,,ss][is.na(cobj@landings.n[,yr,,ss])] <- 0
+    cobj@discards.n[,yr,,ss][is.na(cobj@discards.n[,yr,,ss])] <- 0
+    
+    cobj@landings[,yr,,ss] <- apply(cobj@landings.n[,yr,,ss]*cobj@landings.wt[,yr,,ss],c(2,4,6),sum)
+    cobj@discards[,yr,,ss] <- apply(cobj@discards.n[,yr,,ss]*cobj@discards.wt[,yr,,ss],c(2,4,6),sum)
+    
+    fl@metiers[[mt]]@catches[[st]] <- cobj
+  }
+  
+  fleets[[f]] <- fl
+  
+  fleets <- FLFleetsExt(fleets)
+  
+  return(fleets)
+}
+
             
 #-------------------------------------------------------------------------------
 # CorrectCatch(fleets, biols, year = 1, season = 1)

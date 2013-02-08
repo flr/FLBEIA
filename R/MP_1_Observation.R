@@ -8,7 +8,7 @@
 # Changes: 2012-06-15 12:51:01  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
 #-------------------------------------------------------------------------------
 
-observation.mp <- function(biols, fleets, covars, indices, advice, obs.ctrl, year, stknm){
+observation.mp <- function(biols, fleets, covars, indices, advice, obs.ctrl, year, season, stknm){
 
     indices.upd    <- indices #vector('list', length(stnms))
     
@@ -21,7 +21,7 @@ observation.mp <- function(biols, fleets, covars, indices, advice, obs.ctrl, yea
     
     # Generete the FLStock
     stock <- eval(call(obs.ctrl[[st]][['stkObs']][['stkObs.model']], biol = biols[[st]], fleets = fleets,  advice = advice,
-                    covars = covars, obs.ctrl = obs.ctrl[[st]][['stkObs']], year = year, stknm = st))
+                    covars = covars, obs.ctrl = obs.ctrl[[st]][['stkObs']], year = year, season=season, stknm = st))
     
     # Update the FLIndices [year-1]
     #indices observation (stock by stock)

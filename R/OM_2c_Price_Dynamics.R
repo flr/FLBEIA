@@ -53,6 +53,9 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, year = 1, seas
     nu  <- dim(Lau)[3]
 
     Pa <- Pa0*(La0/La)^elas    #  [na,it]
+    
+    # When La = 0 -> Pa = Inf -> set Pa = NA
+    Pa <- ifelse( Pa==Inf, NA, Pa)
                                    
     for(mt in 1:length(f@metiers)){
         

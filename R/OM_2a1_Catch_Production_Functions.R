@@ -86,8 +86,8 @@ CobbDouglasAge.effort   <- function(Cr,Ba,q.m,efs.m,alpha.m,beta.m,...){
     
     Ba <- array(Ba[drop = TRUE], dim(q.m)[2:4]) # [na,nu,1] 
         
-    Ba <- array(Ba, dim = c(dim(Ba), dimq[1]))    # [na,1,nu,1,1,1,mt]
-    Ba <- aperm(Ba, c(4,1:3))
+    Ba <- array(Ba, dim = c(dim(Ba), dimq[1]))  # [na,1,nu,1,1,1,mt]
+    Ba <- aperm(Ba, c(4,1:3))                   # [mt,na,nu,it]
     
     efs.m <- array(efs.m, dim = dimq)
 

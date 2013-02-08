@@ -40,13 +40,18 @@
 #-------------------------------------------------------------------------------
 # perfectObservation(fleets, biol, covars, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1,...){
+perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = 12, ...){
 
     # THE ASSESSMENT IS BEING CARRIED OUT IN <year> => THE 'OBSERVATION' GOES UP TO <year-1>
     
     st <- biol@name
     na <- dim(biol@n)[1]
+    ns <- dim(biol@n)[4]
     it <- dim(biol@n)[6]
+    ss <- season
+    
+    if ( year > dims(biol)$year) biol <- window( biol, start=dims(biol)$minyear, end=dims(biol)$maxyear+1)
+    
     # FIRST SEASON, FIRST UNIT:
     # biol@wt = "stock.wt" = "catch.wt" = "discards.wt" = "landings.wt" = "mat" = "harvest.spwn" = "m.spwn
     res <- as(biol, 'FLStock')[,1:(year-1),1,1]
@@ -64,12 +69,23 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1,...){
     if(dim(biol@n)[3] > 1){
         for(u in 2:dim(biol@n)[3])
             n[1,] <- n[1,] + biol@n[1,1:year,u,u]
+    } else {
+        for (s in c(1:ns)) { 
+          n[1,1:(year-1),] <- biol@n[1,1:(year-1),1,s,]
+          if( sum( n[1,1:(year-1),] != 0, na.rm = T) > 0) break # spawning season
+        }  
     }
+    # for current year if season before recruitment season:
+    if (ss != ns)
+      n[1,1:(year-1),] <- ifelse( is.na(n[1,1:(year-1),]), 0, n[1,1:(year-1),])
          
     res@stock.n[] <- n[,1:(year-1)]
+    
+    res@stock[] <- quantSums(res@stock.n*res@stock.wt)
         
     # SUM ALONG SEASONS AND FIRST UNIT: "m"
-    res@m[]  <- seasonSums(biol@m)[,1:(year-1),1,]
+    res@m[]      <- seasonSums(biol@m)[,1:(year-1),1,]
+    res@m.spwn[] <- seasonSums(biol@spwn)[,1:(year-1),1,]/ns
         
     # SUM ALONG UNITS AND SEASONS, OBTAINED FROM FLFLEETS: 
     # "catch", "catch.n", "discards"     "discards.n" "landings"     "landings.n"
@@ -85,11 +101,13 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1,...){
     if(na == 1){
         res@harvest[] <- res@catch/(res@stock.n*res@stock.wt)
         units(res@harvest) <- 'hr'
-    }
-    else{
+    } else{
         units(res@harvest) <- 'f'
-        res@harvest[-c(na-1,na),] <- log(n[-c(na-1,na),-year]/n[-c(1,na),-1]) - res@m[-c(na-1,na),]
-
+        ai <- ifelse( ss==ns, na-1, na-2)
+        res@harvest[-c(ai:na),] <- log(n[-c(ai:na),-year]/n[-c(1,(ai+1):na),-1]) - res@m[-c(ai:na),]
+        # F < 0 -> correct F=0
+        res@harvest[-c(ai,na),] <- ifelse( is.na(res@harvest[-c(ai,na),]) | as.numeric(res@harvest[-c(ai,na),])<0, 0, res@harvest[-c(ai,na),])
+        
         n. <- array(res@stock.n[drop=T], dim = c(na,year-1,it))     # [na,ny,it]
         m. <- array(res@m[drop=T], dim = c(na,year-1,it))            # [na,ny,it]
         c. <- array(res@catch.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
@@ -98,7 +116,8 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1,...){
         fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
         
         for(y in 1:(year-1)){
-            for(a in (na-1):na){
+          
+            for(a in ai:na){
                 for(i in 1:it){
                     n.[a,y,i] - c.[a,y,i]
                     if(n.[a,y,i] < c.[a,y,i]) res@harvest[a,y,,,,i] <- 10
@@ -106,11 +125,19 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1,...){
                     else{
                         zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
                                                 uniroot(fobj, lower = 0, upper = 10, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
-                        res@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, res@harvest[na-2,y,,,,i] )
+                        res@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, res@harvest[ai-1,y,,,,i] )
                     }
                 }
             }
         }
+        # for current year if season before recruitment season:
+        if (ss != ns)
+          res@harvest[1,year-1,] <- ifelse( is.na(res@harvest[1,year-1,]), 0, res@harvest[1,year-1,])
+        ctot.age <- apply(landStock(fleets, st), c(1:2,4,6),sum)[,1:(year-1),] + apply(discStock(fleets, st), c(1:2,4,6),sum)[,1:(year-1),]
+        ctot     <- seasonSums(ctot.age)
+        c.perc <- ctot.age * NA
+        for(s in c(1:ns)) c.perc[,,,s,] <- ctot.age[,,,s,]/ctot
+        res@harvest.spwn[] <- seasonSums(c.perc[,1:(year-1),,]*biol@spwn[,1:(year-1),,])
 
     }
 

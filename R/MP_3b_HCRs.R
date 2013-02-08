@@ -88,8 +88,7 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
                 }
                 
                 sr1 <- sr.pars
-            }
-            else{ # sr.pars not null
+            } else { # sr.pars not null
                 if(i == 1){
                    sr1 <- iter(sr.pars,i)
                 }
@@ -98,8 +97,8 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
             }
             
             stki <- fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
-        }
-        else{ 
+        
+        } else { 
             
             # Extract the years to calculate the mean historical growth of the stock 
             if(is.null(advice.ctrl[[stknm]]$growth.years))   growth.years <- max(1,(year - 11)):(year-1) 

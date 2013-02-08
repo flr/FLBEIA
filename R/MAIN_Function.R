@@ -4,7 +4,7 @@
 # Dorleta Garcia
 # Created: 20/12/2010 21:07:45
 # Changed: 17/01/2011 12:05:59
-# Changes: 2012-06-15 12:14:20  Sonia SÃ¡nchez - for allowing assessment in different seasons and multiannual advice
+# Changes: 2012-06-15 12:14:20  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
 #-------------------------------------------------------------------------------
 
 BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, biols.ctrl, 
@@ -33,6 +33,9 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
     # convert sim.years in positon is the FLR objects.
     sim.years <- which(sim.years[1] == as.numeric(minyear):as.numeric(maxyear)):which(sim.years[2] == as.numeric(minyear):as.numeric(maxyear))
 
+    
+    stocks         <- vector('list', length(stnms)) 
+    names(stocks) <- stnms
      
     for(yr in sim.years){
       for(ss in seasons){
@@ -59,17 +62,15 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
 
         cat('------------ COVARS OM ------------\n')
             # - Covariables OM. (the covariables can affect the covariables themselfs but also the biols and fleets, biols.ctrl and fleets.ctrl)
-            res    <- covars.om(fleets = fleets, biols = biols, covars = covars, advice = advice, covars.ctrl = covars.ctrl, year = yr, season = ss)
+            res    <- covars.om(fleets = fleets, biols = biols, SRs = SRs, covars = covars, advice = advice, covars.ctrl = covars.ctrl, year = yr, season = ss)
             covars <- res$covars
             biols  <- res$biols
             fleets <- res$fleets
+            SRs    <- res$SRs
         
         
         # In last year of the simulation, if last season, there is no assessment => go to the end.
         if(yr == sim.years[length(sim.years)] & ss == ns) next    
-            
-        stocks         <- vector('list', length(stnms)) 
-        names(stocks) <- stnms
             
         for (st in stnms) {
           
@@ -100,7 +101,7 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
             # - Observation.
             cat('----------- OBSERVATION MODEL ------------\n')
             res          <- observation.mp(biols = biols, fleets = fleets, covars = covars, indices = indices, 
-                                advice = advice, obs.ctrl = obs.ctrl, year = yr.man, stknm=st)
+                                advice = advice, obs.ctrl = obs.ctrl, year = yr.man, season=ss, stknm=st)
             stocks[[st]] <- res$stock
             fleets.obs   <- res$fleets.obs
             indices      <- res$indices
@@ -126,4 +127,3 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
     
     return(list(biols = biols, fleets = fleets, covars = covars,  advice = advice, stocks = stocks, indices = indices,  fleets.ctrl = fleets.ctrl))
 }
-

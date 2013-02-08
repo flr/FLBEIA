@@ -213,18 +213,19 @@ SRsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
     ss1 <- ifelse(ns == 1, 1, ifelse(ss == 1, ns, ss-1))
     yr1 <- ifelse(ss > 1, yr, yr-1)
     
-    datam <- list(ssb       = c(object@ssb[,yr - object@timelag[1,ss],, object@timelag[2,ss],]),
+    datam <- list(ssb       =  (object@ssb[,yr - object@timelag[1,ss],, object@timelag[2,ss],]),
                   rec.prevS = c(object@rec[,yr1,,ss1]),
                   rec.prevY = c(object@rec[,yr-1,,ss]))
 
-    # Extract covars.
-    for(i in names(object@covar))
-        datam[[i]] <-  c(object@covar[[i]][,yr,, ss,])
-    
+  
     # Extract params
     for(i in dimnames(object@params)[[1]])
         datam[[i]] <-  c(object@params[i,yr,ss,])
 
+    # Extract covars.
+    for(i in names(object@covar))
+      datam[[i]] <-  c(object@covar[[i]][,yr,, ss,])
+    
     res <- c(eval(model, datam))   # valid for 1 year, 1 season and 'N' iterations
     
     object@rec[,yr,,ss,] <- res*object@proportion[,yr,,ss,]*object@uncertainty[,yr,,ss,]

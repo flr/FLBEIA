@@ -47,7 +47,7 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, year, season){
 
      print('~~~~~~ UPDATE CATCH ~~~~~~')
 
-    fleets <- updateCatch(fleets, biols, advice, fleets.ctrl, year = year, season = season)
+    fleets <- updateCatch(fleets, biols, advice, fleets.ctrl, advice.ctrl, year = year, season = season)
     
     #  3. Calculate price. [seasonal].
     print('~~~~~~~~~~ PRICE ~~~~~~~~~~')

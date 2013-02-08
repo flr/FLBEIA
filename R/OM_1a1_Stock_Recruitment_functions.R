@@ -8,18 +8,20 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Segreg <- function ()
-{
+hockstick <- function () {
+  
     logl <- function(a, b, rec, ssb) {
-        loglAR1(log(rec), FLQuant(log(ifelse(c(ssb) <= b, a *
-            c(ssb), a * b)), dimnames = dimnames(ssb)))
+        loglAR1(log(rec), FLQuant( log(ifelse(c(ssb) <= b, a * c(ssb), a * b)), 
+                                   dimnames = dimnames(ssb)))
     }
-    model <- rec ~ ifelse(c(ssb) <= b, a * c(ssb), a *
-        b)
+  
+    model <- rec ~ ifelse(c(ssb) <= b, a * c(ssb), a * b)
+  
     initial <- structure(function(rec, ssb) {
-        return(FLPar(a = median(c(rec/ssb)), b = median(c(ssb))))
+        return(FLPar(a = median(c(rec/ssb), na.rm = TRUE), b = median(c(ssb), na.rm = TRUE)))
     }, lower = rep(0, 0), upper = rep(Inf, 2))
-    return(list(logl = logl, model = model, initial = initial))
+  
+  return(list(logl = logl, model = model, initial = initial))
 }
 
 
@@ -46,4 +48,38 @@ redfishRecModel <- function(){
     model <- rec ~ ifelse(ssb < alpha, ssb/alpha, 1)*redfishRec(rec.prevY,sigma, minrec, maxrec)
     initial <- NA
     return(list(logl = logl, model = model, initial = initial))
+}
+
+# Ricker models, whith a covariate in the exponent:
+# - ANCHOVY with predation from SARDINE
+aneRec_pil <- function () 
+{
+  
+  logl <- function(a, b, c, rec, ssb, ssb.pil) 
+    loglAR1(log(rec), log(a * ssb * exp(-b * ssb + c * ssb.pil)))
+  
+  model <- rec ~ a * ssb * exp(-b * ssb + c * ssb.pil)
+  
+  return(list(logl = logl, model = model))
+  
+}
+# - SARDINE with predation from ANCHOVY
+pilRec_ane <- function () 
+{
+  
+  logl <- function(a, b, c, rec, ssb, ssb.ane) 
+    loglAR1(log(rec), log(a * ssb * exp(-b * ssb + c * ssb.ane)))
+  
+  model <- rec ~ a * ssb * exp(-b * ssb + c * ssb.ane)
+  
+  return(list(logl = logl, model = model))
+  
+}
+
+# - constant recruitment for ALBACORE
+ctRec_alb <- function (a, rec, ssb) 
+{
+  logl <- NA
+  model <- rec ~ a
+  return(list(logl = logl, model = model, initial = initial))  
 }
