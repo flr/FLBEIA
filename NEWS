@@ -7,12 +7,26 @@
   the change within the function is in the calculation of effort that is now calculated by a 'call' to the correct function.
 * Due to the previous points some changes have had to be made in other functions:
 	- alpha and beta slots in FLcatch can have dimension '1' or 'na' in quant dimension.
-	- "updateCatch" function call to the appropiate function to calculate the catch at age.
+	- "updateCatch" function call to the appropriate function to calculate the catch at age.
 
 #~~~~~~~~~~~~~~~~
-# 2012/07/24
+# 2013/02/08
 #~~~~~~~~~~~~~~~~
-FLBEIA 1.1
+FLBEIA 1.2
 Changes from version 1.0:
 - Changes for allowing assessment in different seasons and multiannual advice
-- Bug fixed in fixedPopulation function	 
+- Bugs fixed: in fixedPopulation function	 
+              regarding stocks object
+- New HCRs added: NEA mackerel + Bay of Biscay anchovy management plans
+- Added new SRR: ctRec_alb (OM_1a1_Stock_Recruitment_functions)
+- Interaction of covariables with SRs added
+- Correction for cases when TAC it's not set for natural year
+  OM_2_fleet.om.R     : call to updateCatch - added advice.ctrl parameter
+  OM_2b_Update.catch.R: updateCatch     - added advice.ctrl parameter in eval call
+                        seasonshare.CAA - ass.ss and TAC yr selection
+- Results_Summary.R: SSB_beia    : accommodated for SSB in different seasons than the 1st one
+                     R_beia      : takes first season with values non zero in the first age class
+                     revenue_beia: sum not taking into account NA values
+                     price_beia  : sum not taking into account NA values
+                     catchMtSum  : sum not taking into account NA values
+- Class_2_FLSRsim.R: SRsim : define datam$ssb as FLQuant in order to avoid problems with some stock-rec relationships (eg. segreg)
