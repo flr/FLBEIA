@@ -17,7 +17,7 @@
 # Changed: 09/12/2010 08:36:59
 #-------------------------------------------------------------------------------
 
-fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, year, season){
+fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, year, season){
    
     flnms <- names(fleets)
     

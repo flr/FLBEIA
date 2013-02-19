@@ -55,7 +55,7 @@ BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, bi
 
         cat('------------ FLEETS OM ------------\n')
             # - Fleets OM.
-            res        <- fleets.om(fleets = fleets, biols = biols, covars = covars, advice = advice, fleets.ctrl = fleets.ctrl, year = yr, season = ss)
+            res        <- fleets.om(fleets = fleets, biols = biols, covars = covars, advice = advice, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, year = yr, season = ss)
             fleets     <- res$fleets
             fleets.ctrl <- res$fleets.ctrl
             covars     <- res$covars
