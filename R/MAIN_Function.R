@@ -3,11 +3,12 @@
 #
 # Dorleta Garcia
 # Created: 20/12/2010 21:07:45
-# Changed: 17/01/2011 12:05:59
-# Changes: 2012-06-15 12:14:20  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
+# Changes: 
+#   * 2012-06-15 12:14:20  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
+#   * 12/03/2013 10:16:55  Dorleta Garcia -  Default value (NULL) for optional objects.
 #-------------------------------------------------------------------------------
 
-BEIA <- function(biols, SRs, BDs, fleets, covars, indices, advice, main.ctrl, biols.ctrl, 
+BEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices = NULL, advice = NULL, main.ctrl, biols.ctrl, 
         fleets.ctrl, covars.ctrl, obs.ctrl, assess.ctrl,  advice.ctrl){
 
     # Extract the common dimensions [year, season, it] from the 1st Biol.
