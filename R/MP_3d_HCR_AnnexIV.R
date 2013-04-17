@@ -20,11 +20,15 @@
 # * A single biomass index per stock.
 #
 # 13/09/2011 09:47:24
+# Changed: Dorleta Garcia 15/04/2013 14:23:06 generalized to work with any of 
+#                the index contained in FLIndices objetct as it was it only  
+#                worked with the first in the list.
 #-------------------------------------------------------------------------------
 
 annexIVHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
 
-    Id <- indices[[stknm]][[1]]@index
+    Idnm <- advice.ctrl[[stknm]][['index']]  # either the name or the position of the index in FLIndices object.
+    Id <- indices[[stknm]][[Idnm]]@index
     
     # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
     year.or <- year

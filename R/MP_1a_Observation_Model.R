@@ -32,7 +32,7 @@
 #
 # Dorleta GarcYYYa
 # Created: 09/12/2010 14:37:43
-# Changed: 26/04/2011 15:12:08 
+# Changed: 15/04/2013 10:59:56 (correct a bug in PerfectObs problem with seasons) 
 #(rroa's functions inserted)
 #-------------------------------------------------------------------------------
 
@@ -137,7 +137,8 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = 12, ..
         ctot     <- seasonSums(ctot.age)
         c.perc <- ctot.age * NA
         for(s in c(1:ns)) c.perc[,,,s,] <- ctot.age[,,,s,]/ctot
-        res@harvest.spwn[] <- seasonSums(c.perc[,1:(year-1),,]*biol@spwn[,1:(year-1),,])
+        biol.spwn <- unitMeans(biol@spwn[,1:(year-1),,])
+        res@harvest.spwn[] <- seasonSums(c.perc[,1:(year-1),,]*biol.spwn)
 
     }
 
