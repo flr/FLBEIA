@@ -40,7 +40,7 @@
 #-------------------------------------------------------------------------------
 # perfectObservation(fleets, biol, covars, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = 12, ...){
+perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, ...){
 
     # THE ASSESSMENT IS BEING CARRIED OUT IN <year> => THE 'OBSERVATION' GOES UP TO <year-1>
     
@@ -48,7 +48,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = 12, ..
     na <- dim(biol@n)[1]
     ns <- dim(biol@n)[4]
     it <- dim(biol@n)[6]
-    ss <- season
+    ss <- if(is.null(season), dim(biol@n)[4], season)
     
     if ( year > dims(biol)$year) biol <- window( biol, start=dims(biol)$minyear, end=dims(biol)$maxyear+1)
     

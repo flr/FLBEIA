@@ -102,6 +102,7 @@ export(
   "matrixBDTarget",
   "neaMAC_ltmp",
   "NoAssessment",
+  "NoObsIndex",
   "NoObsStock",
   "Obs.ages",
   "Obs.btot",
