@@ -88,7 +88,7 @@ Obs.mwgt <- function(biol, error.ages, varia.mwgt, yr){
 #Fec at age observation error
 #yr : integer, the year the stock is observed from
 #Details
-#Observation error of proportions are not additive nor multiplicative. Thus to introduce observation error in proportion
+#Observation error of proportions are not multiplicative nor multiplicative. Thus to introduce observation error in proportion
 #mature it is necessary to replace the real values in totto with the observed values.
 #In creating the replacement observed values the mean will be given by the real values and the shape2 parameter of the Beta distribution.
 #bot.age and top.age allows to constrain the uncertainty to a range of intermediate ages, taking advantage of the fact that very young fish 
@@ -114,7 +114,7 @@ Obs.fec  <- function(biol, error.ages, varia.fec, yr){
     return(fec.obs)
 }
 #Total numbers per year observation error  - Global models
-#varia.nyr : an array of random additive deviates of dim c(na,ny,1,1,1,it)
+#varia.nyr : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
 #yr : integer, the year the stock is observed from
 #Details: If varia.nyr is 0 then there is no uncertainty in total numbers per year.
 Var.nyr <- function(biol, varia.nyr, yr){
@@ -206,7 +206,7 @@ Obs.wtal <- function(fleets, error.ages, varia.lwgt, laa.obs, yr, stknm){
 #Discards in numbers at age observation error
 #fleets : an object of class FLFleetsExt
 #error.ages : an array of probabilities of age assignment of dim =c(na, na, ny, iter)
-#varia.ntot : an array of additive errors (total abundance estimation error)
+#varia.ntot : an array of multiplicative errors (total abundance estimation error)
 #drep.bias : a positive number or a vector of such numbers for multiplicative systematic under- or over-reporting
 #yr : integer, the year the stock is observed from
 #stknm : character, the name of the stock
@@ -306,7 +306,7 @@ Obs.btot <- function(biol, varia.btot, yr){
 ##OPERATING ON OBJECTS OF CLASS FLFleetExt
 #Total landings observation error
 #fleets : an object of class FLFleetsExt
-#varia.tland : a number or a numeric vector of additive deviates for random error in the observation of landings
+#varia.tland : a number or a numeric vector of multiplicative deviates for random error in the observation of landings
 #lrep.bias : a positive number or a vector of such numbers for multiplicative systematic under- or over-reporting
 #yr : integer, the year the stock is observed from
 #stknm : character, identifier of the stock
@@ -321,7 +321,7 @@ Obs.tland <- function(fleets, varia.tland,  yr, stknm){
 }
 #Total discards observation error
 #fleets : an object of class FLFleetsExt
-#varia.tdisc : a number or a numeric vector of additive deviates for random error in the observation of landings
+#varia.tdisc : a number or a numeric vector of multiplicative deviates for random error in the observation of landings
 #drep.bias : a positive number or a vector of such numbers for multiplicative systematic under- or over-reporting
 #yr : integer, the year the stock is observed from
 #stknm : character, identifier of the stock
@@ -342,7 +342,7 @@ Obs.tdisc <- function(fleets, varia.tdisc, yr, stknm){
 #OPERATING ON OBJECTS OF CLASS FLFleetExt
 #Total landings observation error
 #fleets : an object of class FLFleetsExt
-#varia.tland : a number or a numeric vector of additive deviates for random error in the observation of landings
+#varia.tland : a number or a numeric vector of multiplicative deviates for random error in the observation of landings
 #lrep.bias : a positive number or a vector of such numbers for multiplicative systematic under- or over-reporting
 #yr : integer, the year the stock is observed from
 #stknm : character, identifier of the stock
@@ -356,7 +356,7 @@ Obs.tlaas <- function(fleets, varia.tland,  yr, stknm){
 }
 #Total discards observation error
 #fleets : an object of class FLFleetsExt
-#varia.tdias : a number or a numeric vector of additive deviates for random error in the observation of landings
+#varia.tdias : a number or a numeric vector of multiplicative deviates for random error in the observation of landings
 #drep.bias : a positive number or a vector of such numbers for multiplicative systematic under- or over-reporting
 #yr : integer, the year the stock is observed from
 #stknm : character, identifier of the stock

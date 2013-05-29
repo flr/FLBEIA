@@ -354,7 +354,6 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
 
-    varia.btas   <- obs.ctrl$varia.btas[,1:(yr-1)]  
     varia.ltot   <- obs.ctrl$varia.ltot[,1:(yr-1)] 
     TAC.ovrsht   <- obs.ctrl$TAC.ovrsht[,1:(yr-1)]  
     varia.tdisc  <- obs.ctrl$varia.tdisc[,1:(yr-1)]  
