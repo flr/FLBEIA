@@ -8,7 +8,7 @@
 #   * 12/03/2013 10:16:55  Dorleta Garcia -  Default value (NULL) for optional objects.
 #-------------------------------------------------------------------------------
 
-BEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices = NULL, advice = NULL, main.ctrl, biols.ctrl, 
+FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices = NULL, advice = NULL, main.ctrl, biols.ctrl, 
         fleets.ctrl, covars.ctrl, obs.ctrl, assess.ctrl,  advice.ctrl){
 
     # Extract the common dimensions [year, season, it] from the 1st Biol.
