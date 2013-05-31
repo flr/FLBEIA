@@ -19,7 +19,7 @@ covars.om <- function(biols, SRs, fleets, covars, advice, covars.ctrl, year, sea
     
     for(cv in cvnms){
         # population dynamic model
-        dyn.model <- covars.ctrl[[cv]]$dyn.model   
+        dyn.model <- covars.ctrl[[cv]]$process.model   
         
         res <- eval(call(dyn.model, covars = covars, biols = biols, SRs = SRs, fleets = fleets, advice = advice, year = year, season = season, ctrl = covars.ctrl, cvnm = cv))
         

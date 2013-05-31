@@ -31,7 +31,7 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, y
     
     print(fl)
         
-        dyn.model <- fleets.ctrl[[fl]]$effort.dyn
+        dyn.model <- fleets.ctrl[[fl]]$effort.model
         
         res <- eval(call(dyn.model, biols = biols, fleets = fleets, flnm = fl, advice = advice,
                     year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 
@@ -59,7 +59,7 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, y
         sts <- catchNames(fleets[[fl]])
         
         for(st in sts){
-            dyn.model <- fleets.ctrl[[fl]][[st]]$price.dyn  
+            dyn.model <- fleets.ctrl[[fl]][[st]]$price.model  
         
             res <- eval(call(dyn.model, fleets = fleets, flnm = fl, stnm = st, year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 
          
@@ -75,7 +75,7 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, y
         for(fl in flnms){
             print(fl)
         
-            dyn.model <- fleets.ctrl[[fl]]$capital.dyn  
+            dyn.model <- fleets.ctrl[[fl]]$capital.model  
         
             res <- eval(call(dyn.model,  fleets = fleets, advice = advice,
                 flnm = fl, year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 

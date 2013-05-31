@@ -88,7 +88,7 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     QS.ss    <- matrix(t(sapply(stnms, function(x) apply(QS[[x]],2,sum))), nst,it, dimnames = list(stnms, 1:it))  # [nst,it]
                             
     for(stknm in names(biols)){
-        tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.dyn
+        tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
         if(is.null(tacos.fun))   alpha <- rep(1,it)
         else{
             alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))

@@ -150,7 +150,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
 # age2age(biol, fleets, obs.ctrl, year, stknm)
 # Age-Structured Observation of age structured pop
 #  ** obs.ctrl in this case is a subset of the original obs.ctrl
-#       obs.ctrl <- obs.ctrl[[stknm]][['stockObs']] when calling to age2age in obs.model function.
+#       obs.ctrl <- obs.ctrl[[stknm]][['stkObs']] when calling to age2age in obs.model function.
 #-------------------------------------------------------------------------------
 age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
@@ -229,7 +229,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 # age2age(biol, fleets, obs.ctrl, year, stknm)
 # Age-Structured Observation of age structured pop
 #  ** obs.ctrl in this case is a subset of the original obs.ctrl
-#       obs.ctrl <- obs.ctrl[[stknm]][['stockObs']] when calling to age2age in obs.model function.
+#       obs.ctrl <- obs.ctrl[[stknm]][['stkObs']] when calling to age2age in obs.model function.
 #-------------------------------------------------------------------------------
 age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
                          
@@ -302,7 +302,7 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
 
     varia.btot     <- obs.ctrl$varia.btot[,1:(yr-1)]  
-    varia.ltot    <- obs.ctrl$varia.ltot[,1:(yr-1)] 
+    varia.ltot     <- obs.ctrl$varia.ltot[,1:(yr-1)] 
     TAC.ovrsht     <- obs.ctrl$TAC.ovrsht[,1:(yr-1)]  
     varia.tdisc    <- obs.ctrl$varia.tdisc[,1:(yr-1)] 
    
