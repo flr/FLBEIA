@@ -83,7 +83,7 @@ export(
   "fixedPopulation",
   "fixedPrice",
   "FLBDsim",
-  "BEIA",
+  "FLBEIA",
   "fleets.om",
   "FLSRsim",
   "FLXSAnew",
