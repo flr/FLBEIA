@@ -48,7 +48,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     na <- dim(biol@n)[1]
     ns <- dim(biol@n)[4]
     it <- dim(biol@n)[6]
-    ss <- if(is.null(season), dim(biol@n)[4], season)
+    ss <- ifelse(is.null(season), dim(biol@n)[4], season)
     
     if ( year > dims(biol)$year) biol <- window( biol, start=dims(biol)$minyear, end=dims(biol)$maxyear+1)
     
