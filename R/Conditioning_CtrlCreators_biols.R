@@ -7,11 +7,13 @@
 # within create.biols.ctrl
 #
 #
-# Dorleta García - Azti Tecnalia
+# Dorleta Garc?a - Azti Tecnalia
 # 28/05/2013 10:42:07
 #-------------------------------------------------------------------------------
 
 create.biols.ctrl <- function(stksnames, growth.models = NULL, ...){
+    
+    growth.models.available <- c('fixedPopulation', 'ASPG', 'BDPG')
     
     nstk <- length(stksnames) 
     res  <- vector('list', nstk)
@@ -20,6 +22,12 @@ create.biols.ctrl <- function(stksnames, growth.models = NULL, ...){
     extra.args <- list(...)
     
     if(is.null(growth.models)) growth.models <- rep('fixedPopulation',nstk)
+    else{ 
+      if(length(growth.models) < nstk) stop("'growth.models' must be NULL or must have the same length as stknames'")
+      if(!all(growth.models %in% growth.models.available)){ 
+        wmod <- growth.models[which(!(growth.models %in% growth.models.available))]  
+        warning(wmod," in 'growth.models' is not an internal FLBEIA growth model. If you want to use create.biols.ctrl you must create, ", paste('create', wmod ,'ctrl', sep = ".")," function.")
+    }}
    
     for(stk in 1:nstk){
         res[[stk]]                   <- vector('list',1)
@@ -29,8 +37,8 @@ create.biols.ctrl <- function(stksnames, growth.models = NULL, ...){
     
     for(st in 1:nstk){
         
-        growthmodcreator <- paste('create', process.models[cv],  'ctrl', sep = '.')
-        res[[f]] <- call(growthmodcreator, res = res[[cv]], stkname = st, largs = extra.args)
+        growthmodcreator <- paste('create', growth.models[st],  'ctrl', sep = '.')
+        res[[st]] <- eval(call(growthmodcreator, res = res[[st]], stkname = st, largs = extra.args))
     }
     
     return(res) 
