@@ -1,7 +1,7 @@
 # check that all flq-s differ only in first (quant) dimension.
 # lflq: a list of FLQuant
 # dims: the dims we want to check
-equal.flq.Dimnames <- function(lflq, dims){
+equal.flq.Dimnames <- function(lflq, dims = 1:6){
     
     dim.flqs <- vector('list', length(lflq))
     names(dim.flqs) <- lflq
