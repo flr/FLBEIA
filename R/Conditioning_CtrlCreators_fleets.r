@@ -61,6 +61,16 @@ create.fleets.ctrl <- function(fltsnames,  n.flts.stks, flts.stksnames, catch.th
     if(is.null(catch.models))   catch.models    <- rep('CobbDouglasAge', sum(n.flts.stks)) 
     if(is.null(price.models))   price.models    <- rep('fixedPrice', sum(n.flts.stks))  
     
+    # check that all flq-s differ only in first (quant) dimension.
+    test.flqs <- c('flq', names(extra.args)[grep(pattern = 'flq', names(extra.args))])
+    dim.flqs <- vector('list', length(test.flqs))
+    names(dim.flqs) <- test.flqs
+    dim.flqs[[1]] <- dimnames(flq)[-1]
+    for(i in test.flqs[-1]) dim.flqs[[i]] <- dimnames(extra.args[[i]])[-1]
+    for(i in 1:5){
+      tt <- lapply(dim.flqs, function(x) x[[i]])  
+      for(j in test.flqs[-1]) if(!identical(dim.flqs[[1]], dim.flqs[[j]])) stop("All the input 'FLquant's must share 'year', 'unit', 'season', 'area' and 'iter' dimensions.")
+    }
     
     # Check foo.models
     # effort models
