@@ -69,6 +69,7 @@ export(
   "effRule.SMFB",
   "effRule.SSFB",
   "elasticPrice",
+  "equal.flq.Dimnames", 
   "exponential",
   "f.discards.tg",
   "f.landings.tg",

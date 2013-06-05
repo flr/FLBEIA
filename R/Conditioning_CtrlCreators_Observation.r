@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 #                    ** create.observation.ctrl **
 #
-# Dorleta García - Azti Tecnalia
+# Dorleta Garc?a - Azti Tecnalia
 # 29/05/2013 11:34:54
 #-------------------------------------------------------------------------------
 #
@@ -12,48 +12,73 @@
 #         the first element correspond with the process model of the first covariable in cvrsnames, the second with the second and so on.
 #         The default is NULL in which case 'fixedCovar' is used for **all** the fleets.    
 
-create.obs.ctrl <- function(stknames, n.stks.inds, stks.indsnames, stkObs.models = NULL, indObs.models = NULL,...){
+create.obs.ctrl.t <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL, stkObs.models = NULL, indObs.models = NULL, immediate = FALSE,...){
 
-    res        <- vector('list', length(stknames))
-    names(res) <- stknames
+ 
+    stkObs.models.available <- c("age2ageDat", "age2agePop", "age2bioDat", "age2bioPop",
+                                 "bio2bioDat", "bio2bioPop", "NoObsStock", "perfectObs")
+  
+    indObs.models.available <- c("bioInd", "create.ageInd.ctrl", "NoObsIndex") 
+    
+    res        <- vector('list', length(stksnames))
+    names(res) <- stksnames
     extra.args <- list(...)
     
-    if(is.null(stkObs.models)) stkObs.models <- rep('perfectObs', length(stknames))
-    if(is.null(indObs.models)) indObs.models <- rep('NoObsIndex', length(stks.indsnames))
+    if(is.null(n.stks.inds)) n.stks.inds <- rep(0,length(stksnames)) 
+    
+    if(is.null(stkObs.models)) stkObs.models <- rep('perfectObs', length(stksnames))
+    if(is.null(indObs.models)) indObs.models <- rep('NoObsIndex', length(stksnames))
+    
+    if(length(stkObs.models) < length(stksnames)) stop("'stkObs.models' must be NULL or must have the same length as stksnames'")
+    if(length(indObs.models) < length(stksnames)) stop("'indObs.models' must be NULL or must have the same length as stksnames'")
+    
+    if(!all(stkObs.models %in% stkObs.models.available)){ 
+      wmod <- unique(stkObs.models[which(!(stkObs.models %in% stkObs.models.available))])  
+      warning(paste(unique(wmod), collapse = "-")," in 'stkObs.models' is not an internal FLBEIA stock Observation model. If you want to use create.obs.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)
+    }  
+      
+    if(!all(indObs.models %in% indObs.models.available)){ 
+      wmod <- unique(indObs.models[which(!(indObs.models %in% indObs.models.available))])  
+      warning(paste(unique(wmod), collapse = "-")," in 'indObs.models' is not an internal FLBEIA stock Observation model. If you want to use create.obs.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)
+    }  
     
     # Generate the general structure
     k1 <- 1
-    for(st in 1:length(stknames)){
+    for(st in 1:length(stksnames)){
         res[[st]] <- vector('list', 2)
         names(res[[st]]) <- c("stkObs", "indObs")
         res[[st]][['stkObs']] <- list()
         res[[st]][['stkObs']][['stkObs.model']] <- stkObs.models[st]
         
-        res[[st]][['indObs']] <- vector('list', n.stks.inds[st])
+        if(n.stks.inds[st] > 0){
+            res[[st]][['indObs']] <- vector('list', n.stks.inds[st])
         
-        for(id in 1:n.stks.inds[st]){
-            res[[st]][['indObs']][['indObs.model']] <- indObs.models[k1]
-            k1 <- k1 + 1 
+            for(id in 1:n.stks.inds[st]){
+                res[[st]][['indObs']][['indObs.model']] <- indObs.models[k1]
+                k1 <- k1 + 1 
+            }
         }
     }
     
     # Add the function specific elements by stock/index.
     k1 <- 1  
-    for(st in 1:length(stknames)){  # fleet level functions; stkObs models
+    for(st in 1:length(stksnames)){  # fleet level functions; stkObs models
         
         stkObsmodcreator <- paste('create', stkObs.models[st],  'ctrl', sep = '.')
 
             
-        res[[st]] <- call(stkObsmodcreator, res = res[[st]], stkname = st, largs = extra.args)
+        res[[st]] <- eval(call(stkObsmodcreator, res = res[[st]], stkname = stksnames[st], largs = extra.args))
   
-        for(id in 1:n.stks.inds[st]){ # index level functios:  indObs models.  
+        if(n.stks.inds[st] > 0){
+            for(id in 1:n.stks.inds[st]){ # index level functios:  indObs models.  
                 
-            indObsmodcreator <- paste('create', indObs.models[k1], 'ctrl', sep = '.')
+                indObsmodcreator <- paste('create', indObs.models[k1], 'ctrl', sep = '.')
             
-            res[[st]][[id]] <- call(indObsmodcreator, res = res[[st]][[id]], stkname = st, indname = id, largs = extra.args)
+                res[[st]][[id]] <- eval(call(indObsmodcreator, res = res[[st]][[id]], stkname = st, indname = id, largs = extra.args))
   
             
-            k1 <- k1 + 1
+                k1 <- k1 + 1
+            }
         }
     }
     
@@ -111,11 +136,20 @@ return(resstid)
 
 #-------------------------------------------------------------------------------
 #                       ** create.age2ageDat.ctrl **
-# error.ages => identity matrix, no error in aging.
+# flq.stkname MUST be provided to give 
+# error.ages => default: identity matrix, no error in aging.
+#
 #-------------------------------------------------------------------------------
 create.age2ageDat.ctrl <- function(resstid,stkname, indname, largs){ 
 
-    flq.stk    <- largs[[paste(flq,stkname, sep = ".")]]
+    flq.stk    <- largs[[paste('flq',stkname, sep = ".")]]
+    
+    
+    if(is.null(flq.stk)) stop("You MUST provide 'flq.",stkname,"' object with '", stkname, "' stock's shape to be able to create 'age2ageDat' control object structure.")
+    
+    # collapse season dimension.
+    flq.stk <- seasonSums(flq.stk)
+    # extract main dimensions.
     na <- dim(flq.stk)[1]
     ny <- dim(flq.stk)[2]
     it <- dim(flq.stk)[6]
@@ -127,7 +161,7 @@ create.age2ageDat.ctrl <- function(resstid,stkname, indname, largs){
     
     # No error in any of the variables => FLQ = 1 for all.
     varia.mwgt <- varia.dwgt  <- varia.mort  <- varia.fec <- varia.ltot <- varia.dtot <- FLQuant(1, dimnames = dimnames(flq.stk))
-    TAC.ovrsht <- FLQuant(1, dim = c(1, dim(flq.stk)[2],1,1,1,dim(flq.stk)[6]), dimnames = list(quant = 'all', year = dimnames(flq.stk)[[1]], iter = dimnames(flq.stk)[[6]]))
+    TAC.ovrsht <- FLQuant(1, dim = c(1, dim(flq.stk)[2],1,1,1,dim(flq.stk)[6]), dimnames = list(quant = 'all', year = dimnames(flq.stk)[[2]], iter = dimnames(flq.stk)[[6]]))
     
     resstid[['error.ages']] <- error.ages
     resstid[['varia.mwgt']] <- varia.mwgt

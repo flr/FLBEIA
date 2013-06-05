@@ -11,7 +11,7 @@
 # 28/05/2013 10:42:07
 #-------------------------------------------------------------------------------
 
-create.biols.ctrl <- function(stksnames, growth.models = NULL, ...){
+create.biols.ctrl <- function(stksnames, growth.models = NULL, immediate = FALSE,...){
     
     growth.models.available <- c('fixedPopulation', 'ASPG', 'BDPG')
     
@@ -26,7 +26,7 @@ create.biols.ctrl <- function(stksnames, growth.models = NULL, ...){
       if(length(growth.models) < nstk) stop("'growth.models' must be NULL or must have the same length as stknames'")
       if(!all(growth.models %in% growth.models.available)){ 
         wmod <- unique(growth.models[which(!(growth.models %in% growth.models.available))])  
-        warning(paste(wmod, collapse = TRUE)," in 'growth.models' is not an internal FLBEIA growth model. If you want to use create.biols.ctrl you must create, ", paste('create', wmod ,'ctrl', sep = ".")," function.", immediate. = TRUE)
+        warning(paste(unique(wmod), collapse = "-")," in 'growth.models' is not an internal FLBEIA growth model. If you want to use create.biols.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)
     }}
    
     for(stk in 1:nstk){
