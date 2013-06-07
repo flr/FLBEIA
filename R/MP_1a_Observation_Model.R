@@ -34,11 +34,12 @@
 # Created: 09/12/2010 14:37:43
 # Changed: 15/04/2013 10:59:56 (correct a bug in PerfectObs problem with seasons) 
 #(rroa's functions inserted)
+#         2013-06-07 12:20:04 Sonia Sanchez - code revised and names changed for coherence
 #-------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------
-# perfectObservation(fleets, biol, covars, year = 1, season = 1)
+# perfectObservation(biol, fleets, covars, obs.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
 perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, ...){
 
@@ -133,6 +134,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
         # for current year if season before recruitment season:
         if (ss != ns)
           res@harvest[1,year-1,] <- ifelse( is.na(res@harvest[1,year-1,]), 0, res@harvest[1,year-1,])
+        
         ctot.age <- apply(landStock(fleets, st), c(1:2,4,6),sum)[,1:(year-1),] + apply(discStock(fleets, st), c(1:2,4,6),sum)[,1:(year-1),]
         ctot     <- seasonSums(ctot.age)
         c.perc <- ctot.age * NA
@@ -147,14 +149,14 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
  
 
 #-------------------------------------------------------------------------------
-# age2age(biol, fleets, obs.ctrl, year, stknm)
+# age2age(biol, fleets, advice, obs.ctrl, year, stknm)
 # Age-Structured Observation of age structured pop
 #  ** obs.ctrl in this case is a subset of the original obs.ctrl
 #       obs.ctrl <- obs.ctrl[[stknm]][['stkObs']] when calling to age2age in obs.model function.
 #-------------------------------------------------------------------------------
 age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
-    yr <- year
+    yr                <- year
                                  
     na                <- dim(biol@n)[1]
     ny                <- yr - 1
@@ -164,36 +166,48 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
                                                                 
-    error.ages <- obs.ctrl$error.ages
-    varia.mort <- obs.ctrl$varia.mort[,1:ny]
-    varia.mwgt <- obs.ctrl$varia.mwgt[,1:ny]
-    varia.dwgt <- obs.ctrl$varia.dwgt[,1:ny]
-    varia.fec  <- obs.ctrl$varia.fec[,1:ny]  
-    TAC.ovrsht <- obs.ctrl$TAC.ovrsht[,1:ny]
-    varia.ltot <- obs.ctrl$varia.ltot[,1:ny]
-    varia.dtot <- obs.ctrl$varia.dtot[,1:ny]   
-    
-    if(is.null(error.ages)){
-        error.ages <- array(0,dim = c(na, na, ny,it))
-        for(a in 1:na) error.ages[a,a,,] <- 1
+    ages.error        <- obs.ctrl$ages.error
+    nmort.error       <- obs.ctrl$nmort.error[,1:ny]
+    fec.error         <- obs.ctrl$fec.error[,1:ny]
+    land.wgt.error    <- obs.ctrl$land.wgt.error[,1:ny]
+    disc.wgt.error    <- obs.ctrl$disc.wgt.error[,1:ny]
+    land.nage.error   <- obs.ctrl$land.nage.error[,1:ny]
+    disc.nage.error   <- obs.ctrl$disc.nage.error[,1:ny]   
+    TAC.ovrsht        <- obs.ctrl$TAC.ovrsht[,1:ny]
+        
+    if(is.null(ages.error)){
+        ages.error <- array(0,dim = c(na, na, ny,it))
+        for(a in 1:na) ages.error[a,a,,] <- 1
     }
     
-    if(dim(error.ages)[1] != na | dim(error.ages)[2] != na)
-         stop("error.ages array must have dim[1:2] identical to number of ages in stock")
-     if(any(round(apply(error.ages,c(1,3:4), sum),2) != 1))
-         stop("Some rows in error.ages array  don't add up to 1")
+    if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
+         stop("ages.error array must have dim[1:2] identical to number of ages in stock")
+     if(any(round(apply(ages.error,c(1,3:4), sum),2) != 1))
+         stop("Some rows in ages.error array  don't add up to 1")
+    
+    for (e in c('nmort.error', 'land.wgt.error', 'disc.wgt.error', 
+                 'fec.error', 'land.nage.error', 'disc.nage.error')) {
+      err <- get(e)
+      if (is.null(err))
+        stop(paste("'",e,"' array not defined for stock '",stknm,"'",sep=""))
+      if(dim(err)[1] != na)
+        stop(paste("'",e,"' array, for stock '",stknm,"', must have dim[1] identical to number of ages in stock",sep=""))
+      if (sum(err<=0)>0 | sum(is.na(err))>0)
+        stop(paste("check values in '",e,"' array for stock '",stknm,"' (required values > 0)",sep=""))
+      
+    }
          
     stck              <- as(biol, "FLStock")[,1:ny,1,1]    
 
-    stck@landings.wt    <- Obs.wtal(fleets, error.ages, varia.mwgt, stck@landings.n, yr, stknm)
-    stck@landings.n[]   <- Obs.laage(fleets, error.ages, varia.ltot, stck@landings.wt, yr, stknm)
-    stck@landings     <- quantSums(unitSums(seasonSums(stck@landings.n*stck@landings.wt)))
+    stck@landings.wt  <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
+    stck@landings.n[] <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
+    stck@landings     <- quantSums(seasonSums(stck@landings.n*stck@landings.wt))
     
-    # In landings.wt the error due to age depends on landings.n, but that on m and amt only depends on error itself
+    # In landings.wt the error due to age depends on landings.n, but that on m and mat only depends on error itself
     # because it is suppose that the biological sampling is independent.
     
-    stck@m            <- Var.mort(biol, error.ages, varia.mort, yr)
-    stck@mat          <- Obs.fec(biol, error.ages, varia.fec, yr)
+    stck@m            <- Obs.nmort(biol, ages.error, nmort.error, yr)
+    stck@mat          <- Obs.fec(biol, ages.error, fec.error, yr)
 
     # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
     # reported homogeneously.
@@ -203,23 +217,21 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     ovrsht.red[is.na(ovrsht.red)] <- 1
      
-    stck@landings.n   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landinghs in biomass equally over ages
+    stck@landings.n   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landings in biomass equally over ages
    
-    stck@discards.wt  <- Obs.wtad(fleets, error.ages, varia.dwgt, stck@discards.n, yr, stknm)
-    stck@discards.wt[is.na(stck@discards.wt)] <-  stck@landings.wt[is.na(stck@discards.wt)]
-    stck@discards.n   <- Obs.daage(fleets, error.ages, varia.dtot, stck@discards.wt, yr, stknm)
-    stck@discards     <- quantSums(unitSums(seasonSums(stck@discards.n*stck@discards.wt)))
-    
-    
+    stck@discards.wt  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
+    stck@discards.wt[is.na(stck@discards.wt)] <- stck@landings.wt[is.na(stck@discards.wt)]
+    stck@discards.n   <- Obs.disc.nage(fleets, ages.error, disc.nage.error, stck@discards.wt, yr, stknm)
+    stck@discards     <- quantSums((seasonSums(stck@discards.n*stck@discards.wt))
     
     stck@catch        <- stck@landings + stck@discards
     stck@catch.n      <- stck@landings.n + stck@discards.n
     stck@catch.wt     <- (stck@landings.n*stck@landings.wt + stck@discards.n*stck@discards.wt)/(stck@landings.n + stck@discards.n)
     
- #   stck@harvest      <- FLQuant(NA,dim=c(na,ny,1,1,1,it), dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
+ #   stck@harvest      <- FLQuant(NA,dim=c(na,ny,1,1,1,it), dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
 
-    stck@harvest.spwn[] <- 0 # FLQuant(NA,dim=c(na,ny,1,1,1,it),dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
-    stck@m.spwn[]       <- 0 # FLQuant(NA,dim=c(na,ny,1,1,1,it),dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
+    stck@harvest.spwn[] <- 0 # FLQuant(NA,dim=c(na,ny,1,1,1,it),dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
+    stck@m.spwn[]       <- 0 # FLQuant(NA,dim=c(na,ny,1,1,1,it),dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
 
     return(stck)
 }
@@ -233,9 +245,9 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------
 age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
                          
-    error.ages <- obs.ctrl$error.ages
-    varia.ntot <- obs.ctrl$varia.ntot
-    varia.mwgt <- obs.ctrl$varia.mwgt
+    ages.error        <- obs.ctrl$ages.error
+    stk.nage.error    <- obs.ctrl$stk.nage.error
+    stk.wgt.error     <- obs.ctrl$stk.wgt.error
     
     yr <- year 
                                  
@@ -243,28 +255,38 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     ny                <- yr-1
     it                <- dim(biol@n)[6]
     
-    if(is.null(error.ages)){
-        error.ages <- array(0,dim = c(na, na, ny,it))
-        for(a in 1:na) error.ages[a,a,,] <- 1
+    if(is.null(ages.error)){
+        ages.error <- array(0,dim = c(na, na, ny,it))
+        for(a in 1:na) ages.error[a,a,,] <- 1
     }
     
-    if(dim(error.ages)[1] != na | dim(error.ages)[2] != na)
-         stop("error.ages array must have dim[1:2] identical to number of ages in stock")
-    if(any(round(apply(error.ages,c(1,3:4), sum),2) != 1))
-         stop("Some rows in error.ages array  don't add up to 1")
+    if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
+         stop("ages.error array must have dim[1:2] identical to number of ages in stock")
+    if(any(round(apply(ages.error,c(1,3:4), sum),2) != 1))
+         stop("Some rows in ages.error array  don't add up to 1")
+    
+    for (e in c('stk.nage.error', 'stk.wgt.error')) {
+      err <- get(e)
+      if (is.null(err))
+        stop(paste("'",e,"' array not defined for stock '",stknm,"'",sep=""))
+      if(dim(err)[1] != na)
+        stop(paste("'",e,"' array, for stock '",stknm,"', must have dim[1] identical to number of ages in stock",sep=""))
+      if (sum(err<=0)>0 | sum(is.na(err))>0)
+        stop(paste("check values in '",e,"' array for stock '",stknm,"' (required values > 0)",sep=""))
+    }
          
     stck              <- age2ageDat(biol, fleets, advice, obs.ctrl, year, stknm) 
     
-    n <- Obs.ages(biol, error.ages, varia.ntot, yr+1)
-    stck@stock.n      <- n[,1:(yr-1),]
-    stck@stock.wt     <- Obs.mwgt(biol, error.ages, varia.mwgt, yr)
+    n <- Obs.stk.nage(biol, ages.error, stk.nage.error, yr)
+    stck@stock.n      <- n[,1:ny,]
+    stck@stock.wt     <- Obs.stk.wgt(biol, ages.error, stk.wgt.error, yr)
     stck@stock        <- quantSums(unitSums(seasonSums(stck@stock.n*stck@stock.wt)))
        
     units(stck@harvest) <- 'f'
    
     stck@harvest[-c(na-1,na),] <- log(n[-c(na-1,na),-year]/n[-c(1,na),-1]) - stck@m[-c(na-1,na),]
 
-    n. <- array(stck@stock.n[drop=T], dim = c(na,year-1,it))     # [na,ny,it]
+    n. <- array(stck@stock.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
     m. <- array(stck@m[drop=T], dim = c(na,year-1,it))            # [na,ny,it]
     c. <- array(stck@catch.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
         
@@ -292,30 +314,40 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------    
 bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 
-    yr             <- year
-    stknm     <- stknm
-    ny <- yr-1
-    it <- dim(biol@n)[6]
+    yr                <- year
+    stknm             <- stknm
+    ny                <- yr-1
+    it                <- dim(biol@n)[6]
     
     # TAC.ovrsht  can be numeric with dimension [1]  or FLQuant with dimension [1,dim(biol@n)[2],1,1,1,it]     
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
 
-    varia.btot     <- obs.ctrl$varia.btot[,1:(yr-1)]  
-    varia.ltot     <- obs.ctrl$varia.ltot[,1:(yr-1)] 
-    TAC.ovrsht     <- obs.ctrl$TAC.ovrsht[,1:(yr-1)]  
-    varia.tdisc    <- obs.ctrl$varia.tdisc[,1:(yr-1)] 
+    stk.bio.error     <- obs.ctrl$stk.bio.error[,1:ny]  
+    land.bio.error    <- obs.ctrl$land.bio.error[,1:ny] 
+    disc.bio.error    <- obs.ctrl$disc.bio.error[,1:ny]
+    TAC.ovrsht        <- obs.ctrl$TAC.ovrsht[,1:ny]
+    
+    for (e in c('stk.bio.error', 'land.bio.error', 'disc.bio.error')) {
+      err <- get(e)
+      if (is.null(err))
+        stop(paste("'",e,"' array not defined for stock '",stknm,"'",sep=""))
+      if(dim(err)[1] != 1)
+        stop(paste("'",e,"' array, for stock '",stknm,"', must have dim[1]=1",sep=""))      
+      if (sum(err<=0)>0 | sum(is.na(err))>0)
+        stop(paste("check values in '",e,"' array for stock '",stknm,"' (required values > 0)",sep=""))
+    }
    
-    stck              <- as(biol, "FLStock")[,1:(yr-1)]
+    stck              <- as(biol, "FLStock")[,1:ny]
 
-    stck@landings     <- Obs.tland(fleets, varia.ltot,  yr, stknm)
+    stck@landings     <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
     stck@landings     <- FLQuant(ifelse(stck@landings > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
-    stck@discards     <- Obs.tdisc(fleets, varia.tdisc, yr, stknm)
+    stck@discards     <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
     stck@catch        <- stck@landings + stck@discards
 
     stck@harvest.spwn[] <- 0 
     stck@m.spwn[]       <- 0 
-    stck@range[5]     <- yr-1
+    stck@range[5]       <- ny
     return(stck)
 }
 
@@ -325,15 +357,23 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------    
 bio2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 
-    varia.btot     <- obs.ctrl$varia.btot  
-    varia.ltot    <- obs.ctrl$varia.ltot 
-    varia.tdisc    <- obs.ctrl$varia.tdisc 
-    yr             <- year
-    stknm     <- stknm
-
-    stck           <- bio2bioDat(biol, obs.ctrl, year, stknm)  
-    stck@stock     <- Obs.btot(biol, varia.btot, yr)
-    stck@harvest   <- stck@catch/stck@stock
+    stk.bio.error   <- obs.ctrl$stk.bio.error  
+    land.bio.error  <- obs.ctrl$land.bio.error 
+    disc.bio.error  <- obs.ctrl$disc.bio.error 
+    yr              <- year
+    stknm           <- stknm
+    
+    if (is.null(stk.bio.error))
+      stop(paste("'stk.bio.error' array not defined for stock '",stknm,"'",sep=""))
+    if(dim(stk.bio.error)[1] != 1)
+      stop(paste("'stk.bio.error' array, for stock '",stknm,"', must have dim[1]=1",sep=""))      
+    if (sum(stk.bio.error<=0)>0 | sum(is.na(stk.bio.error))>0)
+      stop(paste("check values in 'stk.bio.error' array for stock '",stknm,"' (required values > 0)",sep=""))
+    }
+    
+    stck            <- bio2bioDat(biol, obs.ctrl, yr, stknm)  
+    stck@stock      <- Obs.stk.bio(biol, stk.bio.error, yr)
+    stck@harvest    <- stck@catch/stck@stock
 
     return(stck)
 }
@@ -354,24 +394,34 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
 
-    varia.ltot   <- obs.ctrl$varia.ltot[,1:(yr-1)] 
-    TAC.ovrsht   <- obs.ctrl$TAC.ovrsht[,1:(yr-1)]  
-    varia.tdisc  <- obs.ctrl$varia.tdisc[,1:(yr-1)]  
+    land.bio.error      <- obs.ctrl$land.bio.error[,1:ny] 
+    disc.bio.error      <- obs.ctrl$disc.bio.error[,1:ny] 
+    TAC.ovrsht          <- obs.ctrl$TAC.ovrsht[,1:ny]
+    
+    for (e in c('land.bio.error', 'disc.bio.error')) {
+      err <- get(e)
+      if (is.null(err))
+        stop(paste("'",e,"' array not defined for stock '",stknm,"'",sep=""))
+      if(dim(err)[1] != 1)
+        stop(paste("'",e,"' array, for stock '",stknm,"', must have dim[1]=1",sep=""))
+      if (sum(err<=0)>0 | sum(is.na(err))>0)
+        stop(paste("check values in '",e,"' array for stock '",stknm,"' (required values > 0)",sep=""))
+      }
              
     biolbio <- setPlusGroup(biol,biol@range[1])
-    stck                <- as(biolbio, "FLStock")[,1:(yr-1)]
-    stck@landings       <- Obs.tlaas(fleets, varia.ltot,  yr, stknm)
+    stck                <- as(biolbio, "FLStock")[,1:ny]
+    stck@landings       <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
     stck@landings[]     <- ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings)
-    stck@discards       <- Obs.tdias(fleets, varia.tdisc, yr, stknm)
+    stck@discards       <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
     stck@catch          <- stck@landings + stck@discards
-    stck@catch.n[]        <- stck@catch 
-    stck@landings.n[]     <- stck@landings 
-    stck@discards.n[]     <- stck@discards 
+    stck@catch.n[]      <- stck@catch 
+    stck@landings.n[]   <- stck@landings 
+    stck@discards.n[]   <- stck@discards 
     stck@catch.wt[]     <- stck@discards.wt[] <- stck@landings.wt[] <- 1 
-    stck@harvest.spwn[] <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
-    stck@m.spwn[]       <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:(yr-1), unit='unique', season='all', area='unique', iter=1:it))
+    stck@harvest.spwn[] <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
+    stck@m.spwn[]       <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
     stck@mat[]          <- 1
-    stck@range[5]       <- yr-1
+    stck@range[5]       <- ny
     stck@range[6:7]     <- 1
     return(stck)
 }
@@ -383,12 +433,20 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------   
 age2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
                          
-    varia.btot   <- obs.ctrl$varia.btot  
+    stk.bio.error     <- obs.ctrl$stk.bio.error  
 
-    yr         <- year
+    yr                <- year
+    
+    if (is.null(stk.bio.error))
+      stop(paste("'stk.bio.error' array not defined for stock '",stknm,"'",sep=""))
+    if(dim(stk.bio.error)[1] != 1)
+      stop(paste("'stk.bio.error' array, for stock '",stknm,"', must have dim[1]=1",sep=""))
+    if (sum(stk.bio.error<=0)>0 | sum(is.na(stk.bio.error))>0)
+      stop(paste("check values in 'stk.bio.error' array for stock '",stknm,"' (required values > 0)",sep=""))
+    }
          
-    stck              <- age2bioDat(biol, fleets, advice, obs.ctrl, year, stknm)    
-    stck@stock        <- Obs.btot(biol, varia.btot, yr)
+    stck              <- age2bioDat(biol, fleets, advice, obs.ctrl, yr, stknm)    
+    stck@stock        <- Obs.btot(biol, stk.bio.error, yr)
     stck@harvest      <- stck@catch/stck@stock
     
     stck@range[5]     <- yr-1
@@ -408,17 +466,17 @@ ageInd <- function(biol, index, obs.ctrl, year, stknm,...){
     na <- dim(biol@n)[1]
     ny <- dim(biol@n)[2]
     
-    error.ages <- obs.ctrl[['error.ages']]
+    ages.error <- obs.ctrl[['ages.error']]
     
-    if(is.null(error.ages)){
-        error.ages <- array(0,dim = c(na, na, ny,it), dimnames = list(dimnames(biol@n)[[1]], dimnames(biol@n)[[1]], dimnames(biol@n)[[2]], dimnames(biol@n)[[6]]))
-        for(a in 1:na) error.ages[a,a,,] <- 1
+    if(is.null(ages.error)){
+        ages.error <- array(0,dim = c(na, na, ny,it), dimnames = list(dimnames(biol@n)[[1]], dimnames(biol@n)[[1]], dimnames(biol@n)[[2]], dimnames(biol@n)[[6]]))
+        for(a in 1:na) ages.error[a,a,,] <- 1
     }
     
-    if(dim(error.ages)[1] != na | dim(error.ages)[2] != na)
-         stop("error.ages array must have dim[1:2] identical to number of ages in stock")
-     if(any(round(apply(error.ages,c(1,3:4), sum),2) != 1))
-         stop("Some rows in error.ages array  don't add up to 1")
+    if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
+         stop("ages.error array must have dim[1:2] identical to number of ages in stock")
+     if(any(round(apply(ages.error,c(1,3:4), sum),2) != 1))
+         stop("Some rows in ages.error array  don't add up to 1")
      
     # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
     yrnm   <- dimnames(biol@n)[[2]][year]   
@@ -441,7 +499,7 @@ ageInd <- function(biol, index, obs.ctrl, year, stknm,...){
     
     for(i in 1:it){
         N <- unitSums(biol@n[ages.sel,yrnm.1,,sInd,,i])
-        index@index[,yrnm.1,,,,i] <- (N%*%error.ages[ages.sel,ages.sel,yrnm.1,i])*
+        index@index[,yrnm.1,,,,i] <- (N%*%ages.error[ages.sel,ages.sel,yrnm.1,i])*
                                        index@index.q[,yrnm.1,,,,i, drop=T]*
                                        index@index.var[,yrnm.1,,,,i, drop=T]
     }
