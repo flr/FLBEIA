@@ -18,7 +18,7 @@ create.obs.ctrl.t <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NU
     stkObs.models.available <- c("age2ageDat", "age2agePop", "age2bioDat", "age2bioPop",
                                  "bio2bioDat", "bio2bioPop", "NoObsStock", "perfectObs")
   
-    indObs.models.available <- c("bioInd", "create.ageInd.ctrl", "NoObsIndex") 
+    indObs.models.available <- c("bioInd", "ageInd", "NoObsIndex") 
     
     res        <- vector('list', length(stksnames))
     names(res) <- stksnames
@@ -33,10 +33,10 @@ create.obs.ctrl.t <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NU
     if(is.null(n.stks.inds)) n.stks.inds <- rep(0,length(stksnames)) 
     
     if(is.null(stkObs.models)) stkObs.models <- rep('perfectObs', length(stksnames))
-    if(is.null(indObs.models)) indObs.models <- rep('NoObsIndex', length(stksnames))
+    if(is.null(indObs.models)) indObs.models <- rep('NoObsIndex', sum(n.stks.inds))
     
-    if(length(stkObs.models) < length(stksnames)) stop("'stkObs.models' must be NULL or must have the same length as stksnames'")
-    if(length(indObs.models) < length(stksnames)) stop("'indObs.models' must be NULL or must have the same length as stksnames'")
+    if(length(stkObs.models) < length(stksnames)) stop("'stkObs.models' must be NULL or must have the same length as stksnames.")
+    if(length(indObs.models) < sum(n.stks.inds)) stop("'indObs.models' must be NULL or must have length equal to sum(n.stks.inds).")
     
     if(!all(stkObs.models %in% stkObs.models.available)){ 
       wmod <- unique(stkObs.models[which(!(stkObs.models %in% stkObs.models.available))])  
@@ -58,9 +58,11 @@ create.obs.ctrl.t <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NU
         
         if(n.stks.inds[st] > 0){
             res[[st]][['indObs']] <- vector('list', n.stks.inds[st])
+            names(res[[st]][['indObs']]) <- stks.indsnames[k1:(k1+n.stks.inds[st]-1)]
         
             for(id in 1:n.stks.inds[st]){
-                res[[st]][['indObs']][['indObs.model']] <- indObs.models[k1]
+                res[[st]][['indObs']][[id]] <- list()
+                res[[st]][['indObs']][[id]][['indObs.model']] <- indObs.models[k1]
                 k1 <- k1 + 1 
             }
         }
@@ -80,7 +82,7 @@ create.obs.ctrl.t <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NU
                 
                 indObsmodcreator <- paste('create', indObs.models[k1], 'ctrl', sep = '.')
             
-                res[[st]][[id]] <- eval(call(indObsmodcreator, res = res[[st]][[id]], stkname = st, indname = id, largs = extra.args))
+                res[[st]][['indObs']][[id]] <- eval(call(indObsmodcreator, res = res[[st]][['indObs']][[id]], stkname = stksnames[st], indname = stks.indsnames[k1], largs = extra.args))
   
             
                 k1 <- k1 + 1
@@ -117,25 +119,29 @@ create.bioInd.ctrl <- function(resstid, stkname, indname, largs) return(resstid)
 
 #-------------------------------------------------------------------------------
 #                       ** create.ageInd.ctrl **
-# error.ages - NULL or arra(na,na,ny, it)
+# ages.error - NULL or arra(na,na,ny, it)
 #              o if is null => identity matrix, no error in aging.
 #-------------------------------------------------------------------------------
 create.ageInd.ctrl <- function(resstid,stkname, indname, largs){ 
 
-    error.ages <- largs[[paste(error.ages,stkname, indname, sep = ".")]]
-    flq.stk    <-  largs[[paste(flq,stkname, sep = ".")]]
+    flq.stk    <-  largs[[paste('flq',stkname, sep = ".")]]
+    
+    if(is.null(flq.stk)) stop("You MUST provide 'flq.",stkname, "'object with '", stkname, "' stock's shape to be able to create 'ageInd' control object structure.")
+    
     na <- dim(flq.stk)[1]
     ny <- dim(flq.stk)[2]
     it <- dim(flq.stk)[6]
     
-    # if is null => identity matrix, no error in aging.
-    if (is.null(error.ages)) {
-        error.ages <- array(0, dim = c(na, na, ny, it), dimnames = list(dimnames(flq.stk)[[1]], 
+    # identity matrix, no error in aging.
+    ages.error <- array(0, dim = c(na, na, ny, it), dimnames = list(dimnames(flq.stk)[[1]], 
             dimnames(flq.stk)[[1]], dimnames(flq.stk)[[2]], dimnames(flq.stk)[[6]]))
-        for (a in 1:na) error.ages[a, a, , ] <- 1
-    }
+    for (a in 1:na) ages.error[a, a, , ] <- 1
     
-    resstid[['error.ages']] <- error.ages
+    
+    resstid[['ages.error']] <- ages.error
+    
+    warning("The 'ages.error' argument for stock '", stkname, "' has been created  equal to identity matrix for all the years/iterations, i.e no error will be introduced in age observation unless you change it.")
+    
     
 return(resstid)
 }
@@ -143,10 +149,10 @@ return(resstid)
 #-------------------------------------------------------------------------------
 #                       ** create.age2ageDat.ctrl **
 # flq.stkname MUST be provided to give 
-# error.ages => default: identity matrix, no error in aging.
+# ages.error => default: identity matrix, no error in aging.
 #
 #-------------------------------------------------------------------------------
-create.age2ageDat.ctrl <- function(resstid,stkname, indname, largs){ 
+create.age2ageDat.ctrl <- function(resst,stkname, indname, largs){ 
 
     flq.stk    <- largs[[paste('flq',stkname, sep = ".")]]
     
@@ -161,23 +167,26 @@ create.age2ageDat.ctrl <- function(resstid,stkname, indname, largs){
     it <- dim(flq.stk)[6]
     
     # identity matrix, no error in aging.
-    error.ages <- array(0, dim = c(na, na, ny, it), dimnames = list(dimnames(flq.stk)[[1]], 
+    ages.error <- array(0, dim = c(na, na, ny, it), dimnames = list(dimnames(flq.stk)[[1]], 
                         dimnames(flq.stk)[[1]], dimnames(flq.stk)[[2]], dimnames(flq.stk)[[6]]))
-    for (a in 1:na) error.ages[a, a, , ] <- 1
+    for (a in 1:na) ages.error[a, a, , ] <- 1
     
     # No error in any of the variables => FLQ = 1 for all.
-    varia.mwgt <- varia.dwgt  <- varia.mort  <- varia.fec <- varia.ltot <- varia.dtot <- FLQuant(1, dimnames = dimnames(flq.stk))
+    land.wgt.error <- disc.wgt.error  <- nmort.error  <- fec.error <- land.nage.error <- disc.nage.error <- FLQuant(1, dimnames = dimnames(flq.stk))
     TAC.ovrsht <- FLQuant(1, dim = c(1, dim(flq.stk)[2],1,1,1,dim(flq.stk)[6]), dimnames = list(quant = 'all', year = dimnames(flq.stk)[[2]], iter = dimnames(flq.stk)[[6]]))
     
-    resstid[['error.ages']] <- error.ages
-    resstid[['varia.mwgt']] <- varia.mwgt
-    resstid[['varia.dwgt']] <- varia.dwgt
-    resstid[['varia.fec']]  <- varia.fec
-    resstid[['varia.ltot']] <- varia.ltot
-    resstid[['varia.dtot']] <- varia.dtot
-    resstid[['TAC.ovrsht']] <- TAC.ovrsht
+    resst[['ages.error']]      <- ages.error
+    resst[['land.wgt.error']]  <- land.wgt.error
+    resst[['disc.wgt.error']]  <- disc.wgt.error
+    resst[['fec.error']]       <- fec.error
+    resst[['nmort.error']]     <- nmort.error
+    resst[['land.nage.error']] <- land.nage.error
+    resst[['disc.nage.error']] <- disc.nage.error
+    resst[['TAC.ovrsht']]      <- TAC.ovrsht
     
-    return(resstid)
+    warning("The 'FLQuant' error arguments for stock '", stkname, "' have been created with the specified structure and equal to 1 for all the ages/years/iterations, i.e no error will be introduced in the observation unless you change them.")
+    
+    return(resst)
 }
 
 
@@ -185,54 +194,40 @@ create.age2ageDat.ctrl <- function(resstid,stkname, indname, largs){
 #                       ** create.age2agePop.ctrl **
 #   Equal to create.age2ageDat.ctrl
 #-------------------------------------------------------------------------------
-create.age2agePop.ctrl <- function(resstid,stkname, indname, largs){ 
+create.age2agePop.ctrl <- function(resst,stkname, indname, largs){ 
 
-    flq.stk    <- largs[[paste(flq,stkname, sep = ".")]]
-    na <- dim(flq.stk)[1]
-    ny <- dim(flq.stk)[2]
-    it <- dim(flq.stk)[6]
+    flq.stk    <- largs[[paste('flq',stkname, sep = ".")]]
     
-    # identity matrix, no error in aging.
-    error.ages <- array(0, dim = c(na, na, ny, it), dimnames = list(dimnames(flq.stk)[[1]], 
-                        dimnames(flq.stk)[[1]], dimnames(flq.stk)[[2]], dimnames(flq.stk)[[6]]))
-    for (a in 1:na) error.ages[a, a, , ] <- 1
+    resst <- create.age2ageDat.ctrl(resst,stkname, indname, largs)
     
     # No error in any of the variables => FLQ = 1 for all.
-    varia.ntot <- varia.mwgt <- varia.dwgt  <- varia.mort  <- varia.fec <- varia.ltot <- varia.dtot <- FLQuant(1, dimnames = dimnames(flq.stk))
-    TAC.ovrsht <- FLQuant(1, dim = c(1, dim(flq.stk)[2],1,1,1,dim(flq.stk)[6]), dimnames = list(quant = 'all', year = dimnames(flq.stk)[[1]], iter = dimnames(flq.stk)[[6]]))
+    stk.nage.error <- FLQuant(1, dimnames = dimnames(flq.stk))
+  
+    resst[['stk.nage.error']] <- stk.nage.error
     
-    resstid[['error.ages']] <- error.ages
-    resstid[['varia.ntot']] <- varia.ntot
-    resstid[['varia.mwgt']] <- varia.mwgt
-    resstid[['varia.dwgt']] <- varia.dwgt
-    resstid[['varia.fec']]  <- varia.fec
-    resstid[['varia.ltot']] <- varia.ltot
-    resstid[['varia.dtot']] <- varia.dtot
-    resstid[['TAC.ovrsht']] <- TAC.ovrsht
-    
-    return(resstid)
+    return(resst)
 }
 
 
 #-------------------------------------------------------------------------------
 #                       ** create.bio2bioDat.ctrl **
 #-------------------------------------------------------------------------------
-create.bio2bioDat.ctrl <- function(resstid,stkname, indname, largs){ 
+create.bio2bioDat.ctrl <- function(resst,stkname, indname, largs){ 
 
-    flq.stk    <- largs[[paste(flq,stkname, sep = ".")]]
-    na <- dim(flq.stk)[1]
-    ny <- dim(flq.stk)[2]
-    it <- dim(flq.stk)[6]
+    flq.stk    <- largs[[paste('flq',stkname, sep = ".")]]
+
+    if(is.null(flq.stk)) stop("You MUST provide 'flq.",stkname,"' object with '", stkname, "' stock's shape to be able to create 'bio2bioDat' control object structure.")
     
-
     # No error in any of the variables => FLQ = 1 for all.
-    varia.ltot <- varia.dtot <- TAC.ovrsht <- FLQuant(1, dimnames = dimnames(flq.stk)) 
+    land.bio.error <- disc.bio.error <- TAC.ovrsht <- FLQuant(1, dimnames = dimnames(flq.stk)) 
 
-    resstid[['varia.ltot']] <- varia.ltot
-    resstid[['varia.dtot']] <- varia.dtot
-    resstid[['TAC.ovrsht']] <- TAC.ovrsht
+    resst[['land.bio.error']] <- land.bio.error
+    resst[['disc.bio.error']] <- disc.bio.error
+    resst[['TAC.ovrsht']]     <- TAC.ovrsht
     
-    return(resstid)
+    warning("The 'FLQuant' error arguments for stock '", stkname, "' have been created with the specified structure and equal to 1 for all the years/iterations, i.e no error will be introduced in the observation unless you change them.")
+    
+    return(resst)
 }
 
 
@@ -240,23 +235,19 @@ create.bio2bioDat.ctrl <- function(resstid,stkname, indname, largs){
 #                       ** create.bio2bioPop.ctrl **
 #  Almost Equal to create.bio2bioDat.ctrl
 #-------------------------------------------------------------------------------
-create.bio2bioPop.ctrl <- function(resstid,stkname, indname, largs){ 
+create.bio2bioPop.ctrl <- function(resst,stkname, indname, largs){ 
     
-    flq.stk    <- largs[[paste(flq,stkname, sep = ".")]]
-    na <- dim(flq.stk)[1]
-    ny <- dim(flq.stk)[2]
-    it <- dim(flq.stk)[6]
-    
+    flq.stk    <- largs[[paste('flq',stkname, sep = ".")]]
 
     # No error in any of the variables => FLQ = 1 for all.
-    varia.btot <- varia.ltot <- varia.dtot <- TAC.ovrsht <- FLQuant(1, dimnames = dimnames(flq.stk))
-       
-    resstid[['varia.btot']] <- varia.btot
-    resstid[['varia.ltot']] <- varia.ltot
-    resstid[['varia.dtot']] <- varia.dtot
-    resstid[['TAC.ovrsht']] <- TAC.ovrsht
+    stk.bio.error <-  FLQuant(1, dimnames = dimnames(flq.stk))
     
-    return(resstid)
+    resst <- create.bio2bioDat.ctrl(resst, stkname, indname, largs)
+    
+    resst[['stk.bio.error']] <- stk.bio.error
+ 
+    
+    return(resst)
 }
 
 

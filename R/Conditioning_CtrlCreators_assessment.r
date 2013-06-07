@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 #                    ** create.covars.ctrl **
 #
-# Dorleta García - Azti Tecnalia
+# Dorleta Garc?a - Azti Tecnalia
 # 29/05/2013 14:04:15
 #-------------------------------------------------------------------------------
 #
@@ -36,4 +36,22 @@ create.assess.ctrl <- function(stksnames, assess.models = NULL, assess.ctrls = N
     
     return(res) 
 } 
+
+
+#-------------------------------------------------------------------------------
+#                       ** create.NoAssessment.ctrl **
+# No extra arguments needed
+#-------------------------------------------------------------------------------
+create.NoAssessment.ctrl <- function(resst,stkname,largs) return(resst)
+
+#-------------------------------------------------------------------------------
+#                       ** create.FLXSA.ctrl **
+# No extra arguments needed
+#-------------------------------------------------------------------------------
+create.FLXSA.ctrl <- function(resst,stkname,largs){ 
+    resst <- c(resst, control = FLXSA.control())
+    warning("Default values have been used to create 'FLXSA.control' for stock '", stkname, "' change it by hand if the values are not appropiate.")
+    
+    return(resst)}
+
 
