@@ -1,13 +1,13 @@
 #------------------------------------------------------------------------------#
 #    Auxiliary functions to summarize the results
 #
-# F_beia(obj)
-# SSB_beia(obj)
-# B_beia(obj)
-# R_beia(obj)
-# C_beia(obj);  L_beia(obj); D_beia(obj)
-# summary_beia(obj)
-#  obj = BEIA output.
+# F_flbeia(obj)
+# SSB_flbeia(obj)
+# B_flbeia(obj)
+# R_flbeia(obj)
+# C_flbeia(obj);  L_flbeia(obj); D_flbeia(obj)
+# summary_flbeia(obj)
+#  obj = FLBEIA output.
 #  
 #   
 # Dorleta GarcYYYa
@@ -17,9 +17,9 @@
 
 
 #------------------------------------------------------------------------------#
-# F_beia(obj) :: res[stocks, years, it] 
+# F_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-F_beia <- function(obj){
+F_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -65,9 +65,9 @@ F_beia <- function(obj){
 
 
 #------------------------------------------------------------------------------#
-# SSB_beia(obj) :: res[stocks, years, it] 
+# SSB_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-SSB_beia <- function(obj){
+SSB_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -92,9 +92,9 @@ SSB_beia <- function(obj){
 
 
 #------------------------------------------------------------------------------#
-# B_beia(obj) :: res[stocks, years, it] 
+# B_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-B_beia <- function(obj){
+B_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -110,11 +110,11 @@ B_beia <- function(obj){
 }
 
 #------------------------------------------------------------------------------#
-# R_beia(obj) :: res[stocks, years, it] 
+# R_flbeia(obj) :: res[stocks, years, it] 
 # If age struc => recruitment.
 # If biodyn    => growth.
 #------------------------------------------------------------------------------#
-R_beia <- function(obj){
+R_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -149,9 +149,9 @@ R_beia <- function(obj){
 }
 
 #------------------------------------------------------------------------------#
-# C_beia(obj) :: res[stocks, years, it] 
+# C_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-C_beia <- function(obj){
+C_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -167,9 +167,9 @@ C_beia <- function(obj){
 }
 
 #------------------------------------------------------------------------------#
-# L_beia(obj) :: res[stocks, years, it] 
+# L_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-L_beia <- function(obj){
+L_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -185,9 +185,9 @@ L_beia <- function(obj){
 }
 
 #------------------------------------------------------------------------------#
-# D_beia(obj) :: res[stocks, years, it] 
+# D_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-D_beia <- function(obj){
+D_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -204,9 +204,9 @@ D_beia <- function(obj){
 
 
 #------------------------------------------------------------------------------#
-# summary_beia(obj) :: res[stocks, years, it, indicators] 
+# summary_flbeia(obj) :: res[stocks, years, it, indicators] 
 #------------------------------------------------------------------------------#
-summary_beia <- function(obj){
+summary_flbeia <- function(obj){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
@@ -216,13 +216,13 @@ summary_beia <- function(obj){
     res <- array(dim = c(length(stknms), ny,it, 7), dimnames = list(stock = stknms, year = yrnms, iter = 1:it, 
                                                       indicators = c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards')))
     
-    res[,,,1] <- R_beia(obj)
-    res[,,,2] <- SSB_beia(obj)
-    res[,,,3] <- F_beia(obj)
-    res[,,,4] <- B_beia(obj)
-    res[,,,5] <- C_beia(obj)
-    res[,,,6] <- L_beia(obj)
-    res[,,,7] <- D_beia(obj)
+    res[,,,1] <- R_flbeia(obj)
+    res[,,,2] <- SSB_flbeia(obj)
+    res[,,,3] <- F_flbeia(obj)
+    res[,,,4] <- B_flbeia(obj)
+    res[,,,5] <- C_flbeia(obj)
+    res[,,,6] <- L_flbeia(obj)
+    res[,,,7] <- D_flbeia(obj)
 
     return(res)
     
@@ -233,7 +233,7 @@ summary_beia <- function(obj){
 # BIOsummary(obj) :: DATA.FRAME[stocks, years, it, indicators, value] 
 #------------------------------------------------------------------------------#
 bioSum <- function(object){
-    xx <- summary_beia(object)
+    xx <- summary_flbeia(object)
     n  <- prod(dim(xx))
     
     dnms <- dimnames(xx)
@@ -289,8 +289,8 @@ ecoSum <- function(fleets, flnms = 'all', years){
         
         res[k:(k+prod(Dim)-1),'capacity'] <- c(fl@capacity[,years,])
         res[k:(k+prod(Dim)-1),'effort']   <- c(fl@effort[,years,])
-        res[k:(k+prod(Dim)-1),'costs']    <- c(costs_beia(fl)[,years,])
-        res[k:(k+prod(Dim)-1),'profits']  <- c(revenue_beia(fl)[,years,]) -  res[k:(k+prod(Dim)-1),'costs']
+        res[k:(k+prod(Dim)-1),'costs']    <- c(costs_flbeia(fl)[,years,])
+        res[k:(k+prod(Dim)-1),'profits']  <- c(revenue_flbeia(fl)[,years,]) -  res[k:(k+prod(Dim)-1),'costs']
         
         k <- k + prod(Dim)
     }
@@ -301,9 +301,9 @@ ecoSum <- function(fleets, flnms = 'all', years){
 
 
 #-------------------------------------------------------------------------------
-# revenue_beia(fleet, years)
+# revenue_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
-revenue_beia <- function(fleet){
+revenue_flbeia <- function(fleet){
     
     sts <- catchNames(fleet)
     mts <- names(fleet@metiers)
@@ -322,19 +322,19 @@ revenue_beia <- function(fleet){
 }
 
 #-------------------------------------------------------------------------------
-# costs_beia(fleet, years)
+# costs_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
-costs_beia <- function(fleet){
+costs_flbeia <- function(fleet){
     
-    res <- totvcost_beia(fleet) + totfcost_beia(fleet)
+    res <- totvcost_flbeia(fleet) + totfcost_flbeia(fleet)
     
     return(res)               
 }
 
 #-------------------------------------------------------------------------------
-# totvcost_beia(fleet, years)
+# totvcost_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
-totvcost_beia <- function(fleet){
+totvcost_flbeia <- function(fleet){
     
     mts <- names(fleet@metiers)
     
@@ -347,9 +347,9 @@ totvcost_beia <- function(fleet){
 }
 
 #-------------------------------------------------------------------------------
-# totvcost_beia(fleet, years)
+# totvcost_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
-totfcost_beia <- function(fleet){
+totfcost_flbeia <- function(fleet){
      return(fleet@fcost*fleet@capacity)            
 }
 
@@ -394,7 +394,7 @@ catchFlSum <- function(fleets, flnms = 'all', stknms, years){
             
             dff[k:(prod(Dim) + k-1),'landings'] <- c(apply(landWStock.f(fl, st),c(2,4,6), sum)[,years])    
             dff[k:(prod(Dim) + k-1),'discards'] <- c(apply(discWStock.f(fl, st),c(2,4,6), sum)[,years]) 
-            dff[k:(prod(Dim) + k-1),'price']    <- c(price_beia(fl, st)[,years])
+            dff[k:(prod(Dim) + k-1),'price']    <- c(price_flbeia(fl, st)[,years])
             
             k <- k + prod(Dim)     
         }
@@ -405,9 +405,9 @@ catchFlSum <- function(fleets, flnms = 'all', stknms, years){
 
 
 #-------------------------------------------------------------------------------
-# price_beia(fleet, years)(mean price in a fleet)
+# price_flbeia(fleet, years)(mean price in a fleet)
 #-------------------------------------------------------------------------------
-price_beia <- function(fleet, stock){
+price_flbeia <- function(fleet, stock){
 
     mts <- names(fleet@metiers)
     
