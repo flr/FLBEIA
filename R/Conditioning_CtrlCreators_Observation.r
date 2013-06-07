@@ -24,6 +24,12 @@ create.obs.ctrl.t <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NU
     names(res) <- stksnames
     extra.args <- list(...)
     
+    # check FLquants only differ in first dimension
+    # check that all flq-s differ only in first (quant) dimension.
+    test.flqs <- lapply(names(extra.args)[grep(pattern = 'flq', names(extra.args))], get)
+    if(length(test.flqs)>1) if(!equal.flq.Dimnames(test.flqs, 2:5)) stop("All the input 'FLquant's must share 'year', 'unit', 'season', 'area' and 'iter' dimensions.")
+    
+    
     if(is.null(n.stks.inds)) n.stks.inds <- rep(0,length(stksnames)) 
     
     if(is.null(stkObs.models)) stkObs.models <- rep('perfectObs', length(stksnames))

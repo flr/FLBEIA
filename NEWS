@@ -1,13 +1,52 @@
+#~~~~~~~~~~~~~~~~
+# 2013/06/07
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.3
+Changes from version 1.2:
+- BEIA now it is called FLBEIA for coherence with other FLR libraries (FLXSA for example).
+- creator functions added to ease the creation of control objects. 
+		"create.advice.ctrl" (
+  		"create.assess.ctrl"
+  		"create.biols.ctrl"
+  		"create.fleets.ctrl"
+  		"create.covars.ctrl" 
+  		"create.obs.ctrl"
+- Names of observation model functions and arguments changed to give them coherence and ease their identification.
+FUNCTIONS	** OLD **	 ** NEW **
+		Obs.ages	Obs.stk.nage	
+		Obs.mwgt	Obs.stk.wgt		
+		Obs.fec		Obs.fec
+		Obs.laage	Obs.land.nage	
+		obs.lwta	land.wgt.obs
+		Obs.daage	Obs.disc.nage		
+		obs.dwta	disc.wgt.obs
+		Obs.wtal	Obs.land.wgt		
+		Obs.wtad	Obs.disc.wgt			
+		Obs.btot	Obs.stk.bio		
+		Obs.tland	Obs.land.bio		
+		Obs.tdisc	Obs.disc.bio		
 
-#~~~~~~~~~~~~~~~~
-# 2011/06/03
-#~~~~~~~~~~~~~~~~
-* Main function is now called 'BEIA'
-* In SMFB the catch can be produced by different production functions, (at the moment: "ageBased.CobbDoug", "aggregated.CobbDoug"),
-  the change within the function is in the calculation of effort that is now calculated by a 'call' to the correct function.
-* Due to the previous points some changes have had to be made in other functions:
-	- alpha and beta slots in FLcatch can have dimension '1' or 'na' in quant dimension.
-	- "updateCatch" function call to the appropriate function to calculate the catch at age.
+ARGUMENTS	** OLD **	 ** NEW **
+		error.ages	ages.error	
+		varia.ntot	stk.nage.error	
+		varia.mwgt	stk.wgt.error
+		Var.mort	Obs.nmort		
+		varia.mort	nmort.error
+		varia.fec	fec.error
+		Var.nyr		REMOVED
+		varia.ny	REMOVED
+		varia.ltot	land.nage.error
+		varia.dtot	disc.nage.error
+		varia.mwgt	land.wgt.error
+		varia.dwgt	disc.wgt.error
+		varia.btot	stk.bio.error
+		varia.tdisc	disc.bio.error
+		varia.tland    	land.bio.error
+		
+REMOVED: varia.tdias	
+	 Obs.tlaas	
+	 varia.tland	
+	 Obs.tdias		
 
 #~~~~~~~~~~~~~~~~
 # 2013/02/08
@@ -30,3 +69,14 @@ Changes from version 1.0:
                      price_beia  : sum not taking into account NA values
                      catchMtSum  : sum not taking into account NA values
 - Class_2_FLSRsim.R: SRsim : define datam$ssb as FLQuant in order to avoid problems with some stock-rec relationships (eg. segreg)
+
+#~~~~~~~~~~~~~~~~
+# 2011/06/03
+#~~~~~~~~~~~~~~~~
+* Main function is now called 'BEIA'
+* In SMFB the catch can be produced by different production functions, (at the moment: "ageBased.CobbDoug", "aggregated.CobbDoug"),
+  the change within the function is in the calculation of effort that is now calculated by a 'call' to the correct function.
+* Due to the previous points some changes have had to be made in other functions:
+	- alpha and beta slots in FLcatch can have dimension '1' or 'na' in quant dimension.
+	- "updateCatch" function call to the appropriate function to calculate the catch at age.
+

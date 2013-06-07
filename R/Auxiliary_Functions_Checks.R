@@ -27,5 +27,6 @@ equal.flq.Dimnames <- function(lflq, dims = 1:6){
 # equal.flq.Dimnames(list(flq.meg, flq.ank), c(1,3)) 
 # equal.flq.Dimnames(list(flq.meg, flq.ank, flq), c(1,3)) 
 # equal.flq.Dimnames(list(flq.meg, flq.ank, flq), c(2,3)) 
+# equal.flq.Dimnames(list(flq.meg, flq.ank), c(2)) 
 #
 
