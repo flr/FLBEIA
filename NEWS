@@ -4,14 +4,19 @@
 FLBEIA 1.3
 Changes from version 1.2:
 - BEIA now it is called FLBEIA for coherence with other FLR libraries (FLXSA for example).
-  Summary functions now called *_flbeia (before *_beia).
-- creator functions added to ease the creation of control objects. 
-		"create.advice.ctrl" (
-  		"create.assess.ctrl"
-  		"create.biols.ctrl"
-  		"create.fleets.ctrl"
-  		"create.covars.ctrl" 
-  		"create.obs.ctrl"
+- Summary functions now called *_flbeia (before *_beia).
+- creator functions added to ease the creation of control objects. In paranthesis the functions that are called internally by the function before the4 parentesis.
+		"create.advice.ctrl" - (create.advice.ctrl, create.annexIVHCR.ctrl, create.annualTAC.ctrl, create.froeseHCR.ctrl, create.ghlHCR.ctrl, 
+					create.IcesHCR.ctrl)
+  		"create.assess.ctrl" - (create.FLXSA.ctrl, create.NoAssessment.ctrl)
+  		"create.biols.ctrl"  - (create.fixedPopulation.ctrl, create.ASPG.ctrl, create.BDPG.ctrl)
+  		"create.fleets.ctrl" - (create.CobbDouglasAge.ctrl, create.CobbDouglasBio.ctrl, create.elasticPrice.ctrl, create.fixedCapital.ctrl, 
+					create.fixedEffort.ctrl, create.fixedPrice.ctrl, create.fleets.ctrl, create.MaxProfit.stkCnst.ctrl, 
+					create.SCD.ctrl, create.SMFB.ctrl)
+  		"create.covars.ctrl" - (create.fixed.covars)
+  		"create.obs.ctrl"    - (create.age2ageDat.ctrl, create.age2agePop.ctrl, create.age2bioDat.ctrl, create.age2bioPop.ctrl,
+					create.ageInd.ctrl, create.bio2bioDat.ctrl, create.bio2bioPop.ctrl, create.bioInd.ctrl, create.NoObsIndex.ctrl, 
+					create.NoObsStock.ctrl, create.obs.ctrl.t, create.perfectObs.ctrl)
 - Names of observation model functions and arguments changed to give them coherence and ease their identification.
 FUNCTIONS	** OLD **	 ** NEW **
 		Obs.ages	Obs.stk.nage	
