@@ -222,7 +222,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck@discards.wt  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
     stck@discards.wt[is.na(stck@discards.wt)] <- stck@landings.wt[is.na(stck@discards.wt)]
     stck@discards.n   <- Obs.disc.nage(fleets, ages.error, disc.nage.error, stck@discards.wt, yr, stknm)
-    stck@discards     <- quantSums((seasonSums(stck@discards.n*stck@discards.wt))
+    stck@discards     <- quantSums(seasonSums(stck@discards.n*stck@discards.wt))
     
     stck@catch        <- stck@landings + stck@discards
     stck@catch.n      <- stck@landings.n + stck@discards.n
@@ -369,7 +369,7 @@ bio2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
       stop(paste("'stk.bio.error' array, for stock '",stknm,"', must have dim[1]=1",sep=""))      
     if (sum(stk.bio.error<=0)>0 | sum(is.na(stk.bio.error))>0)
       stop(paste("check values in 'stk.bio.error' array for stock '",stknm,"' (required values > 0)",sep=""))
-    }
+    
     
     stck            <- bio2bioDat(biol, obs.ctrl, yr, stknm)  
     stck@stock      <- Obs.stk.bio(biol, stk.bio.error, yr)
@@ -443,7 +443,7 @@ age2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
       stop(paste("'stk.bio.error' array, for stock '",stknm,"', must have dim[1]=1",sep=""))
     if (sum(stk.bio.error<=0)>0 | sum(is.na(stk.bio.error))>0)
       stop(paste("check values in 'stk.bio.error' array for stock '",stknm,"' (required values > 0)",sep=""))
-    }
+    
          
     stck              <- age2bioDat(biol, fleets, advice, obs.ctrl, yr, stknm)    
     stck@stock        <- Obs.btot(biol, stk.bio.error, yr)

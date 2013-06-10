@@ -12,7 +12,7 @@
 #         the first element correspond with the process model of the first covariable in cvrsnames, the second with the second and so on.
 #         The default is NULL in which case 'fixedCovar' is used for **all** the fleets.    
 
-create.obs.ctrl.t <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL, stkObs.models = NULL, indObs.models = NULL, immediate = FALSE,...){
+create.obs.ctrl <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL, stkObs.models = NULL, indObs.models = NULL, immediate = FALSE,...){
 
  
     stkObs.models.available <- c("age2ageDat", "age2agePop", "age2bioDat", "age2bioPop",
