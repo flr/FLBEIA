@@ -35,8 +35,8 @@ create.obs.ctrl <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL
     if(is.null(stkObs.models)) stkObs.models <- rep('perfectObs', length(stksnames))
     if(is.null(indObs.models)) indObs.models <- rep('NoObsIndex', sum(n.stks.inds))
     
-    if(length(stkObs.models) < length(stksnames)) stop("'stkObs.models' must be NULL or must have the same length as stksnames.")
-    if(length(indObs.models) < sum(n.stks.inds)) stop("'indObs.models' must be NULL or must have length equal to sum(n.stks.inds).")
+    if(length(stkObs.models) != length(stksnames)) stop("'stkObs.models' must be NULL or must have the same length as stksnames.")
+    if(length(indObs.models) != sum(n.stks.inds)) stop("'indObs.models' must be NULL or must have length equal to sum(n.stks.inds).")
     
     if(!all(stkObs.models %in% stkObs.models.available)){ 
       wmod <- unique(stkObs.models[which(!(stkObs.models %in% stkObs.models.available))])  

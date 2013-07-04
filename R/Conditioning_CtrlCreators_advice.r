@@ -22,7 +22,7 @@ create.advice.ctrl <- function(stksnames, HCR.models = NULL, HCR.ctrls = NULL,..
     
     if(is.null(HCR.models)) HCR.models <- rep('fixedAdvice', length(stksnames))
     else{ 
-        if(length(HCR.models) < length(stksnames)) stop("'HCR.models' must be NULL or must have the same length as stknames'")
+        if(length(HCR.models) != length(stksnames)) stop("'HCR.models' must be NULL or must have the same length as stknames'")
         if(!all(HCR.models %in% HCR.models.available)){ 
             wmod <- unique(HCR.models[which(!(HCR.models %in% HCR.models.available))])  
             warning(paste(unique(wmod), collapse = "-")," in 'HCR.models' is not an internal FLBEIA covariables model. If you want to use create.covars.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)

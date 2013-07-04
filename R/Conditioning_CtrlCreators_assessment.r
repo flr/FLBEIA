@@ -22,7 +22,7 @@ create.assess.ctrl <- function(stksnames, assess.models = NULL, assess.ctrls = N
     
     if(is.null(assess.models)) assess.models <- rep('NoAssessment', length(stksnames))
     else{ 
-      if(length(assess.models) < length(stksnames)) stop("'assess.models' must be NULL or must have the same length as stknames'")
+      if(length(assess.models) != length(stksnames)) stop("'assess.models' must be NULL or must have the same length as stknames'")
       if(!all(assess.models %in% assess.models.available)){ 
         wmod <- unique(assess.models[which(!(assess.models %in% assess.models.available))])  
         warning(paste(unique(wmod), collapse = "-")," in 'assess.models' is not an internal FLBEIA covariables model. If you want to use create.covars.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)

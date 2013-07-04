@@ -38,7 +38,7 @@
 #                    
 
  
-create.fleets.ctrl <- function(fltsnames,  n.flts.stks, flts.stksnames, catch.threshold = NULL,
+create.fleets.ctrl <- function(fltsnames,  n.flts.stks, flts.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
                                 effort.models = NULL, capital.models = NULL, catch.models = NULL, price.models = NULL, flq, ...){
     
     effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit.stkCnst')
@@ -47,15 +47,30 @@ create.fleets.ctrl <- function(fltsnames,  n.flts.stks, flts.stksnames, catch.th
     capital.models.available <- c('fixedCapital', 'SCD')
     
     nfls <- length(fltsnames) 
-    res  <- vector('list', nfls + 1)
-    names(res) <- c('catch.threshold', fltsnames)
+    res  <- vector('list', nfls + 2)
+    names(res) <- c('catch.threshold', 'seasonal.share', fltsnames)
     stknms <- unique(flts.stksnames)
     
     extra.args <- list(...) # a named list with the extra arguments in the call to the function, it'll contain the arguments for specific  creators.
   
     # Give default values to NULL elements.
-    if(is.null(catch.threshold)) res[['catch.threshold']] <- FLQuant(0.9, dimnames = list(stock = stknms, year = dimnames(flq)[['year']], 
+    if(is.null(catch.threshold)){ res[['catch.threshold']] <- FLQuant(0.9, dimnames = list(stock = stknms, year = dimnames(flq)[['year']], 
                                                                         season = dimnames(flq)[['season']], iter = dimnames(flq)[['iter']]))
+    }else{
+        res[['catch.threshold']] <- catch.threshold
+    }
+    
+    # Seasonal share.
+    if(is.null(seasonal.share)){
+        res[['seasonal.share']]        <- vector('list', length(unique(flts.stksnames)))
+        names(res[['seasonal.share']]) <- unique(flts.stksnames)
+        Dims <- c(list(fleet = fltsnames), dimnames(flq)[2:6])
+        for(i in 1: length(res[['seasonal.share']])) res[['seasonal.share']][[i]] <- FLQuant(1/dim(flq)[4], dimnames = Dims)
+    }
+    else{
+        res[['seasonal.share']] <- seasonal.share
+    }
+    
     if(is.null(effort.models))  effort.models   <- rep('fixedEffort', nfls)                                                                      
     if(is.null(capital.models)) capital.models  <- rep('fixedCapital', nfls)  
     if(is.null(catch.models))   catch.models    <- rep('CobbDouglasAge', sum(n.flts.stks)) 
@@ -68,25 +83,25 @@ create.fleets.ctrl <- function(fltsnames,  n.flts.stks, flts.stksnames, catch.th
     
     # Check foo.models
     # effort models
-    if(length(effort.models) < nfls) stop("'effort.models' must be NULL or must have the same length as stknames'")
+    if(length(effort.models) != nfls) stop("'effort.models' must be NULL or must have the same length as fltsnames'")
     if(!all(effort.models %in% effort.models.available)){ 
         wmod <- effort.models[which(!(effort.models %in% effort.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'effort.models' is not an internal FLBEIA effort model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # catch models.
-    if(length(catch.models) < sum(n.flts.stks)) stop("'catch.models' must be NULL or must have the same length as stknames'")
+    if(length(catch.models) != sum(n.flts.stks)) stop("'catch.models' must be NULL or must have the same length as stknames'")
     if(!all(catch.models %in% catch.models.available)){ 
         wmod <- catch.models[which(!(catch.models %in% catch.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'catch.models' is not an internal FLBEIA catch model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # price models.
-    if(length(price.models) < sum(n.flts.stks)) stop("'price.models' must be NULL or must have the same length as stknames'")
+    if(length(price.models) != sum(n.flts.stks)) stop("'price.models' must be NULL or must have the same length as stknames'")
     if(!all(price.models %in% price.models.available)){ 
         wmod <- price.models[which(!(price.models %in% price.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'price.models' is not an internal FLBEIA price model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # capital models.
-    if(length(capital.models) < nfls) stop("'capital.models' must be NULL or must have the same length as stknames'")
+    if(length(capital.models) != nfls) stop("'capital.models' must be NULL or must have the same length as stknames'")
     if(!all(capital.models %in% capital.models.available)){ 
         wmod <- capital.models[which(!(capital.models %in% capital.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'capital.models' is not an internal FLBEIA capital model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
@@ -169,15 +184,21 @@ create.fixedEffort.ctrl <- function(resf,fltname,largs) return(resf)
 #-------------------------------------------------------------------------------
 create.SMFB.ctrl <- function(resf, fltname,largs){
 
+
     # if NULL set default values
-    rest    <- ifelse(is.null(largs[[paste('restriction', fltname,sep='.')]]), 'landings', largs[[paste('restriction', fltname,sep='.')]])
-    effrest <- ifelse(is.null(largs[[paste('effort.restr', fltname,sep='.')]]), NA, largs[[paste('effort.restr', fltname,sep='.')]])
+    rest      <- ifelse(is.null(largs[[paste('restriction', fltname,sep='.')]]), 'landings', largs[[paste('restriction', fltname,sep='.')]])
+    effrest   <- ifelse(is.null(largs[[paste('effort.restr', fltname,sep='.')]]), NA, largs[[paste('effort.restr', fltname,sep='.')]])
+
+#    if(is.null(largs[[paste('restriction', fltname,sep='.')]])) warning("Restriction in (restriction argument) is missing for fleet, ", fltname, ", 'landings' used,  if you want 'catch' restriction you MUST change it manually.")
+    if(!is.null(largs[[paste('restriction', fltname,sep='.')]])) if(largs[[paste('restriction', fltname,sep='.')]] == 'landings') stop("Landings restriction in 'SMFB' is not yet implemented.")
     
-    if(is.null(largs[[paste('restriction', fltname,sep='.')]])) warning("Restriction in (effort.rest argument) is missing for fleet, ", fltname, ", 'landings' used,  if you want 'catch' restriction you MUST change it manually.")
     if(is.na(effrest)) warning("Effort restriction in (effort.rest argument) is missing for fleet, ", fltname, ", NA used, you MUST fill it otherwise SMFB will not work.")
     
     resf[['restriction']]  <- rest 
     resf[['effort.restr']] <- effrest
+    
+
+    
     return(resf)
 }
 

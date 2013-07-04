@@ -22,7 +22,7 @@ create.covars.ctrl <- function(cvrsnames, process.models = NULL, flq, immediate 
     
     if(is.null(process.models)) process.models <- rep('fixedCovar', length(cvrsnames))
     else{ 
-      if(length(process.models) < length(cvrsnames)) stop("'process.models' must be NULL or must have the same length as stknames'")
+      if(length(process.models) != length(cvrsnames)) stop("'process.models' must be NULL or must have the same length as stknames'")
       if(!all(process.models %in% process.models.available)){ 
         wmod <- unique(process.models[which(!(process.models %in% process.models.available))])  
         warning(paste(unique(wmod), collapse = "-")," in 'process.models' is not an internal FLBEIA covariables model. If you want to use create.covars.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)
