@@ -1,0 +1,25 @@
+citHeader("To cite FLBEIA in a publication, please use:")
+
+citEntry(
+  entry="Techreport",
+  title="Bioeconomic Modelling Applied to Fisheries with R/FLR/FLBEIA",
+  author=personList(
+    person("E.", "Jardim"),
+    person("A.", "Urtizberea"),
+    person("A.", "Motova"),
+    person("C.", "Osio"),
+    person("C.", "Ulrich"),
+    person("C.", "Millar"),
+    person("I.", "Mosqueira"),
+    person("J.J.", "Poos"),
+    person("J.", "Virtanen"),
+    person("K.", "Hamon"),
+    person("N.", "Carvalho"),
+    person("R.", "Prellezo"),
+    person("S.", "Holmes")
+		),
+	institution = "European Commission Joint Research Centre",
+  year="2013",
+	address = "Ispra, Italy",
+  textVersion="Jardim, E., Urtizberea, A., Motova, A., Osio, C., Ulrich, C., Millar, C., Mosqueira, I., Poos, J.J., Virtanen, J., Hamon, K., Carvalho, N., Prellezo, R., Holmes, S. 2013. Bioeconomic Modelling Applied to Fisheries with R/FLR/FLBEIA. JRC Scientific and 
+	Policy Report EUR 25823 EN.")
