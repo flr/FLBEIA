@@ -88,6 +88,7 @@ create.obs.ctrl <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL
                 k1 <- k1 + 1
             }
         }
+        else    res[[st]][['indObs']]   <-  'NoObsIndex'
     }
     
     return(res) 

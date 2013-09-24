@@ -1,5 +1,4 @@
 import("FLCore")
-import("FLFleet")
 
 export(
   "advice.mp",
@@ -57,6 +56,15 @@ export(
   "create.fleets.ctrl",
   "create.covars.ctrl", 
   "create.obs.ctrl",
+  "create.advice.data",    
+  "create.BDs.data",       
+  "create.biols.data",     
+  "create.fleets.data",    
+  "create.indices.data",   
+  "calculate.CBparam",     
+  "create.list.stks.flq",  
+  "create.list.stks.flqa", 
+  "create.SRs.data",       
   "ctRec_alb",
   "D_flbeia",
   "discards.tg",

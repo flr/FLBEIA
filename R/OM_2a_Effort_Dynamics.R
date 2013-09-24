@@ -49,8 +49,8 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     if(length(ss) == 0) stop('The season is outside object season range')  
     
     # Check fleets.ctrl elements.
-    if(! all(sapply(names(fleets), function(x) fleets.ctrl[[x]]$restriction %in% c('catch', 'landings'))))
-        stop("fleets.ctrl$restriction must be equal to 'catch' or 'landings'")
+    if(!(fleets.ctrl[[flnm]]$restriction %in% c('catch', 'landings')))
+        stop("fleets.ctrl[[f]]$restriction must be equal to 'catch' or 'landings'")
      
     # Dimensions.
     nst <- length(biols);          stnms <- names(biols)
@@ -190,7 +190,7 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     }
     
     else{ # landings restriction.
-        stop('Not yet implemented')
+        stop('Landings restriction is not yet implemented')
     } 
     
     return(list(fleets = fleets, fleets.ctrl = fleets.ctrl))
