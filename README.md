@@ -2,7 +2,7 @@
 
 **Bio-Economic Impact Assessment of Management strategies using FLR**
 
-Version: 1.3.20130719
+Version: 1.0
 
 `FLBEIA` provides a simulation toolbox which facilitates the development of bio-economic impact assessments of fisheries management strategies. It is built under a Management Strategy Evaluation framework using FLR. The simulation is divided in two *worlds*: the operating model (OM, i.e. the real world) and the management procedure model (MP, i.e. the perceived world). The OM is itself divided in 3 components: biological, fleets and environmental and economic covariates. The MP is also divided in 3 components: data, the 
 perceived system and advice.
