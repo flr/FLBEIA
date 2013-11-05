@@ -76,26 +76,30 @@ create.indices.data <- function(){
       
       nms.stk.index <- get(paste(stk,'_indices',sep=''))
       
-      flqa <- create.list.stks.flqa ()[[stk]]
-      flq  <- create.list.stks.flq ()[[stk]]
+      for(j in 1:length(nms.stk.index)){
+        
+        nm.stk.index <-  nms.stk.index[j]
+        
+        flqa <- create.list.stks.flqa ()[[stk]]
+        flq  <- create.list.stks.flq ()[[stk]]
+        
+        stk.index              <- get(paste(stk,'_',nm.stk.index,'_index.flq',sep=''))                                                                
+        stk.index.type         <- mget(paste(stk,'_',nm.stk.index,'_type',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]                
+        stk.index.distribution <- mget(paste(stk,'_',nm.stk.index,'_distribution',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]        
+        stk.index.var          <- get(paste(stk,'_',nm.stk.index,'_index.var.flq',sep=''))      
+        stk.index.q            <- get(paste(stk,'_',nm.stk.index,'_index.q.flq',sep=''))        
+        stk.index.catch.n      <- mget(paste(stk,'_',nm.stk.index,'_catch.n.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]   
+        stk.index.catch.wt     <- mget(paste(stk,'_',nm.stk.index,'_catch.wt.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]        
+        stk.index.effort       <- mget(paste(stk,'_',nm.stk.index,'_effort.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]   
+        stk.index.sel.pattern  <- mget(paste(stk,'_',nm.stk.index,'_sel.pattern.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
       
-        stk.index              <- get(paste(stk,'_',nms.stk.index,'_index.flq',sep=''))                                                                
-        stk.index.type         <- mget(paste(stk,'_',nms.stk.index,'_type',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]                
-        stk.index.distribution <- mget(paste(stk,'_',nms.stk.index,'_distribution',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]        
-        stk.index.var          <- get(paste(stk,'_',nms.stk.index,'_index.var.flq',sep=''))      
-        stk.index.q            <- get(paste(stk,'_',nms.stk.index,'_index.q.flq',sep=''))        
-        stk.index.catch.n      <- mget(paste(stk,'_',nms.stk.index,'_catch.n.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]   
-        stk.index.catch.wt     <- mget(paste(stk,'_',nms.stk.index,'_catch.wt.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]        
-        stk.index.effort       <- mget(paste(stk,'_',nms.stk.index,'_effort.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]   
-        stk.index.sel.pattern  <- mget(paste(stk,'_',nms.stk.index,'_sel.pattern.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
-      
-        stk.index.range.min      <- get(paste(stk,'_',nms.stk.index,'_range.min',sep=''))    
-        stk.index.range.max      <- get(paste(stk,'_',nms.stk.index,'_range.max',sep=''))    
-        stk.index.range.minyear  <- mget(paste(stk,'_',nms.stk.index,'_range.minyear',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
-        stk.index.range.maxyear  <- mget(paste(stk,'_',nms.stk.index,'_range.maxyear',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
-        stk.index.range.startf   <- get(paste(stk,'_',nms.stk.index,'_range.startf',sep=''))
-        stk.index.range.endf     <- get(paste(stk,'_',nms.stk.index,'_range.endf',sep=''))
-        stk.index.range.plusgroup<- mget(paste(stk,'_',nms.stk.index,'_range.plusgroup',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
+        stk.index.range.min      <- get(paste(stk,'_',nm.stk.index,'_range.min',sep=''))    
+        stk.index.range.max      <- get(paste(stk,'_',nm.stk.index,'_range.max',sep=''))    
+        stk.index.range.minyear  <- mget(paste(stk,'_',nm.stk.index,'_range.minyear',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
+        stk.index.range.maxyear  <- mget(paste(stk,'_',nm.stk.index,'_range.maxyear',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
+        stk.index.range.startf   <- get(paste(stk,'_',nm.stk.index,'_range.startf',sep=''))
+        stk.index.range.endf     <- get(paste(stk,'_',nm.stk.index,'_range.endf',sep=''))
+        stk.index.range.plusgroup<- mget(paste(stk,'_',nm.stk.index,'_range.plusgroup',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
   
         stk.unit     <- get(paste(stk,'.unit',sep=""))
       
@@ -150,24 +154,30 @@ create.indices.data <- function(){
           if(!(any(dim(stk.index.sel.pattern)[4]==c(1,ns))))stop('in stk.index.sel.pattern number of seasons 1 or ns')
           if(!(any(dim(stk.index.sel.pattern)[6]==c(1,ni))))stop('in stk.index.sel.pattern number of iterations 1 or ni')}
         
-        indices[[stk]]<- FLIndices(FLIndex(name = nms.stk.index, index = flqa))
+        stk.flindex<- FLIndex(name = nm.stk.index, index = flqa)
+        
+        stk.flindex@catch.n[]     <- stk.index.catch.n
+        stk.flindex@effort[]      <- stk.index.effort
+        stk.flindex@index.q[]     <- stk.index.q
+        stk.flindex@index[]       <- stk.index
+        stk.flindex@index.var[]   <- stk.index.var
+        stk.flindex@sel.pattern[] <- stk.index.sel.pattern 
+        stk.flindex@catch.wt[]    <- stk.index.catch.wt
+        stk.flindex@range[['min']]     <- stk.index.range.min
+        stk.flindex@range[['max']]     <- stk.index.range.max
+        stk.flindex@range[['minyear']] <- stk.index.range.minyear
+        stk.flindex@range[['maxyear']] <- stk.index.range.maxyear
+        stk.flindex@range[['startf']]  <- stk.index.range.startf
+        stk.flindex@range[['endf']]    <- stk.index.range.endf
+        stk.flindex@range[['plusgroup']]    <- stk.index.range.plusgroup
       
-        indices[[stk]][[nms.stk.index]]@catch.n[]     <- stk.index.catch.n
-        indices[[stk]][[nms.stk.index]]@effort[]      <- stk.index.effort
-        indices[[stk]][[nms.stk.index]]@index.q[]     <- stk.index.q
-        indices[[stk]][[nms.stk.index]]@index[]       <- stk.index
-        indices[[stk]][[nms.stk.index]]@index.var[]   <- stk.index.var
-        indices[[stk]][[nms.stk.index]]@sel.pattern[] <- stk.index.sel.pattern 
-        indices[[stk]][[nms.stk.index]]@catch.wt[]    <- stk.index.catch.wt
-        indices[[stk]][[nms.stk.index]]@range[['min']]     <- stk.index.range.min
-        indices[[stk]][[nms.stk.index]]@range[['max']]     <- stk.index.range.max
-        indices[[stk]][[nms.stk.index]]@range[['minyear']] <- stk.index.range.minyear
-        indices[[stk]][[nms.stk.index]]@range[['maxyear']] <- stk.index.range.maxyear
-        indices[[stk]][[nms.stk.index]]@range[['startf']]  <- stk.index.range.startf
-        indices[[stk]][[nms.stk.index]]@range[['endf']]    <- stk.index.range.endf
-        indices[[stk]][[nms.stk.index]]@range[['plusgroup']]    <- stk.index.range.plusgroup
-      
+      assign(paste(nm.stk.index, ".FLIndex", sep = ""), stk.flindex)
     }
+    indices[[stk]]<- FLIndices(sapply(paste(nms.stk.index, ".FLIndex", sep = ""), FUN = get, 
+                                      envir = sys.frame(which = -1)))
+    names(indices[[stk]]) <- nms.stk.index
   }
   return(indices)
+  }
 }
+  

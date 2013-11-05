@@ -172,7 +172,8 @@ export(
   "vFLMs",
   "wtadStock",
   "wtalStock",
-  "XSAboot"
+  "XSAboot",
+  "xtabs2"
 )
 exportMethods(
   "addFLCatch",
