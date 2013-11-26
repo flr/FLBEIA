@@ -137,7 +137,7 @@ create.SRs.data <- function(path){
         if(!(any(dim(stk.proportion)[6]==c(1,ni))))stop('in proportion number of iterations 1 or ni')}
 
       log.dim <- equal.flq.Dimnames(lflq=list(stk.params,stk.sr@params),1:4)
-      if(!log.dim)stop('in SR uncertainty dimension names \n')
+      if(!log.dim)stop('in SR parameter dimension names \n')
     
       stk.sr@rec[,hist.yrs] <- stk.rec
       stk.sr@ssb[,hist.yrs] <- stk.ssb
