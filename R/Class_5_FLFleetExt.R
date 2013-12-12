@@ -356,17 +356,25 @@ setMethod("dims", signature(obj="FLFleetExt"),
 
 ## window    {{{
 setMethod("window", signature(x="FLFleetExt"),
-	  function(x, start=dims(x)$minyear, end=dims(x)$maxyear, extend=TRUE, frequency=1) {
+ function(x, start=dims(x)$minyear, end=dims(x)$maxyear, extend=TRUE, frequency=1) {
 
     # window fleet
     x <- qapply(x, window, start, end, extend, frequency)
 
     # window metiers
-    x@metiers <- lapply(x@metiers, window, start, end, extend, frequency)
+    metiers <- x@metiers
 
     # window catches
-    for(i in seq(length(x@metiers)))
-      x@metiers[[i]]@catches <- lapply(x@metiers[[i]]@catches, window, start, end, extend, frequency)
+    catches <- list()
+    for(i in seq(length(x@metiers))){
+
+      metiers[[i]]@catches <- FLCatchesExt(lapply(x@metiers[[i]]@catches, window, start, end, extend, frequency))
+
+
+    }
+    metiers <- FLMetiersExt(lapply(metiers, window, start, end))
+    
+    x@metiers <- metiers
 
 		x@range["minyear"] <- start
 		x@range["maxyear"] <- end
