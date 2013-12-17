@@ -69,7 +69,7 @@ create.biols.data <- function(){
     stk.range.max       <- get(paste(nmstk,'_range.max',sep=""))
     stk.range.plusgroup <- get(paste(nmstk,'_range.plusgroup',sep=""))
     stk.range.minyear   <- get(paste(nmstk,'_range.minyear',sep=""))
-    stk.range.maxyear   <- proj.yr-1    
+    stk.range.maxyear   <- last.yr    
     stk.range.minfbar   <- get(paste(nmstk,'_range.minfbar',sep=""))
     stk.range.maxfbar   <- get(paste(nmstk,'_range.maxfbar',sep=""))
     stk.proj.avg.yrs    <- get(paste(nmstk,'_biol.proj.avg.yrs',sep=""))
