@@ -59,9 +59,11 @@ create.fixedAdvice.ctrl <- function(resst,stkname, largs) return(resst)
 create.annualTAC.ctrl <- function(resst,stkname, largs){
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
-                fwd.ctrl = NULL, sr = list(params = NULL, model = 'geomean', years = NULL),
+                fwd.ctrl = NULL, 
                 growth.years = NULL, advice = "catch")
                 
+    resst$sr <- list(params = NULL, model = 'geomean', years = NULL)
+    
     cat("--------------------- NOTE ON ADVICE ------------------------------------------------------------------------------\n")            
     cat("A default control for 'annualTAC' HCR has been created for stock, ", stkname,".\n")
     cat("Fadvice = Ftarget subject to: \n * 10% maximum variation in F and,\n * 15% maximum variation in TAC.\n")
@@ -88,8 +90,9 @@ create.annualTAC.ctrl <- function(resst,stkname, largs){
 create.IcesHCR.ctrl <- function(resst,stkname, largs){
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
-                ref.pts = NULL, intermediate.year = 'Fsq', sr = list(params = NULL, model = 'geomean', years = NULL),
+                ref.pts = NULL, intermediate.year = 'Fsq',
                 growth.years = NULL, advice = "catch")
+    resst$sr <- list(params = NULL, model = 'geomean', years = NULL)
                 
     
     ref.pts.stk <- largs[[paste("ref.pts",stkname, sep = ".")]]
