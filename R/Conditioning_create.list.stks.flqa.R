@@ -37,7 +37,7 @@ create.list.stks.flqa <- function(){
     if(ns==1) nms <- 'all'
     
     if(stk.age.max-stk.age.min==0){
-      stk.flqa <- FLQuant(dimnames = list(age = '1', year = nmy, unit = nmu, 
+      stk.flqa <- FLQuant(dimnames = list(age = 'all', year = nmy, unit = nmu, 
                                           season = nms, iter = 1:ni))         
     } else{
       stk.flqa <- FLQuant(dimnames = list(age = stk.age.min:stk.age.max, year = nmy, unit = nmu, 
