@@ -125,7 +125,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
                     
                     else{
                         zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
-                                                uniroot(fobj, lower = 0, upper = 10, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
+                                                uniroot(fobj, lower = 0, upper = 100, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
                         res@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, res@harvest[ai-1,y,,,,i] )
                     }
                 }
@@ -297,7 +297,7 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
             for(i in 1:it){
       #      print(i)
                  zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
-                                                uniroot(fobj, lower = 0, upper = 10, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
+                                                uniroot(fobj, lower = 0, upper = 100, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
                         stck@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, c(stck@harvest[na-2,y,,,,i]))            }
         }
     }
