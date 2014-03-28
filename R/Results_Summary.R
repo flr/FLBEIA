@@ -54,8 +54,11 @@ F_flbeia <- function(obj){
             for(y in 1:ny){
                 for(a in fbar_age){
                     for(i in 1:it){
-                        aux[a,y,i] <- ifelse(n.[a,y,i] == 0, 0,
-                                                uniroot(fobj, lower = 0, upper = 10, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root)  
+                        if(n.[a,y,i] == 0) aux[a,y,i] <- 0
+                        else{
+                           xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root, silent = TRUE)
+                           aux[a,y,i] <- ifelse(class(xx) == 'try-error', NA, xx)
+                        }      
             }}}
            res[stk,,] <- apply(aux,2:3,mean) 
         }
