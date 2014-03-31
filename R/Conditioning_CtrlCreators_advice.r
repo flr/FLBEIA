@@ -231,3 +231,43 @@ create.froeseHCR.ctrl <- function(resst,stkname, largs){
     
    return(resst)
 }
+
+
+#------------------------------------------------------------------------------#
+#                        *** create.IcesHCR.ctrl  ***
+#-------------------------------------------------------------------------------
+create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
+
+    resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
+                ref.pts = NULL, intermediate.year = 'Fsq',
+                growth.years = NULL, advice = "catch")
+    resst$sr <- list(params = NULL, model = 'geomean', years = NULL)
+                
+    
+    ref.pts.stk <- largs[[paste("ref.pts",stkname, sep = ".")]]
+    
+    
+    
+    cat("--------------------- NOTE ON ADVICE ------------------------------------------------------------------------------\n")            
+    cat("A default control for 'F2CatchHCR' HCR has been created for stock, ", stkname,".\n")
+    cat("In the intermediate year fishing mortality equal to F statu quo.\n")
+    cat("For recruitment or population growth in biomass a geometric mean of historic time series estimates will be used.\n")
+    cat("Average of last 3 years used for biological parameters and fishing mortality.\n")
+    
+    
+    if(is.null(ref.pts.stk)){
+        it <- ifelse(is.null(largs$iter), 1, largs$iter)
+        warning("Reference points for stock, '", stkname,"' have not been specified in argument: ", paste("ref.pts",stkname,sep = "."), ". \n -  A ref.pts element with empty reference points has been created. FILL IT BY HAND!!!!", immediate. = TRUE)
+        if(is.null(it))  warning("iter argument is missing, iter = 1 will be used in the creation of ref.pts element, correct it if necessary.")
+        ref.pts.stk <- matrix(NA, 3,it, dimnames = list( c('Blim', 'Btrigger', 'Fmsy'), 1:it))
+        cat("------------------------------------------------------------------------------\n") 
+    }
+        
+    if(!is.matrix(ref.pts.stk) | !all(c('Ftarget') %in% rownames(ref.pts.stk)))   stop(paste("ref.pts",stkname,sep = "."), " must be a matrix with dimension 1x(numb. of iterations) and rownames = c('Ftarge')")
+    
+    if(!is.null(largs$iter))  if(largs$iter != dim(ref.pts.stk)[2]) stop("Number of iterations in 'ref.pts.", stkname, "' must be equal to the iterations specified in 'iter' argument." )
+ 
+    resst$ref.pts <- ref.pts.stk
+    
+   return(resst)
+}
