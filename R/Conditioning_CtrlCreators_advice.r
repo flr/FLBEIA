@@ -14,7 +14,7 @@
 
 create.advice.ctrl <- function(stksnames, HCR.models = NULL, HCR.ctrls = NULL,...){
     
-    HCR.models.available <- c('fixedAdvice','annualTAC','IcesHCR','ghlHCR','annexIVHCR', 'froeseHCR', 'create.F2CatchHCR.ctrl')
+    HCR.models.available <- c('fixedAdvice','annualTAC','IcesHCR','ghlHCR','annexIVHCR', 'froeseHCR', 'F2CatchHCR')
 
     res        <- vector('list', length(stksnames))
     names(res) <- stksnames
