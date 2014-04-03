@@ -346,14 +346,19 @@ totvcost_flbeia <- function(fleet){
     for(mt in mts){
         res <- res + fleet@metiers[[mt]]@vcost*fleet@effort*fleet@metiers[[mt]]@effshare
     }
+    Rev <- revenue_flbeia(fleet)*fleet@crewshare
+    
+    res <- res + Rev
+    
     return(res)               
 }
 
 #-------------------------------------------------------------------------------
 # totvcost_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
-totfcost_flbeia <- function(fleet){
-     return(fleet@fcost*fleet@capacity)            
+totfcost_flbeia <- function(fleet, covars, flnm = NULL){
+     if(is.null(flnm)) flnm <- 1
+     return(fleet@fcost*covars[['NumbVessels']][flnm,])            
 }
 
 

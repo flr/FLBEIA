@@ -33,12 +33,13 @@ CobbDouglasBio   <- function(E,B,q.m,efs.m,alpha.m,beta.m,...)  # dga: aYYYado a
 
 #-------------------------------------------------------------------------------
 #  CobbDouglasBio.effort Cr[1], B[1], q.m,efs.m,alpha.m,beta.m :: [mt]       
-#       The functions does _not_work_ with iterations
+#       The function does _not_work_ with iterations
 #-------------------------------------------------------------------------------
-CobbDouglasBio.effort   <- function(Cr,B,q.m,efs.m,alpha.m,beta.m,...){
+CobbDouglasBio.effort   <- function(Cr,B,q.m,efs.m,alpha.m,beta.m,ret.m, catch = TRUE,...){
 
-    fObj <- function(E.f,Cr,B, q.m,efs.m,alpha.m,beta.m){
-        C.m <- q.m*(E.f*efs.m)^alpha.m*B^beta.m
+    fObj <- function(E.f,Cr,B, q.m,efs.m,alpha.m,beta.m,ret.m, catch){
+        if(catch == TRUE) C.m <- q.m*(E.f*efs.m)^alpha.m*B^beta.m   # if catch = TRUE (=> the restriction is catch not landings. )
+        else C.m <- q.m*(E.f*efs.m)^alpha.m*B^beta.m*ret.m
         return(Cr - sum(C.m))
     }
     
@@ -80,7 +81,7 @@ CobbDouglasAge   <- function(E,Ba,q.m,efs.m,alpha.m,beta.m,...){
 #  CobbDouglasAge.Effort :: Cr[1], B[na,nu], efs.m[mt], q.m,alpha.m,beta.m :: [mt,na,nu] 
 #-------------------------------------------------------------------------------
 
-CobbDouglasAge.effort   <- function(Cr,Ba,q.m,efs.m,alpha.m,beta.m,...){
+CobbDouglasAge.effort   <- function(Cr,Ba,q.m,efs.m,alpha.m,beta.m, ret.m, catch = TRUE,...){
  
     dimq <- dim(q.m)  # [mt,na,nu,1]
     
@@ -91,14 +92,12 @@ CobbDouglasAge.effort   <- function(Cr,Ba,q.m,efs.m,alpha.m,beta.m,...){
     
     efs.m <- array(efs.m, dim = dimq)
 
-    fObj <- function(E.f,Cr,Ba, q.m,efs.m,alpha.m,beta.m){
-        Ca <- q.m*(E.f*efs.m)^alpha.m*(Ba^beta.m)
-     #   cat('Ca_1', Ca, '\n')
-  #      Ca <- ifelse(Ca>Ba, Ba*0.95, Ca) 
-     #   cat('Ca_2', Ca, '\n')
-        C.m <- sum(Ca)
+    fObj <- function(E.f,Cr,Ba, q.m,efs.m,alpha.m,beta.m, ret.m,catch){
+        # if catch = TRUE (=> the restriction is catch not landings. )
+        if(catch == TRUE) Ca.m <- q.m*(E.f*efs.m)^alpha.m*(Ba^beta.m)
+        else  Ca.m <- q.m*(E.f*efs.m)^alpha.m*(Ba^beta.m)*ret.m
         
-        return(Cr - sum(C.m))
+                return(Cr - sum(Ca.m))
     }
 
     NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,Ba=Ba, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m)$root

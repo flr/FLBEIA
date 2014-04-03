@@ -44,6 +44,10 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
     ns  <- dim(biols[[1]]@n)[4]
     it  <- dim(biols[[1]]@n)[6]
     flnms <- names(fleets)
+    
+    # if TAC overshoot is not discarded, it is sold and it contributes to the revenue.
+    TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]
+    TACOS <- ifelse(is.null(TACOS), TRUE, TACOS) 
         
     # Biomass at age.
     Ba   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,nu,it] 
@@ -98,121 +102,120 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
     flinfo     <- stock.fleetInfo(fl.)
     flinfo <-  strsplit(apply(flinfo, 1,function(x) names(which(x == 1))[1]), '&&')
 
-    if(fleets.ctrl[[flnm]]$restriction == 'catch'){
-
-        efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
+    efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
                     length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
-        vc.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss, drop=T])), 
+    vc.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss, drop=T])), 
                     length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
-        fc   <- fl@fcost[,yr,,ss, drop=T]*fl@capacity[,yr,,ss, drop=T] # [it]
-        if(length(fc) == 1) fc <- rep(fc,it)
-        effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
-        Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
+    fc   <- fl@fcost[,yr,,ss, drop=T]*fl@capacity[,yr,,ss, drop=T] # [it]
+    if(length(fc) == 1) fc <- rep(fc,it)
+    
+    effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
+    Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
         
 
-        q.m <- alpha.m <- beta.m  <- pr.m  <- vector('list', length(sts))
-        names(q.m) <- names(pr.m) <- names(alpha.m) <- names(beta.m) <- sts 
+    q.m <- alpha.m <- beta.m  <- pr.m  <- vector('list', length(sts))
+    names(q.m) <- names(pr.m) <- names(alpha.m) <- names(beta.m) <- sts 
 
-        for(st in sts){     # q.m, alpha.m.... by metier but stock specific
+    for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
-            # identify the first metier that catch stock st
-            mtst <- flinfo[[st]][2]
+    # identify the first metier that catch stock st
+    mtst <- flinfo[[st]][2]
             
-            age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
-            age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
-            age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
-            age.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[1]]
+    age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
+    age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
+    age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
+    age.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[1]]
             
-            unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
-            unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
-            unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
-            unit.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[3]]
+    unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
+    unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
+    unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
+    unit.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[3]]
             
-            q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q),     length(unit.q),it),      dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
-            alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
-            beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-            pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.pr),  length(unit.pr), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+    q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q),     length(unit.q),it),      dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
+    alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
+    beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+    pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.pr),  length(unit.pr), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+    ret.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.pr),  length(unit.pr), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
 
-            for(mt in mtnms){
-                 if(!(st %in% names(fl@metiers[[mt]]@catches))) next
+        for(mt in mtnms){
+            if(!(st %in% names(fl@metiers[[mt]]@catches))) next
                     
-                 q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, drop = TRUE] 
-                 alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, drop = TRUE] 
-                 beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, drop = TRUE]
-                 # The price is taken from the year before, because price for the current year is updated after catch is produced,
-                 # if the price was dynamically updated inside this function the optimizer could crash. 
-                 pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr-1,,ss, drop = TRUE] 
-            }    
-            Cr.f[st,] <- TAC[st,]*QS[[st]][flnm,]
-        }
+            q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, drop = TRUE] 
+            alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, drop = TRUE] 
+            beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, drop = TRUE]
+            ret.m[[st]][mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, drop = TRUE]
 
-        Et  <- fl@effort[,yr-1,drop=T]   # it
-        efs <- t(matrix(sapply(fl@metiers, function(x) x@effshare[,yr,,ss,drop=T]),it,nmt)) #[nmt, it]   
+            # The price is taken from the year before, because price for the current year is updated after catch is produced,
+            # if the price was dynamically updated inside this function the optimizer could crash. 
+            pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr-1,,ss, drop = TRUE] 
+        }    
+        Cr.f[st,] <- TAC[st,]*QS[[st]][flnm,]
+    }
+
+    Et  <- fl@effort[,yr-1,drop=T]   # it
+    efs <- t(matrix(sapply(fl@metiers, function(x) x@effshare[,yr,,ss,drop=T]),it,nmt)) #[nmt, it]   
+    
+    Et.res  <- numeric(it)
+    efs.res <- matrix(NA,nmt,it, dimnames = list(mtnms,1:it))
         
-        Et.res  <- numeric(it)
-        efs.res <- matrix(NA,nmt,it, dimnames = list(mtnms,1:it))
+    # CALCULATE THE EFFORT THAT MAXIMIZES THE PROFITS UNCER CERTAIN CONSTRAINTS.
+    # (Rdonlp2 library)    
+    stk.cnst <- fleets.ctrl[[flnm]]$stk.cnst
+    K <- fl@capacity[,yr,,ss,drop=T]
+    if(length(K) == 1) K <- rep(K,it)
         
-        # CALCULATE THE EFFORT THAT MAXIMIZES THE PROFITS UNCER CERTAIN CONSTRAINTS.
-        # (Rdonlp2 library)    
-        stk.cnst <- fleets.ctrl[[flnm]]$stk.cnst
-        K <- fl@capacity[,yr,,ss,drop=T]
-        if(length(K) == 1) K <- rep(K,it)
+    ctrl <- donlp2Control() #,
+    ctrl$fnscale <-  -1 
+    ctrl$silent  <- TRUE
+    #ctrl$report <-  TRUE 
+    #ctrl$epsx  <-  1e-5
+    #ctrl$epsdif <- 1e-4      
         
-        ctrl <- donlp2Control() #,
-        ctrl$fnscale <-  -1 
-        ctrl$silent  <- TRUE
-        #ctrl$report <-  TRUE 
-        #ctrl$epsx  <-  1e-5
-        #ctrl$epsdif <- 1e-4      
+    res <- vector('list', it)
+    for(i in 1:it){
         
-         res <- vector('list', it)
-        for(i in 1:it){
-        
-            donlpDat <- list(q.m = q.m, alpha.m = alpha.m , beta.m = beta.m, pr.m = pr.m, 
-                         vc.m = vc.m, Ba = Ba, fc = fc, stk.cnst = stk.cnst, Cr.f = Cr.f, i = i)
-            attach(donlpDat)
+        donlpDat <- list(q.m = q.m, alpha.m = alpha.m , beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, 
+                         vc.m = vc.m, Ba = Ba, fc = fc, stk.cnst = stk.cnst, Cr.f = Cr.f, i = i,
+                         catch = fleets.ctrl[[flnm]]$restriction, tacos = TACOS)
+        attach(donlpDat)
             
-            E <- rep(K[i]/nmt,nmt)*0.5 # c(Et[i]*efs[,i])   
-      #      save(donlpDat,E,K, file = 'inputData.Rdata')
-     #       browser()
-            res[[i]] <- donlp2(E, fobj.maxprofits, par.upper = rep(Inf,nmt), par.lower = rep(.1, nmt),  # Obj. Function and params. bound
+        E <- rep(K[i]/nmt,nmt)*0.5 # c(Et[i]*efs[,i])   
+        #      save(donlpDat,E,K, file = 'inputData.Rdata')
+        #       browser()
+        res[[i]] <- donlp2(E, fobj.maxprofits, par.upper = rep(Inf,nmt), par.lower = rep(.1, nmt),  # Obj. Function and params. bound
                      A = matrix(rep(1,nmt),1,nmt), lin.upper = K[i], lin.lower = .1*nmt, control = ctrl,#,                      # Linear constraints
                      nlin = list(nlin.maxprofits), nlin.upper =  Cr.f[stk.cnst,i], nlin.lower = 0)         # Non-Linear constraints
-            Et.res[i]   <- sum(res[[i]]$par)
-            efs.res[,i] <- res[[i]]$par/sum(res[[i]]$par)
-          cat('Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], ', ~~~~~ Benefit: ', res[[i]]$fx, '\n')  
+        Et.res[i]   <- sum(res[[i]]$par)
+        efs.res[,i] <- res[[i]]$par/sum(res[[i]]$par)
+        cat('Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], ', ~~~~~ Benefit: ', res[[i]]$fx, '\n')  
             detach()
-        }
+    }
         
         
-        fleets[[flnm]]@effort[,yr,,ss] <- Et.res
-        for(mt in mtnms)  fleets[[flnm]]@metiers[[mt]]@effshare[,yr,,ss] <- efs.res[mt,]        
+    fleets[[flnm]]@effort[,yr,,ss] <- Et.res
+    for(mt in mtnms)  fleets[[flnm]]@metiers[[mt]]@effshare[,yr,,ss] <- efs.res[mt,]        
                     
-        # Update the quota share of this step and the next one if the 
-        # quota share does not coincide with the actual catch. (update next one only if s < ns).
-        for(st in sts){
+    # Update the quota share of this step and the next one if the 
+    # quota share does not coincide with the actual catch. (update next one only if s < ns).
+    for(st in sts){
       #   browser()
       #  if(st == 'SKH') browser()
         
-            yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-            ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
-            quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
-            # The catch.
-            catchFun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CatchFleet', sep = ".")
-            Dim <- dim(Ba[[st]])
-            Ba. <- array(dim = c(Dim[1],1,Dim[2],1,1,Dim[3]))
-            Ba.[,1,,1,1,]  <- Ba[[st]]
-            catch <- eval(call(catchFun, Ba = Ba., B = B[st,], effort = Et.res, efs.m = efs.res, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
+        yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
+        ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
+        quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
+        # The catch.
+        catchFun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CatchFleet', sep = ".")
+        Dim <- dim(Ba[[st]])
+        Ba. <- array(dim = c(Dim[1],1,Dim[2],1,1,Dim[3]))
+        Ba.[,1,,1,1,]  <- Ba[[st]]
+        catch <- eval(call(catchFun, Ba = Ba., B = B[st,], effort = Et.res, efs.m = efs.res, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
             
-            quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss)        # [ns,it]
+        quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss)        # [ns,it]
                               
-            fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
-        }
+        fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
     }
-    
-    else{ # landings restriction.
-        stop('Not yet implemented')
-    } 
+
     
     return(list(fleets = fleets, fleets.ctrl = fleets.ctrl, res = res))
 }
@@ -248,27 +251,41 @@ fobj.maxprofits <- function(E){
     alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i, drop=F])  # [nmt,na,nu,1]
     beta.m.i   <- lapply(beta.m, function(x) x[,,,i, drop=F])   # [nmt,na,nu,1]
     pr.m.i     <- lapply(pr.m, function(x) x[,,,i, drop=F])     # [nmt,na,nu,1]
+    ret.m.i     <- lapply(ret.m, function(x) x[,,,i, drop=F])     # [nmt,na,nu,1]
     vc.m.i     <- vc.m[,i] # [nmt]
     Ba.i       <- lapply(names(q.m.i), function(x){          # [nmt,na,nu]
                                     Dim <- dim(q.m.i[[x]])
                                     res <- array(dim = Dim)
                                     for(j in 1:nmt) res[j,,,] <- Ba[[x]][,,i,drop=F]
                                     return(res)})
-    Cr.f.i <- Cr.f[,i,drop=F] # [nst,1]
+    Cr.f.i <- Cr.f[,i,drop=F] # [nst,1]   quota share 
     
     res <- 0
     
 
-    Cst <- rep(0,4)
-    names(Cst) <- c('NHKE', 'CMEG', 'CANK', 'CMON')
+    # Cst <- rep(0,4)
+    # names(Cst) <- c('NHKE', 'CMEG', 'CANK', 'CMON')
+    
+    Cst <- NULL
+    
     for(st in 1:length(q.m.i)){
     
 
         E  <- array(E,dim = dim(Ba.i[[st]]))   # [nmt,na,nu]
 
-        Cst[st] <- sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]]))
-        Lrat <- ifelse(Cr.f.i[st,]/Cst[st] > 1, 1, Cr.f.i[st,]/Cst[st])
-        # Discards are proportional to the catch in all the metiers.
+        Cst[st] <- sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]]))    
+        Lst[st] <- sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]])*ret.m)  # multiply the retention vector if landing is the restriction. 
+        
+        # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE). 
+        if(catch  == FALSE) Cst[st] <- L[st]# The restriction is landings.
+        
+        # TAC overshot can be landed or discarded. In the case of landing obligation it is 'discarded' because it does not 
+        # contribute to the revenue but it goes against the TAC => TACOS == TRUE
+        if(tacos == FALSE) # TAC Overshot is not discarded.
+            Lrat <- 1
+        else Lrat <- ifelse(Cr.f.i[st,]/Cst[st] > 1, 1, Cr.f.i[st,]/Cst[st])  # TAC Overshot is  discarded.
+                                                                              # The overquota discards are proportional to the catch in all the metiers.
+        
         
         res <- res + sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]])*pr.m.i[[st]]*Lrat)
      #   print(res)

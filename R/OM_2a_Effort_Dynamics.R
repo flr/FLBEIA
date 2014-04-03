@@ -116,82 +116,78 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     flinfo     <- stock.fleetInfo(fl.)
     flinfo <-  strsplit(apply(flinfo, 1,function(x) names(which(x == 1))[1]), '&&')
 
-    if(fleets.ctrl[[flnm]]$restriction == 'catch'){
 
-        efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
+    efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
                     length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
-        effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
-        Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
+    effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
+    Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
 
-        q.m <- alpha.m <- beta.m  <- vector('list', length(sts))
-        names(q.m) <- names(alpha.m) <- names(beta.m) <- sts 
+    q.m <- alpha.m <- beta.m  <- vector('list', length(sts))
+    names(q.m) <- names(alpha.m) <- names(beta.m) <- sts 
 
-        for(st in sts){     # q.m, alpha.m.... by metier but stock specific
+    for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
-            # identify the first metier that catch stock st
-            mtst <- flinfo[[st]][2]
+        # identify the first metier that catch stock st
+        mtst <- flinfo[[st]][2]
             
-            age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
-            age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
-            age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
+        age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
+        age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
+        age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
 
-            unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
-            unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
-            unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
+        unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
+        unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
+        unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
 
-            q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q), length(unit.q),it),     dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
-            alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
-            beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+        q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q), length(unit.q),it),     dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
+        alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
+        beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+        ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
 
-            for(mt in mtnms){
+        for(mt in mtnms){
 
-                 if(!(st %in% names(fl@metiers[[mt]]@catches))) next
+            if(!(st %in% names(fl@metiers[[mt]]@catches))) next
                     
-                 q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, drop = TRUE] 
-                 alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, drop = TRUE] 
-                 beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, drop = TRUE] 
-            }    
+            q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, drop = TRUE] 
+            alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, drop = TRUE] 
+            beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, drop = TRUE] 
+            ret.m[[st]][mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, drop = TRUE] 
+        }    
         
-            Cr.f[st,] <- TAC[st,]*QS[[st]][flnm,]
+        Cr.f[st,] <- TAC[st,]*QS[[st]][flnm,]
                 
-            for(i in 1:it){          
-                effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
-                effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i], B = B[st,i], Ba = Ba[[st]][,,,,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], 
-                                efs.m = efs.m[,i], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F]))
-            }
+        for(i in 1:it){          
+            effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
+            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i], B = B[st,i], Ba = Ba[[st]][,,,,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], 
+                                efs.m = efs.m[,i], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F], 
+                                ret.m = ret.m[[st]][,,,i,drop=F], catch = fleets.ctrl[[flnm]]$restriction))
         }
+    }
             
-        # Choose the effort.
-        eff <- effRule.SMFB(effs = effs, prev.eff = matrix(fl@effort[,yr-1,,ss,drop=T],1,it), 
-                            rule = fleets.ctrl[[flnm]]$effort.restr)
+    # Choose the effort.
+    eff <- effRule.SMFB(effs = effs, prev.eff = matrix(fl@effort[,yr-1,,ss,drop=T],1,it), rule = fleets.ctrl[[flnm]]$effort.restr)
             
-        # Capacity restrictions.  
-        eff <- capacityRest.SMFB(eff, c(fl@capacity[,yr,,ss,drop=T]))                                   
-        fleets[[flnm]]@effort[,yr,,ss] <- eff 
+    # Capacity restrictions.  
+    eff <- capacityRest.SMFB(eff, c(fl@capacity[,yr,,ss,drop=T]))                                   
+    fleets[[flnm]]@effort[,yr,,ss] <- eff 
           
     #    save(advice,alpha.m,B,beta.m,Cr.f,CT,eff,effs,efs.m,fleets.ctrl, 
     #         q.m,QS,QS.ss,TAC,TAC.yr, file = paste(flnm, file = '.RData', sep = ""))
    
-        # Update the quota share of this step and the next one if the 
-        # quota share does not coincide with the actual catch. (update next one only if s < ns).
-        for(st in sts){
-         #   browser()
-            yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-            ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
-            quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
-            # The catch.
-            catchFun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CatchFleet', sep = ".")
-            catch <- eval(call(catchFun, Ba = Ba[[st]], B = B[st,], effort = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
+   # Update the quota share of this step and the next one if the 
+   # quota share does not coincide with the actual catch. (update next one only if s < ns).
+   for(st in sts){
+    #   browser()
+        yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
+        ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
+        quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
+        # The catch.
+        catchFun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CatchFleet', sep = ".")
+        catch <- eval(call(catchFun, Ba = Ba[[st]], B = B[st,], effort = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
             
-            quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss)        # [ns,it]
+        quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss)        # [ns,it]
                               
-            fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
-        }
+        fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
     }
-    
-    else{ # landings restriction.
-        stop('Landings restriction is not yet implemented')
-    } 
     
     return(list(fleets = fleets, fleets.ctrl = fleets.ctrl))
 }

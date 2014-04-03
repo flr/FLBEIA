@@ -263,7 +263,7 @@ create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
         cat("------------------------------------------------------------------------------\n") 
     }
         
-    if(!is.matrix(ref.pts.stk) | !all(c('Ftarget') %in% rownames(ref.pts.stk)))   stop(paste("ref.pts",stkname,sep = "."), " must be a matrix with dimension 1x(numb. of iterations) and rownames = c('Ftarge')")
+    if(!is.array(ref.pts.stk) | !all(c('Ftarget') %in% dimnames(ref.pts.stk)[[1]]))   stop(paste("ref.pts",stkname,sep = "."), " must be a array with dimension 1x(numb. projections years)x(numb. of iterations) and dimnames[[1]] = c('Ftarge')")
     
     if(!is.null(largs$iter))  if(largs$iter != dim(ref.pts.stk)[2]) stop("Number of iterations in 'ref.pts.", stkname, "' must be equal to the iterations specified in 'iter' argument." )
  

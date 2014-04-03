@@ -226,7 +226,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     tac <- rep('Inf',it)
     
     # if TAC overshoot is discarded, calculate seasonal TAC to calculate the discards.
-    TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]
+    TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]    # Is the TAC overshot discarded?
     TACOS <- ifelse(is.null(TACOS), TRUE, TACOS) 
     if(TACOS){
         yr.share    <- advice$quota.share[[stknm]][flnm,yr,, drop=T]              # [it]
