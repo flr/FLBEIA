@@ -45,9 +45,7 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
     it  <- dim(biols[[1]]@n)[6]
     flnms <- names(fleets)
     
-    # if TAC overshoot is not discarded, it is sold and it contributes to the revenue.
-    TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]
-    TACOS <- ifelse(is.null(TACOS), TRUE, TACOS) 
+
         
     # Biomass at age.
     Ba   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,nu,it] 
@@ -106,37 +104,44 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
                     length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
     vc.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss, drop=T])), 
                     length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
-    fc   <- fl@fcost[,yr,,ss, drop=T]*fl@capacity[,yr,,ss, drop=T] # [it]
+    fc    <- fl@fcost[,yr,,ss, drop=T]* covars$NumbVessels[flnm,yr,,ss, drop=T] # [it]
+    crewS <- fl@crewshare[,yr,,ss, drop=T] # [it]
     if(length(fc) == 1) fc <- rep(fc,it)
     
     effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
     Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
         
 
-    q.m <- alpha.m <- beta.m  <- pr.m  <- vector('list', length(sts))
-    names(q.m) <- names(pr.m) <- names(alpha.m) <- names(beta.m) <- sts 
+    q.m <- alpha.m <- beta.m  <- pr.m <- ret.m <- vector('list', length(sts))
+    names(q.m) <- names(pr.m) <- names(alpha.m) <- names(beta.m) <- names(ret.m) <- sts 
 
+    tacos <- logical(length(sts))
+    names(tacos) <- sts
+    
     for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
-    # identify the first metier that catch stock st
-    mtst <- flinfo[[st]][2]
+        # identify the first metier that catch stock st
+        mtst <- flinfo[[st]][2]
             
-    age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
-    age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
-    age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
-    age.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[1]]
+        age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
+        age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
+        age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
+        age.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[1]]
             
-    unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
-    unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
-    unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
-    unit.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[3]]
+        unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
+        unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
+        unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
+        unit.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[3]]
             
-    q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q),     length(unit.q),it),      dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
-    alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
-    beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-    pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.pr),  length(unit.pr), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-    ret.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.pr),  length(unit.pr), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+        q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q),     length(unit.q),it),      dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
+        alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
+        beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+        pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.pr),  length(unit.pr), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+        ret.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.pr),  length(unit.pr), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
 
+        # if TAC overshoot is not discarded, it is sold and it contributes to the revenue.
+        tacos[st] <- ifelse(is.null(fleets.ctrl[[flnm]][[st]][['discard.TAC.OS']]), TRUE,fleets.ctrl[[flnm]][[st]][['discard.TAC.OS']]) 
+        
         for(mt in mtnms){
             if(!(st %in% names(fl@metiers[[mt]]@catches))) next
                     
@@ -174,9 +179,9 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
     res <- vector('list', it)
     for(i in 1:it){
         
-        donlpDat <- list(q.m = q.m, alpha.m = alpha.m , beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, 
+        donlpDat <- list(q.m = q.m, alpha.m = alpha.m , beta.m = beta.m, pr.m = pr.m, ret.m = ret.m,  crewS = crewS,
                          vc.m = vc.m, Ba = Ba, fc = fc, stk.cnst = stk.cnst, Cr.f = Cr.f, i = i,
-                         catch = fleets.ctrl[[flnm]]$restriction, tacos = TACOS)
+                         catch.rest = fleets.ctrl[[flnm]]$restriction, tacos = tacos)
         attach(donlpDat)
             
         E <- rep(K[i]/nmt,nmt)*0.5 # c(Et[i]*efs[,i])   
@@ -266,7 +271,7 @@ fobj.maxprofits <- function(E){
     # Cst <- rep(0,4)
     # names(Cst) <- c('NHKE', 'CMEG', 'CANK', 'CMON')
     
-    Cst <- NULL
+    Cst <- Lst <-  NULL
     
     for(st in 1:length(q.m.i)){
     
@@ -274,14 +279,14 @@ fobj.maxprofits <- function(E){
         E  <- array(E,dim = dim(Ba.i[[st]]))   # [nmt,na,nu]
 
         Cst[st] <- sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]]))    
-        Lst[st] <- sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]])*ret.m)  # multiply the retention vector if landing is the restriction. 
+        Lst[st] <- sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]])*ret.m.i[[st]])  # multiply the retention vector if landing is the restriction. 
         
         # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE). 
-        if(catch  == FALSE) Cst[st] <- L[st]# The restriction is landings.
+        if(catch.rest  == FALSE) Cst[st] <- L[st]# The restriction is landings.
         
         # TAC overshot can be landed or discarded. In the case of landing obligation it is 'discarded' because it does not 
         # contribute to the revenue but it goes against the TAC => TACOS == TRUE
-        if(tacos == FALSE) # TAC Overshot is not discarded.
+        if(tacos[st] == FALSE) # TAC Overshot is not discarded.
             Lrat <- 1
         else Lrat <- ifelse(Cr.f.i[st,]/Cst[st] > 1, 1, Cr.f.i[st,]/Cst[st])  # TAC Overshot is  discarded.
                                                                               # The overquota discards are proportional to the catch in all the metiers.
@@ -292,7 +297,7 @@ fobj.maxprofits <- function(E){
 
     }
 
-    res <- res - sum(vc.m.i*E[,1,1,1]) - fc[i]
+    res <- res - sum(vc.m.i*E[,1,1,1]) - fc[i]  - res*crewS[i]
 #    print(res)
 #    cat('--- NHKE: ', Cst[1], ' --- CMEG: ', Cst[2], ' --- CANK: ', Cst[3], ' --- CMON: ', Cst[4], '\n') 
 #    cat('****** ', E[1:6], ' *******\n')

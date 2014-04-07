@@ -122,8 +122,8 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
     Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
 
-    q.m <- alpha.m <- beta.m  <- vector('list', length(sts))
-    names(q.m) <- names(alpha.m) <- names(beta.m) <- sts 
+    q.m <- alpha.m <- beta.m  <- ret.m <- vector('list', length(sts))
+    names(q.m) <- names(alpha.m) <- names(beta.m) <- names(ret.m) <- sts 
 
     for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 

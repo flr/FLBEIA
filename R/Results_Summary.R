@@ -266,7 +266,7 @@ bioSum <- function(object){
 # ecoSum data.frame[year, quarter, stock, fleet, iter, ||,|| 
 #        profits, capacity, costs, discards, effort, landings] 
 #------------------------------------------------------------------------------#
-ecoSum <- function(fleets, flnms = 'all', years){
+ecoSum <- function(fleets, flnms = 'all', years, covars){
     
     if(flnms[1] == 'all') flnms <- names(fleets)
     
@@ -292,7 +292,7 @@ ecoSum <- function(fleets, flnms = 'all', years){
         
         res[k:(k+prod(Dim)-1),'capacity'] <- c(fl@capacity[,years,])
         res[k:(k+prod(Dim)-1),'effort']   <- c(fl@effort[,years,])
-        res[k:(k+prod(Dim)-1),'costs']    <- c(costs_flbeia(fl)[,years,])
+        res[k:(k+prod(Dim)-1),'costs']    <- c(costs_flbeia(fl, covars, flnm = f)[,years,])
         res[k:(k+prod(Dim)-1),'profits']  <- c(revenue_flbeia(fl)[,years,]) -  res[k:(k+prod(Dim)-1),'costs']
         
         k <- k + prod(Dim)
@@ -327,9 +327,9 @@ revenue_flbeia <- function(fleet){
 #-------------------------------------------------------------------------------
 # costs_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
-costs_flbeia <- function(fleet){
+costs_flbeia <- function(fleet, covars, flnm = NULL){
     
-    res <- totvcost_flbeia(fleet) + totfcost_flbeia(fleet)
+    res <- totvcost_flbeia(fleet) + totfcost_flbeia(fleet, covars, flnm)
     
     return(res)               
 }

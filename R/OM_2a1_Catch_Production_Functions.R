@@ -48,7 +48,7 @@ CobbDouglasBio.effort   <- function(Cr,B,q.m,efs.m,alpha.m,beta.m,ret.m, catch =
     fobjX <- abs(sapply(X, fObj, Cr = Cr, B = B, q.m = q.m, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m))
     upl <- X[which(fobjX != Inf)[length(which(fobjX != Inf))]]
             
-    NomEff <- uniroot(fObj,interval=c(0,upl),Cr=Cr,B=B, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m)$root
+    NomEff <- uniroot(fObj,interval=c(0,upl),Cr=Cr,B=B, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, catch = catch, ret.m = ret.m)$root
 
     return(effort =  NomEff)
 }
@@ -100,7 +100,7 @@ CobbDouglasAge.effort   <- function(Cr,Ba,q.m,efs.m,alpha.m,beta.m, ret.m, catch
                 return(Cr - sum(Ca.m))
     }
 
-    NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,Ba=Ba, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m)$root
+    NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,Ba=Ba, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, catch = catch, ret.m = ret.m)$root
 
     return(effort =  NomEff)
 }

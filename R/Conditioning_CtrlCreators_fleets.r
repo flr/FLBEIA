@@ -186,11 +186,10 @@ create.SMFB.ctrl <- function(resf, fltname,largs){
 
 
     # if NULL set default values
+    
     rest      <- ifelse(is.null(largs[[paste('restriction', fltname,sep='.')]]), 'catch', largs[[paste('restriction', fltname,sep='.')]])
     effrest   <- ifelse(is.null(largs[[paste('effort.restr', fltname,sep='.')]]), 'max', largs[[paste('effort.restr', fltname,sep='.')]])
 
-#    if(is.null(largs[[paste('restriction', fltname,sep='.')]])) warning("Restriction in (restriction argument) is missing for fleet, ", fltname, ", 'landings' used,  if you want 'catch' restriction you MUST change it manually.")
-    if(!is.null(largs[[paste('restriction', fltname,sep='.')]])) if(largs[[paste('restriction', fltname,sep='.')]] == 'landings') stop("Landings restriction in 'SMFB' is not yet implemented.")
     
     if(is.na(effrest)) warning("Effort restriction in (effort.rest argument) is missing for fleet, ", fltname, ", NA used, you MUST fill it otherwise SMFB will not work.")
     
@@ -210,11 +209,14 @@ create.MaxProfit.stkCnst.ctrl <- function(resf,fltname,largs){
     
     # if NULL set default values, the 3rd stock in resf list, it can happen that is not an stock name.
     stk.cnst    <- ifelse(is.null(largs[[paste('stk.cnst', fltname,sep='.')]]),  NA, largs[[paste('stk.cnst', fltname,sep='.')]])
+    rest      <- ifelse(is.null(largs[[paste('restriction', fltname,sep='.')]]), NA, largs[[paste('restriction', fltname,sep='.')]])
 
     if(is.na( stk.cnst )) warning("Stock constraint in (stk.cnst argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit.stkCnst will not work.")
-    
+    if(is.na( rest )) warning("Catch/landing restriction in (srestriction argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit.stkCnst will not work.")
+
     resf[['stk.cnst']] <- stk.cnst
- 
+    resf[['restriction']]  <- rest 
+    
     return(resf)
 }
 
