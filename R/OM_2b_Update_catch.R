@@ -19,9 +19,7 @@
 updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl = advice.ctrl, year = 1, season = 1){
 
     fleet.names <- names(fleets)
-    
-    fleets <- unclass(fleets) # convert it into a list to speed up de computations
-    
+        
     for(flnm in fleet.names){
         # Which stocks are caught by fleet flnm.
         flsts <- catchNames(fleets[[flnm]])
@@ -30,6 +28,7 @@ updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl = advice
             fleets <- eval(call(catch.model, fleets = fleets, biols = biols, fleets.ctrl = fleets.ctrl, advice = advice, advice.ctrl = advice.ctrl, year = year, season = season, flnm = flnm, stknm = st))
         }
     }
+    
     
      fleets <- FLFleetsExt(fleets)
     
@@ -195,7 +194,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
           
     fleets[[f]] <- fl
     
-    fleets <- FLFleetsExt(fleets)
+#    fleets <- FLFleetsExt(fleets)
       
     return(fleets)
 }
@@ -291,7 +290,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     
     fleets[[flnm]] <- fl
     
-    fleets <- FLFleetsExt(fleets)
+#    fleets <- FLFleetsExt(fleets)
     
     return(fleets)
 }
@@ -422,7 +421,7 @@ seasonshare.CAA  <- function(fleets, biols, fleets.ctrl, advice, advice.ctrl, ye
 
 CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
 
-  #  fleets <- unclass(fleets)
+    fleets <- unclass(fleets)
     yr <- year
     ss <- season
     it    <- dim(biols[[1]]@n)[6]
@@ -519,15 +518,10 @@ CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
            fleets[[fl]]@metiers[[mt]]@catches[[st]] <- cobj
         }
         
-#        if(st == 'RNG'){
-#            print(c(biols[[st]]@n[,yr,,ss]))
-#            print(c(apply(catchWStock(fleets,'RNG'), c(2,6), sum)[,yr,,ss]))
-#            print(c(K))
-#        }
         
     }
     
-#    fleets <- FLFleetsExt(fleets)
+    fleets <- FLFleetsExt(fleets)
     return(fleets)
 }
 
@@ -537,8 +531,7 @@ CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
                             
                 
         
-            
-             
+                        
 
     
         

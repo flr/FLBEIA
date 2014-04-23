@@ -173,7 +173,13 @@ catchWStock <- function(obj, stock){
 #-------------------------------------------------------------------------------
 
 stock.fleetInfo <- function(fleets){
-    sts  <- catchNames(fleets)
+   # sts  <- catchNames(fleets)
+    
+    stfl <- lapply(fleets, catchNames)
+    sts <- NULL 
+    for(ss in stfl) sts <- c(sts, ss)
+    sts <- unique(sts)
+
     nf <- length(fleets)
     flmt <- unlist(lapply(1:nf, function(x) paste(fleets[[x]]@name, names(fleets[[x]]@metiers), sep = '&&')))
     res <- matrix(0, length(sts), length(flmt), dimnames = list(stock = sts, fleet_met = flmt))

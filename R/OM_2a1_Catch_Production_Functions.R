@@ -45,7 +45,7 @@ CobbDouglasBio.effort   <- function(Cr,B,q.m,efs.m,alpha.m,beta.m,ret.m, catch =
     
     # set upper limit
     X <- 10^(0:100)
-    fobjX <- abs(sapply(X, fObj, Cr = Cr, B = B, q.m = q.m, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m))
+    fobjX <- abs(sapply(X, fObj, Cr = Cr, B = B, q.m = q.m, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, catch = catch, ret.m = ret.m))
     upl <- X[which(fobjX != Inf)[length(which(fobjX != Inf))]]
             
     NomEff <- uniroot(fObj,interval=c(0,upl),Cr=Cr,B=B, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, catch = catch, ret.m = ret.m)$root

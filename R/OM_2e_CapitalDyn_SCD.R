@@ -68,7 +68,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     # If year is not last year Update capacity  in year [year+1].
     if (year < ny){
         fleets[[flnm]]@capacity[, year + 1] <- K + omega
-        covars[['NumbVessels']][flnm,year+1,] <- K + omega/covars[['MaxAnnualEffort']][flnm,year+1,]
+        covars[['NumbVessels']][flnm,year+1,] <- K + omega/covars[['MaxDays']][flnm,year+1,]
     }
 
     

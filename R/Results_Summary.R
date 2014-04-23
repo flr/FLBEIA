@@ -266,40 +266,34 @@ bioSum <- function(object){
 # ecoSum data.frame[year, quarter, stock, fleet, iter, ||,|| 
 #        profits, capacity, costs, discards, effort, landings] 
 #------------------------------------------------------------------------------#
-ecoSum <- function(fleets, flnms = 'all', years, covars){
-    
-    if(flnms[1] == 'all') flnms <- names(fleets)
-    
-    Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
-    Dimnm <- dimnames(fleets[[1]]@effort[,years,])
-    
-    n    <- prod(Dim)*length(flnms)
-    
-    res <- data.frame(year = rep(years, prod(Dim[2:3])*length(flnms)), 
-                      quarter = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3]*length(flnms)), 
-                      fleet = rep(flnms, each = prod(Dim)), 
-                      iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(flnms)),  
-                      capacity = numeric(n), 
-                      costs = numeric(n), 
-                      effort = numeric(n),
-                      profits = numeric(n))
-    k <- 1  
-                           
-    for(f in flnms){
-        
-        fl   <- fleets[[f]]
-        mts  <- names(fl@metiers)
-        
-        res[k:(k+prod(Dim)-1),'capacity'] <- c(fl@capacity[,years,])
-        res[k:(k+prod(Dim)-1),'effort']   <- c(fl@effort[,years,])
-        res[k:(k+prod(Dim)-1),'costs']    <- c(costs_flbeia(fl, covars, flnm = f)[,years,])
-        res[k:(k+prod(Dim)-1),'profits']  <- c(revenue_flbeia(fl)[,years,]) -  res[k:(k+prod(Dim)-1),'costs']
-        
+ecoSum <- function (fleets, flnms = "all", years, covars = NULL)
+{
+    if (flnms[1] == "all")
+        flnms <- names(fleets)
+    Dim <- dim(fleets[[1]]@effort[, years, ])[c(2, 4, 6)]
+    Dimnm <- dimnames(fleets[[1]]@effort[, years, ])
+    n <- prod(Dim) * length(flnms)
+    res <- data.frame(year = rep(years, prod(Dim[2:3]) * length(flnms)),
+        quarter = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3] *
+            length(flnms)), fleet = rep(flnms, each = prod(Dim)),
+        iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(flnms)),
+        capacity = numeric(n), costs = numeric(n), effort = numeric(n),
+        profits = numeric(n))
+    k <- 1
+    for (f in flnms) {
+        fl <- fleets[[f]]
+        mts <- names(fl@metiers)
+        res[k:(k + prod(Dim) - 1), "capacity"] <- c(fl@capacity[,
+            years, ])
+        res[k:(k + prod(Dim) - 1), "effort"] <- c(fl@effort[,
+            years, ])
+        if(!is.null(covars)) res[k:(k + prod(Dim) - 1), "costs"] <- c(costs_flbeia(fl, covars, f)[,years, ])
+        res[k:(k + prod(Dim) - 1), "profits"] <- c(revenue_flbeia(fl)[,
+            years, ]) - res[k:(k + prod(Dim) - 1), "costs"]
         k <- k + prod(Dim)
     }
     return(res)
-}                               
-
+}
     
 
 

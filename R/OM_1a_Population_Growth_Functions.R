@@ -105,6 +105,10 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
     
     }
     
+    if(any(biol@n[,yr,,ss]<0)){
+        biol <- correct.biomass.ASPG(biol, yr, ss)
+    }
+    
     return(list(biol = biol, SR = SR))
 
 } 
@@ -169,3 +173,34 @@ BDPG <- function(biols, BDs, fleets, year, season, stknm, ...){
     return(list(biol = biol, BD = BD))
 
 } 
+
+# correct.biomass.ASPG <- function(biol)
+correct.biomass.ASPG <- function(biol, year, season){
+
+    for(i in 1:dim(biol@n)[6]){
+        N  <- c(biol@n[,year,, season,,i])
+        wt <- c(biol@wt[,year,,season,,i])
+    
+        # identify the ages that are < 0, this should be only happen in the 
+        # first year of simulation, when catch has not been calculated using CobbDoug.
+        negs <- which(N<0)
+        #biomass proportion in the positive ages, the negative biomass is discounted proportionally 
+        # depending on the abundace of each age group. The calculation is done for all cohorts (units) at the same time.
+        p <- N[-negs]*wt[-negs]/sum(N[-negs]*wt[-negs])
+        # negative biomass
+        NegB <- -sum(N[negs]*wt[negs])
+        # New Biomass
+        Nnew <- N                                       
+        Nnew[negs]  <- 0
+        Nnew[-negs] <- N[-negs] - (NegB*p/wt[-negs]) 
+        
+        biol@n[,year,, season,,i] <- matrix(Nnew, dim(biol@n)[1])
+        }
+        return(biol)
+        
+}
+        
+        
+    
+
+

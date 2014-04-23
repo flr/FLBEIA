@@ -60,8 +60,7 @@ create.SRs.data <- function(path){
       cat('=============', nmstk,'SR','=============\n')
       
       flqa.stk    <-list.stks.flqa[[nmstk]][1,,1]  #age=1 and unit=1
-      flqr.stk    <-list.stks.flqa[[nmstk]][1,,1]  #age=0 and unit=1
-      dimnames(flqr.stk)[1] <- '0'
+   
       flq.stk     <- list.stks.flq[[nmstk]][,,1]
       
       #-----------------------------------------------------------------------------
@@ -89,8 +88,8 @@ create.SRs.data <- function(path){
                  dimnames = list(param=ac(1:stk.params.n),year = ac(first.yr:last.yr),season=ac(1:ns), iter = 1:ni))
                       
         stk.sr <- FLSRsim(name = nmstk, model =stk.model, rec = flqa.stk, 
-                          ssb = flq.stk,params = params, uncertainty = flqr.stk,
-                          proportion = flqr.stk, covar=FLQuants())
+                          ssb = flq.stk,params = params, uncertainty = flqa.stk,
+                          proportion = flqa.stk, covar=FLQuants())
         dimnames(stk.sr@params)$param <-stk.params.name
       
         stk.sr@timelag[]      <- stk.timelag
