@@ -36,9 +36,11 @@ MaxProfit.stkCnst <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, 
     if(length(ss) == 0) stop('The season is outside object season range')  
     
     # Check fleets.ctrl elements.
-    if(! all(sapply(names(fleets), function(x) fleets.ctrl[[x]]$restriction %in% c('catch', 'landings'))))
-        stop("fleets.ctrl$restriction must be equal to 'catch' or 'landings'")
-     
+ # This checks the restriction for all the fleets and we only need to check the fleet we are proyecting.
+ #   if(! all(sapply(names(fleets), function(x) fleets.ctrl[[x]]$restriction %in% c('catch', 'landings'))))
+ #       stop("fleets.ctrl$restriction must be equal to 'catch' or 'landings'")
+    if(!(fleets.ctrl[[flnm]]$restriction %in% c('catch', 'landings') )) stop("fleets.ctrl$restriction for fleet, ', flnm, ', must be equal to 'catch' or 'landings'")
+
     # Dimensions.
     nst <- length(biols);          stnms <- names(biols)
     ns  <- dim(biols[[1]]@n)[4]
@@ -282,7 +284,7 @@ fobj.maxprofits <- function(E){
         Lst[st] <- sum(q.m.i[[st]]*(Ba.i[[st]]^beta.m.i[[st]])*(E^alpha.m.i[[st]])*ret.m.i[[st]])  # multiply the retention vector if landing is the restriction. 
         
         # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE). 
-        if(catch.rest  == FALSE) Cst[st] <- L[st]# The restriction is landings.
+        if(catch.rest  != 'catch') Cst[st] <- Lst[st]# The restriction is landings.
         
         # TAC overshot can be landed or discarded. In the case of landing obligation it is 'discarded' because it does not 
         # contribute to the revenue but it goes against the TAC => TACOS == TRUE

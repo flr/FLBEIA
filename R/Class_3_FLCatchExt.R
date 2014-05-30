@@ -36,7 +36,7 @@ validFLCatchExt <- function(object)
 			return('"alpha", "beta" and "catch.q" must share dimensions: Error in FLCatchExt')
 	}
 	# alpha, beta and catch.q have the same dimensions, check that alpha has correct dimension in quant.
-	if(dim(object@alpha)[3] > 1 & dim(object@alpha)[3] != dim(object@alpha)[4]) return('Wrong unit dimension for "alpha", "beta" and "catch.q"')
+#	if(dim(object@alpha)[3] > 1 & dim(object@alpha)[3] != dim(object@alpha)[4]) return('Wrong unit dimension for "alpha", "beta" and "catch.q"')
 	if(dim(object@alpha)[1] > 1 & dim(object@alpha)[1] != dim(object@landings.n)[1]) return('Wrong quant dimension for "alpha", "beta" and "catch.q"')
 
 	for (i in c('landings', 'discards'))

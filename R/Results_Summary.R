@@ -360,7 +360,7 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 # catchFlSum data.frame[year, quarter, stock, fleet, iter, ||,|| 
 #        landings, discards,price] 
 #------------------------------------------------------------------------------#
-catchFlSum <- function(fleets, flnms = 'all', stknms, years){
+catchFlSum <- function(fleets, advice, flnms = 'all', stknms, years){
     
     if(flnms[1] == 'all') flnms <- names(fleets)
     if(stknms[1] == 'all') stknms <- catchNames(fleets)
@@ -388,7 +388,8 @@ catchFlSum <- function(fleets, flnms = 'all', stknms, years){
                     iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(sts)),  
                     landings = numeric(n), 
                     discards = numeric(n),
-                    price    = numeric(n))
+                    price    = numeric(n),
+                    tacshare = numeric(n))
         
         k <- 1
         
@@ -397,6 +398,7 @@ catchFlSum <- function(fleets, flnms = 'all', stknms, years){
             dff[k:(prod(Dim) + k-1),'landings'] <- c(apply(landWStock.f(fl, st),c(2,4,6), sum)[,years])    
             dff[k:(prod(Dim) + k-1),'discards'] <- c(apply(discWStock.f(fl, st),c(2,4,6), sum)[,years]) 
             dff[k:(prod(Dim) + k-1),'price']    <- c(price_flbeia(fl, st)[,years])
+            dff[k:(prod(Dim) + k-1),'tacshare'] <-c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years])
             
             k <- k + prod(Dim)     
         }

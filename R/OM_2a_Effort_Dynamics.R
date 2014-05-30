@@ -159,7 +159,7 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
             effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i], B = B[st,i], Ba = Ba[[st]][,,,,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], 
                                 efs.m = efs.m[,i], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F], 
-                                ret.m = ret.m[[st]][,,,i,drop=F], catch = fleets.ctrl[[flnm]]$restriction))
+                                ret.m = ret.m[[st]][,,,i,drop=F], restriction = fleets.ctrl[[flnm]]$restriction))
         }
     }
             

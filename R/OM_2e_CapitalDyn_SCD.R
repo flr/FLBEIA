@@ -19,15 +19,15 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     it <- dim(fleet@effort)[6]
     
     # VaC
-    VaC <- totvcost_beia(fleet)[,year]
+    VaC <- totvcost_flbeia(fleet)[,year]
     # FxC
     FxC <- (covars[["NumbVessels"]][flnm, ] * fleet@fcost)[, year]
     # FuC  # per unit of effort, we asume common cost for all the metiers.
     FuC <- (covars[['FuelCost']][flnm,]*fleet@effort)[,year]
     # CaC # per unit of capacity
-    CaC <- (covars[['CapitalCost']][flnm,]*fleet@capacity)[,year]
+    CaC <- (covars[['CapitalCost']][flnm,]*covars[["NumbVessels"]][flnm, ])[,year]
     # Revenue
-    Rev <- revenue_beia(fleet)[,year]
+    Rev <- revenue_flbeia(fleet)[,year]
     # CrC
     CrC <- (Rev*fleet@crewshare[,year])  +  covars[['Salaries']][flnm,year]
     
@@ -68,7 +68,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     # If year is not last year Update capacity  in year [year+1].
     if (year < ny){
         fleets[[flnm]]@capacity[, year + 1] <- K + omega
-        covars[['NumbVessels']][flnm,year+1,] <- K + omega/covars[['MaxDays']][flnm,year+1,]
+        covars[['NumbVessels']][flnm,year+1,] <- (K + omega)/covars[['MaxDays']][flnm,year+1,]
     }
 
     

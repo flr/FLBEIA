@@ -69,7 +69,7 @@ CobbDouglasBio.CatchFleet <- function(effort, Ba, B, q.m, efs.m, alpha.m, beta.m
 #-------------------------------------------------------------------------------
 # CobbDouglasAge.CatchFleet(effort, Ba, q.m, efs.m, alpha.m, beta.m)
 #-------------------------------------------------------------------------------
-CobbDouglasAge.CatchFleet <- function(effort, Ba, q.m, efs.m, alpha.m, beta.m,...){
+CobbDouglasAge.CatchFleet <- function(effort, Ba, ret.m, wa.l, wa.d, q.m, efs.m, alpha.m, beta.m,...){
 
     Ba      <- Ba[,,,,,,drop=T]         # [naYYY?,nuYYY?,itYYY?]   nu and(or it can be equal 1 => the dimension would be dropped
     
@@ -138,7 +138,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
                 length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
     eff   <- matrix(fl@effort[,yr,,ss],1, it, dimnames = list(1, 1:it))
                      
-    
+    Ctotal <- 0
     for(mt in mtnms){
        #       print(c(f, " - ", st, " - ", mt))
         if(!(st %in% names(fl@metiers[[mt]]@catches))) next
@@ -149,10 +149,12 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
             alpha.m     <- cobj@alpha[,yr,,ss, drop = TRUE]
             beta.m      <- cobj@beta[,yr,,ss, drop = TRUE]
 
-            Ctotal <- array((eff*efs.m[mt,])^alpha.m*B^beta.m*q.m,dim = c(rep(1,5),it))
+            Ctotal <- Ctotal + array((eff*efs.m[mt,])^alpha.m*B^beta.m*q.m,dim = c(rep(1,5),it))
+    }
 
-            tac.disc <- ifelse(Ctotal[,,,,,,drop=T] < tac, rep(1,it), tac/Ctotal[,,,,,,drop=T])
+    tac.disc <- ifelse(Ctotal[,,,,,,drop=T] < tac, rep(1,it), tac/Ctotal[,,,,,,drop=T])
 
+    for(mt in mtnms){
             dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
             lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
             sa  <- (dsa + lsa)  
@@ -174,7 +176,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
                 fl@metiers[[mt]]@catches[[st]] <- cobj
             }
             else{ # age structured stock, biomass level Cobb Douglas.
-            #     browser() 
+            #     browser()
                 Bs <- apply(sa*Ba, 6,sum)           # it
                 Ca <- sweep(sa*Ba, c(2,4:6), Ctotal/Bs, "*") # [na,nu,it]
 
@@ -210,6 +212,8 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     nst   <- length(stnms)
     it    <- dim(biols[[1]]@n)[6]
     
+ #   if(year == 35 & stknm == 'HKE') browser()
+
     fleets <- unclass(fleets)
     
     yr <- year
@@ -243,7 +247,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
                         length(mtnms), it, dimnames = list(metier = mtnms, 1:it))    # [nmt,it]
     eff   <- matrix(fl@effort[,yr,,ss],1, it, dimnames = list(1, 1:it))              # [1,it]
                  
-                 
+    Ct <- 0
     for(mt in mtnms){
         
      #       print(c(f, " - ", st, " - ", mt))
@@ -263,9 +267,26 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
 
         Ca <- q.m*efm^alpha.m*Ba^beta.m   # [na,1,nu,1,1,it] : na & nu  can be 1.
 
-        Ct <- apply(Ca, 6, sum)
-        
-        tac.disc <- ifelse(Ct < tac, 1, tac/Ct)
+        Ct <- Ct + apply(Ca, 6, sum)
+    }
+
+    tac.disc <- ifelse(Ct < tac, 1, tac/Ct)
+
+    for(mt in mtnms){
+           if(!(st %in% names(fl@metiers[[mt]]@catches))) next
+        cobj <- fl[[mt]][[st]]
+
+        q.m         <- cobj@catch.q[,yr,,ss]     # [na,1,nu,1,1,it] : na & nu  can be 1.
+        alpha.m     <- cobj@alpha[,yr,,ss]       # [na,1,nu,1,1,it] : na & nu  can be 1.
+        beta.m      <- cobj@beta[,yr,,ss]        # [na,1,nu,1,1,it] : na & nu  can be 1.
+
+        na <- dim(q.m)[1]
+        nu <- dim(q.m)[3]
+
+        efm <- array(eff*efs.m[mt,], dim = c(it,na,1,nu,1,1))
+        efm <- aperm(efm, c(2:6,1))
+
+        Ca <- q.m*efm^alpha.m*Ba^beta.m   # [na,1,nu,1,1,it] : na & nu  can be 1.
 
         dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
         lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
