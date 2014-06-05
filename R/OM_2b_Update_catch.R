@@ -155,6 +155,11 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
     tac.disc <- ifelse(Ctotal[,,,,,,drop=T] < tac, rep(1,it), tac/Ctotal[,,,,,,drop=T])
 
     for(mt in mtnms){
+
+           if(!(st %in% names(fl@metiers[[mt]]@catches))) next
+
+           cobj <- fl@metiers[[mt]]@catches[[st]]
+
             dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
             lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
             sa  <- (dsa + lsa)  
@@ -162,6 +167,12 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
             # Recalculate dsa and lsa according to 'tac.disc'     # [na,nu,it]
             lsa <- lsa*tac.disc
             dsa <- sa - lsa
+
+            q.m         <- cobj@catch.q[,yr,,ss, drop = TRUE]
+            alpha.m     <- cobj@alpha[,yr,,ss, drop = TRUE]
+            beta.m      <- cobj@beta[,yr,,ss, drop = TRUE]
+
+            Ctotal <- array((eff*efs.m[mt,])^alpha.m*B^beta.m*q.m,dim = c(rep(1,5),it))
 
             if(dim(biols[[st]]@n)[1] == 1){
                 cobj@discards[,yr,,ss]   <- Ctotal*dsa # /(sa*tac.disc)
