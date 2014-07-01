@@ -88,8 +88,9 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
 
     # Update SSB.
     SR@ssb[,yr,,ss] <- unitSums(quantSums(n(biol) * wt(biol) * fec(biol) * exp(-spwn(biol) * m(biol)), na.rm=TRUE))[,yr,,ss]
-        
-    if(dim(biol@n)[3] > 1){
+
+    # RECRUITMENT
+    if(dim(biol@n)[3] > 1 & dim(biol@n)[3] == dim(biol@n)[4]){
         # 'number_of_units > 1' => Recruitment occurs in all seasons, the 'unit' correspond with the recruitment 'season'.
         SR <- SRsim(SR, year = yr, season = ss, iter = 'all') 
         biol@n[1,yr,ss,ss] <- SR@rec[,yr,,ss]
