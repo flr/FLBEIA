@@ -41,54 +41,6 @@ updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl = advice
     return(fleets)
 }
 
-#-------------------------------------------------------------------------------
-# CobbDouglasBio.CatchFleet(effort, Ba, q.m, efs.m, alpha.m, beta.m)
-#-------------------------------------------------------------------------------
-CobbDouglasBio.CatchFleet <- function(effort, Ba, B, q.m, efs.m, alpha.m, beta.m,...){
-
-    nmt <- dim(efs.m)[1]
-    it  <- dim(efs.m)[2]
-    
-   ## Redimensionate all the objects into dimension [nmt,it]
-    
-    # dim(q.m) = dim(alpha.m) = dim(beta.m) = [nmt,na,nu,it]
-    q.m     <- matrix(q.m[,,,,drop=TRUE],nmt,it)      # [nmt,it]
-    alpha.m <- matrix(alpha.m[,,,,drop=TRUE],nmt,it)  # [nmt,it]
-    beta.m  <- matrix(beta.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
-
-    # dim(B) = dim(effort) = [it]
-    B       <- matrix(B, nmt, it, byrow = TRUE)      # [nmt,it]
-    effort  <- matrix(effort, nmt, it, byrow = TRUE) # [nmt,it]
-
-    catch <- apply(q.m*(B^beta.m)*((effort*efs.m)^alpha.m),2,sum) # sum catch along metiers
-    
-    return(catch)  
-}
-
-
-#-------------------------------------------------------------------------------
-# CobbDouglasAge.CatchFleet(effort, Ba, q.m, efs.m, alpha.m, beta.m)
-#-------------------------------------------------------------------------------
-CobbDouglasAge.CatchFleet <- function(effort, Ba, ret.m, wa.l, wa.d, q.m, efs.m, alpha.m, beta.m,...){
-
-    Ba      <- Ba[,,,,,,drop=T]         # [naYYY?,nuYYY?,itYYY?]   nu and(or it can be equal 1 => the dimension would be dropped
-    
-    dimq  <- dim(q.m)
-    zz    <- ifelse(dimq == 1, FALSE, TRUE)
-    
-    Ba <- array(Ba, dim = c(dim(q.m)[2:4], dim(q.m)[1]))  # [na,nuYYY?,itYYY?,mt]
-    Ba <- aperm(Ba, c(4,1:3))  # [mt,na,nu,it]
-    
-    effort <- array(effort, dim = c(length(effort), dim(q.m)[1:3])) # [it,mt,na,nu]
-    effort <- aperm(effort, c(2:4,1))  # [mt,na,nu,it]
-    
-    efs.m <- array(efs.m, dim = c(dim(efs.m), dimq[2:3]))
-    efs.m <- aperm(efs.m, c(1,3:4,2))
-    
-    catch <- apply(q.m*(Ba^beta.m)*((effort*efs.m)^alpha.m), 4,sum)
-    
-    return(catch)  
-}
 
 
 
@@ -100,8 +52,11 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
     nf    <- length(fleets)
     stnms <- names(biols)
     nst   <- length(stnms)
-    it    <- dim(biols[[1]]@n)[6]
-    
+    it    <- dim(biols[[stknm]]@n)[6]
+    na    <- dim(biols[[stknm]]@n)[1]
+
+    if(na > 1) stop('CobbDouglasBio can only be applied at biomass level')
+
     yr <- year
     ss <- season
     f  <- flnm
@@ -129,10 +84,9 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
     }
     
     # biomass in the middle if age struc. of the season  B[it]
-    if(dim(biols[[st]]@n)[1] > 1) B <- unitSums(quantSums(biols[[st]]@n*biols[[st]]@wt*exp(-biols[[st]]@m/2)))[,yr,,ss, drop=T]
-        else  B <- (biols[[st]]@n*biols[[st]]@wt)[,yr,,ss, drop=T]
-    
-    Ba <- biols[[stknm]]@n[,yr,,ss]*biols[[stknm]]@wt[,yr,,ss]*exp(-biols[[stknm]]@m[,yr,,ss]/2)  # Ba[na,1,1,1,1,it]
+    B <- unitSums(quantSums(biols[[st]]@n*biols[[st]]@wt*exp(-biols[[st]]@m/2)))[,yr,,ss, drop=T]
+
+    N <- (biols[[stknm]]@n[,yr,,ss]*exp(-biols[[stknm]]@m[,yr,,ss]/2))[drop=T]  # Ba[na,1,1,1,1,it]
             
     efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
                 length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
@@ -143,66 +97,57 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
        #       print(c(f, " - ", st, " - ", mt))
         if(!(st %in% names(fl@metiers[[mt]]@catches))) next
 
-            cobj <- fl@metiers[[mt]]@catches[[st]]
+        cobj <- fl@metiers[[mt]]@catches[[st]]
 
-            q.m         <- cobj@catch.q[,yr,,ss, drop = TRUE]
-            alpha.m     <- cobj@alpha[,yr,,ss, drop = TRUE]
-            beta.m      <- cobj@beta[,yr,,ss, drop = TRUE]
+        q.m         <- cobj@catch.q[,yr,,ss, drop = TRUE]
+        alpha.m     <- cobj@alpha[,yr,,ss, drop = TRUE]
+        beta.m      <- cobj@beta[,yr,,ss, drop = TRUE]
+        wl.m     <- cobj@landings.wt[,yr,,ss, drop = TRUE]
+        wd.m      <- cobj@discards.wt[,yr,,ss, drop = TRUE]
+        ret.m      <- cobj@landings.sel[,yr,,ss, drop = TRUE]
 
-            Ctotal <- Ctotal + array((eff*efs.m[mt,])^alpha.m*B^beta.m*q.m,dim = c(rep(1,5),it))
+        # In biomass models discards and landings can also have different weigths.
+        Ctotal <- Ctotal + array(q.m*(eff*efs.m[mt,])^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m),dim = c(na,rep(1,4),it))
     }
 
     tac.disc <- ifelse(Ctotal[,,,,,,drop=T] < tac, rep(1,it), tac/Ctotal[,,,,,,drop=T])
 
     for(mt in mtnms){
 
-           if(!(st %in% names(fl@metiers[[mt]]@catches))) next
+        if(!(st %in% names(fl@metiers[[mt]]@catches))) next
 
-           cobj <- fl@metiers[[mt]]@catches[[st]]
+        cobj <- fl@metiers[[mt]]@catches[[st]]
 
-            dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
-            lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
-            sa  <- (dsa + lsa)  
-            
-            # Recalculate dsa and lsa according to 'tac.disc'     # [na,nu,it]
-            lsa <- lsa*tac.disc
-            dsa <- sa - lsa
+        dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
+        lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
+        sa  <- (dsa + lsa)
 
-            q.m         <- cobj@catch.q[,yr,,ss, drop = TRUE]
-            alpha.m     <- cobj@alpha[,yr,,ss, drop = TRUE]
-            beta.m      <- cobj@beta[,yr,,ss, drop = TRUE]
+        # Recalculate dsa and lsa according to 'tac.disc'     # [na,nu,it]
+        lsa <- lsa*tac.disc
+        dsa <- sa - lsa
 
-            Ctotal <- array((eff*efs.m[mt,])^alpha.m*B^beta.m*q.m,dim = c(rep(1,5),it))
+        q.m         <- cobj@catch.q[,yr,,ss, drop = TRUE]
+        alpha.m     <- cobj@alpha[,yr,,ss, drop = TRUE]
+        beta.m      <- cobj@beta[,yr,,ss, drop = TRUE]
+        wl.m      <- cobj@landings.wt[,yr,,ss, drop = TRUE]
+        wd.m      <- cobj@discards.wt[,yr,,ss, drop = TRUE]
+        ret.m      <- cobj@landings.sel[,yr,,ss, drop = TRUE]
 
-            if(dim(biols[[st]]@n)[1] == 1){
-                cobj@discards[,yr,,ss]   <- Ctotal*dsa # /(sa*tac.disc)
-                cobj@landings[,yr,,ss]   <- Ctotal*lsa # *tac.disc/sa
-                cobj@discards.n[,yr,,ss] <- cobj@discards[,yr,,ss]/cobj@discards.wt[,yr,,ss]
-                cobj@landings.n[,yr,,ss] <- cobj@landings[,yr,,ss]/cobj@landings.wt[,yr,,ss]
-                
-                # When land.wt = 0 <-  land.n = NA => change to 0. (idem for disc.wt)
-                cobj@landings.n[,yr,,ss][is.na(cobj@landings.n[,yr,,ss])] <- 0
-                cobj@discards.n[,yr,,ss][is.na(cobj@discards.n[,yr,,ss])] <- 0
-          
-                fl@metiers[[mt]]@catches[[st]] <- cobj
-            }
-            else{ # age structured stock, biomass level Cobb Douglas.
-            #     browser()
-                Bs <- apply(sa*Ba, 6,sum)           # it
-                Ca <- sweep(sa*Ba, c(2,4:6), Ctotal/Bs, "*") # [na,nu,it]
+        # The overquota discards have the same weight as landings, so here we use ret.m instead of lsa
+        Ctotal <- array(q.m*(eff*efs.m[mt,])^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m),dim = c(rep(1,5),it))
 
-                cobj@discards.n[,yr,,ss] <- Ca*dsa/sa/cobj@discards.wt[,yr,,ss]
-                cobj@landings.n[,yr,,ss] <- Ca*lsa/sa/cobj@landings.wt[,yr,,ss]
+        cobj@discards[,yr,,ss]   <- Ctotal*dsa # /(sa*tac.disc)
+        cobj@landings[,yr,,ss]   <- Ctotal*lsa # *tac.disc/sa
+        cobj@discards.n[,yr,,ss] <- cobj@discards[,yr,,ss]/cobj@discards.wt[,yr,,ss]
+        cobj@landings.n[,yr,,ss] <- cobj@landings[,yr,,ss]/cobj@landings.wt[,yr,,ss]
 
-                # When sa = 0 <-  land.n & dis.n = NA => change to 0.
-                cobj@landings.n[,yr,,ss][is.na(cobj@landings.n[,yr,,ss])] <- 0
-                cobj@discards.n[,yr,,ss][is.na(cobj@discards.n[,yr,,ss])] <- 0
+        # When land.wt = 0 <-  land.n = NA => change to 0. (idem for disc.wt)
+        cobj@landings.n[,yr,,ss][is.na(cobj@landings.n[,yr,,ss])] <- 0
+        cobj@discards.n[,yr,,ss][is.na(cobj@discards.n[,yr,,ss])] <- 0
 
-                cobj@discards[,yr,,ss] <- apply(Ca*dsa/sa,c(2,4,6),sum)
-                cobj@landings[,yr,,ss] <- apply(Ca*lsa/sa,c(2,4,6),sum)
+        fl@metiers[[mt]]@catches[[st]] <- cobj
 
-                fl@metiers[[mt]]@catches[[st]] <- cobj
-            }
+
         }
           
     fleets[[f]] <- fl
@@ -252,7 +197,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     
     if(dim(biols[[st]]@n)[1] == 1) stop(st, ' stock has no ages, Cobb Douglas cannot be applied at age level then! correct the "catch.model" argument in "fleets.ctrl" argument!\n')
     
-    Ba <- (biols[[st]]@n*biols[[st]]@wt*exp(-biols[[st]]@m/2))[,yr,,ss]  # Ba[na,it], biomass at age in the middle  of the season,
+    N <- (biols[[st]]@n*exp(-biols[[st]]@m/2))[,yr,,ss]  # Ba[na,it], biomass at age in the middle  of the season,
 
     efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
                         length(mtnms), it, dimnames = list(metier = mtnms, 1:it))    # [nmt,it]
@@ -266,17 +211,21 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
             
         cobj <- fl[[mt]][[st]]
 
-        q.m         <- cobj@catch.q[,yr,,ss]     # [na,1,nu,1,1,it] : na & nu  can be 1.
-        alpha.m     <- cobj@alpha[,yr,,ss]       # [na,1,nu,1,1,it] : na & nu  can be 1.
-        beta.m      <- cobj@beta[,yr,,ss]        # [na,1,nu,1,1,it] : na & nu  can be 1.
+        q.m       <- cobj@catch.q[,yr,,ss]          # [na,1,nu,1,1,it] : na & nu  can be 1.
+        alpha.m   <- cobj@alpha[,yr,,ss]            # [na,1,nu,1,1,it] : na & nu  can be 1.
+        beta.m    <- cobj@beta[,yr,,ss]             # [na,1,nu,1,1,it] : na & nu  can be 1.
+        wl.m      <- cobj@landings.wt[,yr,,ss]
+        wd.m      <- cobj@discards.wt[,yr,,ss]
+        ret.m     <- cobj@landings.sel[,yr,,ss]
 
         na <- dim(q.m)[1]
-        nu <- dim(q.m)[3]
+        nu <- ifelse(is.na(dim(q.m)[3]), 1, dim(q.m)[3])
 
         efm <- array(eff*efs.m[mt,], dim = c(it,na,1,nu,1,1))
         efm <- aperm(efm, c(2:6,1))
 
-        Ca <- q.m*efm^alpha.m*Ba^beta.m   # [na,1,nu,1,1,it] : na & nu  can be 1.
+        Ca <- q.m*efm^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)
+
 
         Ct <- Ct + apply(Ca, 6, sum)
     }
@@ -287,17 +236,21 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
            if(!(st %in% names(fl@metiers[[mt]]@catches))) next
         cobj <- fl[[mt]][[st]]
 
-        q.m         <- cobj@catch.q[,yr,,ss]     # [na,1,nu,1,1,it] : na & nu  can be 1.
-        alpha.m     <- cobj@alpha[,yr,,ss]       # [na,1,nu,1,1,it] : na & nu  can be 1.
-        beta.m      <- cobj@beta[,yr,,ss]        # [na,1,nu,1,1,it] : na & nu  can be 1.
+
+        q.m       <- cobj@catch.q[,yr,,ss]          # [na,1,nu,1,1,it] : na & nu  can be 1.
+        alpha.m   <- cobj@alpha[,yr,,ss]            # [na,1,nu,1,1,it] : na & nu  can be 1.
+        beta.m    <- cobj@beta[,yr,,ss]             # [na,1,nu,1,1,it] : na & nu  can be 1.
+        wa.l      <- cobj@landings.wt[,yr,,ss]
+        wa.d      <- cobj@discards.wt[,yr,,ss]
+        ret.m     <- cobj@landings.sel[,yr,,ss]
 
         na <- dim(q.m)[1]
-        nu <- dim(q.m)[3]
+        nu <- ifelse(is.na(dim(q.m)[3]), 1, dim(q.m)[3])
 
         efm <- array(eff*efs.m[mt,], dim = c(it,na,1,nu,1,1))
         efm <- aperm(efm, c(2:6,1))
 
-        Ca <- q.m*efm^alpha.m*Ba^beta.m   # [na,1,nu,1,1,it] : na & nu  can be 1.
+        Ca <- q.m*efm^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)
 
         dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
         lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
@@ -480,7 +433,7 @@ CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
     for(st in stnms){
     
    #    print(st)
- #  if(st == 'RNG' & yr == 23) browser()
+
         if(dim(Ba[[st]])[1] > 1){ # age structured
 
             Cat  <- catchStock(fleets, st)[,yr,,ss]
@@ -562,10 +515,59 @@ CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
 
                             
                 
-        
+# Currently Not used within FLBEIA, the code has not been updated to the
+# problem with different weigths in population, landings and discards.
                         
+#-------------------------------------------------------------------------------
+# CobbDouglasBio.CatchFleet(effort, Ba, q.m, efs.m, alpha.m, beta.m)
+#-------------------------------------------------------------------------------
+CobbDouglasBio.CatchFleet <- function(effort, N, wl.m, wd.m, ret.m, q.m, efs.m, alpha.m, beta.m,...){
 
-    
-        
+    nmt <- dim(efs.m)[1]
+    it  <- dim(efs.m)[2]
+
+   ## Redimensionate all the objects into dimension [nmt,it]
+
+    # dim(q.m) = dim(alpha.m) = dim(beta.m) = [nmt,na,nu,it]
+    q.m     <- matrix(q.m[,,,,drop=TRUE],nmt,it)      # [nmt,it]
+    alpha.m <- matrix(alpha.m[,,,,drop=TRUE],nmt,it)  # [nmt,it]
+    beta.m  <- matrix(beta.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
+    wl.m     <- matrix(wl.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
+    wd.m     <- matrix(wd.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
+    ret.m     <- matrix(ret.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
+    # dim(B) = dim(effort) = [it]
+    N       <- matrix(N, nmt, it, byrow = TRUE)      # [nmt,it]
+    effort  <- matrix(effort, nmt, it, byrow = TRUE) # [nmt,it]
+
+    catch <- apply(q.m*(effort*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m),2,sum) # sum catch along metiers
+
+    return(catch)
+}
+
+
+#-------------------------------------------------------------------------------
+# CobbDouglasAge.CatchFleet(effort, Ba, q.m, efs.m, alpha.m, beta.m)
+#-------------------------------------------------------------------------------
+CobbDouglasAge.CatchFleet <- function(effort, N, ret.m, wl.m, wd.m, q.m, efs.m, alpha.m, beta.m,...){
+
+    dimq  <- dim(q.m)
+    zz    <- ifelse(dimq == 1, FALSE, TRUE)
+
+    N <- array(N, dim = c(dim(q.m)[2:4], dim(q.m)[1]))  # [na,nuYYY?,itYYY?,mt]
+    N <- aperm(N, c(4,1:3))  # [mt,na,nu,it]
+
+    effort <- array(effort, dim = c(length(effort), dim(q.m)[1:3])) # [it,mt,na,nu]
+    effort <- aperm(effort, c(2:4,1))  # [mt,na,nu,it]
+
+    efs.m <- array(efs.m, dim = c(dim(efs.m), dimq[2:3]))
+    efs.m <- aperm(efs.m, c(1,3:4,2))
+
+    catch <- apply(q.m*(effort*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m), 4,sum)
+
+    return(catch)
+}
+
+
+
     
 

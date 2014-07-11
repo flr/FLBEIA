@@ -19,11 +19,11 @@
 #  CobbDouglasBio: E[it], B[it], q.m,efs.m,alpha.m,beta.m :: [mt,it] 
 #       The functions _works_ with iterations
 #-------------------------------------------------------------------------------
-CobbDouglasBio   <- function(E,B,q.m,efs.m,alpha.m,beta.m,...)  # dga: aYYYado a como argumento.
+CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,...)  # dga: aYYYado a como argumento.
                 {
     Ef  <- matrix(E,dim(efs.m)[1],dim(efs.m)[2], byrow = T)*efs.m
-    B   <- matrix(B,dim(efs.m)[2], byrow = T)
-    C.m <- q.m*Ef^alpha.m*B^beta.m
+    N   <- matrix(N,dim(efs.m)[2], byrow = T)
+    C.m <-  q.m*(Ef*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)  #
         
     C <-  colSums(C.m)
 
@@ -35,20 +35,20 @@ CobbDouglasBio   <- function(E,B,q.m,efs.m,alpha.m,beta.m,...)  # dga: aYYYado a
 #  CobbDouglasBio.effort Cr[1], B[1], q.m,efs.m,alpha.m,beta.m :: [mt]       
 #       The function does _not_work_ with iterations
 #-------------------------------------------------------------------------------
-CobbDouglasBio.effort   <- function(Cr,B,q.m,efs.m,alpha.m,beta.m,ret.m, restriction = 'catch',...){
+CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, restriction = 'catch',...){
 
-    fObj <- function(E.f,Cr,B, q.m,efs.m,alpha.m,beta.m,ret.m, restriction){
-        if(restriction == 'catch') C.m <- q.m*(E.f*efs.m)^alpha.m*B^beta.m   # if restriction = catch (=> the restriction is catch not landings. )
-        else C.m <- q.m*(E.f*efs.m)^alpha.m*B^beta.m*ret.m
+    fObj <- function(E.f,Cr,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,ret.m, restriction){
+        if(restriction == 'catch') C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(c(N)*wl.m)^beta.m + (1-ret.m)*(c(N)*wd.m)^beta.m)  # if restriction = catch (=> the restriction is catch not landings. )
+        else C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(c(N)*wl.m)^beta.m)
         return(Cr - sum(C.m))
     }
     
     # set upper limit
     X <- 10^(0:100)
-    fobjX <- abs(sapply(X, fObj, Cr = Cr, B = B, q.m = q.m, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, restriction = restriction, ret.m = ret.m))
+    fobjX <- abs(sapply(X, fObj, Cr = Cr, N = N, wl.m = wl.m, wd.m = wd.m, q.m = q.m, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, restriction = restriction, ret.m = ret.m))
     upl <- X[which(fobjX != Inf)[length(which(fobjX != Inf))]]
             
-    NomEff <- uniroot(fObj,interval=c(0,upl),Cr=Cr,B=B, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, restriction = restriction, ret.m = ret.m)$root
+    NomEff <- uniroot(fObj,interval=c(0,upl),Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m,  q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, restriction = restriction, ret.m = ret.m)$root
 
     return(effort =  NomEff)
 }
@@ -59,7 +59,7 @@ CobbDouglasBio.effort   <- function(Cr,B,q.m,efs.m,alpha.m,beta.m,ret.m, restric
 #  CobbDouglasAge :: E[it], B[na,nu,it], efs.m[mt,it], q.m,alpha.m,beta.m :: [mt,na,nu,it] 
 #-------------------------------------------------------------------------------
 
-CobbDouglasAge   <- function(E,Ba,q.m,efs.m,alpha.m,beta.m,...){
+CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,...){
 
     dimq <- dim(q.m)
     
@@ -67,10 +67,10 @@ CobbDouglasAge   <- function(E,Ba,q.m,efs.m,alpha.m,beta.m,...){
     Ef  <- array(Ef, dim = c(dim(Ef), dimq[2:3]))
     Ef  <- aperm(Ef, c(1,3:4,2))   # [mt,na,nu,it] 
    
-    Ba <- array(Ba, dim = c(dim(Ba), dimq[1]))
-    Ba <- aperm(Ba, c(4,1:3))      # [mt,na,nu,it]
+    N <- array(N, dim = c(dim(N), dimq[1]))
+    N <- aperm(N, c(4,1:3))      # [mt,na,nu,it]
     
-    C.m <- q.m*(Ef^alpha.m)*(Ba^beta.m)   # [mt,na,nu,it]
+    C.m <- q.m*(Ef*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m) # [mt,na,nu,it]
         
     C <-  apply(C.m, 4,sum)
 
@@ -81,26 +81,26 @@ CobbDouglasAge   <- function(E,Ba,q.m,efs.m,alpha.m,beta.m,...){
 #  CobbDouglasAge.Effort :: Cr[1], B[na,nu], efs.m[mt], q.m,alpha.m,beta.m :: [mt,na,nu] 
 #-------------------------------------------------------------------------------
 
-CobbDouglasAge.effort   <- function(Cr,Ba,q.m,efs.m,alpha.m,beta.m, ret.m, restriction = 'catch',...){
+CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, restriction = 'catch',...){
  
     dimq <- dim(q.m)  # [mt,na,nu,1]
     
-    Ba <- array(Ba[drop = TRUE], dim(q.m)[2:4]) # [na,nu,1] 
+    N <- array(N[drop = TRUE], dim(q.m)[2:4]) # [na,nu,1]
         
-    Ba <- array(Ba, dim = c(dim(Ba), dimq[1]))  # [na,1,nu,1,1,1,mt]
-    Ba <- aperm(Ba, c(4,1:3))                   # [mt,na,nu,it]
+    N <- array(N, dim = c(dim(N), dimq[1]))  # [na,1,nu,1,1,1,mt]
+    N <- aperm(N, c(4,1:3))                   # [mt,na,nu,it]
     
     efs.m <- array(efs.m, dim = dimq)
 
-    fObj <- function(E.f,Cr,Ba, q.m,efs.m,alpha.m,beta.m, ret.m,restriction){
+    fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m,restriction){
         # if catch = TRUE (=> the restriction is catch not landings. )
-        if(restriction == 'catch') Ca.m <- q.m*(E.f*efs.m)^alpha.m*(Ba^beta.m)
-        else  Ca.m <- q.m*(E.f*efs.m)^alpha.m*(Ba^beta.m)*ret.m
+        if(restriction == 'catch') Ca.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)
+        else  Ca.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m)
         
                 return(Cr - sum(Ca.m))
     }
 
-    NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,Ba=Ba, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, restriction = restriction, ret.m = ret.m)$root
+    NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, restriction = restriction, ret.m = ret.m)$root
 
     return(effort =  NomEff)
 }

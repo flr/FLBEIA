@@ -68,22 +68,33 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
     stock <- biol@name
     
     # IF season = 1 THEN age groups move to the next. 
+    # The interaction between the stock and the catch is done at biomass level
+    # because the weight, in the stock, the landings and the discards may  differ,
+    # so if the interaction were in numbers we could loss or gain individuals.
     if(ss == 1){
         # total catch in year [y-1] season [ns].
-        catch.n <- catchStock(fleets,stock)[,yr-1,,ns]
+        catchW.n <- catchWStock(fleets,stock)[,yr-1,,ns]
+
         # middle ages
-        biol@n[-c(1,na),yr,,ss] <- (biol@n[-c(na-1,na),yr-1,,ns]*exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) - catch.n[-c(na-1,na),])*
-                                            exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) 
+        M <- exp(-biol@m[-c(na-1,na),yr-1,,ns]/2)
+        wt <- biol@wt[-c(na-1,na),yr-1,,ns]
+        biol@n[-c(1,na),yr,,ss] <- (biol@n[-c(na-1,na),yr-1,,ns]*wt*exp(-M/2) - catchW.n[-c(na-1,na),])*exp(-M/2)/wt
         # plusgroup
-        biol@n[na,yr,,ss]       <- (biol@n[na-1,yr-1,,ns]*exp(-biol@m[na-1,yr-1,,ns]/2) - catch.n[na-1,])*exp(-biol@m[na-1,yr-1,,ns]/2) + 
-                                   (biol@n[na,yr-1,,ns]*exp(-biol@m[na,yr-1,,ns]/2) - catch.n[na,])*exp(-biol@m[na,yr-1,,ns]/2)
+        M  <- biol@m[na-1,yr-1,,ns]
+        MA <- biol@m[na,yr-1,,ns]
+        wt  <- biol@wt[na-1,yr-1,,ns]
+        wtA <- biol@wt[na,yr-1,,ns]
+        biol@n[na,yr,,ss]       <- (biol@n[na-1,yr-1,,ns]*exp(-M/2) - catchW.n[na-1,])*exp(-M/2)/wt +
+                                   (biol@n[na,yr-1,,ns]*exp(-MA/2) - catchW.n[na,])*exp(-MA/2)/wtA
 
     }
     else{
         # total catch in year [yr] season [ss-1].
-        catch.n <- catchStock(fleets,stock)[,yr,,ss-1]
+        catchW.n <- catchWStock(fleets,stock)[,yr,,ss-1]
         # middle ages      # for unit == ss  and age = 1, it will be equal NA but be updated after with SRsim.
-        biol@n[,yr,,ss] <- (biol@n[,yr,,ss-1]*exp(-biol@m[,yr,,ss-1]/2) - catch.n)*exp(-biol@m[,yr,,ss-1]/2) 
+        M <-  biol@m[,yr,,ss-1]
+        wt <- biol@wt[,yr,,ss-1]
+        biol@n[,yr,,ss] <- (biol@n[,yr,,ss-1]*wt*exp(-M/2) - catchW.n)*exp(-M/2)/wt
     }
 
     # Update SSB.
@@ -163,7 +174,7 @@ BDPG <- function(biols, BDs, fleets, year, season, stknm, ...){
     }
     
     # total catch in year [yr0] season [ss0].
-    BD@catch[,yr0,,ss0] <- catchStock(fleets,stock)[,yr0,,ss0]
+    BD@catch[,yr0,,ss0] <- catchWStock(fleets,stock)[,yr0,,ss0]
         
     # Update FLBDsim object.
     BD <- BDsim(BD,yr,ss)
