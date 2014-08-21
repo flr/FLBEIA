@@ -19,7 +19,7 @@
 #   stk_ind_index.var.flq:Variability in index of stock 'stk' (FLQuant)
 #   stk_ind_index.q.flq:  Catchability by index of stock 'stk' (FLQuant)
 #   stk_ind_catch.n.flq:  Number of catch at age of stock 'stk'(FLQuant)
-#   stk_ind_catch.wt.flq:  Weight of catch at age of stock 'stk'(FLQuant)
+#   stk_ind_catch.w.flq:  Weight of catch at age of stock 'stk'(FLQuant)
 #   stk_ind_effort.flq:	  Effort by index of stock 'stk'(FLQuant)
 #   stk_ind_sel.pattern.flq: Selection pattern of index of stock 'stk' (FLQuant)
 #   stk_ind_range.min:    Minimum age catch by index of stock 'stk'(number)

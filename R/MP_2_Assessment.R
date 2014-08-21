@@ -20,7 +20,7 @@ assessment.mp <- function(stocks, fleets.obs, indices, assess.ctrl, datayr, stkn
      
     if(assess.ctrl[[st]] != "NoAssessment") {
         
-        # trim the indices, fron index specific initial year to the assessment year.
+        # trim the indices, fron index specific initial yeaer to the assessment year.
         indST <- indices[[st]]
         if(!is.null(indST))
             indST <- FLIndices(lapply(indices[[st]],function(x) trim(x, year = dimnames(x@index)[[2]][1]:datayr)))

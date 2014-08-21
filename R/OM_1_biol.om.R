@@ -8,7 +8,7 @@
 # 
 #   Age structured or biomass dynamic populations.
 #       * Age structured  => ASP
-#       * Biomass dynamic => BDPG
+#       * Biomass dynamic => FLBDsim
 #
 # Dorleta Garcia
 # Created: 25/10/2010 15:43:38
