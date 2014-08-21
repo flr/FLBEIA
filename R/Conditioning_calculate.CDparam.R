@@ -1,7 +1,7 @@
 ###############################################################################
 # AUTHOR(DATE):       Agurtzane Urtizberea, Dorleta Garcia and Sonia Sanchez 
 # RESEARCH INSTITUTE: AZTI-TECNALIA                      
-# TITLE:       calculate.CBparam
+# TITLE:       calculate.CDparam
 # NOTE #1:     calculates Cobb Douglass parameters: 
 #              returns a list with alpha, beta and catch.q. Alpha and beta are 
 #              FLQuants equal one and 
@@ -28,7 +28,7 @@
 #   Section 5:        Create a list with the 3 parameters
 #-------------------------------------------------------------------------------
 
- calculate.CBparam <- function(stk.n,landings.n,discards.n,
+ calculate.CDparam <- function(stk.n,landings.n,discards.n,
                                   effort,effshare,age.min,age.max,flqa,flq) { 
 
   #==============================================================================
@@ -79,13 +79,13 @@
   # Section 5:         Create a list with the 3 parameters
   #==============================================================================
   
-  CB_param <- vector('list',3)
-  names(CB_param) <- c('alpha','beta','catch.q')
-  CB_param[['alpha']]    <- alpha
-  CB_param[['beta']]     <- beta
-  CB_param[['catch.q']]  <- catch.q
+  CD_param <- vector('list',3)
+  names(CD_param) <- c('alpha','beta','catch.q')
+  CD_param[['alpha']]    <- alpha
+  CD_param[['beta']]     <- beta
+  CD_param[['catch.q']]  <- catch.q
   
-  return(CB_param)
+  return(CD_param)
 }
   
   
