@@ -63,7 +63,7 @@ export(
   "create.fleets.data",
   "create.F2CatchHCR.ctrl",    
   "create.indices.data",   
-  "calculate.CBparam",     
+  "calculate.CDparam",     
   "create.list.stks.flq",  
   "create.list.stks.flqa", 
   "create.SRs.data",       

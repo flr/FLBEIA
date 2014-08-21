@@ -40,7 +40,7 @@
 #   fl.met.stk_proj.avg.yrs:	historic years to calculate the average of landings.wt, discards.wt,landings.sel,discards.sel
 #                                   alpha,beta,catch.q for 'fl' fleet, 'met' metier and 'stk' stock(vector)
 #
-#   Required functions: Create.list.stks.flqa	function, calculate.CBparam
+#   Required functions: Create.list.stks.flqa	function, calculate.CDparam
 #-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -391,13 +391,13 @@ create.fleets.data <- function(){
             stk.age.min <- get(paste(nmfl.met.stk,'.age.min',sep=''))
             stk.age.max <- get(paste(nmfl.met.stk,'.age.max',sep=''))
 
-            CB_param <- calculate.CBparam(stk.n, fl.met.stk.landings.n,fl.met.stk.discards.n,
+            CD_param <- calculate.CDparam(stk.n, fl.met.stk.landings.n,fl.met.stk.discards.n,
                                          fl.effort,fl.met.effshare,stk.age.min,stk.age.max,
                                          flqa.stk,flq.stk)
           
-            fl.met.stk.alpha    <- CB_param[['alpha']]
-            fl.met.stk.beta     <- CB_param[['beta']]
-            fl.met.stk.catch.q  <- CB_param[['catch.q']]
+            fl.met.stk.alpha    <- CD_param[['alpha']]
+            fl.met.stk.beta     <- CD_param[['beta']]
+            fl.met.stk.catch.q  <- CD_param[['catch.q']]
             
           }else{
             # Check dimension names
