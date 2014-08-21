@@ -16,7 +16,7 @@
 #-------------------------------------------------------------------------------
 # updateCatch(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl, year = 1, season = 1){
+updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl = advice.ctrl, year = 1, season = 1){
 
     fleet.names <- names(fleets)
         
