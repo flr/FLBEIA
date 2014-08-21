@@ -32,7 +32,7 @@
 # Function to simulate the population observation in numbers at age at the beginning of the year, taking into account the age misclassification
 # - Age reading observation error (observation) and total N observation error (estimation)
 #Input
-# biol          : an an object of class FLBiol
+# biol          : an object of class FLBiol
 # ages.error    : an array of probabilities of age assignment of dim = c(na, na, ny, iter)
 # stk.nage.error: an array of multiplicative errors (total abundance estimation error), dim = c(na,ny)
 # yr            : integer, the year of assessment/management
@@ -75,7 +75,7 @@ Obs.stk.nage <- function(biol, ages.error, stk.nage.error, yr)
 # Function to simulate the observation of the mean weight at age in population (seasonal mean), taking into account the age misclassification
 # - Natural mortality random variation
 #Input
-# biol        : an an object of class FLBiol
+# biol        : an object of class FLBiol
 # ages.error  : an array of probabilities of age assignment of dim = c(na, na, ny, iter)
 # nmort.error : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
 # yr          : integer, the year the stock is observed from
@@ -103,7 +103,7 @@ Obs.nmort <- function(biol,  ages.error, nmort.error,  yr)
 # Function to simulate the observation of the mean weight at age in population (seasonal mean), taking into account the age misclassification
 # - Weight at age in the stock observation error
 #Input
-# biol          : an an object of class FLBiol
+# biol          : an object of class FLBiol
 # ages.error    : an array of probabilities of age assignment of dim = c(na, na, ny, iter)
 # stk.wgt.error : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
 # yr            : integer, the year the stock is observed from
@@ -129,7 +129,7 @@ Obs.stk.wgt <- function(biol, ages.error, stk.wgt.error, yr){
 # Function to simulate the fecundity observation at age (yearly mean), taking into account the age misclassification
 # - Fec at age observation error
 #Input
-# biol       : an an object of class FLBiol
+# biol       : an object of class FLBiol
 # ages.error : an array of probabilities of age assignment of dim = c(na, na, ny, iter)
 # fec.error  : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
 # yr         : integer, the year the stock is observed from
