@@ -76,7 +76,7 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
         catchW.n <- catchWStock(fleets,stock)[,yr-1,,ns]
 
         # middle ages
-        M <- exp(-biol@m[-c(na-1,na),yr-1,,ns]/2)
+        M <- biol@m[-c(na-1,na),yr-1,,ns]
         wt <- biol@wt[-c(na-1,na),yr-1,,ns]
         biol@n[-c(1,na),yr,,ss] <- (biol@n[-c(na-1,na),yr-1,,ns]*wt*exp(-M/2) - catchW.n[-c(na-1,na),])*exp(-M/2)/wt
         # plusgroup
@@ -84,8 +84,8 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
         MA <- biol@m[na,yr-1,,ns]
         wt  <- biol@wt[na-1,yr-1,,ns]
         wtA <- biol@wt[na,yr-1,,ns]
-        biol@n[na,yr,,ss]       <- (biol@n[na-1,yr-1,,ns]*exp(-M/2) - catchW.n[na-1,])*exp(-M/2)/wt +
-                                   (biol@n[na,yr-1,,ns]*exp(-MA/2) - catchW.n[na,])*exp(-MA/2)/wtA
+        biol@n[na,yr,,ss]       <- (biol@n[na-1,yr-1,,ns]*wt*exp(-M/2) - catchW.n[na-1,])*exp(-M/2)/wt +
+                                   (biol@n[na,yr-1,,ns]*wtA*exp(-MA/2) - catchW.n[na,])*exp(-MA/2)/wtA
 
     }
     else{
