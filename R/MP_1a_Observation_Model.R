@@ -139,7 +139,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
         ctot.age <- apply(landStock(fleets, st), c(1:2,4,6),sum)[,1:(year-1),] + apply(discStock(fleets, st), c(1:2,4,6),sum)[,1:(year-1),]
         ctot     <- seasonSums(ctot.age)
         c.perc <- ctot.age * NA
-        for(s in c(1:ns)) c.perc[,,,s,] <- ctot.age[,,,s,]/ctot
+        for (s in c(1:ns)) c.perc[, , , s, ] <- ifelse(ctot==0,0, ctot.age[, , , s, ]/ctot)
         biol.spwn <- unitMeans(biol@spwn[,1:(year-1),,])
         res@harvest.spwn[] <- seasonSums(c.perc[,1:(year-1),,]*biol.spwn)
 
