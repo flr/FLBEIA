@@ -23,7 +23,7 @@ CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,...)  # d
                 {
     Ef  <- matrix(E,dim(efs.m)[1],dim(efs.m)[2], byrow = T)*efs.m
     N   <- matrix(N,dim(efs.m)[2], byrow = T)
-    C.m <-  q.m*(Ef*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)  #
+    C.m <-  q.m*(Ef*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m  #
         
     C <-  colSums(C.m)
 
@@ -39,7 +39,7 @@ CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,re
 
     fObj <- function(E.f,Cr,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,ret.m, restriction){
         if(restriction == 'catch') C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(c(N)*wl.m)^beta.m + (1-ret.m)*(c(N)*wd.m)^beta.m)  # if restriction = catch (=> the restriction is catch not landings. )
-        else C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(c(N)*wl.m)^beta.m)
+        else C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(c(N)*wl.m))^beta.m
         return(Cr - sum(C.m))
     }
     
@@ -70,7 +70,7 @@ CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,...
     N <- array(N, dim = c(dim(N), dimq[1]))
     N <- aperm(N, c(4,1:3))      # [mt,na,nu,it]
     
-    C.m <- q.m*(Ef*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m) # [mt,na,nu,it]
+    C.m <- q.m*(Ef*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m # [mt,na,nu,it]
         
     C <-  apply(C.m, 4,sum)
 
@@ -94,8 +94,8 @@ CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,be
 
     fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m,restriction){
         # if catch = TRUE (=> the restriction is catch not landings. )
-        if(restriction == 'catch') Ca.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)
-        else  Ca.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m)
+        if(restriction == 'catch') Ca.m <- q.m*(E.f*efs.m)^alpha.m*(N*(ret.m*wl.m+ (1-ret.m)*wd.m))^beta.m
+        else  Ca.m <- q.m*(E.f*efs.m)^alpha.m*(N*ret.m*wl.m)^beta.m
         
                 return(Cr - sum(Ca.m))
     }

@@ -107,7 +107,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
         ret.m      <- cobj@landings.sel[,yr,,ss, drop = TRUE]
 
         # In biomass models discards and landings can also have different weigths.
-        Ctotal <- Ctotal + array(q.m*(eff*efs.m[mt,])^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m),dim = c(na,rep(1,4),it))
+        Ctotal <- Ctotal + array(q.m*(eff*efs.m[mt,])^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m,dim = c(na,rep(1,4),it))
     }
 
     tac.disc <- ifelse(Ctotal[,,,,,,drop=T] < tac, rep(1,it), tac/Ctotal[,,,,,,drop=T])
@@ -134,7 +134,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
         ret.m      <- cobj@landings.sel[,yr,,ss, drop = TRUE]
 
         # The overquota discards have the same weight as landings, so here we use ret.m instead of lsa
-        Ctotal <- array(q.m*(eff*efs.m[mt,])^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m),dim = c(rep(1,5),it))
+        Ctotal <- array(q.m*(eff*efs.m[mt,])^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m,dim = c(rep(1,5),it))
 
         cobj@discards[,yr,,ss]   <- Ctotal*dsa # /(sa*tac.disc)
         cobj@landings[,yr,,ss]   <- Ctotal*lsa # *tac.disc/sa
@@ -224,7 +224,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
         efm <- array(eff*efs.m[mt,], dim = c(it,na,1,nu,1,1))
         efm <- aperm(efm, c(2:6,1))
 
-        Ca <- q.m*efm^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)
+        Ca <- q.m*efm^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m
 
 
         Ct <- Ct + apply(Ca, 6, sum)
@@ -250,7 +250,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
         efm <- array(eff*efs.m[mt,], dim = c(it,na,1,nu,1,1))
         efm <- aperm(efm, c(2:6,1))
 
-        Ca <- q.m*efm^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m)
+        Ca <- q.m*efm^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m
 
         dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
         lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
@@ -539,7 +539,7 @@ CobbDouglasBio.CatchFleet <- function(effort, N, wl.m, wd.m, ret.m, q.m, efs.m, 
     N       <- matrix(N, nmt, it, byrow = TRUE)      # [nmt,it]
     effort  <- matrix(effort, nmt, it, byrow = TRUE) # [nmt,it]
 
-    catch <- apply(q.m*(effort*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m),2,sum) # sum catch along metiers
+    catch <- apply(q.m*(effort*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m,2,sum) # sum catch along metiers
 
     return(catch)
 }
@@ -562,7 +562,7 @@ CobbDouglasAge.CatchFleet <- function(effort, N, ret.m, wl.m, wd.m, q.m, efs.m, 
     efs.m <- array(efs.m, dim = c(dim(efs.m), dimq[2:3]))
     efs.m <- aperm(efs.m, c(1,3:4,2))
 
-    catch <- apply(q.m*(effort*efs.m)^alpha.m*(ret.m*(N*wl.m)^beta.m + (1-ret.m)*(N*wd.m)^beta.m), 4,sum)
+    catch <- apply(q.m*(effort*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m, 4,sum)
 
     return(catch)
 }
