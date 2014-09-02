@@ -16,20 +16,21 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     fleet <- fleets[[flnm]]
     
     ny <- dim(fleet@effort)[2]
+    ns <- dim(fleet@effort)[4]
     it <- dim(fleet@effort)[6]
     
     # VaC
-    VaC <- totvcost_flbeia(fleet)[,year]
+    VaC <- seasonSums(totvcost_flbeia(fleet)[,year]) # total anual variable costs
     # FxC
-    FxC <- (covars[["NumbVessels"]][flnm, ] * fleet@fcost)[, year]
+    FxC <- (covars[["NumbVessels"]][flnm, ] * seasonSums(fleet@fcost))[, year]
     # FuC  # per unit of effort, we asume common cost for all the metiers.
-    FuC <- (covars[['FuelCost']][flnm,]*fleet@effort)[,year]
+    FuC <- (covars[['FuelCost']][flnm,]*seasonSums(fleet@effort))[,year]
     # CaC # per unit of capacity
     CaC <- (covars[['CapitalCost']][flnm,]*covars[["NumbVessels"]][flnm, ])[,year]
     # Revenue
-    Rev <- revenue_flbeia(fleet)[,year]
+    Rev <- seasonSums(revenue_flbeia(fleet)[,year])
     # CrC
-    CrC <- (Rev*fleet@crewshare[,year])  +  covars[['Salaries']][flnm,year]
+    CrC <- (Rev*seasonMeans(fleet@crewshare[,year]))  +  covars[['Salaries']][flnm,year]
     
     x1 <- FuC/Rev
     x2 <- VaC/Rev
@@ -42,7 +43,13 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     Inv <- c((Rev - BER)/Rev)*c(covars[['InvestShare']][flnm,year])
     
-    K <- c(fleet@capacity[,year]) #capacity.
+    Ks <- seasonSums(fleet@capacity[,year])[drop=T]    # seasonal capacity [ns,ni]
+    K  <- c(seasonSums(fleet@capacity[,year])) # annual capacity. [ni]
+
+    # pKs How annual capacity is distributed along seasons.
+    if(ns == 1)      pKs <- rep(1,ni) #[ni]
+    else  if(ni > 1) pKs <- sweep(Ks,2,K,"/")    # ns > 1 [ns,ni]
+          else       pKs <- Ks/K    # [ns]
     
     w1 <- c(covars[['w1']][flnm,year]) 
     w2 <- c(covars[['w2']][flnm,year]) 
@@ -67,7 +74,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     # If year is not last year Update capacity  in year [year+1].
     if (year < ny){
-        fleets[[flnm]]@capacity[, year + 1] <- K + omega
+        fleets[[flnm]]@capacity[, year + 1] <- Ks + omega*pKs
         covars[['NumbVessels']][flnm,year+1,] <- (K + omega)/covars[['MaxDays']][flnm,year+1,]
     }
 

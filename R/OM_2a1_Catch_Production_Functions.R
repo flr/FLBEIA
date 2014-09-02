@@ -38,8 +38,9 @@ CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,...)  # d
 CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, restriction = 'catch',...){
 
     fObj <- function(E.f,Cr,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,ret.m, restriction){
-        if(restriction == 'catch') C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(c(N)*wl.m)^beta.m + (1-ret.m)*(c(N)*wd.m)^beta.m)  # if restriction = catch (=> the restriction is catch not landings. )
-        else C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*(c(N)*wl.m))^beta.m
+         C.m <- q.m*(E.f*efs.m)^alpha.m*(ret.m*c(N)*wl.m+ (1-ret.m)*c(N)*wd.m)^beta.m
+        if(restriction == 'catch') C.m <- C.m  # if restriction = catch (=> the restriction is catch not landings. )
+        else C.m <- ret.m*C.m     # if restriction = landings
         return(Cr - sum(C.m))
     }
     
@@ -94,8 +95,9 @@ CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,be
 
     fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m,restriction){
         # if catch = TRUE (=> the restriction is catch not landings. )
-        if(restriction == 'catch') Ca.m <- q.m*(E.f*efs.m)^alpha.m*(N*(ret.m*wl.m+ (1-ret.m)*wd.m))^beta.m
-        else  Ca.m <- q.m*(E.f*efs.m)^alpha.m*(N*ret.m*wl.m)^beta.m
+        Ca.m <- q.m*(E.f*efs.m)^alpha.m*(N*(ret.m*wl.m+ (1-ret.m)*wd.m))^beta.m
+        if(restriction == 'catch') Ca.m <- Ca.m
+        else  Ca.m <- ret.m*Ca.m
         
                 return(Cr - sum(Ca.m))
     }

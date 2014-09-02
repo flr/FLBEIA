@@ -283,8 +283,9 @@ fobj.maxprofits <- function(E){
         E  <- array(E,dim = dim(N.i[[st]]))   # [nmt,na,nu]
 
         Cst[st] <- sum(q.m.i[[st]]*(E^alpha.m.i[[st]])*
-                (ret.m.i[[st]]*(N.i[[st]]*wl.m.i[[st]])^beta.m.i[[st]] + (1-ret.m.i[[st]])*(N.i[[st]]*wd.m.i[[st]])^beta.m.i[[st]]))
-        Lst[st] <- sum(q.m.i[[st]]*(E^alpha.m.i[[st]])*(ret.m.i[[st]]*(N.i[[st]]*wl.m.i[[st]])^beta.m.i[[st]]))  # multiply the retention vector if landing is the restriction.
+                (N.i[[st]]*(ret.m.i[[st]]*wl.m.i[[st]]+ (1-ret.m.i[[st]])*wd.m.i[[st]])^beta.m.i[[st]]))
+        Lst[st] <- sum(ret.m.i[[st]]*q.m.i[[st]]*(E^alpha.m.i[[st]])*
+                (N.i[[st]]*(ret.m.i[[st]]*wl.m.i[[st]]+ (1-ret.m.i[[st]])*wd.m.i[[st]])^beta.m.i[[st]]))  # multiply the retention vector if landing is the restriction.
         
         # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE). 
         if(catch.rest  != 'catch') Cst[st] <- Lst[st]# The restriction is landings.
@@ -297,7 +298,8 @@ fobj.maxprofits <- function(E){
                                                                               # The overquota discards are proportional to the catch in all the metiers.
         
         
-        res <- res + sum(q.m.i[[st]]*(E^alpha.m.i[[st]])*(ret.m.i[[st]]*(N.i[[st]]*wl.m.i[[st]])^beta.m.i[[st]])*pr.m.i[[st]])*Lrat
+        res <- res + sum(q.m.i[[st]]*(E^alpha.m.i[[st]])*
+                (N.i[[st]]*(ret.m.i[[st]]*wl.m.i[[st]]+ (1-ret.m.i[[st]])*wd.m.i[[st]])^beta.m.i[[st]]))*Lrat
      #   print(res)
 
     }
@@ -336,8 +338,7 @@ nlin.maxprofits <- function(E){
 
     E1  <- array(E, dim(q.m.i))
 
-    res <-    sum(q.m.i*(E^alpha.m.i)*
-                (ret.m.i*(N.i*wl.m.i)^beta.m.i + (1-ret.m.i)*(N.i*wd.m.i)^beta.m.i))
+    res <-    sum(q.m.i*(E^alpha.m.i)*(N.i*(ret.m.i*wl.m.i + (1-ret.m.i)*wd.m.i)^beta.m.i))
 
     return(res)
 }
