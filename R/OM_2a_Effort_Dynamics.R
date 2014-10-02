@@ -162,8 +162,9 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
                 
         for(i in 1:it){          
             effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
-            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = N[[st]][,,,,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F],
-                                efs.m = efs.m[,i], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F], 
+            Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F],
+                                efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
                                 ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
                                 restriction = fleets.ctrl[[flnm]]$restriction))
         }
@@ -187,8 +188,11 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
         ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
         quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
         # The catch.
-        catchFun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CatchFleet', sep = ".")
-        catch <- eval(call(catchFun, N = N[[st]],  effort = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
+        catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
+        Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+        catchD <- eval(call(catchFun, N = Nst[,,i,drop=F],  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
+        itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
+        catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
             
         quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss)        # [ns,it]
                               
@@ -374,7 +378,7 @@ SSFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     # Seasonal share
     for(st in sts){
       catchFun <- paste(fl.ctrl[[st]][['catch.model']], 'CatchFleet', sep = ".")
-      catch <- eval(call(catchFun, Ba = Ba[[st]], B = B[st,], effort = ef.fl, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
+      catch <- eval(call(catchFun, Ba = Ba[[st]], B = B[st,], E = ef.fl, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
       TAC.fl <- TAC.yr[st,] * QS[[st]][flnm,]
       fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss,] <- ifelse( TAC.fl==0, 0, catch/TAC.fl)
     }

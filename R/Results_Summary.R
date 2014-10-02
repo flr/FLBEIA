@@ -19,12 +19,12 @@
 #------------------------------------------------------------------------------#
 # F_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-F_flbeia <- function(obj){
+F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
+    ny     <- length(years)
+    yrnms  <- years
     
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
@@ -35,23 +35,23 @@ F_flbeia <- function(obj){
         
         if(na == 1){
             # Catch:
-            catch <- apply(catchStock(obj$fleets, stk),c(2,6), sum)[drop = TRUE] # [ny,it]
-            B     <- (obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,,,1,drop= TRUE] # [ny, it] , 1st season biomass
-            res[stk,,] <- catch/B
+            catch <- apply(catchStock(obj$fleets, stk),c(2,6), sum)[,years,drop = TRUE] # [ny,it]
+            B     <- (obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,1,drop= TRUE] # [ny, it] , 1st season biomass
+            res[stk,,] <- (catch/B)
         }
         else{ 
             fbar_age <- ac(obj$biols[[stk]]@range[c('minfbar')]:obj$biols[[stk]]@range[c('maxfbar')])
             
-            Dnms <- list(age = fbar_age, year = 1:ny, iter = 1:it)
+            Dnms <- list(age = fbar_age, year = yrnms, iter = 1:it)
             aux  <- array(dim = c(length(fbar_age), ny,it), dimnames = Dnms)           
             
-            n.  <- array(unitSums(obj$biols[[stk]]@n)[fbar_age,,,1,drop=T], dim = c(length(fbar_age),ny,it), dimnames = Dnms)                    
-            m.  <- array(seasonSums(unitMeans(obj$biols[[stk]]@m))[fbar_age,drop=T], dim = c(length(fbar_age),ny,it), dimnames = Dnms)           
-            c.  <- array(apply(catchStock(obj$fleets, stk),c(1:2,6), sum)[fbar_age,drop = TRUE], dim = c(length(fbar_age),ny,it), dimnames = Dnms) 
+            n.  <- array(unitSums(obj$biols[[stk]]@n)[fbar_age,years,,1,drop=T], dim = c(length(fbar_age),ny,it), dimnames = Dnms)
+            m.  <- array(seasonSums(unitMeans(obj$biols[[stk]]@m))[fbar_age,years,drop=T], dim = c(length(fbar_age),ny,it), dimnames = Dnms)
+            c.  <- array(apply(catchStock(obj$fleets, stk),c(1:2,6), sum)[fbar_age,years, drop = TRUE], dim = c(length(fbar_age),ny,it), dimnames = Dnms)
         
             fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
         
-            for(y in 1:ny){
+            for(y in yrnms){
                 for(a in fbar_age){
                     for(i in 1:it){
                         if(n.[a,y,i] == 0) aux[a,y,i] <- 0
@@ -70,12 +70,15 @@ F_flbeia <- function(obj){
 #------------------------------------------------------------------------------#
 # SSB_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-SSB_flbeia <- function(obj){
+SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
-    
+
     it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
+    ny     <- length(years)
+    yrnms  <- years
+
+    stknms <- names(obj$biols)
+
     
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
@@ -88,7 +91,7 @@ SSB_flbeia <- function(obj){
         spwn.sson  <- ifelse( sum(obj$biols[[stk]]@spwn[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
         d  <- si-spwn.sson 
       }
-        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt*obj$biols[[stk]]@fec)[,,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
+        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt*obj$biols[[stk]]@fec)[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
     }
     return(res)
 }
@@ -97,17 +100,20 @@ SSB_flbeia <- function(obj){
 #------------------------------------------------------------------------------#
 # B_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-B_flbeia <- function(obj){
+B_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
-    
+
     it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
+    ny     <- length(years)
+    yrnms  <- years
+
+    stknms <- names(obj$biols)
+
     
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # B 1st season
-        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,,,1], c(2,6), sum, na.rm = TRUE)[drop=T]
+        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,1], c(2,6), sum, na.rm = TRUE)[drop=T]
     }
     return(res)
 }
@@ -117,13 +123,15 @@ B_flbeia <- function(obj){
 # If age struc => recruitment.
 # If biodyn    => growth.
 #------------------------------------------------------------------------------#
-R_flbeia <- function(obj){
+R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
-    
+
     it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
-    
+    ny     <- length(years)
+    yrnms  <- years
+
+    stknms <- names(obj$biols)
+
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # 
@@ -137,13 +145,13 @@ R_flbeia <- function(obj){
           d  <- si-rec.sson 
         }
         if(na > 1){
-            res[stk,,] <- obj$biols[[stk]]@n[1,,1,rec.sson,drop=T]
+            res[stk,,] <- obj$biols[[stk]]@n[1,years,1,rec.sson,drop=T]
             if(dim(obj$biols[[stk]]@n)[3]>1){
-                for(ss in (rec.sson+1):dim(obj$biols[[stk]]@n)[3]) res[stk,,] <- res[stk,,] + obj$biols[[stk]]@n[1,,ss,ss,drop=T]
+                for(ss in (rec.sson+1):dim(obj$biols[[stk]]@n)[3]) res[stk,,] <- res[stk,,] + obj$biols[[stk]]@n[1,years,ss,ss,drop=T]
             }
         }else{
-            catch <- matrix(apply(catchStock(obj$fleets, stk),c(2,6), sum)[drop = TRUE],ny,it) # [ny,it]
-            B     <- matrix((obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,,,1,drop= TRUE],ny,it) # [ny, it] , 1st season biomass
+            catch <- matrix(apply(catchStock(obj$fleets, stk),c(2,6), sum)[,years,drop = TRUE],ny,it) # [ny,it]
+            B     <- matrix((obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,1,drop= TRUE],ny,it) # [ny, it] , 1st season biomass
             res[stk,-ny,] <- B[-1,] - B[-ny,] + catch[-ny,]
             
         }
@@ -154,17 +162,20 @@ R_flbeia <- function(obj){
 #------------------------------------------------------------------------------#
 # C_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-C_flbeia <- function(obj){
+C_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
+    stknms <- names(obj$biols)
+
+    it     <- dim(obj$biols[[1]]@n)[6]
+    ny     <- length(years)
+    yrnms  <- years
+
     stknms <- names(obj$biols)
     
-    it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
     
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # B 1st season
-        res[stk,,] <- apply(catchWStock(obj$fleets, stk),c(2,6), sum)[drop = TRUE] # [ny,it]
+        res[stk,,] <- apply(catchWStock(obj$fleets, stk),c(2,6), sum)[,years,drop = TRUE] # [ny,it]
     }
     return(res)
 }
@@ -172,17 +183,19 @@ C_flbeia <- function(obj){
 #------------------------------------------------------------------------------#
 # L_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-L_flbeia <- function(obj){
+L_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
-    
+
     it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
-    
+    ny     <- length(years)
+    yrnms  <- years
+
+    stknms <- names(obj$biols)
+
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # B 1st season
-        res[stk,,] <- apply(landWStock(obj$fleets, stk),c(2,6), sum)[drop = TRUE] # [ny,it]
+        res[stk,,] <- apply(landWStock(obj$fleets, stk),c(2,6), sum)[,years,drop = TRUE] # [ny,it]
     }
     return(res)
 }
@@ -190,17 +203,19 @@ L_flbeia <- function(obj){
 #------------------------------------------------------------------------------#
 # D_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
-D_flbeia <- function(obj){
+D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
-    
+
     it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
-    
+    ny     <- length(years)
+    yrnms  <- years
+
+    stknms <- names(obj$biols)
+
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # B 1st season
-        res[stk,,] <- apply(discWStock(obj$fleets, stk),c(2,6), sum)[drop = TRUE] # [ny,it]
+        res[stk,,] <- apply(discWStock(obj$fleets, stk),c(2,6), sum)[,years,drop = TRUE] # [ny,it]
     }
     return(res)
 }
@@ -209,23 +224,24 @@ D_flbeia <- function(obj){
 #------------------------------------------------------------------------------#
 # summary_flbeia(obj) :: res[stocks, years, it, indicators] 
 #------------------------------------------------------------------------------#
-summary_flbeia <- function(obj){
+summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
+
     stknms <- names(obj$biols)
     
     it     <- dim(obj$biols[[1]]@n)[6]
-    ny     <- dim(obj$biols[[1]]@n)[2]
-    yrnms  <- dimnames(obj$biols[[1]]@n)[[2]]
+    ny     <- length(years) # dim(obj$biols[[1]]@n)[2]
+    yrnms  <- years # dimnames(obj$biols[[1]]@n)[[2]]
     
     res <- array(dim = c(length(stknms), ny,it, 7), dimnames = list(stock = stknms, year = yrnms, iter = 1:it, 
                                                       indicators = c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards')))
     
-    res[,,,1] <- R_flbeia(obj)
-    res[,,,2] <- SSB_flbeia(obj)
-    res[,,,3] <- F_flbeia(obj)
-    res[,,,4] <- B_flbeia(obj)
-    res[,,,5] <- C_flbeia(obj)
-    res[,,,6] <- L_flbeia(obj)
-    res[,,,7] <- D_flbeia(obj)
+    res[,,,1] <- R_flbeia(obj,years)
+    res[,,,2] <- SSB_flbeia(obj,years)
+    res[,,,3] <- F_flbeia(obj,years)
+    res[,,,4] <- B_flbeia(obj,years)
+    res[,,,5] <- C_flbeia(obj,years)
+    res[,,,6] <- L_flbeia(obj,years)
+    res[,,,7] <- D_flbeia(obj,years)
 
     return(res)
     
@@ -235,8 +251,8 @@ summary_flbeia <- function(obj){
 #------------------------------------------------------------------------------#
 # BIOsummary(obj) :: DATA.FRAME[stocks, years, it, indicators, value] 
 #------------------------------------------------------------------------------#
-bioSum <- function(object){
-    xx <- summary_flbeia(object)
+bioSum <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
+    xx <- summary_flbeia(obj, years)
     n  <- prod(dim(xx))
     
     dnms <- dimnames(xx)

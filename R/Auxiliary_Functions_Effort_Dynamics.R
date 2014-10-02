@@ -168,8 +168,9 @@ effRule.SSFB <- function( Ba, B, ef.m, efs.m, q.m, alpha.m, beta.m, fleet, fleet
         stock.ctrl[st,i] <- -1
         
         # Expected catches
-        catchFun <- paste(fleet.ctrl[[st]][['catch.model']], 'CatchFleet', sep = ".")
+        catchFun <- fleet.ctrl[[st]][['catch.model']]
         catch <- eval(call(catchFun, Ba = Ba[[st]], B = B[st,], effort = ef.fl, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]]))
+
         #catch <- colSums( cobbDoug(Ba = Ba[[st]], B = B[st,], E = ef.fl, efs.m = efs.m, q.m = q.m[[st]][,,,,drop=T], alpha.m = alpha.m[[st]][,,,,drop=T], beta.m = beta.m[[st]][,,,,drop=T]))
         
         # Catch restrictions (i.e. remaining quota)

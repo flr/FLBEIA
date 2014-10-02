@@ -17,17 +17,28 @@
 
 #-------------------------------------------------------------------------------
 #  CobbDouglasBio: E[it], B[it], q.m,efs.m,alpha.m,beta.m :: [mt,it] 
-#       The functions _works_ with iterations
+#       The function _works_ with iterations
+# ONLY FOR BIOMASS DYNAMIC POPUYLATUIONS.-
 #-------------------------------------------------------------------------------
-CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,...)  # dga: aYYYado a como argumento.
+CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m, ret.m, rho = 1 ,...)  # dga: aYYYado a como argumento.
                 {
     Ef  <- matrix(E,dim(efs.m)[1],dim(efs.m)[2], byrow = T)*efs.m
-    N   <- matrix(N,dim(efs.m)[2], byrow = T)
-    C.m <-  q.m*(Ef*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m  #
-        
-    C <-  colSums(C.m)
+    N   <- matrix(N,dim(efs.m)[1], dim(efs.m)[2],byrow = T)
+    alpha.m <- matrix(alpha.m,dim(efs.m)[1],dim(efs.m)[2])
+    wl.m <- matrix(wl.m,dim(efs.m)[1],dim(efs.m)[2])
+    wd.m <- matrix(wd.m,dim(efs.m)[1],dim(efs.m)[2])
+    beta.m <- matrix(beta.m,dim(efs.m)[1],dim(efs.m)[2])
+    ret.m <- matrix(ret.m,dim(efs.m)[1],dim(efs.m)[2])
+    q.m <- matrix(q.m,dim(efs.m)[1],dim(efs.m)[2])
 
-    return(catch =  C)
+    C.m <-  q.m*(Ef)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m  #
+        
+  #  C <-  colSums(C.m)
+
+
+    C.m <- ifelse(C.m < rho*N*(ret.m*wl.m + (1-ret.m)*wd.m),  C.m, rho*N*(ret.m*wl.m + (1-ret.m)*wd.m))
+
+    return(catch =  C.m)        # [nmt,it]
 }
 
 
@@ -35,12 +46,17 @@ CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,...)  # d
 #  CobbDouglasBio.effort Cr[1], B[1], q.m,efs.m,alpha.m,beta.m :: [mt]       
 #       The function does _not_work_ with iterations
 #-------------------------------------------------------------------------------
-CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, restriction = 'catch',...){
+CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, rho = 1, restriction = 'catch',...){
+
 
     fObj <- function(E.f,Cr,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,ret.m, restriction){
-         C.m <- q.m*(E.f*efs.m)^alpha.m*(c(N)*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m
+
+
+         C.m <- CobbDouglasBio(E = E.f, N = N, wl.m = wl.m, wd.m = wd.m, q.m = q.m, efs.m = efs.m,
+                                 alpha.m = alpha.m, beta.m = beta.m, ret.m = ret.m, rho = rho)
+
         if(restriction == 'catch') C.m <- C.m  # if restriction = catch (=> the restriction is catch not landings. )
-        else C.m <- ret.m*C.m     # if restriction = landings
+        else C.m <- matrix(ret.m,dim(efs.m)[1],dim(efs.m)[2])*C.m     # if restriction = landings
         return(Cr - sum(C.m))
     }
     
@@ -58,9 +74,10 @@ CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,re
 
 #-------------------------------------------------------------------------------
 #  CobbDouglasAge :: E[it], B[na,nu,it], efs.m[mt,it], q.m,alpha.m,beta.m :: [mt,na,nu,it] 
+# Res => C.m[mt,na,nu,it]
 #-------------------------------------------------------------------------------
 
-CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,...){
+CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rho = 1,...){
 
     dimq <- dim(q.m)
     
@@ -71,31 +88,31 @@ CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,...
     N <- array(N, dim = c(dim(N), dimq[1]))
     N <- aperm(N, c(4,1:3))      # [mt,na,nu,it]
     
-    C.m <- q.m*(Ef*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m # [mt,na,nu,it]
-        
-    C <-  apply(C.m, 4,sum)
+    W <- (ret.m*wl.m + (1-ret.m)*wd.m)
 
-    return(catch =  C)
+    C.m <- q.m*(Ef)^alpha.m*(N*W)^beta.m # [mt,na,nu,it]
+
+    C.m <- ifelse(C.m < rho*W*N, C.m,rho*W*N) # The truncation  of CobDoug is applied at metier level.
+
+ #   C <-  apply(C.m, 4,sum)
+
+    return(catch =  C.m)  # [mt,na,nu,it]
 }
 
 #-------------------------------------------------------------------------------
 #  CobbDouglasAge.Effort :: Cr[1], B[na,nu], efs.m[mt], q.m,alpha.m,beta.m :: [mt,na,nu] 
 #-------------------------------------------------------------------------------
 
-CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, restriction = 'catch',...){
+CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho = 1, restriction = 'catch',...){
  
-    dimq <- dim(q.m)  # [mt,na,nu,1]
-    
-    N <- array(N[drop = TRUE], dim(q.m)[2:4]) # [na,nu,1]
-        
-    N <- array(N, dim = c(dim(N), dimq[1]))  # [na,1,nu,1,1,1,mt]
-    N <- aperm(N, c(4,1:3))                   # [mt,na,nu,it]
-    
-    efs.m <- array(efs.m, dim = dimq)
+
 
     fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m,restriction){
         # if catch = TRUE (=> the restriction is catch not landings. )
-        Ca.m <- q.m*(E.f*efs.m)^alpha.m*(N*(ret.m*wl.m+ (1-ret.m)*wd.m))^beta.m
+
+        Ca.m <- CobbDouglasAge(E = E.f, N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
+                                 efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho)
+
         if(restriction == 'catch') Ca.m <- Ca.m
         else  Ca.m <- ret.m*Ca.m
         

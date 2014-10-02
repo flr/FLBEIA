@@ -1,6 +1,7 @@
 import("FLCore")
 import("FLFleet")
 
+
 export(
   "advice.mp",
   "age2ageDat",
@@ -41,10 +42,12 @@ export(
   "cobbDoug",
   "cobbDougInv",
   "CobbDouglasFit",
+"CobbDouglasBio",
+"CobbDouglasAge",
   "CobbDouglasBio.effort",
   "CobbDouglasAge.effort",
-  "CobbDouglasBio.CatchFleet",
-  "CobbDouglasAge.CatchFleet",
+#  "CobbDouglasBio.CatchFleet",
+#  "CobbDouglasAge.CatchFleet",
   "CobbDouglasBio.CAA",
   "CobbDouglasAge.CAA",
   "covars.om",
@@ -117,7 +120,8 @@ export(
   "landStock.f",
   "landWStock",
   "landWStock.f",
-  "MaxProfit.stkCnst",
+#  "MaxProfit.stkCnst",
+  "MaxProfit",
   "matrixBDTarget",
   "neaMAC_ltmp",
   "NoAssessment",

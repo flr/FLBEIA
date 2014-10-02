@@ -1,4 +1,20 @@
 #~~~~~~~~~~~~~~~~
+# 2014/10/01
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.65
+- MAxProf function added, this function is similar do MaxPro.stkcnst but it uses nloptr library which works fine in 64bit machines,
+  and uses more sophisticated constraints on catch.
+- The cobb douglas production function is now restricted to produce no more catch than rho*B_a, i.e.
+- The use of production functions has been simplified so now ***.CatchFleet function is not used, and when catch production is simulated the code 
+  always call to the production function itself.
+- MaxProfit.stkCnst  replaced  by MaxProfit which uses NLopt library and is more general.
+#~~~~~~~~~~~~~~~~
+# 2014/09/08
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.6
+- The weigth of the individuals in the cobb douglas is now a weigthed mean  of the weigth of discards and landings, i.e w = d*w_d + (1-d)*w_l
+
+#~~~~~~~~~~~~~~~~
 # 2013/06/07
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.3
