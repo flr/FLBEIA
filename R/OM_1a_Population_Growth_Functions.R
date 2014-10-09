@@ -97,12 +97,12 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
         biol@n[1,yr,-(1:ss),ss] <- 0  # The recruitment is 0 in [units > ss].
     }
     else{  # dim(biol@n)[3] = 1, The recruitment only occurs in 1 season every year. 
-        if(SR@proportion[,yr,,ss,,1] == 1){ 
+        if(SR@proportion[,yr,,ss,,1] == 1){ # If the recruitment season is 'ss' generate it otherwise
             SR <- SRsim(SR, year = yr, season = ss, iter = 'all') 
             biol@n[1,yr,,ss] <- SR@rec[,yr,,ss]
-        } else {
-            biol@n[1,yr,,ss] <- 0
-        }
+        }# else { # If the recruitment season is NOT 'ss', do nothing, the population in first age grupo is just the survivors of previous season, if recuritmen occurred in a previous season..
+         #   biol@n[1,yr,,ss] <- 0
+         # }
     
     }
     

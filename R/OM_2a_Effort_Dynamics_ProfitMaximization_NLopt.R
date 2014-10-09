@@ -180,7 +180,7 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
 
   #       browser()
 
-         catch.rest <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
+         catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
 
          eff_nloptr <- nloptr(Et*efs.m,
              eval_f= f_MP_nloptr,
@@ -190,7 +190,7 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
              opts = list("algorithm" = "NLOPT_LN_COBYLA", maxeval = 1e9, xtol_abs = rep(1e-4,nmt), xtol_rel = 1e-4, maxtime = 300),
              q.m = q.m, alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
              ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
-             effort.restr = effort.restr, crewS = crewS, catch.rest = catch.rest, tacos = tacos)
+             effort.restr = effort.restr, crewS = crewS, catch.restr = catch.restr, tacos = tacos)
              Et.res[i]   <- sum(eff_nloptr$solution)
        efs.res[,i] <- eff_nloptr$solution/sum(eff_nloptr$solution)
         cat('Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], ', ~~~~~ Benefit: ', eff_nloptr$objective, '\n')
@@ -247,7 +247,7 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
 #-------------------------------------------------------------------------------
 
 f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
-                wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.rest, tacos, rho){
+                wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, tacos, rho){
 
     nmt <- length(E)
 
@@ -275,7 +275,7 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
         Lst[st] <- sum(ret.m[[st]]*Cam)  # multiply the retention vector if landing is the restriction.
 
         # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE).
-        if(catch.rest  != 'catch') Cst[st] <- Lst[st]# The restriction is landings.
+        if(catch.restr  != 'catch') Cst[st] <- Lst[st]# The restriction is landings.
 
         # TAC overshot can be landed or discarded. In the case of landing obligation it is 'discarded' because it does not
         # contribute to the revenue but it goes against the TAC => TACOS == TRUE
@@ -311,7 +311,7 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
 #     That is, the catch must be below TAC quota share.
 #-------------------------------------------------------------------------------
 g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
-                wl.m, N, B, fc, vc.m,  Cr.f,  crewS, K, effort.restr, catch.rest, tacos, rho){
+                wl.m, N, B, fc, vc.m,  Cr.f,  crewS, K, effort.restr, catch.restr, tacos, rho){
 
     nmt <- length(E)
 
@@ -330,35 +330,47 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
         for(st in names(q.m)){
             Nst <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
             if(dim(Nst)[1] > 1){
-                resTAC[st] <- sum(CobbDouglasAge(sum(E),Nst, wl.m[[st]], wd.m[[st]],
-                       ret.m[[st]],q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]],rho[st]))  - Cr.f[st]
+              Cam <- CobbDouglasAge(sum(E),Nst, wl.m[[st]], wd.m[[st]],
+                             ret.m[[st]],q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]],rho[st])
+              
+              if(catch.restr == 'landings') Cam <- Cam*ret.m[[st]]
+              
+              resTAC[st] <- sum(Cam)  - Cr.f[st]
             }
             else{
-                resTAC[st] <- sum(CobbDouglasBio(sum(E),Nst, wl.m[[st]], wd.m[[st]],
-                      q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]], ret.m[[st]],rho[st]))  - Cr.f[st]
+                Cm <- CobbDouglasBio(sum(E),Nst, wl.m[[st]], wd.m[[st]],
+                                     q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]], ret.m[[st]],rho[st])
+                
+                if(catch.restr == 'landings') Cm <- Cm*ret.m[[st]]
+                
+                resTAC[st] <- sum(Cm)  - Cr.f[st]
            }
     }}
     else{
          stk.cnst <- effort.restr
 
          Nst <- array(N[[stk.cnst]][drop=T],dim = dim(N[[stk.cnst]])[c(1,3,6)])
-         resTAC <- sum(CobbDouglasAge(sum(E),Nst, wl.m[[stk.cnst]], wd.m[[stk.cnst]],
-                       ret.m[[stk.cnst]],q.m[[stk.cnst]],matrix(E/sum(E),ncol = 1),alpha.m[[stk.cnst]],beta.m[[stk.cnst]],rho[stk.cnst])) - Cr.f[stk.cnst]}
+         
+         if(dim(Nst)[1] > 1){
+           Cm <- CobbDouglasAge(sum(E),Nst, wl.m[[stk.cnst]], wd.m[[stk.cnst]],
+                                 ret.m[[stk.cnst]],q.m[[stk.cnst]],matrix(E/sum(E),ncol = 1),alpha.m[[stk.cnst]],beta.m[[stk.cnst]],rho[stk.cnst])   
+         }
+         else{
+           Cm <- CobbDouglasBio(sum(E),Nst, wl.m[[stk.cnst]], wd.m[[stk.cnst]],
+                                q.m[[stk.cnst]],matrix(E/sum(E),ncol = 1),alpha.m[[stk.cnst]],beta.m[[stk.cnst]], ret.m[[stk.cnst]],rho[stk.cnst])
+         }
+
+         if(catch.restr == 'landings') Cm <- Cm*ret.m[[stk.cnst]]
+         
+         resTAC <- sum(Cm) - Cr.f[stk.cnst]
+    }
 
     # constraint on capacity.
     resK <- sum(E)-K
 
-    # constraint on catch, Cst < alpha_st*Bst for any st
-#    resB <- numeric(length(stnms))    This constraint makes no sense.
-#    names(resB) <- stnms
-#    for(st in names(q.m)){
-#
-#            E1  <- array(E, dim(q.m[[st]]))
-#            Nst  <- array(rep(N[[st]][drop=T], each = nmt),dim = dim(q.m[[st]]))
-#            resB[st] <- sum(q.m[[st]]*(E1^alpha.m[[st]])*(Nst*(ret.m[[st]]*wl.m[[st]] +
-#                    (1-ret.m[[st]])*wd.m[[st]]))^beta.m[[st]])  - B[st]*rho[st]
-#    }
- #   resB[] <- -1
+#    cat(round(Cr.f[[stk.cnst]]), " - ", round(sum(Cm)), "\n")
+#    cat(sum(E), sum(Nst), sum(wl.m[[stk.cnst]]), sum(wd.m[[stk.cnst]]),
+#        sum(q.m[[stk.cnst]]), sum(matrix(E/sum(E),ncol = 1)), sum(alpha.m[[stk.cnst]]), sum(beta.m[[stk.cnst]]),  sum(ret.m[[stk.cnst]]), sum(rho[stk.cnst]))
   #  resTAC[] <- -1
   #  resK <- -1
 
