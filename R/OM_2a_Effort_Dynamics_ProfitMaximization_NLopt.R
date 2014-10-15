@@ -101,7 +101,7 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
 
          vc.m <- sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss,,i, drop=T])  #[nmt]
 
-         fc    <- fl@fcost[,yr,,ss, drop=T]*covars$NumbVessels[flnm,yr,,ss,,i, drop=T] # [1]
+         fc    <- fl@fcost[,yr,,ss,,i, drop=T]*covars$NumbVessels[flnm,yr,,ss,,i, drop=T] # [1]
 
          crewS <- fl@crewshare[,yr,,ss,,i, drop=T] # [i]
 
@@ -166,9 +166,9 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
         for(st in names(q.m)){
             effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
             Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-            effs[st] <-  eval(call(effort.fun, Cr = Cr.f[st],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F],
-                                  efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
-                                  ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
+            effs[st] <-  eval(call(effort.fun, Cr = Cr.f[st],  N = Nst, q.m = q.m[[st]],
+                                  efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]],
+                                  ret.m = ret.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]],
                                   restriction = fleets.ctrl[[flnm]]$restriction))
         }
         
@@ -197,9 +197,12 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
 
        # Update the quota share of this step and the next one if the
        # quota share does not coincide with the actual catch. (update next one only if s < ns).
-       for(st in sts){
-       #   browser()
-       #  if(st == 'SKH') browser()
+      
+      if(dim(biols[[1]]@n)[4] > 1){ # only for seasonal models
+        for(st in sts){
+      
+        #   browser()
+        #  if(st == 'SKH') browser()
         
             yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
             ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
@@ -216,6 +219,7 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
                               
             fleets.ctrl$seasonal.share[[st]][flnm,yr,,,,i] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
         }
+      }
     }
 
   #  update effort
@@ -233,7 +237,7 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
 #-------------------------------------------------------------------------------
 # f_MP_nloptr(E) :: Objective function
 #                       (function to be maximized in a fleet by fleet case)
-#    - E: numeric(nmt)     E[-1] = Tiotal Effort  across metiers.
+#    - E: numeric(nmt)     sum(E) = Total Effort  across metiers.
 #
 #    - qa.mt ~ alpha.a.mt ~ beta.a.mt ~ pra.mt.i :: lists with one element per
 #                   stock, each element with the form: array(na_st,nmt,it)
@@ -255,6 +259,8 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
 
     Cst <- Lst <-  numeric(length(q.m))
     names(Cst) <- names(Lst) <-names(q.m)
+    
+ #   cat( '**************************************************************************\n')
 
     for(st in names(q.m)){
 
@@ -283,15 +289,19 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
             Lrat <- 1
         else Lrat <- ifelse(Cr.f[st]/Cst[st] > 1, 1, Cr.f[st]/Cst[st])  # TAC Overshot is  discarded.
                                                                               # The overquota discards are proportional to the catch in all the metiers.
-
+    #   cat('C: ',Cst[st], ', CS: ', Cr.f[st],'\n')
         res <- res + sum(ret.m[[st]]*Cam*pr.m[[st]])*Lrat
-
+    #    cat(st, ' - ', sum(ret.m[[st]]*Cam*pr.m[[st]])*Lrat, ' - ', round(Lrat,3), ' - C: ',sum(ret.m[[st]]*Cam)*Lrat,'\n')
+    
+    # cat(st,  ' - ', round(Lrat,3), ' - L: ',sum(ret.m[[st]]*Cam)*Lrat,'\n')
 
     }
 
-    res <- (1-crewS)*res - sum(vc.m*E) - fc
+    resF <- (1-crewS)*res - sum(vc.m*E) - fc
+   
+  # cat('prof: ', resF, ', rev: ',res, ', creWS:', crewS, ', TCS: ', crewS*res, ', Vc: ', sum(vc.m*E), ', FC: ', fc, '\n' )
 
-    return(-res/1e6)
+    return(-resF/1e6)
 }
 
 
@@ -320,7 +330,7 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
     res <- 0
 
     Cst <- Lst <-  NULL
-
+ #   cat( '**************************************************************************\n')
     # constraint on catches, comply with all the TACS ('min') or only with one.
     if(effort.restr == 'min'){
 
@@ -336,14 +346,16 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
               if(catch.restr == 'landings') Cam <- Cam*ret.m[[st]]
               
               resTAC[st] <- sum(Cam)  - Cr.f[st]
+           #   cat(st, ' - ', sum(Cam), '\n')
             }
             else{
                 Cm <- CobbDouglasBio(sum(E),Nst, wl.m[[st]], wd.m[[st]],
                                      q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]], ret.m[[st]],rho[st])
                 
-                if(catch.restr == 'landings') Cm <- Cm*ret.m[[st]]
+                if(catch.restr == 'landings') Cm <- Cm*c(ret.m[[st]])
                 
                 resTAC[st] <- sum(Cm)  - Cr.f[st]
+         #       cat(st, ' - ', sum(Cm), '\n')
            }
     }}
     else{
@@ -356,11 +368,11 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
                                  ret.m[[stk.cnst]],q.m[[stk.cnst]],matrix(E/sum(E),ncol = 1),alpha.m[[stk.cnst]],beta.m[[stk.cnst]],rho[stk.cnst])   
          }
          else{
-           Cm <- CobbDouglasBio(sum(E),Nst, wl.m[[stk.cnst]], wd.m[[stk.cnst]],
-                                q.m[[stk.cnst]],matrix(E/sum(E),ncol = 1),alpha.m[[stk.cnst]],beta.m[[stk.cnst]], ret.m[[stk.cnst]],rho[stk.cnst])
+           Cm <- array(CobbDouglasBio(sum(E),Nst, wl.m[[stk.cnst]], wd.m[[stk.cnst]], q.m[[stk.cnst]],matrix(E/sum(E),ncol = 1),alpha.m[[stk.cnst]],beta.m[[stk.cnst]], ret.m[[stk.cnst]],rho[stk.cnst]),
+                         dim = dim(wl.m[[stk.cnst]]))
          }
 
-         if(catch.restr == 'landings') Cm <- Cm*ret.m[[stk.cnst]]
+         if(catch.restr == 'landings') Cm <- Cm*c(ret.m[[stk.cnst]])
          
          resTAC <- sum(Cm) - Cr.f[stk.cnst]
     }
@@ -371,8 +383,9 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
 #    cat(round(Cr.f[[stk.cnst]]), " - ", round(sum(Cm)), "\n")
 #    cat(sum(E), sum(Nst), sum(wl.m[[stk.cnst]]), sum(wd.m[[stk.cnst]]),
 #        sum(q.m[[stk.cnst]]), sum(matrix(E/sum(E),ncol = 1)), sum(alpha.m[[stk.cnst]]), sum(beta.m[[stk.cnst]]),  sum(ret.m[[stk.cnst]]), sum(rho[stk.cnst]))
-  #  resTAC[] <- -1
+  #  resTAC[] <- -1Q
   #  resK <- -1
+# print(resTAC)
 
     return(c(resTAC, resK))
 }

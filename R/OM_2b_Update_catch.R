@@ -71,6 +71,9 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
     mtnms <- names(fl@metiers)
     
     if(!(st %in% sts)) return(fleets)
+    
+    # catch restriction, if empty => landings.
+    catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
                                              
     tac <- rep('Inf',it)
     
@@ -132,9 +135,10 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
     }
 
     Nst  <- array(N[drop=T],dim = dim(N)[c(1,3,6)])
-    Cm <- CobbDouglasBio(E= efs.m*eff, N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
+    Cm <- CobbDouglasBio(E= eff, N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
              efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho)
-    Ctotal <-  apply(Cm,2,sum)
+    
+    Ctotal <-  ifelse(catch.restr == 'landings', apply(Cm*matrix(ret.m, dim(ret.m)[1], dim(ret.m)[4]),2,sum), apply(Cm,2,sum))
 
     tac.disc <- ifelse(Ctotal < tac, rep(1,it), tac/Ctotal)
 
@@ -201,6 +205,9 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     if(!(st %in% sts)) return(fleets)
     
     tac <- rep('Inf',it)
+ 
+    # catch restriction, if empty => landings.
+    catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
     
     # if TAC overshoot is discarded, calculate seasonal TAC to calculate the discards.
     TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]    # Is the TAC overshot discarded?
@@ -258,11 +265,17 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     }
 
     Nst  <- array(N[drop=T],dim = dim(N)[c(1,3,6)])
-    Cam <- CobbDouglasAge(E = efs.m*eff, N = Nst, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
+
+    Cam <- CobbDouglasAge(E = eff, N = Nst, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
                             efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho)
-    Ctotal <- apply(Cam,4,sum)
+
+ # if catch restriction is landings, Lrat is calculated over landigns, else it is calculated over total catch including undersize individuals.
+    Ctotal <- ifelse(catch.restr == 'landings', apply(Cam*ret.m,4,sum), apply(Cam,4,sum)) 
 
     tac.disc <- ifelse(Ctotal < tac, 1, tac/Ctotal)
+ 
+ # cat('Lrat: ', tac.disc, '\n')
+ # cat('C: ', Ctotal, '\n')
 
     Cam <- array(Cam, dim = c(length(mtnms),dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,1,it))
 
