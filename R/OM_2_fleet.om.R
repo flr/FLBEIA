@@ -34,7 +34,7 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, y
         dyn.model <- fleets.ctrl[[fl]]$effort.model
         
         res <- eval(call(dyn.model, biols = biols, fleets = fleets, flnm = fl, advice = advice,
-                    year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 
+                    year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars, advice.ctrl = advice.ctrl)) 
          
         fleets[[fl]]         <- res$fleets[[fl]]
         fleets.ctrl.aux[[fl]] <- res$fleets.ctrl[[fl]]

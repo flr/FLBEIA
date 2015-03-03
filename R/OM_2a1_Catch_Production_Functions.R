@@ -49,7 +49,7 @@ CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m, ret.m, r
 CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, rho = 1, restriction = 'catch',...){
 
 
-    fObj <- function(E.f,Cr,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,ret.m, restriction){
+    fObj <- function(E.f,Cr,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,ret.m, rho, restriction){
 
 
          C.m <- CobbDouglasBio(E = E.f, N = N, wl.m = wl.m, wd.m = wd.m, q.m = q.m, efs.m = efs.m,
@@ -62,15 +62,15 @@ CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,re
     
     # set upper limit
     X <- 10^(0:100)
-    fobjX <- abs(sapply(X, fObj, Cr = Cr, N = N, wl.m = wl.m, wd.m = wd.m, q.m = q.m, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, restriction = restriction, ret.m = ret.m))
+    fobjX <- abs(sapply(X, fObj, Cr = Cr, N = N, wl.m = wl.m, wd.m = wd.m, q.m = q.m, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, restriction = restriction, ret.m = ret.m, rho = rho))
     upl <- X[which(fobjX != Inf)[length(which(fobjX != Inf))]]
 
-    Cinf <- CobbDouglasBio(E = upl,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, ret.m = ret.m)
+    Cinf <- CobbDouglasBio(E = upl,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, ret.m = ret.m, rho = rho)
     if((Cr - sum(Cinf))> 0) # Even with infinity effort it is not possible to catch the quota => return 'almost' infinity effort.
         return(effort = upl)
 
 
-    NomEff <- uniroot(fObj,interval=c(0,upl),Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m,  q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, restriction = restriction, ret.m = ret.m)$root
+    NomEff <- uniroot(fObj,interval=c(0,upl),Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m,  q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, restriction = restriction, ret.m = ret.m, rho = rho)$root
 
     return(effort =  NomEff)
 }
@@ -112,7 +112,7 @@ CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,be
  
 
 
-    fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m,restriction){
+    fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m, rho, restriction){
         # if catch = TRUE (=> the restriction is catch not landings. )
 
         Ca.m <- CobbDouglasAge(E = E.f, N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
@@ -125,11 +125,11 @@ CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,be
     }
 
 
-    Cinf <- CobbDouglasAge(E = 1e100,Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m,  ret.m = ret.m)
+    Cinf <- CobbDouglasAge(E = 1e100,Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m,  ret.m = ret.m, rho = rho)
     if((Cr - sum(Cinf))> 0) # Even with infinity effort it is not possible to catch the quota => return 'almost' infinity effort.
         return(effort = 1e100)
 
-    NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, restriction = restriction, ret.m = ret.m)$root
+    NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, rho = rho,  restriction = restriction, ret.m = ret.m)$root
 
     return(effort =  NomEff)
 }

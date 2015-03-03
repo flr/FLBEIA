@@ -38,6 +38,8 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
     
+    dimnms <- dimnames(biols[[1]]@n) 
+    
     # 'year' dimension.
     yr <- year
     if(is.character(year)) yr <- which(dimnms[[2]] %in% year)
