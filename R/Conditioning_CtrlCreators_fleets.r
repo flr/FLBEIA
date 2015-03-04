@@ -41,7 +41,7 @@
 create.fleets.ctrl <- function(fltsnames,  n.flts.stks, flts.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
                                 effort.models = NULL, capital.models = NULL, catch.models = NULL, price.models = NULL, flq, ...){
     
-    effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit.stkCnst')
+    effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit')
     catch.models.available   <- c('CobbDouglasAge', 'CobbDouglasBio')
     price.models.available   <- c('fixedPrice', 'elasticPrice')
     capital.models.available <- c('fixedCapital', 'SCD')
@@ -205,16 +205,16 @@ create.SMFB.ctrl <- function(resf, fltname,largs){
 #                       ** create.MaxProfit.stkCnst.ctrl **
 # extra args:  stk.cnst.fltname
 #-------------------------------------------------------------------------------
-create.MaxProfit.stkCnst.ctrl <- function(resf,fltname,largs){
+create.MaxProfit.ctrl <- function(resf,fltname,largs){
     
     # if NULL set default values, the 3rd stock in resf list, it can happen that is not an stock name.
-    stk.cnst    <- ifelse(is.null(largs[[paste('stk.cnst', fltname,sep='.')]]),  NA, largs[[paste('stk.cnst', fltname,sep='.')]])
+  effort.restr   <- ifelse(is.null(largs[[paste('effort.restr', fltname,sep='.')]]),  NA, largs[[paste('effort.restr', fltname,sep='.')]])
     rest      <- ifelse(is.null(largs[[paste('restriction', fltname,sep='.')]]), NA, largs[[paste('restriction', fltname,sep='.')]])
 
-    if(is.na( stk.cnst )) warning("Stock constraint in (stk.cnst argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit.stkCnst will not work.")
-    if(is.na( rest )) warning("Catch/landing restriction in (srestriction argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit.stkCnst will not work.")
+    if(is.na( effort.restr )) warning("Effort constraint in (effort.restr argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit will not work.")
+    if(is.na( rest )) warning("Catch/landing restriction in (srestriction argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit will not work.")
 
-    resf[['stk.cnst']] <- stk.cnst
+    resf[['effort.restr']] <- effort.restr
     resf[['restriction']]  <- rest 
     
     return(resf)
