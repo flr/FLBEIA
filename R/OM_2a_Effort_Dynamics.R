@@ -28,7 +28,7 @@ fixedEffort <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year =
 #-------------------------------------------------------------------------------
 # SMFB(fleets, biols, covars, fleets.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1){
+SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
