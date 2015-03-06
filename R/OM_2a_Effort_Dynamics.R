@@ -21,7 +21,7 @@
 #-------------------------------------------------------------------------------
 # fixedEffort(fleets, biols, covars, fleets.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-fixedEffort <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1){
+fixedEffort <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
     return(list(fleets = fleets, fleets.ctrl = fleets.ctrl))
 }
 

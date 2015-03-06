@@ -13,7 +13,7 @@
 # Catch production function based on Cobb-Doug at age level.
 # OVER-QUOTA LANDINGS ARE DISCARDED => NOT BENEFIT FROM THEM.
 #-------------------------------------------------------------------------------
-MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1){
+MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     dimnms <- dimnames(biols[[1]]@n)
     
