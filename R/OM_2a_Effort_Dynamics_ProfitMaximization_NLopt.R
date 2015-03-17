@@ -178,16 +178,18 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
         Et  <- 0.9*ifelse(effort.restr == 'min', min(effs), effs[effort.restr]) 
         Et <- ifelse(Et < K, Et, K*0.9)
 
-  #       browser()
 
          catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
 
+         if(is.null(fleets.ctrl[[flnm]]$opts)) opts <- list("algorithm" = "NLOPT_LN_COBYLA", maxeval = 1e9, xtol_abs = rep(1e-4,nmt), xtol_rel = 1e-4, maxtime = 300)
+         else  opts <- fleets.ctrl[[flnm]]$opts
+  
          eff_nloptr <- nloptr(Et*efs.m,
              eval_f= f_MP_nloptr,
              lb = rep(0, nmt),
              ub = rep(K, nmt),
              eval_g_ineq = g_ineq_MP_nloptr ,
-             opts = list("algorithm" = "NLOPT_LN_COBYLA", maxeval = 1e9, xtol_abs = rep(1e-4,nmt), xtol_rel = 1e-4, maxtime = 300),
+             opts = opts,
              q.m = q.m, alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
              ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
              effort.restr = effort.restr, crewS = crewS, catch.restr = catch.restr, tacos = tacos)
