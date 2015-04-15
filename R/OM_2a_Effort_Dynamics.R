@@ -192,7 +192,7 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
         # The catch.
         catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
         Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-        catchD <- eval(call(catchFun, N = Nst[,,i,drop=F],  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
+        catchD <- eval(call(catchFun, N = Nst[,,,drop=F],  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
         itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
         catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
             
