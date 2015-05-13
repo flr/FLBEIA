@@ -120,6 +120,7 @@ export(
   "landStock.f",
   "landWStock",
   "landWStock.f",
+"MAPHCR",
 #  "MaxProfit.stkCnst",
   "MaxProfit",
   "matrixBDTarget",

@@ -27,7 +27,7 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
   
-    stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
+    stk <- stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
     
     fwd.ctrl <- advice.ctrl[[stknm]]$fwd.ctrl
     
@@ -63,7 +63,7 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
             sr.pars  <- advice.ctrl[[stknm]]$sr$params # sr parameters if specified.  
             sr.model <- advice.ctrl[[stknm]]$sr$model  # sr model, mandatory.  
             if(is.null(sr.pars)){                   # if params missing => estimate the parameters using the specified years.
-                if(is.null(advice.ctrl[[stknm]]$sr$years)) sr.yrs <- 1:year # yr0 missing => use all data years.
+                if(is.null(advice.ctrl[[stknm]]$sr$years)) which(round(quantSums(stocks[[stknm]]@stock.n))!=0)[1]:(year-1)# yr0 missing => use all data years.
                 else{ 
                     y.rm <- as.numeric(advice.ctrl[[stknm]]$sr$years['y.rm'])
                     nyrs <- as.numeric(advice.ctrl[[stknm]]$sr$years['num.years'])

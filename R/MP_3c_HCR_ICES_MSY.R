@@ -93,7 +93,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             sr.pars  <- advice.ctrl[[stknm]]$sr$params # sr parameters if specified.
             sr.model <- advice.ctrl[[stknm]]$sr$model  # sr model, mandatory.
             if(is.null(sr.pars)){                   # if params missing => estimate the parameters using the specified years.
-                if(is.null(advice.ctrl[[stknm]]$sr$years)) sr.yrs <- 1:year # yr0 missing => use all data years.
+                if(is.null(advice.ctrl[[stknm]]$sr$years)) sr.yrs <- which(round(quantSums(stocks[[stknm]]@stock.n))!=0)[1]:(year-1)# yr0 missing => use all data years, except the assessment year for which rec is unknown
                 else{
                     y.rm <- as.numeric(advice.ctrl[[stknm]]$sr$years['y.rm'])
                     nyrs <- as.numeric(advice.ctrl[[stknm]]$sr$years['num.years'])

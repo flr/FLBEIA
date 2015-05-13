@@ -115,8 +115,10 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
                 
             # - Advice. 
             cat('----------------- ADVICE -----------------\n')
-            advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
+            res.advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
                                 advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
+            advice <- res.advice$advice
+            advice.ctrl <- res.advice$advice.ctrl
         
           }
         }
