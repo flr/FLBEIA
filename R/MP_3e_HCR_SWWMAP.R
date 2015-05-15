@@ -32,6 +32,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     Cup <- advice.ctrl[[stknm]][['ref.pts']]['Cup',year+1,]
     Clo <- advice.ctrl[[stknm]][['ref.pts']]['Clo',year+1,]
     N <- advice.ctrl[[stknm]][['N']]
+    Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][,year+1] == TRUE, 'catch', 'landings')
    
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
@@ -135,7 +136,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
           stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))           
       }
 
-      advice[['TAC']][stknm,year+1,,,,i] <- slot(stki, 'catch')[,year+1] # The TAC is given in terms of CATCH.
+      advice[['TAC']][stknm,year+1,,,,i] <- slot(stki, Cadv)[,year+1] # The TAC is given in terms of CATCH.
 
     } # Iter loop 
 

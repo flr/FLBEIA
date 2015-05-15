@@ -52,7 +52,8 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
     if(length(ss) == 0) stop('The season is outside object season range')  
     
     # Check fleets.ctrl elements.
-    if(!(fleets.ctrl[[flnm]]$restriction %in% c('catch', 'landings')))
+    restriction <- ifelse(length(fleets.ctrl[[flnm]]$restriction) == 1, fleets.ctrl[[flnm]]$restriction, fleets.ctrl[[flnm]]$restriction[year])
+    if(!(restriction %in% c('catch', 'landings')))
         stop("fleets.ctrl[[f]]$restriction must be equal to 'catch' or 'landings'")
      
 #     if(flnm == "ANK_OT") browser()
@@ -185,7 +186,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F],
                                 efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
                                 ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
-                                restriction = fleets.ctrl[[flnm]]$restriction))
+                                restriction = restriction))
         }
     }
     
@@ -255,7 +256,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
                   eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.m.i[[st]],
                                        efs.m = efs.m[,i,drop=F], alpha.m = alpha.m.i[[st]], beta.m = beta.m.i[[st]],
                                         ret.m = ret.m.i[[st]], wl.m = wl.m.i[[st]], wd.m = wd.m.i[[st]],
-                                        restriction = 'catch')) # the restriction in landing obligation is always catch
+                                        restriction = restriction)) # the restriction in landing obligation should be catch
                 }
                 E1 <- min(eff_min_qt) # The effort resulting from minimis and year quota transfer examptions.
                                       # We will use this effort later to divide the extra catch, in discards (from minimis), year quota transfer 

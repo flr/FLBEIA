@@ -39,7 +39,10 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year 
  # This checks the restriction for all the fleets and we only need to check the fleet we are proyecting.
  #   if(! all(sapply(names(fleets), function(x) fleets.ctrl[[x]]$restriction %in% c('catch', 'landings'))))
  #       stop("fleets.ctrl$restriction must be equal to 'catch' or 'landings'")
-    if(!(fleets.ctrl[[flnm]]$restriction %in% c('catch', 'landings') )) stop("fleets.ctrl$restriction for fleet, ', flnm, ', must be equal to 'catch' or 'landings'")
+    restriction <- ifelse(length(fleets.ctrl[[flnm]]$restriction) == 1, fleets.ctrl[[flnm]]$restriction, fleets.ctrl[[flnm]]$restriction[year])
+    restriction <- ifelse(is.null(restriction), 'landings', restriction)   
+ 
+ if(!(restriction %in% c('catch', 'landings') )) stop("fleets.ctrl$restriction for fleet, ', flnm, ', must be equal to 'catch' or 'landings'")
 
     # Dimensions.
 #     nst <- length(biols);          stnms <- names(biols)
@@ -188,7 +191,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year 
             effs[st] <-  eval(call(effort.fun, Cr = Cr.f[st],  N = Nst, q.m = q.m[[st]],
                                   efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]],
                                   ret.m = ret.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]],
-                                  restriction = fleets.ctrl[[flnm]]$restriction))
+                                  restriction = restriction))
         }
         if(length(fleets.ctrl[[flnm]]$effort.restr)==1){
           effort.restr=fleets.ctrl[[flnm]]$effort.restr
@@ -203,7 +206,6 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year 
 
   #       browser()
 
-         catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
 
   if (is.null(fleets.ctrl[[flnm]]$opts)) 
     opts <- list(algorithm = "NLOPT_LN_COBYLA", maxeval = 1e+09, 
@@ -219,7 +221,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year 
              opts = opts,
              q.m = q.m, alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
              ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
-             effort.restr = effort.restr, crewS = crewS, catch.restr = catch.restr, tacos = tacos)
+             effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, tacos = tacos)
   #   opts= list("algorithm" = "NLOPT_LN_COBYLA", maxeval = 1e9, xtol_abs = rep(1e-4,nmt), xtol_rel = 1e-4, maxtime = 300)
   
              Et.res[i]   <- sum(eff_nloptr$solution)
