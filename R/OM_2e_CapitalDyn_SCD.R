@@ -47,8 +47,8 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     K  <- c(seasonSums(fleet@capacity[,year])) # annual capacity. [ni]
 
     # pKs How annual capacity is distributed along seasons.
-    if(ns == 1)      pKs <- rep(1,ni) #[ni]
-    else  if(ni > 1) pKs <- sweep(Ks,2,K,"/")    # ns > 1 [ns,ni]
+    if(ns == 1)      pKs <- rep(1,it) #[ni]
+    else  if(it > 1) pKs <- sweep(Ks,2,K,"/")    # ns > 1 [ns,ni]
           else       pKs <- Ks/K    # [ns]
     
     w1 <- c(covars[['w1']][flnm,year]) 
