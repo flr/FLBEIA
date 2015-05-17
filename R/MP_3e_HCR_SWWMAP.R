@@ -32,7 +32,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     Cup <- advice.ctrl[[stknm]][['ref.pts']]['Cup',year+1,]
     Clo <- advice.ctrl[[stknm]][['ref.pts']]['Clo',year+1,]
     N <- advice.ctrl[[stknm]][['N']]
-    Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][,year+1] == TRUE, 'catch', 'landings')
+    Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][year+1] == TRUE, 'catch', 'landings')
    
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
