@@ -131,7 +131,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
       }
       { # Advice in Ftg and imposing -15% restriction.
           fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1),  val = c(Ftg[i],NA), quantity = c( 'f', 'catch'),
-                                           min = c(NA, TACnow[i]*Clo[i]), max  = c(NA, Cup[i])))
+                                           min = c(NA, TACnow[i]*Clo[i]), max  = c(NA, TACnow[i]*Cup[i])))
         
           stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))           
       }
