@@ -141,7 +141,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     } # Iter loop 
 
    
-    return(list(advice = advice, advice.ctrl = advice.ctrl))   
+    return(list(advice))   
 }
 
 
