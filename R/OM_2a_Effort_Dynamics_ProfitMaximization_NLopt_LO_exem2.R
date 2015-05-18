@@ -269,7 +269,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year 
                                      opts = opts,
                                      q.m = q.m, alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f_min_qt, fc = fc,
                                      ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
-                                     effort.restr = effort.restr, crewS = crewS, catch.restr = catch.restr, tacos = tacos)
+                                     effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, tacos = tacos)
                 Et1.res[i]   <- sum(eff_nloptr$solution)
                 efs1.res[,i] <- eff_nloptr$solution/sum(eff_nloptr$solution)
         
