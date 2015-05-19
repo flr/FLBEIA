@@ -40,6 +40,9 @@ QuotaSwap <- function(E0, Cr.f,Cr.f_exemp, N, B, efs.m, q.m, alpha.m, beta.m, pr
 names(Cr.f)<- stksnms
 names(Cr.f.new)<- stksnms
 
+Cr.f.new <- ifelse(Cr.f.new == 0, 1e-6, Cr.f.new)
+Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
+
     while(any((CE[stksnms]/Cr.f.new[stksnms]) > 0.98) & any((CE[stksnms]/Cr.f[stksnms]) < 0.98)){ # There is al least one stock which is restricting the effort.  OR THE Quota compsumtion of **ALL** the stocks is above 98%
         
         STRs <- stksnms[which((CE[stksnms]/Cr.f.new[stksnms]) > 0.98)] #  RESTRICTORS, we start increasing the quota of the first stock. 

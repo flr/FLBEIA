@@ -204,8 +204,6 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year 
         Et  <- 0.9*ifelse(effort.restr == 'min', min(effs), effs[effort.restr]) 
         Et <- ifelse(Et < K, Et, K*0.9)
 
-  #       browser()
-
 
   if (is.null(fleets.ctrl[[flnm]]$opts)) 
     opts <- list(algorithm = "NLOPT_LN_COBYLA", maxeval = 1e+09, 

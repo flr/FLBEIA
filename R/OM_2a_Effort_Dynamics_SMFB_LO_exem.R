@@ -57,6 +57,8 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
         stop("fleets.ctrl[[f]]$restriction must be equal to 'catch' or 'landings'")
      
 #     if(flnm == "ANK_OT") browser()
+
+
     
     # Dimensions.
     stnms <- catchNames(fleets[[flnm]])
