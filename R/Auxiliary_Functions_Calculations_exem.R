@@ -6,7 +6,7 @@
 #-------------------------------------------------------------------------------------------
 # overfishing: Are the stock suffering of overfishing, returns a matrix [nst,nit]
 #-------------------------------------------------------------------------------------------
-overfishing_f <- function(biols, fleets, advice.ctrl, year){
+overfishing <- function(biols, fleets, advice.ctrl, year){
   if(is.numeric(year)) year <- dimnames(biols[[1]]@n)[[2]][year]
   obj <- list(biols = biols, fleets = fleets)
   f    <- F_flbeia(obj, years = year)
@@ -20,9 +20,14 @@ overfishing_f <- function(biols, fleets, advice.ctrl, year){
     Fref <- dimnames(advice.ctrl[[st]]$ref.pts)[[1]]
     Fref <- Fref[which(substr(Fref, 1,1) == 'F')] 
     
-    if(length(dim(advice.ctrl[[st]]$ref.pts)) == 3) Fref <-  advice.ctrl[[st]]$ref.pts[Fref,year,]
-    if(length(dim(advice.ctrl[[st]]$ref.pts)) == 2) Fref <- advice.ctrl[[st]]$ref.pts[Fref,year]
-    if(length(dim(advice.ctrl[[st]]$ref.pts)) == 1) Fref <- advice.ctrl[[st]]$ref.pts[Fref]
+    if (length(Fref)>0){
+      if(length(dim(advice.ctrl[[st]]$ref.pts)) == 3) Fref <-  advice.ctrl[[st]]$ref.pts[Fref,year,]
+      if(length(dim(advice.ctrl[[st]]$ref.pts)) == 2) Fref <- advice.ctrl[[st]]$ref.pts[Fref,year]
+      if(length(dim(advice.ctrl[[st]]$ref.pts)) == 1) Fref <- advice.ctrl[[st]]$ref.pts[Fref]   
+    }
+    
+    
+
       
     fmsy[st] <- ifelse(is.null(Fref), NA, Fref)
   }
