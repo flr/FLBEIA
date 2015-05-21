@@ -87,7 +87,8 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
 
          # If TAC >= B*alpha => TAC = B*alpha.
          TAC.yr   <- advice$TAC[stnms,yr,,,,i,drop=T]    # nst
-         rho       <- fleets.ctrl$catch.threshold[stnms,yr,,ss,,i, drop=T]  # [ns]
+         rho       <- fleets.ctrl$catch.threshold[stnms,yr,,ss,,i, drop=T]  # 
+        if(length(rho) == 1) names(rho) <- stnms
          QS.ss    <- colSums(QS.fls)  # [nst] Total seasonal quota share
 
          TAC <- ifelse(B*rho < TAC.yr*QS.ss, B*rho, TAC.yr*QS.ss)
