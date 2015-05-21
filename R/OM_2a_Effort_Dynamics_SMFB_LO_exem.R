@@ -315,7 +315,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
   
                fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,] <- ret.m.new[[st]][mt,,,]
                fl@metiers[[mt]]@catches[[st]]@discards.sel[,yr,] <- 1-ret.m.new[[st]][mt,,,]
-               print(fl@metiers[[mt]]@catches[[st]]@discards.sel[,'2012'])
+     
              }
            }    
           }
