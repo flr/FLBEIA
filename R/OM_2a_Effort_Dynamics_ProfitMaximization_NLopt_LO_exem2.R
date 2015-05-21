@@ -257,6 +257,9 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr]      # nst
                 yrt_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr] # nst
                 
+                if(length(min_p)==1) names(min_p) <- sts
+                if(length(yrt_p)==1) names(yrt_p) <- sts
+                
                 Cr.f_min_qt[sts] <- Cr.f[sts]*(1+min_p[sts]+yrt_p[sts]) # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
                 
      
