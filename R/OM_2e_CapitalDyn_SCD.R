@@ -29,7 +29,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     CaC <- (covars[['CapitalCost']][flnm,]*covars[["NumbVessels"]][flnm, ])[,year]
     # Revenue
     Rev <- seasonSums(revenue_flbeia(fleet)[,year])
-    Rev <- ifelse(Rev < 0, 1e-16, Rev)
+    Rev <- ifelse(Rev == 0, 1e-16, Rev)
     # CrC
     CrC <- (Rev*seasonMeans(fleet@crewshare[,year]))  +  covars[['Salaries']][flnm,year]
     
