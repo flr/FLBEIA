@@ -282,6 +282,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
      
               catch_Elo <- fcube_lo$catch
               diff      <- catch_Elo[sts]/Cr.f[sts,i] #[nst]
+              diff <- ifelse(Cr.f[sts,i]  == 0 & catch_Elo[sts] == 0, 0, diff)
               discount_yrtransfer[,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr], 0, 
                                         ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr], 
                                                (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1),
