@@ -135,8 +135,10 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
         
           stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))           
       }
-
-      advice[['TAC']][stknm,year+1,,,,i] <- slot(stki, Cadv)[,year+1] # The TAC is given in terms of CATCH.
+    
+      yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
+                   
+      advice[['TAC']][stknm,year+1,,,,i] <- yy # The TAC is given in terms of CATCH.
 
     } # Iter loop 
 
