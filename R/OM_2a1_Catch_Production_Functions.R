@@ -80,6 +80,7 @@ CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,re
 #-------------------------------------------------------------------------------
 #  CobbDouglasAge :: E[it], B[na,nu,it], efs.m[mt,it], q.m,alpha.m,beta.m :: [mt,na,nu,it] 
 # Res => C.m[mt,na,nu,it]
+# OUTPUT: Catch at age in weight.
 #-------------------------------------------------------------------------------
 
 CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rho = 1,...){

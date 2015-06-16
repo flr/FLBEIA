@@ -170,15 +170,23 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
 
 # print(quota_swap_st)
         # Calculate the catch corresponding with new Effort and update Cr.f.new
+        # Divide de catch in 'discards (MLS)' and 'landings (NO MLS)'
+
  #   browser()
         Ca_st <- vector('list', length(stksnms))
         names(Ca_st) <- stksnms
  
+        Da_st <- Ca_st
+        La_st <- Ca_st
+
         for(st in stksnms){ 
     
           catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
           Nst      <- N[[st]]
           Ca_st[[st]] <-  (eval(call(catchFun, N = Nst, B = B[st], E = E, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st])))
+          La_st[[st]] <- Ca_st[[st]]*ret.m[[st]]
+          Da_st[[st]] <- Ca_st[[st]] - La_st[[st]]
+          
           CE[st] <- sum(Ca_st[[st]])
           
         #  if(st == 'OTH') browser()
@@ -191,5 +199,6 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
         }
       }
   
-    return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st))
+      
+    return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st, La = La_st, Da = Da_st))
 }

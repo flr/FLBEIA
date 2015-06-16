@@ -250,10 +250,15 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
               
                 for(st in sts){
          #         browser()
+                  
+                  # To calculate the final quota, the year transfer % needs to be applied to the original quota before
+                  # discounting the quota used the pevious year and then discount this quota.
                   min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
                   yrt_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[st,yr] # matrix(st,ny)
                   
-                  Cr.f_min_qt[st,i] <- Cr.f[st,i]*(1+min_p+yrt_p) # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
+                  
+                  Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
+                                        fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,]
                   
                   eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.m.i[[st]],
                                        efs.m = efs.m[,i,drop=F], alpha.m = alpha.m.i[[st]], beta.m = beta.m.i[[st]],
@@ -276,7 +281,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
               fl@effort[,yr,,ss,,i] <- fcube_lo$E
                   cat('Effort after Landing Obligation Exemptions: ',fcube_lo$E, '\n')
               
-              # Divide the extra catch, in discards (from minimis), year quota transfer 
+              # Divide the extra catch, in discards (from minimis, only those derived from MLS), year quota transfer 
               # to discount in the following year and quota swap (in this order)
               # discount_yrtransfer must be discounted from the quota next year.
      
@@ -293,11 +298,12 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
               #if(st == 'OTH')
               #  browser()
                 # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
-                # otherwise is increase so that the total discards equal to min_p*Cr.f  
+                # otherwise it is increases so that the total discards equal to min_p*Cr.f  
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
                 yrt_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[st,yr] # matrix(st,ny)
-                Ca <- fcube_lo$Ca[[st]]
-                Ds <- sum((1-ret.m.i[[st]])*Ca*wd.m.i[[st]])                
+                Ca <- fcube_lo$Ca[[st]] # catch at age in weight
+                Da <- fcube_lo$Da[[st]]
+                Ds <- sum(Da)                
                 ret.m.new[[st]][,,,i] <- ret.m[[st]][,,,i] - ifelse(Ds/Cr.f[st,i] > min_p, 0, min_p- Ds/Cr.f[st,i])
                 min_ctrl[st] <- ifelse(Ds/Cr.f[st,i]  > min_p, FALSE, TRUE)
               }
