@@ -105,9 +105,10 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
         TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
 
     }
-                            
-    TAC <- ifelse(B*rho[stnms] < TAC.yr*QS.ss, B*rho[stnms], TAC.yr*QS.ss) 
     
+    if(it > 1)    TAC <- ifelse(B*rho[stnms,] < TAC.yr*QS.ss, B*rho[stnms,], TAC.yr*QS.ss) 
+    else TAC <- ifelse(B*rho[stnms] < TAC.yr*QS.ss, B*rho[stnms], TAC.yr*QS.ss)
+
     # Re-scale QS to fleet share within the season instead of season-fleet share within year.
     QS   <- lapply(stnms, function(x){          # list of stocks, each stock [nf,it]
                             res <- sweep(QS[[x]], 2, apply(QS[[x]],2, sum), "/")
@@ -212,7 +213,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
       min_ctrl <- rep(FALSE, length(sts))
       names(min_ctrl) <- sts
       
-      # Identify the stocks that are unable to 'donate' due to overfishing.
+      # Identify the stocks that are unable to 'receive' any extra TAC from others due to overfishing.
       stks_OF <- overfishing(biols, fleets, advice.ctrl, yr) # matrix[nst,it]
       
       
@@ -345,7 +346,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
         # The catch.
         catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
        Nst  <-  array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-        catchD <- eval(call(catchFun, N = Nst[,,i,drop=F],  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
+        catchD <- eval(call(catchFun, N = Nst,  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
         itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
         catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
             
