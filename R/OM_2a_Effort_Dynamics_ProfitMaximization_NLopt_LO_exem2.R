@@ -205,6 +205,9 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
         Et  <- 0.9*ifelse(effort.restr == 'min', min(effs), effs[effort.restr]) 
         Et <- ifelse(Et < K, Et, K*0.9)
 
+        # If Et = 0, increase it, otherwise as it is in a corner the algortihm crashes.
+        Et <- ifelse(Et == 0, K*0.01, Et)
+
 
   if (is.null(fleets.ctrl[[flnm]]$opts)) 
     opts <- list(algorithm = "NLOPT_LN_COBYLA", maxeval = 1e+09, 
