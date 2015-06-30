@@ -22,7 +22,7 @@ overfishing <- function(biols, fleets, advice.ctrl, year){
     
     if (length(Fref)>0){
       if(length(dim(advice.ctrl[[st]]$ref.pts)) == 3) Fref <-  advice.ctrl[[st]]$ref.pts[Fref,year,]
-      if(length(dim(advice.ctrl[[st]]$ref.pts)) == 2) Fref <- advice.ctrl[[st]]$ref.pts[Fref,year]
+      if(length(dim(advice.ctrl[[st]]$ref.pts)) == 2) Fref <- advice.ctrl[[st]]$ref.pts[Fref,]
       if(length(dim(advice.ctrl[[st]]$ref.pts)) == 1) Fref <- advice.ctrl[[st]]$ref.pts[Fref]   
     }
     
