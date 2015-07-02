@@ -38,6 +38,6 @@ overfishing <- function(biols, fleets, advice.ctrl, year){
   if(!is.null(dim(res))) res <- t(res) # if there are iterations put them in columns not in rows.
   
   res <- as.matrix(res, nrow = (length(biols)))
-  
+  rownames(res) <- names(biols) 
   return(res)  
 }
