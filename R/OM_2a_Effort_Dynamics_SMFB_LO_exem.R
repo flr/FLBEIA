@@ -241,6 +241,8 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
               names(Ni) <- names(N)
               names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m)
               
+             Cr.f_min_qt <- Cr.f
+             eff_min_qt <- effs[, i]
               # Minimis and Quota transfer.
               if(minimis[yr] == TRUE | yrtrans[yr] == TRUE){
                               
@@ -266,10 +268,11 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
                                         ret.m = ret.m.i[[st]], wl.m = wl.m.i[[st]], wd.m = wd.m.i[[st]],
                                         restriction = restriction)) # the restriction in landing obligation should be catch
                 }
-                E1 <- min(eff_min_qt) # The effort resulting from minimis and year quota transfer examptions.
+              }
+              E1 <- min(eff_min_qt) # The effort resulting from minimis and year quota transfer examptions.
                                       # We will use this effort later to divide the extra catch, in discards (from minimis), year quota transfer 
                                       # to discount in the following year and quota swap (in this order)
-              }
+              
               
               # Quota Swap
               if(!is.null(dim(rho))) rhoi <- rho[,i]
