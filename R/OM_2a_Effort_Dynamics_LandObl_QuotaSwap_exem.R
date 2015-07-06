@@ -183,6 +183,8 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
           catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
           Nst      <- N[[st]]
           Ca_st[[st]] <-  (eval(call(catchFun, N = Nst, B = B[st], E = E, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st])))
+          if(dim(Ca_st[[st]])[2] == 1) Ca_st[[st]] <- array(Ca_st[[st]], dim = c(dim(Ca_st[[st]])[1:2],1,1), dimnames = list(dimnames(Ca_st[[st]])[[1]],1,1,1)) # unit = iter = 1
+
           La_st[[st]] <- Ca_st[[st]]*ret.m[[st]]
           Da_st[[st]] <- Ca_st[[st]] - La_st[[st]]
           
@@ -190,7 +192,6 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
           
         #  if(st == 'OTH') browser()
           
-          if(dim(Ca_st[[st]])[2] == 1) Ca_st[[st]] <- array(Ca_st[[st]], dim = c(dim(Ca_st[[st]])[1:2],1,1), dimnames = list(dimnames(Ca_st[[st]])[[1]],1,1,1)) # unit = iter = 1
           
           if(st %in% STRs) Cr.f.new[st]   <- Cr.f.new[st] + tau.new[st]*Cr.f[STDs[,st]] # receptor
           else             Cr.f.new[st]   <- Cr.f.new[st] - sum(tau.new[which(STDs[1,] == st)])*Cr.f[st]
