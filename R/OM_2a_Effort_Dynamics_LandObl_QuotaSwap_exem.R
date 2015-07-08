@@ -32,7 +32,9 @@ QuotaSwap <- function(E0, Cr.f,Cr.f_exemp, N, B, efs.m, q.m, alpha.m, beta.m, pr
       
       CE[st] <- sum(Ca_st[[st]])
       # CE is the catch obtained using the initial Effort that includes the minimis and the quota transfer btw years.
-
+      La_st <- Da_st <- Ca_st
+      La_st[[st]] <- Ca_st[[st]]*ret.m[[st]]
+      Da_st[[st]] <- Ca_st[[st]] - La_st[[st]]
     }    
     
     E <- E0 # just in case the condition in 'while' is false from the start.
