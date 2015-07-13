@@ -73,7 +73,7 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
             # Maintain in the list only the stocks that:
 
             #  * Can donate more than a 2% of their **original** quota share (with this restriction we would be excluding the stocks that have received quota from minimise, year transfer or donation)  
-            STDs[[str]] <- stksnms[which((CE[stksnms]/Cr.f[stksnms]) < 0.98)]
+            STDs[[str]] <- stksnms[which((CE[STDs[[str]]]/Cr.f[STDs[[str]]]) < 0.98)]
             
             if( (quota_swap_p[str] > 0.089) | all(lambda.lim[STDs[[str]]] < 0.02) | length(STDs[[str]]) == 0 | stks_OF[str] == TRUE) 
               return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st))
