@@ -322,8 +322,8 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
                 # otherwise is increase so that the total discards equal to min_p*Cr.f  
                 Ca <- MP_LO$Ca[[st]]
                 Ds <- sum((1-ret.m[[st]])*Ca*wd.m[[st]])                
-                ret.m.new[[st]] <- ret.m[[st]] - ifelse(Ds/Cr.f[st] > min_p[st], 0, min_p[st] - Ds/Cr.f[st])
-                min_ctrl[st] <- ifelse(Ds/Cr.f[st]  > min_p[st], FALSE, TRUE)
+                ret.m.new[[st]] <- ret.m[[st]] - ifelse(Ds/Cr.f[st] > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], 0, fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] - Ds/Cr.f[st])
+                min_ctrl[st] <- ifelse(Ds/Cr.f[st]  > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], FALSE, TRUE)
               }
               
             }
