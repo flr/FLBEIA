@@ -252,9 +252,12 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
               minimis <- fleets.ctrl[[flnm]]$LandObl_minimis # logical(ny)
               yrtrans <- fleets.ctrl[[flnm]]$LandObl_yearTransfer # logical(ny)
               
+              Cr.f_min_qt <- Cr.f
+              Et1.res[i]   <- Et.res[i]
+              efs1.res[,i] <- efs.res[,i]
+              
               if(minimis[yr] == TRUE | yrtrans[yr]  == TRUE){
                                
-                Cr.f_min_qt <- Cr.f
                 
                 # Add the minimis and quota.transfer 'extra' quota.
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr]      # nst
