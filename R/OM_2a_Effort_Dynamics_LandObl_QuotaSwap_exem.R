@@ -32,7 +32,9 @@ QuotaSwap <- function(E0, Cr.f,Cr.f_exemp, N, B, efs.m, q.m, alpha.m, beta.m, pr
       
       CE[st] <- sum(Ca_st[[st]])
       # CE is the catch obtained using the initial Effort that includes the minimis and the quota transfer btw years.
-
+      La_st <- Da_st <- Ca_st
+      La_st[[st]] <- Ca_st[[st]]*ret.m[[st]]
+      Da_st[[st]] <- Ca_st[[st]] - La_st[[st]]
     }    
     
     E <- E0 # just in case the condition in 'while' is false from the start.
@@ -69,12 +71,11 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
             }
             
             # Maintain in the list only the stocks that:
-            #  * Are not experiencing overfishing  
-            #  * Can donate more than a 2% of their **original** quota share (with this restriction we would be excluding the stocks that have received quota from minimise, year transfer or donation)
-     
-            STDs[[str]] <- intersect(names(which(stks_OF[STDs[[str]]] == FALSE)), stksnms[which((CE[stksnms]/Cr.f[stksnms]) < 0.98)])
+
+            #  * Can donate more than a 2% of their **original** quota share (with this restriction we would be excluding the stocks that have received quota from minimise, year transfer or donation)  
+            STDs[[str]] <- stksnms[which((CE[STDs[[str]]]/Cr.f[STDs[[str]]]) < 0.98)]
             
-            if( (quota_swap_p[str] > 0.089) | all(lambda.lim[STDs[[str]]] < 0.02) | length(STDs[[str]]) == 0) 
+            if( (quota_swap_p[str] > 0.089) | all(lambda.lim[STDs[[str]]] < 0.02) | length(STDs[[str]]) == 0 | stks_OF[str] == TRUE) 
               return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st))
                  }
  
@@ -170,20 +171,29 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
 
 # print(quota_swap_st)
         # Calculate the catch corresponding with new Effort and update Cr.f.new
+        # Divide de catch in 'discards (MLS)' and 'landings (NO MLS)'
+
  #   browser()
         Ca_st <- vector('list', length(stksnms))
         names(Ca_st) <- stksnms
  
+        Da_st <- Ca_st
+        La_st <- Ca_st
+
         for(st in stksnms){ 
     
           catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
           Nst      <- N[[st]]
           Ca_st[[st]] <-  (eval(call(catchFun, N = Nst, B = B[st], E = E, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st])))
+          if(dim(Ca_st[[st]])[2] == 1) Ca_st[[st]] <- array(Ca_st[[st]], dim = c(dim(Ca_st[[st]])[1:2],1,1), dimnames = list(dimnames(Ca_st[[st]])[[1]],1,1,1)) # unit = iter = 1
+
+          La_st[[st]] <- Ca_st[[st]]*ret.m[[st]]
+          Da_st[[st]] <- Ca_st[[st]] - La_st[[st]]
+          
           CE[st] <- sum(Ca_st[[st]])
           
         #  if(st == 'OTH') browser()
           
-          if(dim(Ca_st[[st]])[2] == 1) Ca_st[[st]] <- array(Ca_st[[st]], dim = c(dim(Ca_st[[st]])[1:2],1,1), dimnames = list(dimnames(Ca_st[[st]])[[1]],1,1,1)) # unit = iter = 1
           
           if(st %in% STRs) Cr.f.new[st]   <- Cr.f.new[st] + tau.new[st]*Cr.f[STDs[,st]] # receptor
           else             Cr.f.new[st]   <- Cr.f.new[st] - sum(tau.new[which(STDs[1,] == st)])*Cr.f[st]
@@ -191,5 +201,6 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
         }
       }
   
-    return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st))
+      
+    return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st, La = La_st, Da = Da_st))
 }

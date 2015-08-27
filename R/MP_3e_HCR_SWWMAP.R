@@ -115,7 +115,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
       # SSB the biomass in the 1st January TAC year.
       ssbTACyr <- ssb(stki)[,ac(assyrnumb),]            
       
-      if(ssbTACyr < Bpa[i]){
+      if(ssbTACyr < Bpa){
         
           Above_Bpa_yr <- max(which(ssb(stki)[,ac(yrsnumbs[1]:(assyrnumb)),] > Bpa)) # Last year with SSB above Bpa.  
           Nyr_Below_Bpa <- length(yrsnumbs[(Above_Bpa_yr+1)]:(assyrnumb)) - 1 # Number of consecutive years with SSB < Bpa -1 (-1 current year outside the sum)
@@ -125,7 +125,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
           ssbobj <- ssbTACyr + (Bpa[i] - ssbTACyr)/K
             
           fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1, assyrnumb+1),  val = c(ssbobj,NA,NA), quantity = c( 'ssb', 'f', Cadv),
-                                               min = c(NA, 0, TACnow[i]*Clo[i]), max  = c(NA, Ftg[i], Cup[i])))
+                                               min = c(NA, 0, TACnow[i]*Clo[i]), max  = c(NA, Ftg[i], TACnow[i]*Cup[i])))
       
           stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))     
       }

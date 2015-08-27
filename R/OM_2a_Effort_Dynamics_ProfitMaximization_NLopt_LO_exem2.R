@@ -205,6 +205,9 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
         Et  <- 0.9*ifelse(effort.restr == 'min', min(effs), effs[effort.restr]) 
         Et <- ifelse(Et < K, Et, K*0.9)
 
+        # If Et = 0, increase it, otherwise as it is in a corner the algortihm crashes.
+        Et <- ifelse(Et == 0, K*0.01, Et)
+
 
   if (is.null(fleets.ctrl[[flnm]]$opts)) 
     opts <- list(algorithm = "NLOPT_LN_COBYLA", maxeval = 1e+09, 
@@ -249,9 +252,12 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
               minimis <- fleets.ctrl[[flnm]]$LandObl_minimis # logical(ny)
               yrtrans <- fleets.ctrl[[flnm]]$LandObl_yearTransfer # logical(ny)
               
+              Cr.f_min_qt <- Cr.f
+              Et1.res[i]   <- Et.res[i]
+              efs1.res[,i] <- efs.res[,i]
+              
               if(minimis[yr] == TRUE | yrtrans[yr]  == TRUE){
                                
-                Cr.f_min_qt <- Cr.f
                 
                 # Add the minimis and quota.transfer 'extra' quota.
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr]      # nst
@@ -316,8 +322,8 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
                 # otherwise is increase so that the total discards equal to min_p*Cr.f  
                 Ca <- MP_LO$Ca[[st]]
                 Ds <- sum((1-ret.m[[st]])*Ca*wd.m[[st]])                
-                ret.m.new[[st]] <- ret.m[[st]] - ifelse(Ds/Cr.f[st] > min_p[st], 0, min_p[st] - Ds/Cr.f[st])
-                min_ctrl[st] <- ifelse(Ds/Cr.f[st]  > min_p[st], FALSE, TRUE)
+                ret.m.new[[st]] <- ret.m[[st]] - ifelse(Ds/Cr.f[st] > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], 0, fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] - Ds/Cr.f[st])
+                min_ctrl[st] <- ifelse(Ds/Cr.f[st]  > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], FALSE, TRUE)
               }
               
             }

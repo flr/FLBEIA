@@ -209,6 +209,15 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     # catch restriction, if empty => landings.
     catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
     
+ 
+    #  quota share % to be upodate du to year transfer.
+    yrtr_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[stknm,yr]
+    yrtr_p <- ifelse(is.null(yrtr_p), 0,1)
+    # if year transfer was used in previous year discount it, absolute catch
+    yrtr_disc <- fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[stknm,yr-1,] # [it]
+    
+ 
+    fleets.ctrl[[flnm]] 
     # if TAC overshoot is discarded, calculate seasonal TAC to calculate the discards.
     TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]    # Is the TAC overshot discarded?
     TACOS <- ifelse(is.null(TACOS), TRUE, TACOS) 
@@ -217,7 +226,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0              
-        tac <- (advice$TAC[st,yr]*QS)[drop=T] # it
+        tac <- ((advice$TAC[st,yr]*QS)[drop=T]*(1+yrtr_p)) - yrtr_disc # it, add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
     }
     
     if(dim(biols[[st]]@n)[1] == 1) stop(st, ' stock has no ages, Cobb Douglas cannot be applied at age level then! correct the "catch.model" argument in "fleets.ctrl" argument!\n')
