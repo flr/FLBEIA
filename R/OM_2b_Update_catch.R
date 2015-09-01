@@ -216,6 +216,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
     # if year transfer was used in previous year discount it, absolute catch
     yrtr_disc <- fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[stknm,yr-1,] # [it]
     
+    if(is.null(yrtr_disc)) yrtr_disc <- 0
  
     fleets.ctrl[[flnm]] 
     # if TAC overshoot is discarded, calculate seasonal TAC to calculate the discards.
