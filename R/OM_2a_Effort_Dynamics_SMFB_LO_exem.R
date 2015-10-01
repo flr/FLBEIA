@@ -229,7 +229,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
               minimis <- fleets.ctrl[[flnm]]$LandObl_minimis # logical(ny)
               yrtrans <- fleets.ctrl[[flnm]]$LandObl_yearTransfer # logical(ny)
               
-              Ni         <- lapply(N, function(x) array(x[,,,,,i], dim= dim(x)[c(1,3,6)]))
+              Ni         <- lapply(N, function(x) array(x[,,i], dim= c(dim(x)[c(1)],1,1)))
               q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
               alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
               beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
