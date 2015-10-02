@@ -260,8 +260,8 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
                   yrt_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[st,yr] # matrix(st,ny)
                   
                   
-                  Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
-                                        fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,]
+                  Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
+                                        fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i]
                   
                   eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.m.i[[st]],
                                        efs.m = efs.m[,i,drop=F], alpha.m = alpha.m.i[[st]], beta.m = beta.m.i[[st]],
