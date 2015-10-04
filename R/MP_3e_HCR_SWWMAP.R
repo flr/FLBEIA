@@ -125,13 +125,13 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
           ssbobj <- ssbTACyr + (Bpa[i] - ssbTACyr)/K
             
           fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1, assyrnumb+1),  val = c(ssbobj,NA,NA), quantity = c( 'ssb', 'f', Cadv),
-                                               min = c(NA, 0, TACnow[i]*Clo[i]), max  = c(NA, Ftg[i], TACnow[i]*Cup[i])))
+                                               min = c(NA, 0, TACnow[i]*Clo), max  = c(NA, Ftg, TACnow[i]*Cup)))
       
           stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))     
       }
       { # Advice in Ftg and imposing -15% restriction.
           fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1),  val = c(Ftg[i],NA), quantity = c( 'f', Cadv),
-                                           min = c(NA, TACnow[i]*Clo[i]), max  = c(NA, TACnow[i]*Cup[i])))
+                                           min = c(NA, TACnow[i]*Clo), max  = c(NA, TACnow[i]*Cup)))
         
           stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))           
       }
