@@ -122,7 +122,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
           
           K <-ifelse((N - Nyr_Below_Bpa) < 0, 1, (N - Nyr_Below_Bpa)) 
                  
-          ssbobj <- ssbTACyr + (Bpa[i] - ssbTACyr)/K
+          ssbobj <- ssbTACyr + (Bpa - ssbTACyr)/K
             
           fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1, assyrnumb+1),  val = c(ssbobj,NA,NA), quantity = c( 'ssb', 'f', Cadv),
                                                min = c(NA, 0, TACnow[i]*Clo), max  = c(NA, Ftg, TACnow[i]*Cup)))
