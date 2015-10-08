@@ -164,7 +164,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
 
                        # The price is taken from the year before, because price for the current year is updated after catch is produced,
                        # if the price was dynamically updated inside this function the optimizer could crash.
-                       pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr-1,,ss,,i, drop = TRUE]
+                       pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr,,ss,,i, drop = TRUE]
                        }
                        Cr.f[st] <- TAC[st]*QS[flnm,st]
          }
