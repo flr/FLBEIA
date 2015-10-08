@@ -108,7 +108,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
          flinfo     <- stock.fleetInfo(fl.)
          flinfo <-  strsplit(apply(flinfo, 1,function(x) names(which(x == 1))[1]), '&&')
 
-         efs.m <- sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr-1,,ss,,i, drop=T]) #[nmt], previous year effort share because we don't know the effort share this year.
+         efs.m <- sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss,,i, drop=T]) #[nmt], previous year effort share because we don't know the effort share this year.
 
          vc.m <- sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss,,i, drop=T])  #[nmt]
 
