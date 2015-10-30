@@ -259,11 +259,11 @@ create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
         it <- ifelse(is.null(largs$iter), 1, largs$iter)
         warning("Reference points for stock, '", stkname,"' have not been specified in argument: ", paste("ref.pts",stkname,sep = "."), ". \n -  A ref.pts element with empty reference points has been created. FILL IT BY HAND!!!!", immediate. = TRUE)
         if(is.null(it))  warning("iter argument is missing, iter = 1 will be used in the creation of ref.pts element, correct it if necessary.")
-        ref.pts.stk <- matrix(NA, 3,it, dimnames = list( c('Blim', 'Btrigger', 'Fmsy'), 1:it))
+        ref.pts.stk <- matrix(NA, 3,it, dimnames = list( c('Ftarget'), 1:it))
         cat("------------------------------------------------------------------------------\n") 
     }
         
-    if(!is.array(ref.pts.stk) | !all(c('Ftarget') %in% dimnames(ref.pts.stk)[[1]]))   stop(paste("ref.pts",stkname,sep = "."), " must be a array with dimension 1x(numb. projections years)x(numb. of iterations) and dimnames[[1]] = c('Ftarge')")
+    if(!is.array(ref.pts.stk) | !all(c('Ftarget') %in% dimnames(ref.pts.stk)[[1]]))   stop(paste("ref.pts",stkname,sep = "."), " must be a array with dimension 1x(numb. projections years)x(numb. of iterations) and dimnames[[1]] = c('Ftarget')")
     
     if(!is.null(largs$iter))  if(largs$iter != dim(ref.pts.stk)[2]) stop("Number of iterations in 'ref.pts.", stkname, "' must be equal to the iterations specified in 'iter' argument." )
  
