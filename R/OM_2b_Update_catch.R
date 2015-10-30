@@ -212,7 +212,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
  
     #  quota share % to be upodate du to year transfer.
     yrtr_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[stknm,yr]
-    yrtr_p <- ifelse(is.null(yrtr_p), 0,1)
+    yrtr_p <- ifelse(is.null(yrtr_p), 0,yrtr_p)
     # if year transfer was used in previous year discount it, absolute catch
     yrtr_disc <- fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[stknm,yr-1,] # [it]
     
@@ -228,6 +228,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0              
         tac <- ((advice$TAC[st,yr]*QS)[drop=T]*(1+yrtr_p)) - yrtr_disc # it, add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
+                                                                      # the minimise is not added because it is discarded.      
     }
     
     if(dim(biols[[st]]@n)[1] == 1) stop(st, ' stock has no ages, Cobb Douglas cannot be applied at age level then! correct the "catch.model" argument in "fleets.ctrl" argument!\n')
