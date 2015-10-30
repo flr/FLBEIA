@@ -259,7 +259,7 @@ create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
         it <- ifelse(is.null(largs$iter), 1, largs$iter)
         warning("Reference points for stock, '", stkname,"' have not been specified in argument: ", paste("ref.pts",stkname,sep = "."), ". \n -  A ref.pts element with empty reference points has been created. FILL IT BY HAND!!!!", immediate. = TRUE)
         if(is.null(it))  warning("iter argument is missing, iter = 1 will be used in the creation of ref.pts element, correct it if necessary.")
-        ref.pts.stk <- matrix(NA, 3,it, dimnames = list( c('Ftarget'), 1:it))
+        ref.pts.stk <- matrix(NA, 1,it, dimnames = list( c('Ftarget'), 1:it))
         cat("------------------------------------------------------------------------------\n") 
     }
         
