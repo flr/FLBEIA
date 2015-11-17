@@ -76,7 +76,7 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
             STDs[[str]] <- stksnms[which((CE[STDs[[str]]]/Cr.f[STDs[[str]]]) < 0.98)]
             
             if( (quota_swap_p[str] > 0.089) | all(lambda.lim[STDs[[str]]] < 0.02) | length(STDs[[str]]) == 0 | stks_OF[str] == TRUE) 
-              return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st))
+              return(list(E = E, efs.m = efs.m, Cr.f.new = Cr.f.new, quota_swap_st = quota_swap_st, quota_swap_p = quota_swap_p, catch = CE, Ca = Ca_st, La = La_st, Da = Da_st))
                  }
  
  print(STDs)
