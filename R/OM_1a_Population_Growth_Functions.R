@@ -87,7 +87,7 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
     }
 
     # Update SSB.
-    SR@ssb[,yr,,ss] <- unitSums(quantSums(n(biol) * wt(biol) * fec(biol) * exp(-spwn(biol) * m(biol)), na.rm=TRUE))[,yr,,ss]
+    SR@ssb[,yr,,ss] <- unitSums(quantSums(biol@n * biol@wt * biol@fec * exp(-biol@spwn * biol@m), na.rm=TRUE))[,yr,,ss]
 
     # RECRUITMENT
     if(dim(biol@n)[3] > 1 & dim(biol@n)[3] == dim(biol@n)[4]){
