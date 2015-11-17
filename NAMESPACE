@@ -39,6 +39,7 @@ export(
   "chkBDTargetQuantity",
   "chkBDTrgtArrayIters",
   "chkFwdBDControl",
+  "CFPMSYHCR",
   "cobbDoug",
   "cobbDougInv",
   "CobbDouglasFit",
