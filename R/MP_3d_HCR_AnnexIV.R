@@ -44,10 +44,10 @@ annexIVHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
     beta  <- advice.ctrl[[stknm]][['ref.pts']]['beta',]
     type  <- advice.ctrl[[stknm]][['type']]
     
-    if(Brat > (1+alpha))
+    if(Brat > rep(1+alpha,ni))
         gamma <- 1 + beta
     else{
-        if(Brat < 1-alpha)
+        if(Brat < rep(1-alpha,ni))
             gamma <- 1 - beta
         else{
             if(type == 2) gamma <- 1
