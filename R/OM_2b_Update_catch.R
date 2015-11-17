@@ -289,11 +289,11 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
  # cat('Lrat: ', tac.disc, '\n')
  # cat('C: ', Ctotal, '\n')
 
-    Cam <- array(Cam, dim = c(length(mtnms),dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,1,it))
+    Cam <- array(Cam, dim = c(length(mtnms),dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,it))
 
     for(mt in 1:length(mtnms)){
 
-        Ca <- array(Cam[mt,,,,,,], dim = c(dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,1,it))
+        Ca <- array(Cam[mt,,,,,], dim = c(dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,it))
 
         if(!(st %in% names(fl@metiers[[mt]]@catches))) next
         cobj <- fl[[mt]][[st]]
