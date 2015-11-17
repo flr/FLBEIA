@@ -113,7 +113,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             
       # If SSB < Bpa Project the population ensuring that the biomass increases
       # SSB the biomass in the 1st January TAC year.
-      ssbTACyr <- ssb(stki)[,ac(assyrnumb),]            
+      ssbTACyr <- ssb(stki)[,ac(assyrnumb+1),]            
       
       if(ssbTACyr < Bpa){
         
