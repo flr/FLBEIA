@@ -121,6 +121,10 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
           
             for(a in ai:na){
                 for(i in 1:it){
+                
+                if(is.na(n.[a,y,i])) res@harvest[a,y,,,,i]<-0
+                
+                if(!is.na(n.[a,y,i])) {
                     n.[a,y,i] - c.[a,y,i]
                     if(n.[a,y,i] < c.[a,y,i]) res@harvest[a,y,,,,i] <- 10
                     
@@ -129,6 +133,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
                                                 uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
                         res@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, res@harvest[ai-1,y,,,,i] )
                     }
+                }
                 }
             }
         }
