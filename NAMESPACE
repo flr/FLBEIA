@@ -80,6 +80,7 @@ export(
   "discWStock",
   "discWStock.f",
   "ecoSum",
+  "ecoSum_damara",
   "effortMtSum",
   "effRule.SMFB",
   "effRule.SSFB",
