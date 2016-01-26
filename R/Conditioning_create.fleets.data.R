@@ -401,7 +401,7 @@ create.fleets.data <- function(){
             
           }else{
             # Check dimension names
-            log.dim <- equal.flq.Dimnames(lflq=list(get(alpha),get(beta),get(catch.q),stk.flqa),1:2)
+            log.dim <- equal.flq.Dimnames(lflq=list(get(alpha),get(beta),get(catch.q),flqa.stk),1:2)
             if(!log.dim)stop('in alpha,beta or catch.q dimensions \n')
             if(!(any(dim(fl.met.stk.alpha)[3]==c(1,stk.unit))))stop('in alpha number of stock units 1 or stk.unit')
             if(!(any(dim(fl.met.stk.alpha)[4]==c(1,ns))))stop('in alpha number of seasons 1 or ns')
