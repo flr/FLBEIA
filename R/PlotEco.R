@@ -7,7 +7,7 @@
 #.......................................................
 #....................FUNCTIONS..........................
 
-plot.Eco <- function(fleets,pdfnm){
+plot.eco <- function(fleets,pdfnm){
   
  require(ggplot2)
  require(plyr)
