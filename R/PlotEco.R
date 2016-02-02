@@ -14,7 +14,7 @@ plot.eco <- function(fleets,pdfnm){
  require(FLCore)
 
  names.fl <- names(fleets)
- s0_eco  <- ecoSum(fleets, flnms= names.fl, year=dimnames(fleets[[1]]@effort)$year)
+ eco  <- ecoSum(fleets, flnms= names.fl, year=dimnames(fleets[[1]]@effort)$year)
  
 
   path.pdf <- ''
@@ -26,7 +26,7 @@ plot.eco <- function(fleets,pdfnm){
     
       #capacity   
     temp <- aggregate(capacity ~ year+ fleet, 
-                      data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
     temp$year <- as.numeric(as.character(temp$year))
     
     p <- ggplot(data=temp, aes(x=year, y=capacity)) + geom_line() +
@@ -37,7 +37,7 @@ plot.eco <- function(fleets,pdfnm){
     
     #costs
     temp <- aggregate(costs ~ year+fleet, 
-                      data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
     temp$year <- as.numeric(as.character(temp$year))
     
     p <- ggplot(data=temp, aes(x=year, y=costs)) + geom_line() +
@@ -48,7 +48,7 @@ plot.eco <- function(fleets,pdfnm){
 
     #effort
     temp <- aggregate(effort ~ year+ fleet, 
-                      data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
     temp$year <- as.numeric(as.character(temp$year))
     
     p <- ggplot(data=temp, aes(x=year, y=effort)) + geom_line() +
@@ -59,7 +59,7 @@ plot.eco <- function(fleets,pdfnm){
     
     #profits
     temp <- aggregate(profits~ year+ fleet, 
-                      data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
     temp$year <- as.numeric(as.character(temp$year))
     
     p <- ggplot(data=temp, aes(x=year, y=profits)) + geom_line() +
