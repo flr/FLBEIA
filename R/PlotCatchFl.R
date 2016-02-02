@@ -7,15 +7,15 @@
 #.......................................................
 #....................FUNCTIONS..........................
 
-plot.catchFl <- function(fleets,pdfnm){
+plot.catchFl <- function(fleets,advice,pdfnm){
   
  require(ggplot2)
  require(plyr)
  require(FLCore)
 
  names.fl <- names(fleets)
- s0_catchFl  <- catchFlSum(s0$fleets,flnms= names.fl,
-                           stknms= 'all', years=dimnames(s0$fleets[[1]]@effort)$year)
+ catchFl  <- catchFlSum(fleets,advice,flnms= names.fl,
+                           stknms= 'all', years=dimnames(fleets[[1]]@effort)$year)
  
 
   path.pdf <- ''
@@ -27,7 +27,7 @@ plot.catchFl <- function(fleets,pdfnm){
     
       #landings    
     temp <- aggregate(landings ~ year+ fleet+stock, 
-                      data = s0_catchFl, mean , na.rm=TRUE,na.action="na.pass") 
+                      data = catchFl, mean , na.rm=TRUE,na.action="na.pass") 
     temp$year <- as.numeric(as.character(temp$year))
     
     p <- ggplot(data=temp, aes(x=year, y=landings, fill=stock)) + 
@@ -38,7 +38,7 @@ plot.catchFl <- function(fleets,pdfnm){
     
     #discards
     temp <- aggregate(discards ~ year+ fleet+stock, 
-                      data = s0_catchFl, mean , na.rm=TRUE,na.action="na.pass") 
+                      data = catchFl, mean , na.rm=TRUE,na.action="na.pass") 
     temp$year <- as.numeric(as.character(temp$year))
     
     p <- ggplot(data=temp, aes(x=year, y=discards, fill=stock)) + 
@@ -49,7 +49,7 @@ plot.catchFl <- function(fleets,pdfnm){
 
     #price
     temp <- aggregate(price ~ year+ fleet+stock, 
-                      data = s0_catchFl, mean , na.rm=TRUE,na.action="na.pass") 
+                      data = catchFl, mean , na.rm=TRUE,na.action="na.pass") 
     temp$year <- as.numeric(as.character(temp$year))
     
     p <- ggplot(data=temp, aes(x=year, y=price, fill=stock))  + geom_line() +
@@ -58,16 +58,6 @@ plot.catchFl <- function(fleets,pdfnm){
     
     print(p)
     
-    #tacshare
-#     temp <- aggregate(tacshare ~ year+ fleet+stock, 
-#                       data = s0_catchFl, mean , na.rm=TRUE,na.action="na.pass") 
-#     temp$year <- as.numeric(as.character(temp$year))
-#     
-#     p <- ggplot(data=temp, aes(x=year, y=tacshare, fill=stock)) + geom_line() +
-#       geom_point(size=2, shape=21)+
-#       facet_grid(.~fleet,scales=c("free_y"))     
-#     
-#     print(p)
 
   }  
  dev.off()
