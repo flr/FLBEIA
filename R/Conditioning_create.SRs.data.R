@@ -135,7 +135,7 @@ create.SRs.data <- function(path){
         if(!(any(dim(stk.proportion)[4]==c(1,ns))))stop('in proportion number of seasons 1 or ns')
         if(!(any(dim(stk.proportion)[6]==c(1,ni))))stop('in proportion number of iterations 1 or ni')}
 
-      log.dim <- equal.flq.Dimnames(lflq=list(stk.params,stk.sr@params),1:4)
+      log.dim <- equal.flq.Dimnames(lflq=list(stk.params,stk.sr@params),1:3)
       if(!log.dim)stop('in SR parameter dimension names \n')
     
       stk.sr@rec[,hist.yrs] <- stk.rec
