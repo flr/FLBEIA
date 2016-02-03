@@ -49,7 +49,7 @@ updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl, year = 
 #-------------------------------------------------------------------------------
 CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...){
 
-    rho <- fleets.ctrl[['catch.threshold']][stknm,year,drop=T] # [it]
+    rho <- fleets.ctrl[['catch.threshold']][stknm,year,,season,drop=T] # [it]
 
     nf    <- length(fleets)
     stnms <- names(biols)
@@ -183,7 +183,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
 #-------------------------------------------------------------------------------
 CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
 
-    rho <- fleets.ctrl[['catch.threshold']][stknm,year,drop=T] # [it]
+    rho <- fleets.ctrl[['catch.threshold']][stknm,year,, season,drop=T] # [it]
 
     nf    <- length(fleets)
     stnms <- names(biols)
