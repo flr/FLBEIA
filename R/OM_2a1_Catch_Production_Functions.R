@@ -36,7 +36,11 @@ CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m, ret.m, r
   #  C <-  colSums(C.m)
 
 
-    C.m <- ifelse(C.m < rho*N*(ret.m*wl.m + (1-ret.m)*wd.m),  C.m, rho*N*(ret.m*wl.m + (1-ret.m)*wd.m))
+    Clim <- sweep(N*(ret.m*wl.m + (1-ret.m)*wd.m), 2, rho, "*")
+    
+    C.m <- ifelse(C.m < Clim,  C.m, Clim)
+  
+  #  C.m <- ifelse(C.m < rho*N*(ret.m*wl.m + (1-ret.m)*wd.m),  C.m, rho*N*(ret.m*wl.m + (1-ret.m)*wd.m))
 
     return(catch =  C.m)        # [nmt,it]
 }
@@ -97,9 +101,13 @@ CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rho
     W <- (ret.m*wl.m + (1-ret.m)*wd.m)
 
     C.m <- q.m*(Ef)^alpha.m*(N*W)^beta.m # [mt,na,nu,it]
+    
+    Clim <- sweep(W*N,4,rho,"*")
 
-    C.m <- ifelse(C.m < rho*W*N, C.m,rho*W*N) # The truncation  of CobDoug is applied at metier level.
+    C.m <- ifelse(C.m < Clim, C.m, Clim) # The truncation  of CobDoug is applied at metier level.
 
+#    C.m <- ifelse(C.m < rho*W*N, C.m,rho*W*N) # The truncation  of CobDoug is applied at metier level.
+    
  #   C <-  apply(C.m, 4,sum)
 
     return(catch =  C.m)  # [mt,na,nu,it]
