@@ -11,7 +11,7 @@
 
 To install this package, start R and enter:
 
-  install.packages(c("plyr", "ggplot2", "nloptr", "mvtnorm", "triangle"))
+	install.packages(c("plyr", "ggplot2", "nloptr", "mvtnorm", "triangle"))
 	install.packages("FLBEIA", repos="http://flr-project.org/R")
 
 ## Documentation
