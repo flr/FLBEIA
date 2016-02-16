@@ -121,10 +121,6 @@ total.discards.stock.df <- function(fleet){
 
 plot.fleets <- function(fleets,pdfnm){
   
- require(ggplot2)
- require(plyr)
- require(FLCore)
-
   names.fl <- names(fleets)
   path.pdf <- ''
   

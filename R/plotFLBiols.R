@@ -8,10 +8,6 @@
 #....................FUNCTIONS..........................
 plot.biols <- function(biols,pdfnm){
   
-  require(ggplot2)
-  require(plyr)
-  require(FLCore)
-  
   names.biols <- names(biols)
   path.pdf <- ''
   

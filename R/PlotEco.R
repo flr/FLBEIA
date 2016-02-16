@@ -9,12 +9,8 @@
 
 plot.Eco <- function(fleets,pdfnm){
   
- require(ggplot2)
- require(plyr)
- require(FLCore)
-
  names.fl <- names(fleets)
- s0_eco  <- ecoSum(fleets, flnms= names.fl, year=dimnames(fleets[[1]]@effort)$year)
+ s0_eco  <- ecoSum(fleets, flnms= names.fl, years=dimnames(fleets[[1]]@effort)$year)
  
 
   path.pdf <- ''
