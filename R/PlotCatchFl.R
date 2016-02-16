@@ -9,10 +9,6 @@
 
 plot.catchFl <- function(fleets,advice,pdfnm){
   
- require(ggplot2)
- require(plyr)
- require(FLCore)
-
  names.fl <- names(fleets)
  catchFl  <- catchFlSum(fleets,advice,flnms= names.fl,
                            stknms= 'all', years=dimnames(fleets[[1]]@effort)$year)

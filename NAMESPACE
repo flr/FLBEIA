@@ -1,6 +1,14 @@
+import("methods")
+import("ggplot2")
+import("plyr")
 import("FLCore")
 import("FLFleet")
-
+import("FLash")
+import("FLAssess")
+import("FLXSA")
+import("nloptr")
+import("mvtnorm")
+import("triangle")
 
 export(
   "advice.mp",
@@ -145,10 +153,6 @@ export(
   "PellaTom",
   "perfectObs",
   "pilRec_ane",
-  "plot.catchFl",
-  "plot.eco",
-  "plot.biols",
-  "plot.fleets",
   "pope",
   "price_flbeia",
   "propagateFLF",
@@ -171,9 +175,6 @@ export(
   "summary_flbeia",
   "tdiscStock",
   "tlandStock",
-  "total.catch.stock.df",
-  "total.landings.stock.df",
-  "total.discards.stock.df",
   "totfcost_flbeia", 
   "totvcost_flbeia",
   "trgtNms",

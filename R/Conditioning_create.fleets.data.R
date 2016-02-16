@@ -422,7 +422,7 @@ create.fleets.data <- function(){
           
           if(any(is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs]))){
             cat('warning: all NA-s in landings.sel projection \n')
-            fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs])]} <- 0
+            fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs])] <- 0}
             
           if(any(is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs]))){
             cat('warning: all NA-s in discards.sel projection \n')
