@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>FLBEIA. FLBEIA 1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">FLBEIA 1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <h1>FLBEIA</h1>
+
+<div class="row">
+  <div class="span8">
+        
+    <div class="Description">
+      <h2>Description</h2>
+
+      <p>FLBEIA</p>
+  
+    </div>
+      </div>
+  <div class="span4">
+    <!-- <ul>
+      <li>FLBEIA</li><li>FLBEIA-package</li><li>advice.mp</li><li>age2ageDat</li><li>age2agePop</li><li>age2bioDat</li><li>age2bioPop</li><li>age2unit</li><li>ageInd</li><li>aneHCRE</li><li>aneRec_pil</li><li>annualTAC</li><li>annexIVHCR</li><li>ASPG</li><li>assessment.mp</li><li>B_flbeia</li><li>BDPG</li><li>BDsim</li><li>bio2bioDat</li><li>bio2bioPop</li><li>bioInd</li><li>biols.om</li><li>biomass.tg</li><li>bioSum</li><li>C_flbeia</li><li>capacityRest.SMFB</li><li>catch.tg</li><li>catchFlSum </li><li>catchMtSum</li><li>catchStock</li><li>catchStock.f</li><li>catchWStock</li><li>catchWStock.f</li><li>checkBDTarget</li><li>checkDims</li><li>chkBDTargetQuantity</li><li>chkBDTrgtArrayIters</li><li>chkFwdBDControl</li><li>CFPMSYHCR</li><li>cobbDoug</li><li>cobbDougInv</li><li>CobbDouglasFit</li><li>CobbDouglasBio</li><li>CobbDouglasAge</li><li>CobbDouglasBio.effort</li><li>CobbDouglasAge.effort</li><li>CobbDouglasBio.CAA</li><li>CobbDouglasAge.CAA</li><li>covars.om</li><li>CorrectCatch</li><li>costs_flbeia</li><li>createFleetExtAccesors</li><li>create.advice.ctrl</li><li>create.assess.ctrl</li><li>create.biols.ctrl</li><li>create.fleets.ctrl</li><li>create.covars.ctrl </li><li>create.obs.ctrl</li><li>create.advice.data</li><li>create.BDs.data</li><li>create.biols.data</li><li>create.fleets.data</li><li>create.F2CatchHCR.ctrl</li><li>create.indices.data</li><li>calculate.CDparam</li><li>create.list.stks.flq</li><li>create.list.stks.flqa</li><li>create.SRs.data</li><li>ctRec_alb</li><li>D_flbeia</li><li>discards.tg</li><li>discnStock</li><li>discStock</li><li>discStock.f</li><li>discWStock</li><li>discWStock.f</li><li>ecoSum</li><li>effortMtSum</li><li>effRule.SMFB</li><li>effRule.SSFB</li><li>elasticPrice</li><li>equal.flq.Dimnames </li><li>exponential</li><li>F2CatchHCR</li><li>f.discards.tg</li><li>f.landings.tg</li><li>f.tg</li><li>F_flbeia</li><li>fillIterFLF</li><li>findF</li><li>fixedAdvice</li><li>fixedCapital</li><li>fixedCovar</li><li>fixedEffort</li><li>fixedPopulation</li><li>fixedPrice</li><li>FLBDsim</li><li>FLBEIA</li><li>fleets.om</li><li>FLSRsim</li><li>FLXSAnew</li><li>FroeseHCR</li><li>fwdBD</li><li>fwdBDControl</li><li>getPlural</li><li>getQuantity</li><li>ghlHCR</li><li>gmeanHistGrowth</li><li>hockstick</li><li>initPop_lifeHist</li><li>IcesHCR</li><li>joinIter</li><li>L_flbeia</li><li>landings.tg</li><li>landStock</li><li>landStock.f</li><li>landWStock</li><li>landWStock.f</li><li>MAPHCR</li><li>MaxProfit</li><li>matrixBDTarget</li><li>neaMAC_ltmp</li><li>NoAssessment</li><li>NoObsIndex</li><li>NoObsStock</li><li>Obs.stk.nage</li><li>Obs.stk.bio</li><li>Obs.disc.nage</li><li>Obs.fec</li><li>Obs.FSolver</li><li>Obs.land.nage</li><li>Obs.stk.wgt</li><li>Obs.disc.bio</li><li>Obs.land.bio</li><li>Obs.disc.wgt</li><li>Obs.land.wgt</li><li>Obs.nmort</li><li>observation.mp</li><li>PellaTom</li><li>perfectObs</li><li>pilRec_ane</li><li>plot.catchFl</li><li>plot.eco</li><li>plot.biols</li><li>plot.fleets</li><li>pope</li><li>price_flbeia</li><li>propagateFLF</li><li>quantityNms</li><li>R_flbeia</li><li>redfishRecModel</li><li>remQ.SSFB</li><li>replaceRec</li><li>revenue_flbeia</li><li>SCD</li><li>seasonshare.CAA</li><li>SelAtAge</li><li>showArray</li><li>SMFB</li><li>SRsim</li><li>SSB_flbeia</li><li>ssb.get</li><li>SSFB</li><li>stock.fleetInfo</li><li>summary_flbeia</li><li>tdiscStock</li><li>tlandStock</li><li>total.catch.stock.df</li><li>total.landings.stock.df</li><li>total.discards.stock.df</li><li>totfcost_flbeia </li><li>totvcost_flbeia</li><li>trgtNms</li><li>unit2age</li><li>updateCatch</li><li>updateQS.SMFB</li><li>validFwdBDControl</li><li>vFLBDSRsims</li><li>vFLCs</li><li>vFLFs</li><li>vFLMs</li><li>wtadStock</li><li>wtalStock</li><li>XSAboot</li><li>xtabs2</li><li>addFLCatch</li><li>addFLCatch-methods</li><li>addFLCatch,FLCatchExt,FLCatchExt-method</li><li>catchNames</li><li>catchNames-methods</li><li>catchNames,FLCatchExt-method</li><li>catchNames,FLCatchesExt-method</li><li>catchNames,FLFleetExt-method</li><li>catchNames,FLFleetsExt-method</li><li>catchNames,FLMetierExt-method</li><li>catchNames,FLMetiersExt-method</li><li>catchNames&lt;-</li><li>catchNames&lt;--methods</li><li>catchNames&lt;-,FLCatchExt,character-method</li><li>FLCatchesExt</li><li>FLCatchesExt-methods</li><li>FLCatchesExt,ANY-method</li><li>FLCatchesExt,list-method</li><li>FLCatchesExt,missing-method</li><li>FLCatchExt</li><li>FLCatchExt-methods</li><li>FLCatchExt,missing-method</li><li>FLCatchExt,FLQuant-method</li><li>FLFleetExt</li><li>FLFleetExt-methods</li><li>FLFleetExt,FLCatchExt-method</li><li>FLFleetExt,FLCatchesExt-method</li><li>FLFleetExt,FLFleetExt-method</li><li>FLFleetExt,FLMetierExt-method</li><li>FLFleetExt,FLMetiersExt-method</li><li>FLFleetExt,missing-method</li><li>FLFleetsExt</li><li>FLFleetsExt-methods</li><li>FLFleetsExt,ANY-method</li><li>FLFleetsExt,missing-method</li><li>FLFleetsExt,list-method</li><li>FLMetierExt</li><li>FLMetierExt-methods</li><li>FLMetierExt,FLCatchExt-method</li><li>FLMetierExt,FLCatchesExt-method</li><li>FLMetierExt,FLQuant-method</li><li>FLMetierExt,missing-method</li><li>FLMetiersExt</li><li>FLMetiersExt-methods</li><li>FLMetiersExt,ANY-method</li><li>FLMetiersExt,missing-method</li><li>FLMetiersExt,list-method</li><li>is.FLBDSRsims</li><li>is.FLBDSRsims-methods</li><li>is.FLBDSRsims,ANY-method</li><li>is.FLCatchesExt</li><li>is.FLCatchesExt-methods</li><li>is.FLCatchesExt,ANY-method</li><li>is.FLFleetsExt</li><li>is.FLFleetsExt-methods</li><li>is.FLFleetsExt,ANY-method</li><li>is.FLMetiersExt</li><li>is.FLMetiersExt-methods</li><li>is.FLMetiersExt,ANY-method</li><li>[,FLCatchExt,ANY,ANY,ANY-method</li><li>[,FLFleetExt,ANY,ANY,ANY-method</li><li>[,FLFleetExt,ANY,missing,ANY-method</li><li>[,FLMetierExt,ANY,missing,ANY-method</li><li>[&lt;-,FLCatch,ANY,ANY,FLCatch-method</li><li>[[,FLFleetExt,ANY,missing-method</li><li>[[,FLMetierExt,ANY,missing-method</li><li>FLBDsim-class</li><li>FLSRsim-class</li><li>FLCatchesExt-class</li><li>FLCatchExt-class</li><li>FLFleetExt-class</li><li>FLFleetsExt-class</li><li>FLMetierExt-class</li><li>FLMetiersExt-class</li>
+    </ul>
+    <ul>
+      <li>package</li>
+    </ul> -->
+      
+    <h2>See also</h2>
+    
+  <code><a href='http://www.inside-r.org/packages/cran/FLCore/docs/FLCore-package'>FLCore</a></code>.
+
+        
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

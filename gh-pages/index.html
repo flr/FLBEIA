@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+<title>Index. FLBEIA 1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Dorleta Garcia (Azti-Tecnalia) &lt;dgarcia@azti.es&gt;">
+
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/bootstrap-responsive.css" rel="stylesheet">
+<link href="css/highlight.css" rel="stylesheet">
+<link href="css/staticdocs.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+  </head>
+
+  <body>
+    <div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">FLBEIA 1.0</a>
+      <div class="nav">
+        <ul class="nav">
+          <li><a href="index.html"><i class="icon-home icon-white"></i> Index</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="container">
+      <header>
+        
+      </header>
+      
+      <div class="row">
+  <div class="span8">
+    <h1>FLBEIA</h1>
+
+<ul>
+<li>Version: 1.0</li>
+<li>Date: 2016-02-16</li>
+<li>Author: Dorleta GARCIA <a href="mailto:dgarcia@azti.es">dgarcia@azti.es</a></li>
+<li>Maintainer: Dorleta GARCIA, AZTI Tecnalia.</li>
+<li>Repository: <a href="https://github.com/flr/FLBEIA/">https://github.com/flr/FLBEIA/</a></li>
+<li>Bug reports: <a href="https://github.com/flr/FLBEIA/issues">https://github.com/flr/FLBEIA/issues</a></li>
+</ul>
+
+<h2>Overview</h2>
+
+<p><code>FLBEIA</code> provides a simulation toolbox which facilitates the development of bio-economic impact assessments of fisheries management strategies. It is built under a Management Strategy Evaluation framework using FLR. The simulation is divided in two <em>worlds</em>: the operating model (OM, i.e. the real world) and the management procedure model (MP, i.e. the perceived world). The OM is itself divided in 3 components: biological, fleets and environmental and economic covariates. The MP is also divided in 3 components: data, the perceived system and advice.</p>
+
+<p>To install this package, start R and enter:</p>
+
+<pre><code>install.packages(c(&quot;plyr&quot;, &quot;ggplot2&quot;, &quot;nloptr&quot;, &quot;mvtnorm&quot;, &quot;triangle&quot;))
+install.packages(&quot;FLBEIA&quot;, repos=&quot;http://flr-project.org/R&quot;)
+</code></pre>
+
+<h2>Documentation</h2>
+
+<ul>
+<li><a href="http://flr-project.org/FLBEIA">Help pages</a></li>
+<li>Vignette</li>
+</ul>
+
+<h2>Citation</h2>
+
+<p>To cite this package, start R and enter</p>
+
+<pre><code>library(FLBEIA)
+citation(&quot;FLBEIA&quot;)
+</code></pre>
+
+<h2>License</h2>
+
+<p>Copyright &copy; 2010-2016 AZTI Tecnalia. Released under the <a href="http://www.gnu.org/licenses/gpl-2.0.html">GPL v2</a>.</p>
+
+<h2>Contact</h2>
+
+<p>You are welcome to:</p>
+
+<ul>
+<li>Submit suggestions and bug-reports at: <a href="https://github.com/flr/FLBEIA/issues">https://github.com/flr/FLBEIA/issues</a></li>
+<li>Send a pull request on: <a href="https://github.com/flr/FLBEIA/">https://github.com/flr/FLBEIA/</a></li>
+<li>Compose a friendly e-mail to: <dgarcia AT azti.es></li>
+</ul>
+
+
+    <h2>Help topics</h2>
+
+    <h3>FLBEIA</h3>
+    <p>FLBEIA</p>
+
+    
+    <ul class="index">
+        
+      <li>
+        <code><a href="pkg-FLBEIA.html">FLBEIA</a></code>(FLBEIA-package, advice.mp, age2ageDat, age2agePop, age2bioDat, age2bioPop, age2unit, ageInd, aneHCRE, aneRec_pil, annualTAC, annexIVHCR, ASPG, assessment.mp, B_flbeia, BDPG, BDsim, bio2bioDat, bio2bioPop, bioInd, biols.om, biomass.tg, bioSum, C_flbeia, capacityRest.SMFB, catch.tg, catchFlSum , catchMtSum, catchStock, catchStock.f, catchWStock, catchWStock.f, checkBDTarget, checkDims, chkBDTargetQuantity, chkBDTrgtArrayIters, chkFwdBDControl, CFPMSYHCR, cobbDoug, cobbDougInv, CobbDouglasFit, CobbDouglasBio, CobbDouglasAge, CobbDouglasBio.effort, CobbDouglasAge.effort, CobbDouglasBio.CAA, CobbDouglasAge.CAA, covars.om, CorrectCatch, costs_flbeia, createFleetExtAccesors, create.advice.ctrl, create.assess.ctrl, create.biols.ctrl, create.fleets.ctrl, create.covars.ctrl , create.obs.ctrl, create.advice.data, create.BDs.data, create.biols.data, create.fleets.data, create.F2CatchHCR.ctrl, create.indices.data, calculate.CDparam, create.list.stks.flq, create.list.stks.flqa, create.SRs.data, ctRec_alb, D_flbeia, discards.tg, discnStock, discStock, discStock.f, discWStock, discWStock.f, ecoSum, effortMtSum, effRule.SMFB, effRule.SSFB, elasticPrice, equal.flq.Dimnames , exponential, F2CatchHCR, f.discards.tg, f.landings.tg, f.tg, F_flbeia, fillIterFLF, findF, fixedAdvice, fixedCapital, fixedCovar, fixedEffort, fixedPopulation, fixedPrice, FLBDsim, fleets.om, FLSRsim, FLXSAnew, FroeseHCR, fwdBD, fwdBDControl, getPlural, getQuantity, ghlHCR, gmeanHistGrowth, hockstick, initPop_lifeHist, IcesHCR, joinIter, L_flbeia, landings.tg, landStock, landStock.f, landWStock, landWStock.f, MAPHCR, MaxProfit, matrixBDTarget, neaMAC_ltmp, NoAssessment, NoObsIndex, NoObsStock, Obs.stk.nage, Obs.stk.bio, Obs.disc.nage, Obs.fec, Obs.FSolver, Obs.land.nage, Obs.stk.wgt, Obs.disc.bio, Obs.land.bio, Obs.disc.wgt, Obs.land.wgt, Obs.nmort, observation.mp, PellaTom, perfectObs, pilRec_ane, plot.catchFl, plot.eco, plot.biols, plot.fleets, pope, price_flbeia, propagateFLF, quantityNms, R_flbeia, redfishRecModel, remQ.SSFB, replaceRec, revenue_flbeia, SCD, seasonshare.CAA, SelAtAge, showArray, SMFB, SRsim, SSB_flbeia, ssb.get, SSFB, stock.fleetInfo, summary_flbeia, tdiscStock, tlandStock, total.catch.stock.df, total.landings.stock.df, total.discards.stock.df, totfcost_flbeia , totvcost_flbeia, trgtNms, unit2age, updateCatch, updateQS.SMFB, validFwdBDControl, vFLBDSRsims, vFLCs, vFLFs, vFLMs, wtadStock, wtalStock, XSAboot, xtabs2, addFLCatch, addFLCatch-methods, addFLCatch,FLCatchExt,FLCatchExt-method, catchNames, catchNames-methods, catchNames,FLCatchExt-method, catchNames,FLCatchesExt-method, catchNames,FLFleetExt-method, catchNames,FLFleetsExt-method, catchNames,FLMetierExt-method, catchNames,FLMetiersExt-method, catchNames&lt;-, catchNames&lt;--methods, catchNames&lt;-,FLCatchExt,character-method, FLCatchesExt, FLCatchesExt-methods, FLCatchesExt,ANY-method, FLCatchesExt,list-method, FLCatchesExt,missing-method, FLCatchExt, FLCatchExt-methods, FLCatchExt,missing-method, FLCatchExt,FLQuant-method, FLFleetExt, FLFleetExt-methods, FLFleetExt,FLCatchExt-method, FLFleetExt,FLCatchesExt-method, FLFleetExt,FLFleetExt-method, FLFleetExt,FLMetierExt-method, FLFleetExt,FLMetiersExt-method, FLFleetExt,missing-method, FLFleetsExt, FLFleetsExt-methods, FLFleetsExt,ANY-method, FLFleetsExt,missing-method, FLFleetsExt,list-method, FLMetierExt, FLMetierExt-methods, FLMetierExt,FLCatchExt-method, FLMetierExt,FLCatchesExt-method, FLMetierExt,FLQuant-method, FLMetierExt,missing-method, FLMetiersExt, FLMetiersExt-methods, FLMetiersExt,ANY-method, FLMetiersExt,missing-method, FLMetiersExt,list-method, is.FLBDSRsims, is.FLBDSRsims-methods, is.FLBDSRsims,ANY-method, is.FLCatchesExt, is.FLCatchesExt-methods, is.FLCatchesExt,ANY-method, is.FLFleetsExt, is.FLFleetsExt-methods, is.FLFleetsExt,ANY-method, is.FLMetiersExt, is.FLMetiersExt-methods, is.FLMetiersExt,ANY-method, [,FLCatchExt,ANY,ANY,ANY-method, [,FLFleetExt,ANY,ANY,ANY-method, [,FLFleetExt,ANY,missing,ANY-method, [,FLMetierExt,ANY,missing,ANY-method, [&lt;-,FLCatch,ANY,ANY,FLCatch-method, [[,FLFleetExt,ANY,missing-method, [[,FLMetierExt,ANY,missing-method, FLBDsim-class, FLSRsim-class, FLCatchesExt-class, FLCatchExt-class, FLFleetExt-class, FLFleetsExt-class, FLMetierExt-class, FLMetiersExt-class)<br />FLBEIA</li>
+    
+    </ul>
+  </div>
+  
+  <div class="span3 offset1">
+        
+    <h2>Dependencies</h2>
+    <ul>
+      <li><strong>Depends</strong>: FLCore, FLFleet, FLash, FLAssess, FLXSA</li>
+      <li><strong>Imports</strong>: methods, plyr, ggplot2, nloptr, mvtnorm, triangle</li>
+      <li><strong>Suggests</strong>: Matrix</li>
+      
+    </ul>
+    <h2>Authors</h2>
+    <ul>
+    </ul>
+
+  </div>
+</div>
+      
+      <footer>
+      <p class="pull-right"><a href="#">Back to top</a></p>
+<p>Built by <a href="https://github.com/hadley/staticdocs">staticdocs</a>. Styled with <a href="http://twitter.github.com/bootstrap">bootstrap</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>
