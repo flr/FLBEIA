@@ -1,3 +1,5 @@
+import("FLCore")
+import("FLFleet")
 
 
 export(
@@ -37,7 +39,7 @@ export(
   "chkBDTargetQuantity",
   "chkBDTrgtArrayIters",
   "chkFwdBDControl",
-  "CFPMSYHCR",
+  "CFPMSYHCR", 
   "cobbDoug",
   "cobbDougInv",
   "CobbDouglasFit",
@@ -121,9 +123,8 @@ export(
   "landWStock",
   "landWStock.f",
 "MAPHCR",
-#  "MaxProfit.stkCnst",
   "MaxProfit",
- "MaxProfit_lo",
+  "MaxProfit_lo",
   "matrixBDTarget",
   "neaMAC_ltmp",
   "NoAssessment",
@@ -160,7 +161,7 @@ export(
   "SelAtAge",
   "showArray",
   "SMFB",
-"SMFB_lo",
+  "SMFB_lo",
   "SRsim",
   "SSB_flbeia",
   "ssb.get",
