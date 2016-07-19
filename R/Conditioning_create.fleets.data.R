@@ -254,16 +254,9 @@ create.fleets.data <- function(){
         #   projection effshare
         # NOTE: the sum of all effshare must be one
         
-        all.efs <- 0
-        for(ss in 1:ns){
-          all.efs <- all.efs+ yearMeans(fl.met.effshare[,fl.met.proj.avg.yrs,,ss])} 
 
         for(ss in 1:ns){
-          if (!all.efs == 0){
-          fleet@metiers[[nmfl.met]]@effshare[,proj.yrs,,ss] <-  yearMeans(fl.met.effshare[,fl.met.proj.avg.yrs,,ss])/all.efs 
-          }else{
-          fleet@metiers[[nmfl.met]]@effshare[,proj.yrs,,ss] <- 0
-          }
+          fleet@metiers[[nmfl.met]]@effshare[,proj.yrs,,ss] <-  yearMeans(fl.met.effshare[,fl.met.proj.avg.yrs,,ss])
         }
         
         if(any(is.na(fl.met.effshare[,fl.met.proj.avg.yrs]))){
@@ -482,8 +475,21 @@ create.fleets.data <- function(){
     
     assign(paste(nmfl,'.fleet',sep=''), fleet)
     
-  }        #loop fleet
-  
+
+  #Checking that the sum is close to 1.
+  sum.efsh <- 0
+  sum.yr <- length(proj.yrs)
+  for (ss in 1:ns) {
+    for (j in 1:n.fl.met) {
+      nmfl.met <- nmfl.mets[j]
+      sum.efsh<- sum.efsh+ fleet@metiers[[nmfl.met]]@effshare[, proj.yrs[sum.yr], , ss]  #/all.efs
+    }
+    if(abs(sum.efsh-1)>=10^(-3)){ 
+      stop(paste("The total sum of effortshare is not one in season ",ss," and fleet ", fls[i],sep=""))
+    }
+  }
+ }        #loop fleet
+
   #==============================================================================
   #   Section 4:     FLFleetsExt: create fleets
   #==============================================================================
