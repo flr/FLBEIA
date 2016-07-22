@@ -12,7 +12,7 @@
         for (i in 1:n.stk.BD) {
             nmstk <- nmstks[i]
             cat("=============", nmstk, "BD", "=============\n")
-            stk.index <- which(names(list.stks.flq) == nmstks)
+            stk.index <- which(names(list.stks.flq) == nmstk)
             flq.stk <- list.stks.flq[[stk.index]][, , 1]
             stk.model <- get(paste(nmstk, "_bd.model", sep = ""))
             stk.unit <- get(paste(nmstk, ".unit", sep = ""))
