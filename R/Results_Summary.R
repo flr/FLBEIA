@@ -323,6 +323,8 @@ revenue_flbeia <- function(fleet){
     
     res <- FLQuant(0, dimnames = dimnames(fleet@effort))
     
+    D <- dim(res)
+    
     for(mt in mts){
         m <- fleet@metiers[[mt]]
         for(st in sts){
