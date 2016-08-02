@@ -233,7 +233,7 @@ BDsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
   #  for(i in 1:Dim[6])
   
   res <- eval(model, datam)
-  newB <- object@biomass[,yr0,,ss0,] - object@catch[,yr0,,ss0,] + res*object@uncertainty[,yr0,,ss0,]
+  newB <- (object@biomass[,yr0,,ss0,] - object@catch[,yr0,,ss0,] + res)*object@uncertainty[,yr0,,ss0,]
     
   object@biomass[,yr,,ss,] <- newB
     
