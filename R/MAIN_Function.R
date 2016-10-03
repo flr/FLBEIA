@@ -26,7 +26,18 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     chckdim0 <- checkDims(biols,  minyear, maxyear, ns, it)
     chckdim1 <- checkDims(fleets, minyear, maxyear, ns, it)
     if(!is.null(covars)) chckdim2 <- checkDims(covars, minyear, maxyear, ns, it)
-       
+    # Check when the model to describe BD is Pellatom, that alpha has the right value.
+    if(!is.null(BDs)){
+      BDnms<- names(BDs)
+      for(stk.bd in BDnms){
+        if(BDs[[stk.bd]]@model=="PellaTom"){
+          p <- BDs[[stk.bd]]@params["p",,,]
+          r <- BDs[[stk.bd]]@params["r",,,]
+          K <- BDs[[stk.bd]]@params["K",,,]
+          if(BDs[[stk.bd]]@alpha<1 || BDs[[stk.bd]]@alpha > min((p/r+1)^(1/p))){
+            stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
+          }}}}
+    
     # Extract years, check and convert into positions.
     sim.years <- as.numeric(main.ctrl$sim.years)
     if(!(sim.years[1] %in% as.numeric(minyear):as.numeric(maxyear))) stop('First simulation year is outside year range in the objects')
