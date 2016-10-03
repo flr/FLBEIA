@@ -2,6 +2,7 @@
 #  FLBDsim class.
 # Created: Sonia SYYYnchez - 16/08/2010 12:37:18
 # Changed: 26/10/2010 08:40:46 (dorleta garcia)
+# Changed: 30/09/2016 09:30:01 (Agurtzane Urtizberea)
 #------------------------------------------------------------------------------- 
 
 # An object to simulate biomass (when using production models).
@@ -57,8 +58,9 @@ setClass("FLBDsim",
 		covar             = "FLQuants",       # [1,ny,1,ns,1,it]
 		uncertainty       = "FLQuant",        # [1,ny,1,ns,1,it]
 		model             = "character",      # [it] - different model by iteration.
-		params            = "array"           # array[param, year, season, iteration]    # year in order to model regime shifts.
-  ),
+		params            = "array",           # array[param, year, season, iteration]    # year in order to model regime shifts.
+		alpha             = "numeric"         # [1] 
+    ),
 	prototype=prototype(
 		name     =character(0),
 		desc     =character(0),
@@ -69,7 +71,9 @@ setClass("FLBDsim",
 		uncertainty       = FLQuant(),        # [1,ny,1,ns,1,it]
 		model             = as.character(NA), # [it] - different model by iteration.
 		params            = array(),          # array[param, year, season, iteration]    # year in order to model regime shifts.
-	    validity=validFLBDsim
+		alpha             = numeric(),         # [1] 
+
+    validity=validFLBDsim
 ))
 
 setValidity("FLBDsim", validFLBDsim)
@@ -234,7 +238,13 @@ BDsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
   
   res <- eval(model, datam)
   newB <- object@biomass[,yr0,,ss0,] - object@catch[,yr0,,ss0,] + res*object@uncertainty[,yr0,,ss0,]
-    
+
+  if(model=="PellaTom"){
+    if((object@biomass[,yr0,,ss0,]+ res*object@uncertainty[,yr0,,ss0,])> 
+         (object@alpha*object@params["K",yr0,ss0,]))
+      newB <- (object@alpha*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,]
+  }
+  
   object@biomass[,yr,,ss,] <- newB
     
   return(object)
