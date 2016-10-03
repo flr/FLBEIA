@@ -31,13 +31,24 @@
             stk.uncertainty <- mget(paste(nmstk, "_uncertainty.flq",
                 sep = ""), envir = as.environment(-1), ifnotfound = NA,
                 inherits = TRUE)[[1]]
+            stk.alpha <-  mget(paste(nmstk, "_alpha",
+                sep = ""), envir = as.environment(-1), ifnotfound = NA,
+                inherits = TRUE)[[1]]
             params <- array(dim = c(stk.param.n, ny, ns, ni),
                 dimnames = list(param = ac(1:stk.param.n), year = ac(first.yr:last.yr),
                   season = ac(1:ns), iter = 1:ni))
             stk.bd <- FLBDsim(name = nmstk, model = stk.model,
-                biomass = flq.stk, catch = flq.stk, uncertainty = flq.stk,
+                biomass = flq.stk, catch = flq.stk, uncertainty = flq.stk,alpha=stk.alpha,
                 params = params)
             dimnames(stk.bd@params)$param <- stk.params.name
+            if(stk.bd@model=="PellaTom"){
+              p <- stk.bd@params["p",,,]
+              r <- stk.bd@params["r",,,]
+              K <- stk.bd@params["K",,,]
+              if(stk.bd@alpha<1 || stk.bd@alpha > min((p/r+1)^(1/p))){
+                stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
+              } 
+            }            
             stk.bd@range[["min"]] <- stk.range.min
             stk.bd@range[["max"]] <- stk.range.max
             stk.bd@range[["plusgroup"]] <- stk.range.plusgroup
