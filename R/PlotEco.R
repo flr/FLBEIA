@@ -7,60 +7,65 @@
 #.......................................................
 #....................FUNCTIONS..........................
 
-plot.Eco <- function(fleets,pdfnm){
-  
+plot.eco <- function(fleets,pdfnm){
+
  names.fl <- names(fleets)
- s0_eco  <- ecoSum(fleets, flnms= names.fl, years=dimnames(fleets[[1]]@effort)$year)
+ eco  <- ecoSum(fleets, flnms= names.fl, years=dimnames(fleets[[1]]@effort)$year)
  
 
   path.pdf <- ''
-  pdf(paste(path.pdf,'Eco','-',pdfnm,'.pdf',sep='')) 
-  
-  #capacity   
-  temp <- aggregate(capacity ~ year+ fleet, 
-                    data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
-  temp$year <- as.numeric(as.character(temp$year))
+   pdf(paste(path.pdf,'Eco','-',pdfnm,'.pdf',sep='')) 
+  for(i in 1:length(names.fl)){
     
-  p <- ggplot(data=temp, aes(x=year, y=capacity)) + geom_line() + 
-        geom_point(size=2, shape=21)+
-        facet_grid(.~fleet,scales=c("free_y"))     
 
-  print(p)
+    fleet <- fleets[[i]]
     
-  #costs
-  temp <- aggregate(costs ~ year+fleet, 
-                    data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
-  temp$year <- as.numeric(as.character(temp$year))
+      #capacity   
+    temp <- aggregate(capacity ~ year+ fleet, 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
+    temp$year <- as.numeric(as.character(temp$year))
     
-  p <- ggplot(data=temp, aes(x=year, y=costs)) + geom_line() +
-        geom_point(size=2, shape=21)+
-        facet_grid(.~fleet,scales=c("free_y"))     
-  
-  print(p)
+    p <- ggplot(data=temp, aes(x=year, y=capacity)) + geom_line() +
+      geom_point(size=2, shape=21)+
+      facet_grid(.~fleet,scales=c("free_y"))     
 
-  #effort
-  temp <- aggregate(effort ~ year+ fleet, 
-                    data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
-  temp$year <- as.numeric(as.character(temp$year))
-  
-  p <- ggplot(data=temp, aes(x=year, y=effort)) + geom_line() +
-        geom_point(size=2, shape=21)+
-        facet_grid(.~fleet,scales=c("free_y"))     
+    print(p)
     
-  print(p)
+    #costs
+    temp <- aggregate(costs ~ year+fleet, 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
+    temp$year <- as.numeric(as.character(temp$year))
     
-  #profits
-  temp <- aggregate(profits~ year+ fleet, 
-                    data = s0_eco, mean , na.rm=TRUE,na.action="na.pass") 
-  temp$year <- as.numeric(as.character(temp$year))
-  
-  p <- ggplot(data=temp, aes(x=year, y=profits)) + geom_line() +
-        geom_point(size=2, shape=21)+
-        facet_grid(.~fleet,scales=c("free_y"))     
-  
-  print(p)
+    p <- ggplot(data=temp, aes(x=year, y=costs)) + geom_line() +
+      geom_point(size=2, shape=21)+
+      facet_grid(.~fleet,scales=c("free_y"))     
+    
+    print(p)
 
-  dev.off()
+    #effort
+    temp <- aggregate(effort ~ year+ fleet, 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
+    temp$year <- as.numeric(as.character(temp$year))
+    
+    p <- ggplot(data=temp, aes(x=year, y=effort)) + geom_line() +
+      geom_point(size=2, shape=21)+
+      facet_grid(.~fleet,scales=c("free_y"))     
+    
+    print(p)
+    
+    #profits
+    temp <- aggregate(profits~ year+ fleet, 
+                      data = eco, mean , na.rm=TRUE,na.action="na.pass") 
+    temp$year <- as.numeric(as.character(temp$year))
+    
+    p <- ggplot(data=temp, aes(x=year, y=profits)) + geom_line() +
+      geom_point(size=2, shape=21)+
+      facet_grid(.~fleet,scales=c("free_y"))     
+    
+    print(p)
+
+  }  
+ dev.off()
 }
 
 
