@@ -41,14 +41,7 @@
                 biomass = flq.stk, catch = flq.stk, uncertainty = flq.stk,alpha=stk.alpha,
                 params = params)
             dimnames(stk.bd@params)$param <- stk.params.name
-            if(stk.bd@model=="PellaTom"){
-              p <- stk.bd@params["p",,,]
-              r <- stk.bd@params["r",,,]
-              K <- stk.bd@params["K",,,]
-              if(stk.bd@alpha<1 || stk.bd@alpha > min((p/r+1)^(1/p))){
-                stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
-              } 
-            }            
+           
             stk.bd@range[["min"]] <- stk.range.min
             stk.bd@range[["max"]] <- stk.range.max
             stk.bd@range[["plusgroup"]] <- stk.range.plusgroup
@@ -108,6 +101,14 @@
             stk.bd@catch[, hist.yrs] <- stk.catch
             stk.bd@params <- stk.params
             dimnames(stk.bd@params)$param <- stk.params.name
+            if(stk.bd@model=="PellaTom"){
+              p <- stk.bd@params["p",,,]
+              r <- stk.bd@params["r",,,]
+              K <- stk.bd@params["K",,,]
+              if(stk.bd@alpha<1 || stk.bd@alpha > min((p/r+1)^(1/p))){
+                stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
+              } 
+            } 
             stk.bd@uncertainty[] <- stk.uncertainty
             if (!any(is.na(stk.params[, proj.yrs, , ]))) {
                 if (!all(dim(stk.params) == dim(stk.bd@params))) {

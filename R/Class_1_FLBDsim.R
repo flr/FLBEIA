@@ -240,7 +240,7 @@ BDsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
 
   newB <- object@biomass[,yr0,,ss0,] - object@catch[,yr0,,ss0,] + res*object@uncertainty[,yr0,,ss0,]
 
-  if(model=="PellaTom"){
+  if(object@model=="PellaTom"){
     if((object@biomass[,yr0,,ss0,]+ res*object@uncertainty[,yr0,,ss0,])> 
          (object@alpha*object@params["K",yr0,ss0,]))
       newB <- (object@alpha*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,]

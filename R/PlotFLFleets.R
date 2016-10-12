@@ -190,7 +190,7 @@ plot.fleets <- function(fleets,pdfnm){
       effshare.df$metier <- nms.metiers[k]
       effshare.df$indicator <- 'effshare'
             
-      vcost.df <- as.data.frame(fleet@metiers[[k]]@effshare)
+      vcost.df <- as.data.frame(fleet@metiers[[k]]@vcost)
       vcost.df$metier <- nms.metiers[k]
       vcost.df$indicator <- 'vcost'
       df <- rbind(df,effshare.df,vcost.df) 
