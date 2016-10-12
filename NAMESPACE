@@ -143,6 +143,8 @@ export(
   "Obs.land.wgt",
   "Obs.nmort",
   "observation.mp",
+  "plot.biols",
+  "plot.fleets",
   "PellaTom",
   "perfectObs",
   "pilRec_ane",
