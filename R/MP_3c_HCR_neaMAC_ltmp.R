@@ -14,7 +14,7 @@
 #  - maximum of 20% change in TAC
 #
 #-------------------------------------------------------------------------------
-# Sonia Sánchez (AZTI)
+# Sonia SÃ¡nchez (AZTI)
 # Created: 2012-07-31 17:43:33
 #-------------------------------------------------------------------------------
 
@@ -37,7 +37,9 @@ neaMAC_ltmp <- function(stocks, advice, advice.ctrl, year, stknm,...){
    # if(dim(stk@m)[1] == 1)    stk@harvest[] <- stk@catch.n[]/stk@stock.n[] 
     
     ref.pts <- advice.ctrl[[stknm]]$ref.pts # matrix[6,it]  rows = Bmsy, MSY, alpha_0, alpha_1, alpha_2, beta
-
+    
+    Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][year+1] == TRUE, 'catch', 'landings') 
+  
     iter     <- dim(stk@m)[6]
     yrsnames <- dimnames(stk@m)[[2]]
     yrsnumbs <- as.numeric(yrsnames)
@@ -149,8 +151,8 @@ neaMAC_ltmp <- function(stocks, advice, advice.ctrl, year, stknm,...){
             stki <- fwdBD(stki, fwd.ctrl, growth.years)
         }
 
-        sl <- advice.ctrl[[stknm]][['advice']] # catch or landings?YYYYYY?YYY
-        advice[['TAC']][stknm,year+1,,,,i] <- slot(stki, sl)[,year+1]
+        yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
+        advice[['TAC']][stknm,year+1,,,,i] <- yy
 
 #        cat('---------------- HCR------------------------\n')
 #        cat(c(fbar(stki)[,(year-1):year]), '\n')
