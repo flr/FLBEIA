@@ -48,15 +48,15 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     
     # Check if the argument LandObl is missing for any fleet in fleets.ctrl. 
     # No Landing Obligation if the argument is missing.
-    for (flnm in names(fleets)){  
+    for (flnm in names(fleets)){ 
       if(is.null(fleets.ctrl[[flnm]]$LandObl)) fleets.ctrl[[flnm]]$LandObl<-FALSE
     }
     # Check if the argument AdvCatch is missing for any stock in advice.ctrl. 
     # AdvCatch = FALSE (TAC in terms of landings for each year) in case AdvCatch is missing.
-    for (st in names(biols)){  
-      if(is.null(advice.ctrl[[st]]$AdvCatch)){    
-         advice.ctrl[[st]]$AdvCatch <- rep(FALSE,ny)    
-         names(advice.ctrl[[st]]$AdvCatch) <- c(minyear:maxyear)    
+    for (st in names(biols)){ 
+      if(is.null(advice.ctrl[[st]]$AdvCatch)){
+         advice.ctrl[[st]]$AdvCatch <- rep(FALSE,ny)
+         names(advice.ctrl[[st]]$AdvCatch) <- c(as.numeric(minyear):as.numeric(maxyear))
       }
     }
     
