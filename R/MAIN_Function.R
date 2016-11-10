@@ -4,8 +4,9 @@
 # Dorleta Garcia
 # Created: 20/12/2010 21:07:45
 # Changes: 
-#   * 2012-06-15 12:14:20  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
+#   * 2012-06-15 12:14:20  Sonia SÃ¡nchez - for allowing assessment in different seasons and multiannual advice
 #   * 12/03/2013 10:16:55  Dorleta Garcia -  Default value (NULL) for optional objects.
+#   * 20/10/2016           Itsaso Carmona - Check if some arguments are missing
 #-------------------------------------------------------------------------------
 
 FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices = NULL, advice = NULL, main.ctrl, biols.ctrl, 
@@ -44,7 +45,20 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     if(!(sim.years[length(sim.years)] %in% as.numeric(minyear):as.numeric(maxyear))) stop('Last simulation year is outside year range in the objects')
     # convert sim.years in positon is the FLR objects.
     sim.years <- which(sim.years[1] == as.numeric(minyear):as.numeric(maxyear)):which(sim.years[2] == as.numeric(minyear):as.numeric(maxyear))
-
+    
+    # Check if the argument LandObl is missing for any fleet in fleets.ctrl. 
+    # No Landing Obligation if the argument is missing.
+    for (flnm in names(fleets)){ 
+      if(is.null(fleets.ctrl[[flnm]]$LandObl)) fleets.ctrl[[flnm]]$LandObl<-FALSE
+    }
+    # Check if the argument AdvCatch is missing for any stock in advice.ctrl. 
+    # AdvCatch = FALSE (TAC in terms of landings for each year) in case AdvCatch is missing.
+    for (st in names(biols)){ 
+      if(is.null(advice.ctrl[[st]]$AdvCatch)){
+         advice.ctrl[[st]]$AdvCatch <- rep(FALSE,ny)
+         names(advice.ctrl[[st]]$AdvCatch) <- c(as.numeric(minyear):as.numeric(maxyear))
+      }
+    }
     
     stocks         <- vector('list', length(stnms)) 
     names(stocks) <- stnms

@@ -3,6 +3,8 @@
 #
 # Dorleta Garc?a - Azti Tecnalia
 # 29/05/2013 14:04:15
+# Modified
+# 9/11/2016  Agurtzane Urtizberea
 #-------------------------------------------------------------------------------
 #
 #   :: ARGUMENTS ::
@@ -48,7 +50,7 @@ create.advice.ctrl <- function(stksnames, HCR.models = NULL, HCR.ctrls = NULL,..
 
 
 #------------------------------------------------------------------------------#
-#                        *** create.annexIVHCR.ctrl  ***
+#                        *** create.fixedAdvice.ctrl  ***
 #-------------------------------------------------------------------------------
 create.fixedAdvice.ctrl <- function(resst,stkname, largs) return(resst)
     
@@ -59,10 +61,12 @@ create.fixedAdvice.ctrl <- function(resst,stkname, largs) return(resst)
 create.annualTAC.ctrl <- function(resst,stkname, largs){
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
-                fwd.ctrl = NULL, 
-                growth.years = NULL, advice = "catch")
+                fwd.ctrl = NULL,AdvCatch=NULL,  
+                growth.years = NULL,first.yr=NULL,last.yr=NULL)
                 
     resst$sr <- list(params = NULL, model = 'geomean', years = NULL)
+
+    AdvCatch.stk <- largs[[paste("AdvCatch", stkname, sep = ".")]]
     
     cat("--------------------- NOTE ON ADVICE ------------------------------------------------------------------------------\n")            
     cat("A default control for 'annualTAC' HCR has been created for stock, ", stkname,".\n")
@@ -77,9 +81,24 @@ create.annualTAC.ctrl <- function(resst,stkname, largs){
         Ftarget.stk <- NA
     }
     cat("--------------------------------------------------------------------------------------------------------------------\n") 
-        
+    
+    if (is.null(first.yr)| is.null(last.yr)) {
+      stop("first.yr (first year with historic data) and last.yr (last year of projection) must be defined")
+      cat("------------------------------------------------------------------------------\n")
+    } 
+    
+    if (is.null(AdvCatch.stk)) {
+      AdvCatch.stk <- rep(FALSE,length(first.yr:last.yr))
+      names(AdvCatch.stk) <- c(first.yr:last.yr)
+      warning("Advice of ", stkname, " is FALSE by default, so the advice is given in terms of landings 
+              ", immediate. = TRUE)
+      cat("------------------------------------------------------------------------------\n")
+    }    
+    
     resst$fwd.ctrl <- fwdControl(data.frame(year = c(0, 1, 1, 1),  val = c(1, Ftarget.stk, NA, NA), quantity = c( 'f', 'f', 'f', 'catch'),
                      min = c(NA,NA,0.9, 0.85), max  = c(NA,NA,1.1,1.15), rel.year = c(-1,NA,0, 0)))
+
+    resst$AdvCatch <- AdvCatch.stk
     
    return(resst)
 }
@@ -90,13 +109,13 @@ create.annualTAC.ctrl <- function(resst,stkname, largs){
 create.IcesHCR.ctrl <- function(resst,stkname, largs){
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
-                ref.pts = NULL, intermediate.year = 'Fsq',
-                growth.years = NULL, advice = "catch")
+                ref.pts = NULL, AdvCatch=NULL, intermediate.year = 'Fsq',
+                growth.years = NULL, first.yr=NULL,last.yr=NULL)
     resst$sr <- list(params = NULL, model = 'geomean', years = NULL)
                 
     
     ref.pts.stk <- largs[[paste("ref.pts",stkname, sep = ".")]]
-    
+    AdvCatch.stk <- largs[[paste("AdvCatch", stkname, sep = ".")]]
     
     
     cat("--------------------- NOTE ON ADVICE ------------------------------------------------------------------------------\n")            
@@ -113,14 +132,28 @@ create.IcesHCR.ctrl <- function(resst,stkname, largs){
         ref.pts.stk <- matrix(NA, 3,it, dimnames = list( c('Blim', 'Btrigger', 'Fmsy'), 1:it))
         cat("------------------------------------------------------------------------------\n") 
     }
+    
+    if (is.null(first.yr)| is.null(last.yr)) {
+      stop("first.yr (first year with historic data) and last.yr (last year of projection) must be defined")
+      cat("------------------------------------------------------------------------------\n")
+    } 
+    
+    if (is.null(AdvCatch.stk)) {
+      AdvCatch.stk <- rep(FALSE,length(first.yr:last.yr))
+      names(AdvCatch.stk) <- c(first.yr:last.yr)
+      warning("Advice of ", stkname, " is FALSE by default, so the advice is given in terms of landings 
+              ", immediate. = TRUE)
+      cat("------------------------------------------------------------------------------\n")
+    }       
         
     if(!is.matrix(ref.pts.stk) | !all(c('Blim', 'Btrigger', 'Fmsy') %in% rownames(ref.pts.stk)))   stop(paste("ref.pts",stkname,sep = "."), " must be a matrix with dimension 3x(numb. of iterations) and rownames = c('Blim', 'Btrigger', 'Fmsy')")
     
     if(!is.null(largs$iter))  if(largs$iter != dim(ref.pts.stk)[2]) stop("Number of iterations in 'ref.pts.", stkname, "' must be equal to the iterations specified in 'iter' argument." )
  
     resst$ref.pts <- ref.pts.stk
-    
-   return(resst)
+    resst$AdvCatch <- AdvCatch.stk
+
+    return(resst)
 }
 
 
@@ -234,18 +267,18 @@ create.froeseHCR.ctrl <- function(resst,stkname, largs){
 
 
 #------------------------------------------------------------------------------#
-#                        *** create.IcesHCR.ctrl  ***
+#                        *** create.F2CatchHCR.ctrl  ***
 #-------------------------------------------------------------------------------
 create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
-                ref.pts = NULL, intermediate.year = 'Fsq',
-                growth.years = NULL, advice = "catch")
+                ref.pts = NULL, AdvCatch=NULL, intermediate.year = 'Fsq',
+                growth.years = NULL,first.yr=NULL,last.yr=NULL)
     resst$sr <- list(params = NULL, model = 'geomean', years = NULL)
                 
     
     ref.pts.stk <- largs[[paste("ref.pts",stkname, sep = ".")]]
-    
+    AdvCatch.stk <- largs[[paste("AdvCatch", stkname, sep = ".")]]
     
     
     cat("--------------------- NOTE ON ADVICE ------------------------------------------------------------------------------\n")            
@@ -262,12 +295,24 @@ create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
         ref.pts.stk <- matrix(NA, 1,it, dimnames = list( c('Ftarget'), 1:it))
         cat("------------------------------------------------------------------------------\n") 
     }
+    if (is.null(first.yr)| is.null(last.yr)) {
+      stop("first.yr (first year with historic data) and last.yr (last year of projection) must be defined")
+      cat("------------------------------------------------------------------------------\n")
+    } 
+    if (is.null(AdvCatch.stk)) {
+      AdvCatch.stk <- rep(FALSE,length(first.yr:last.yr))
+      names(AdvCatch.stk) <- c(first.yr:last.yr)
+      warning("Advice of ", stkname, " is FALSE by default, so the advice is given in terms of landings 
+              ", 
+              immediate. = TRUE)
+      cat("------------------------------------------------------------------------------\n")
+    }    
         
     if(!is.array(ref.pts.stk) | !all(c('Ftarget') %in% dimnames(ref.pts.stk)[[1]]))   stop(paste("ref.pts",stkname,sep = "."), " must be a array with dimension 1x(numb. projections years)x(numb. of iterations) and dimnames[[1]] = c('Ftarget')")
     
     if(!is.null(largs$iter))  if(largs$iter != dim(ref.pts.stk)[2]) stop("Number of iterations in 'ref.pts.", stkname, "' must be equal to the iterations specified in 'iter' argument." )
- 
+  
     resst$ref.pts <- ref.pts.stk
-    
+    resst$AdvCatch <- AdvCatch.stk
    return(resst)
 }

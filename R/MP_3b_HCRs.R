@@ -110,9 +110,10 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
             
             stki <- fwdBD(stki, fwd.ctrl, growth.years) 
         }
-    
-        sl <- advice.ctrl[[stknm]][['advice']] # catch or landings?YYYYYY?YYY
-        advice[['TAC']][stknm,year+1,,,,i] <- slot(stki, sl)[,year+1]
+        Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][year+1] == TRUE, 'catch', 'landings')           
+        yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1]) 
+        advice[['TAC']][stknm,year+1,,,,i] <- yy            
+        
         
 #        cat('---------------- HCR------------------------\n')
 #        cat(c(fbar(stki)[,(year-1):year]), '\n')
