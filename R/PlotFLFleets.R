@@ -141,7 +141,7 @@ plot.fleets <- function(fleets,pdfnm){
     total.discards.df$indicator <-'discards'
     
     df <- rbind(total.catch.df,total.landings.df,total.discards.df)
-    df$fleet <- rep(paste(names.fl[i],dim(df)[1]))
+    df$fleet <- rep(names.fl[i],dim(df)[1])
     
     temp <- aggregate(data ~ age + year+species+indicator+fleet, data = df, mean)
     temp$indicator <- factor(temp$indicator)
