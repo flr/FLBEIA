@@ -101,7 +101,7 @@ create.fleets.ctrl <- function(fltsnames,  n.flts.stks, flts.stksnames, catch.th
         warning(paste(unique(wmod), collapse = ', ')," in 'price.models' is not an internal FLBEIA price model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # capital models.
-    if(length(capital.models) != nfls) stop("'capital.models' must be NULL or must have the same length as stknames'")
+    if(length(capital.models) != nfls) stop("'capital.models' must be NULL or must have the same length as flts'")
     if(!all(capital.models %in% capital.models.available)){ 
         wmod <- capital.models[which(!(capital.models %in% capital.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'capital.models' is not an internal FLBEIA capital model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
