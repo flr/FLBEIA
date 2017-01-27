@@ -115,7 +115,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
       fwd.ctrl1 <- fwdControl(data.frame(year = assyrnumb,  val = c(fsq), quantity = c( 'f'),
                                                min = c(NA)
                                          , max  = c(NA)))
-      stki <- fwd(stki, ctrl = fwd.ctrl1, sr = list(model =sr.model, params = sr1))
+      stki <- FLash::fwd(stki, ctrl = fwd.ctrl1, sr = list(model =sr.model, params = sr1))
             
             
       # If SSB < Bpa Project the population ensuring that the biomass increases
@@ -134,7 +134,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
           fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1, assyrnumb+1),  val = c(ssbobj,NA,NA), quantity = c( 'ssb', 'f', Cadv),
                                                min = c(NA, 0.2*Ftg, TACnow[i]*Clo), max  = c(NA, Ftg, TACnow[i]*Cup)))
       
-          stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))     
+          stki <- FLash::fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))     
       }
       { # Advice in Ftg and imposing -TAC% restriction.
       
@@ -149,7 +149,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
           fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1),  val = c(Ftg2,NA), quantity = c( 'f', Cadv),
                                            min = c(NA, TACnow[i]*Clo), max  = c(NA, TACnow[i]*Cup)))
         
-          stki <- fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))           
+          stki <- FLash::fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))           
       }
     
       yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])

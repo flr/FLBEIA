@@ -136,7 +136,7 @@ neaMAC_ltmp <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
             }
 
-            stki <- fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
+            stki <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
         }
         else{
 

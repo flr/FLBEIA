@@ -100,8 +100,8 @@ create.biols.data <- function(){
     stk.biol@n[,hist.yrs]   <- stk.n
     stk.biol@m[,hist.yrs]   <- stk.m
     stk.biol@wt[,hist.yrs]  <- stk.wt
-    stk.biol@fec[,hist.yrs] <- stk.fec
-    stk.biol@spwn[,hist.yrs]<- stk.spwn
+    fec(stk.biol)[,hist.yrs] <- stk.fec
+    spwn(stk.biol)[,hist.yrs]<- stk.spwn
     
     stk.biol@range[1] <- stk.range.min
     stk.biol@range[2] <- stk.range.max
@@ -120,9 +120,9 @@ create.biols.data <- function(){
     
     for(yr in proj.yrs){
       stk.biol@wt[,yr]  <- yearMeans(stk.wt[,stk.proj.avg.yrs])              
-      stk.biol@fec[,yr] <- yearMeans(stk.fec[,stk.proj.avg.yrs])          
+      fec(stk.biol)[,yr] <- yearMeans(stk.fec[,stk.proj.avg.yrs])          
       stk.biol@m[,yr]   <- yearMeans(stk.m[,stk.proj.avg.yrs])            
-      stk.biol@spwn[,yr]<- yearMeans(stk.spwn[,stk.proj.avg.yrs])          
+      spwn(stk.biol)[,yr]<- yearMeans(stk.spwn[,stk.proj.avg.yrs])          
     }
 
     assign(paste(nmstk,".biol",sep=""),stk.biol)

@@ -87,7 +87,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
         
     # SUM ALONG SEASONS AND FIRST UNIT: "m"
     res@m[]      <- seasonSums(biol@m)[,1:(year-1),1,]
-    res@m.spwn[] <- seasonSums(biol@spwn)[,1:(year-1),1,]/ns
+    res@m.spwn[] <- seasonSums(spwn(biol))[,1:(year-1),1,]/ns
         
     # SUM ALONG UNITS AND SEASONS, OBTAINED FROM FLFLEETS: 
     # "catch", "catch.n", "discards"     "discards.n" "landings"     "landings.n"
@@ -145,7 +145,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
         ctot     <- seasonSums(ctot.age)
         c.perc <- ctot.age * NA
         for (s in c(1:ns)) c.perc[, , , s, ] <- ifelse(ctot==0,0, ctot.age[, , , s, ]/ctot)
-        biol.spwn <- unitMeans(biol@spwn[,1:(year-1),,])
+        biol.spwn <- unitMeans(spwn(biol)[,1:(year-1),,])
         res@harvest.spwn[] <- seasonSums(c.perc[,1:(year-1),,]*biol.spwn)
 
     }

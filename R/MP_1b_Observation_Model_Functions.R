@@ -145,7 +145,7 @@ Obs.fec  <- function(biol, ages.error, fec.error, yr){
     
     ny   <- yr -1
     
-    fec.real  <- seasonMeans(unitMeans(biol@fec))[,1:ny]
+    fec.real  <- seasonMeans(unitMeans(fec(biol)))[,1:ny]
     fec.obs  <- fec.real
     it <- dim(fec.real)[6]
     

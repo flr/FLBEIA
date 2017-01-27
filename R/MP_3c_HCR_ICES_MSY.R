@@ -127,8 +127,8 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                 sr1[] <-  iter(sr.pars,i)[]
 
             }
-
-            stki <- fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
+browser()
+            stki <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
         }
         else{
 

@@ -44,12 +44,12 @@ plot.biols <- function(biols,pdfnm){
     biol.m.df$indicator <- names.biols[i] 
     biol.m.df$age <- factor(biol.n.df$age)
     
-    biol.fec.df <- as.data.frame(biol@fec)
+    biol.fec.df <- as.data.frame(fec(biol))
     biol.fec.df$variable <- 'fec'
     biol.fec.df$indicator <- names.biols[i] 
     biol.fec.df$age <- factor(biol.fec.df$age)
         
-    biol.spwn.df <- as.data.frame(biol@spwn)
+    biol.spwn.df <- as.data.frame(spwn(biol))
     biol.spwn.df$variable <- 'spwn'
     biol.spwn.df$indicator <- names.biols[i] 
     biol.spwn.df$age <- factor(biol.spwn.df$age)
