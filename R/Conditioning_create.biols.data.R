@@ -95,8 +95,8 @@ create.biols.data <- function(){
     stk.fec[is.na(stk.fec)]   <- 0
     stk.spwn[is.na(stk.spwn)] <- 0
     
-    stk.biol   <- FLBiol(n = stk.flqa, m=stk.flqa, wt=stk.flqa, fec=stk.flqa, spwn= stk.flqa, name=nmstk)
-
+    stk.biol   <- FLBiol(n = stk.flqa, m=stk.flqa, wt=stk.flqa, spwn= stk.flqa, name=nmstk)
+    fec(stk.biol) <- stk.flqa
     stk.biol@n[,hist.yrs]   <- stk.n
     stk.biol@m[,hist.yrs]   <- stk.m
     stk.biol@wt[,hist.yrs]  <- stk.wt
