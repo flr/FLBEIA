@@ -48,7 +48,7 @@ create.biols.data <- function(){
   #==============================================================================
   #   Section 1:     Create FLBIOL per stock
   #==============================================================================
-  
+  list.FLBiol <- list()
   for (i in 1:n.stk){   
 
     nmstk        <- stks[i]
@@ -124,17 +124,16 @@ create.biols.data <- function(){
       stk.biol@m[,yr]   <- yearMeans(stk.m[,stk.proj.avg.yrs])            
       spwn(stk.biol)[,yr]<- yearMeans(stk.spwn[,stk.proj.avg.yrs])          
     }
-
-    assign(paste(nmstk,".biol",sep=""),stk.biol)
+    list.FLBiol[[i]] <- stk.biol
   }
   
   #==============================================================================
   #   Section 2:     Create FLBiols object ('biols') with all the stocks
   #==============================================================================
   
-  biols        <- FLBiols(sapply(paste(stks,".biol",sep=""),FUN=get, envir=sys.frame(which=-1)))
-  names(biols) <- stks
-    
+  names(list.FLBiol) <- stks
+  biols <- FLBiols(list.FLBiol)
+  
   #==============================================================================
   #   SECTION 3:     Return
   #==============================================================================
