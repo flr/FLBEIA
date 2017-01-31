@@ -18,7 +18,7 @@
 #   stk.min.age:  Minimum age of the stock (number)
 #   stk.max.age:  Maximum age of the stock (number)
 #   stk_wt.flq:   Weight age age (FLQuant)
-#   fls:	        Name of all the fleets (vector)
+#   flts:	        Name of all the fleets (vector)
 #   fl.met.stks:	Name of the stocks in the metier 'met' and fleet 'fl' (vector)
 #   fl_effort.flq: 'fl' fleet's effort (FLQuant)
 #   fl.met_effshare.flq:        'fl' fleet and 'met' metier's effort share (FLQuant)
@@ -61,7 +61,7 @@
 
 create.fleets.data <- function(){
   
-  n.fl      <- length(fls)  
+  n.fl      <- length(flts)  
   n.stk     <- length(stks)
   ac        <- as.character
   hist.yrs  <- ac(first.yr:(proj.yr-1))
@@ -78,7 +78,7 @@ create.fleets.data <- function(){
   
   for( i in 1:n.fl){  #loop fleet
     
-    nmfl <- fls[i]
+    nmfl <- flts[i]
     nmfl.mets  <- get(paste(nmfl,'.mets',sep=''))
     n.fl.met   <- length(nmfl.mets)
     
@@ -87,7 +87,7 @@ create.fleets.data <- function(){
       nmfl.met      <- nmfl.mets[j]
       nmfl.met.stks <- get(paste(nmfl,'.',nmfl.met,'.stks',sep=''))
       n.fl.met.stks <- length(nmfl.met.stks)
-      
+      list.FLCatchExt <- list()
        for( k in 1:n.fl.met.stks){  #loop stock
         
          nmstk       <- nmfl.met.stks[k]
@@ -97,13 +97,14 @@ create.fleets.data <- function(){
                                    landings.sel=stk.flqa,discards.sel=stk.flqa, landings.wt=stk.flqa,
                                    discards.wt = stk.flqa,
                                    alpha = stk.flqa, beta = stk.flqa, catch.q = stk.flqa)
-         
-         assign(paste(nmstk,'.',nmfl.met,'.catch',sep=''),stk.catch)
+         list.FLCatchExt[[k]] <- stk.catch
+         #assign(paste(nmstk,'.',nmfl.met,'.catch',sep=''),stk.catch)
       }
-
-    met.stks.catches   <- FLCatchesExt(sapply(X=paste(nmfl.met.stks,'.',nmfl.met,'.catch',sep=''),
-                                              FUN=get, envir=sys.frame(which=-1)))
-    names(met.stks.catches) <- nmfl.met.stks
+    names(list.FLCatchExt) <- nmfl.met.stks
+    met.stks.catches <- FLCatchesExt(list.FLCatchExt)
+    #met.stks.catches   <- FLCatchesExt(sapply(X=paste(nmfl.met.stks,'.',nmfl.met,'.catch',sep=''),
+    #                                          FUN=get, envir=sys.frame(which=-1)))
+    #names(met.stks.catches) <- nmfl.met.stks
     assign(paste(nmfl,'.',nmfl.met,'.catch',sep=''),met.stks.catches)
     } 
   }
@@ -112,14 +113,15 @@ create.fleets.data <- function(){
   #==============================================================================
   #   Section 2:      FLMetierExt 
   #==============================================================================
+  list.FLFleet <- list()
   
   for( i in 1: n.fl){  #loop fleet
  
-    nmfl       <- fls[i]
+    nmfl       <- flts[i]
     nmfl.mets  <- get(paste(nmfl,'.mets',sep=''))
     n.fl.met   <- length(nmfl.mets)   
     efs        <- 0
-    
+    list.FLMetierExt <- list()
       for( j in 1:n.fl.met){ #loop metier
         
         nmfl.met<- nmfl.mets[j]
@@ -128,19 +130,24 @@ create.fleets.data <- function(){
                           catches = get(paste(nmfl,'.',nmfl.met,'.catch',sep='')), 
                           effshare = FLQuant(dim=c(1,length(nmy),1,ns),iter=ni, dimnames=list(age='all',year=nmy)),
                           vcost = FLQuant(dim=c(1,length(nmy),1,ns),iter=ni, dimnames=list(age='all',year=nmy)))
-          
-        assign(paste('fl.',nmfl.met,sep=''), fl.met)
+        
+        list.FLMetierExt [[j]]<- fl.met  
+        #assign(paste('fl.',nmfl.met,sep=''), fl.met)
       }
-
+ 
+    names(list.FLMetierExt) <- nmfl.mets
+    
    #==============================================================================
    #   Section 3:      Create FLFleetExt 
    #==============================================================================
    
     cat('\n')
     cat('=============', nmfl,'fleet','=============\n')
+    
+    met.s <- FLMetiersExt(list.FLMetierExt)
      
-    met.s <- FLMetiersExt(sapply(paste('fl.',nmfl.mets,sep=''), 
-                                                         FUN=get, envir=sys.frame(which=-1)))    
+  #  met.s <- FLMetiersExt(sapply(paste('fl.',nmfl.mets,sep=''), 
+  #                                                       FUN=get, envir=sys.frame(which=-1)))    
     fleet <- FLFleetExt(name = nmfl, 
                            metiers = met.s,
                            effort   = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(age='all',year=nmy)),
@@ -485,7 +492,7 @@ create.fleets.data <- function(){
       sum.efsh<- sum.efsh+ fleet@metiers[[nmfl.met]]@effshare[, proj.yrs[sum.yr], , ss]  #/all.efs
     }
     if(abs(sum.efsh-1)>=10^(-3)){ 
-      stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", fls[i],sep=""))
+      stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", flts[i],sep=""))
     }
   }
  }        #loop fleet
@@ -494,8 +501,8 @@ create.fleets.data <- function(){
   #   Section 4:     FLFleetsExt: create fleets
   #==============================================================================
   
-  fleets        <- FLFleetsExt(sapply(paste(fls,'.fleet',sep=''),FUN=get, envir=sys.frame(which=-1)))
-  names(fleets) <- fls
+  fleets        <- FLFleetsExt(sapply(paste(flts,'.fleet',sep=''),FUN=get, envir=sys.frame(which=-1)))
+  names(fleets) <- flts
 
   #==============================================================================
   #   Section 5:           Return

@@ -64,6 +64,7 @@ create.biols.data <- function(){
     stk.n      <- get(paste(nmstk,'_n.flq',sep=""))
     stk.m      <- get(paste(nmstk,'_m.flq',sep=""))
     stk.fec    <- get(paste(nmstk,'_fec.flq',sep=""))
+    stk.mat    <- get(paste(nmstk,'_mat.flq',sep=""))
     stk.spwn   <- get(paste(nmstk,'_spwn.flq',sep=""))
     stk.range.min       <- get(paste(nmstk,'_range.min',sep=""))
     stk.range.max       <- get(paste(nmstk,'_range.max',sep=""))
@@ -76,16 +77,16 @@ create.biols.data <- function(){
     stk.proj.avg.yrs    <- as.character(stk.proj.avg.yrs) 
     
     # Check the dimension names of age and years
-    log.dim <- equal.flq.Dimnames(lflq=list(stk.wt,stk.n,stk.m,stk.fec,stk.spwn,
+    log.dim <- equal.flq.Dimnames(lflq=list(stk.wt,stk.n,stk.m,stk.fec,stk.spwn,stk.mat,
                                             stk.flqa[,hist.yrs,]),1:2)
     
     if(!log.dim){stop('In the dimension names of FLQuants age or years')}
     if(!(any(dim(stk.wt)[3]==c(1,stk.unit)) & any(dim(stk.n)[3]==c(1,stk.unit)) & any(dim(stk.m)[3]==c(1,stk.unit)) & 
-           any(dim(stk.fec)[3]==c(1,stk.unit)) & any(dim(stk.spwn)[3]==c(1,stk.unit)))){stop('Number of stock units 1 or stk.unit')}
-    if(!(any(dim(stk.wt)[4]==c(1,ns)) & any(dim(stk.n)[4]==c(1,ns)) & any(dim(stk.m)[4]==c(1,ns)) & 
-           any(dim(stk.fec)[4]==c(1,ns)) & any(dim(stk.spwn)[4]==c(1,ns)))){stop('Number of seasons 1 or ns')}
+           any(dim(stk.fec)[3]==c(1,stk.unit)) & any(dim(stk.mat)[3]==c(1,stk.unit)) & any(dim(stk.spwn)[3]==c(1,stk.unit)))){stop('Number of stock units 1 or stk.unit')}
+    if(!(any(dim(stk.wt)[4]==c(1,ns)) & any(dim(stk.mat)[3]==c(1,stk.unit)) & any(dim(stk.n)[4]==c(1,ns)) & any(dim(stk.m)[4]==c(1,ns)) & 
+           any(dim(stk.fec)[4]==c(1,ns)) & any(dim(stk.mat)[3]==c(1,stk.unit)) & any(dim(stk.spwn)[4]==c(1,ns)))){stop('Number of seasons 1 or ns')}
     if(!(any(dim(stk.wt)[6]==c(1,ni)) & any(dim(stk.n)[6]==c(1,ni)) & any(dim(stk.m)[6]==c(1,ni)) & 
-           any(dim(stk.fec)[6]==c(1,ni)) & any(dim(stk.spwn)[6]==c(1,ni)))){stop('Number of iterations 1 or ni')}
+           any(dim(stk.fec)[6]==c(1,ni)) & any(dim(stk.mat)[3]==c(1,stk.unit)) & any(dim(stk.spwn)[6]==c(1,ni)))){stop('Number of iterations 1 or ni')}
     
     # Historical NA-s transformed in 0-s
     
@@ -93,6 +94,7 @@ create.biols.data <- function(){
     stk.n[is.na(stk.n)]       <- 0
     stk.m[is.na(stk.m)]       <- 0
     stk.fec[is.na(stk.fec)]   <- 0
+    stk.mat[is.na(stk.fec)]   <- 0
     stk.spwn[is.na(stk.spwn)] <- 0
     
     stk.biol   <- FLBiol(n = stk.flqa, m=stk.flqa, wt=stk.flqa, spwn= stk.flqa, name=nmstk)
@@ -101,6 +103,7 @@ create.biols.data <- function(){
     stk.biol@m[,hist.yrs]   <- stk.m
     stk.biol@wt[,hist.yrs]  <- stk.wt
     fec(stk.biol)[,hist.yrs] <- stk.fec
+    mat(stk.biol)[,hist.yrs] <- stk.mat
     spwn(stk.biol)[,hist.yrs]<- stk.spwn
     
     stk.biol@range[1] <- stk.range.min
@@ -120,7 +123,8 @@ create.biols.data <- function(){
     
     for(yr in proj.yrs){
       stk.biol@wt[,yr]  <- yearMeans(stk.wt[,stk.proj.avg.yrs])              
-      fec(stk.biol)[,yr] <- yearMeans(stk.fec[,stk.proj.avg.yrs])          
+      fec(stk.biol)[,yr] <- yearMeans(stk.fec[,stk.proj.avg.yrs]) 
+      mat(stk.biol)[,yr] <- yearMeans(stk.mat[,stk.proj.avg.yrs]) 
       stk.biol@m[,yr]   <- yearMeans(stk.m[,stk.proj.avg.yrs])            
       spwn(stk.biol)[,yr]<- yearMeans(stk.spwn[,stk.proj.avg.yrs])          
     }
