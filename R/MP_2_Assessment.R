@@ -23,8 +23,8 @@ assessment.mp <- function(stocks, fleets.obs, indices, assess.ctrl, datayr, stkn
         # trim the indices, fron index specific initial year to the assessment year.
         indST <- indices[[st]]
         if(!is.null(indST))
-            indST <- FLIndices(list(st=trim(indices[[st]],year = dimnames(indices[[st]]@index)[[2]][1]:datayr)))
-            names(indST) <- st
+            indST <-trim(indices[[st]],year = dimnames(indices[[st]]@index)[[2]][1]:datayr)
+            
         if(assess.ctrl[[st]]$work_w_Iter == TRUE){  # The assessment model works with iters => all the iterations are 'adjusted' in one run.
             res <- eval(call(assess.ctrl[[st]][['assess.model']], stock = stocks[[st]], indices = indST, control = assess.ctrl[[st]]$control))
             stock.n(stocks[[st]]) <- res@stock.n
