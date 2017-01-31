@@ -480,8 +480,8 @@ create.fleets.data <- function(){
         
       } #loop metier
     
-    assign(paste(nmfl,'.fleet',sep=''), fleet)
-    
+   # assign(paste(nmfl,'.fleet',sep=''), fleet)
+    list.FLFleet[[i]]<- fleet
 
   #Checking that the sum is close to 1.
   sum.efsh <- 0
@@ -500,9 +500,10 @@ create.fleets.data <- function(){
   #==============================================================================
   #   Section 4:     FLFleetsExt: create fleets
   #==============================================================================
-  
-  fleets        <- FLFleetsExt(sapply(paste(flts,'.fleet',sep=''),FUN=get, envir=sys.frame(which=-1)))
-  names(fleets) <- flts
+  names(list.FLFleet) <- flts
+  fleets <- FLFleetsExt(list.FLFleet)
+  #fleets        <- FLFleetsExt(sapply(paste(flts,'.fleet',sep=''),FUN=get, envir=sys.frame(which=-1)))
+  #names(fleets) <- flts
 
   #==============================================================================
   #   Section 5:           Return
