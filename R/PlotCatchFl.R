@@ -7,7 +7,7 @@
 #.......................................................
 #....................FUNCTIONS..........................
 
-plot.catchFl <- function(fleets,advice,pdfnm){
+plotCatchFl <- function(fleets,advice,pdfnm){
   
  names.fl <- names(fleets)
  catchFl  <- catchFlSum(fleets,advice,flnms= names.fl,

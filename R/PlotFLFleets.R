@@ -119,7 +119,7 @@ total.discards.stock.df <- function(fleet){
 
 
 
-plot.fleets <- function(fleets,pdfnm){
+plotFLFleets <- function(fleets,pdfnm){
   
   names.fl <- names(fleets)
   path.pdf <- ''

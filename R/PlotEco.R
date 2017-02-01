@@ -7,7 +7,7 @@
 #.......................................................
 #....................FUNCTIONS..........................
 
-plot.eco <- function(fleets,pdfnm){
+plotEco <- function(fleets,pdfnm){
 
  names.fl <- names(fleets)
  eco  <- ecoSum(fleets, flnms= names.fl, years=dimnames(fleets[[1]]@effort)$year)
