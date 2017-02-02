@@ -204,7 +204,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
 
     if(!(st %in% sts)) return(fleets)
     
-    tac <- rep('Inf',it)
+    tac <- rep(Inf,it)
  
     # catch restriction, if empty => landings.
     catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
