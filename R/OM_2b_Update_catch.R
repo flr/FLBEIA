@@ -75,7 +75,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
     # catch restriction, if empty => landings.
     catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
                                              
-    tac <- rep('Inf',it)
+    tac <- rep(Inf,it)
     
     # if TAC overshoot is discarded, calculate seasonal TAC to calculate the discards.
     TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]
@@ -284,7 +284,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, sea
  # if catch restriction is landings, Lrat is calculated over landigns, else it is calculated over total catch including undersize individuals.
     Ctotal <- ifelse(rep(catch.restr == 'landings', it), apply(Cam*ret.m,4,sum), apply(Cam,4,sum)) 
 
-    tac.disc <- ifelse(Ctotal < tac, 1, tac/Ctotal)
+    tac.disc <- ifelse(Ctotal < tac, rep(1,it), tac/Ctotal)
  
  # cat('Lrat: ', tac.disc, '\n')
  # cat('C: ', Ctotal, '\n')
