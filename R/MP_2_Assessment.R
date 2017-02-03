@@ -4,10 +4,10 @@
 #         update, stock.n, stock and harvest for each stock, 
 #   - NoAssessment.
 #
-# Dorleta GarcYYYa
+# Dorleta Garcia
 # Created: 21/12/2010 07:55:33
 # Changed: 21/12/2010 07:55:38
-# Changes: 2012-06-15 12:59:05  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
+# Changes: 2012-06-15 12:59:05  Sonia Sanchez - for allowing assessment in different seasons and multiannual advice
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------

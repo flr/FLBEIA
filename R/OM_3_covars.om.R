@@ -7,7 +7,7 @@
 # Dorleta Garcia
 # Created: 17/01/2011 15:55:21
 # Changed: 17/01/2011 15:55:26
-# Changed: 2012-07-24 17:39:04 - Sonia Sánchez (AZTI)
+# Changed: 2012-07-24 17:39:04 - Sonia Sanchez (AZTI)
 #               Added: - variable SRs in covars.om input and output
 #                      - ssb.get function
 #-------------------------------------------------------------------------------

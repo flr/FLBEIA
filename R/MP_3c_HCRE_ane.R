@@ -13,7 +13,7 @@
 #-------------------------------------------------------------------------------
 
 
-#! COMPROBAR QUE VALOR DE year HAY QUE USAR (no habría que considerar también season?)
+# COMPROBAR QUE VALOR DE year HAY QUE USAR (no habria que considerar tambien season?)
 aneHCRE <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
     stk       <- stocks[[stknm]]

@@ -1,14 +1,42 @@
 #-------------------------------------------------------------------------------
-#                           MAIN FUNCTION
+#
+#' Run the FLBEIA bio-economic simulation model
+#'
+#'
+#' @param biols An FLBiols object.
+#' @param fleets An FLFleetsExt object. An extended version of the FLFleet object defined in FLCore. 
+#' @param SRs A list of FLSRSim objects. One per age structured stock in biols object.
+#' @param BDs A list of FLSRSim objects. One per biomass dynamic stock in biols object.
+#' @param covars A list of FLQuants used to store any kind of variables that are used within the simulation and are not stored in the standard objects. 
+#' @param indices A list of FLIndices. Each element must correspond with one of the stocks in biols object. 
+#' @param advice A list with two FLQuant elements, TAC and quota.share. TAC is an FLQuant  with quant dimension equal to the number of stocks in biols object, the names used in in the quant dimension must be equal to those used in biols. quota.share is a list with one element per stock in biols object indicating the quota share per stock and fleet. The quant dimension of the elements must be equal to the number of fleets and the names used must be equal to those in fleets objects.  
+#' @param main.ctrl A list with the settings to control the main function (the year range,...).
+#' @param biols.ctrl A list with the settings to control the biological operating model for each stock (the population dynamic model used,  additional parameters,...)
+#' @param fleets.ctrl A list with the settings to control the fleets operating model for each fleet (the fleets' short and long term dynamic models used, price model, additional parameters,...)
+#' @param covars.ctrl A list with the settings to control the covars operating model for each fleet (a dynamic model for each covariable,  additional parameters, ...)
+#' @param obs.ctrl A list with the settings to control the observation model for each stock (the observation model for the stock, for stock dependent indices, additional parameters, ...)
+#' @param assess.ctrl A list with the settings to control the specify the assessment model for each stock (the assessment model for the stock and the control parameters used to run the model)
+#' @param advice.ctrl A list with the settings to control the advice model for each stock (the HCR for each stock, the reference points used in the HCR, additional parameters, ...)
+#
+#' @return A list with 8 elements biols, fleets, covars,  advice, stocks, indices,  fleets.ctrl,
+#          pkgs.versions. All the elements except stocks and pkgs.versions correspond with the 
+#          the updated version of the objects used in the call to FLBEIA. stocks is a list of FLStocks object
+#          containing the perceived stocks used in the management procedure to produce the management advice. 
+#          pkgs.versions is a matrix indicating the packages and package version used along the simulation. 
+#
+#' @examples
+#' data()
+# MAIN FUNCTION
 #
 # Dorleta Garcia
 # Created: 20/12/2010 21:07:45
 # Changes: 
-#   * 2012-06-15 12:14:20  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
+#   * 2012-06-15 12:14:20  Sonia Sanchez - for allowing assessment in different seasons and multiannual advice
 #   * 12/03/2013 10:16:55  Dorleta Garcia -  Default value (NULL) for optional objects.
 #   * 20/10/2016           Itsaso Carmona - Check if some arguments are missing
 #-------------------------------------------------------------------------------
 
+#' @export
 FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices = NULL, advice = NULL, main.ctrl, biols.ctrl, 
         fleets.ctrl, covars.ctrl, obs.ctrl, assess.ctrl,  advice.ctrl){
 

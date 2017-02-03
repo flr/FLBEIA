@@ -2,10 +2,10 @@
 #                           Observation models
 #   - observation.mp 
 #
-# Dorleta GarcYYYa
+# Dorleta Garcia
 # Created: 21/12/2010 14:34:47
 # Changed: 27/04/2011 09:23:01
-# Changes: 2012-06-15 12:51:01  Sonia Sánchez - for allowing assessment in different seasons and multiannual advice
+# Changes: 2012-06-15 12:51:01  Sonia Sanchez - for allowing assessment in different seasons and multiannual advice
 #-------------------------------------------------------------------------------
 
 observation.mp <- function(biols, fleets, covars, indices, advice, obs.ctrl, year, season, stknm){
