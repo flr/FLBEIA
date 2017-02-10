@@ -222,9 +222,12 @@ create.fleets.data <- function(){
       cat('warning: all NA-s in capacity projection \n')}
     if(any(is.na(fleet@crewshare[,fl.proj.avg.yrs]))) { 
       cat('warning: all NA-s in crewshare projection \n')}
-    
+
+    all.efs <- numeric(ns) # counter for adding all the effortshares by metier of one fleet for each season
+    all.efs[] <- 0
       for (j in 1:n.fl.met){ #loop metier
       
+       
         nmfl.met       <- nmfl.mets[j]
         cat('---------------------', nmfl,'fleet,',nmfl.met,'------------------\n')
         
@@ -260,10 +263,15 @@ create.fleets.data <- function(){
         
         #   projection effshare
         # NOTE: the sum of all effshare must be one
-        
 
         for(ss in 1:ns){
-          fleet@metiers[[nmfl.met]]@effshare[,proj.yrs,,ss] <-  yearMeans(fl.met.effshare[,fl.met.proj.avg.yrs,,ss])
+          met.sefs <- yearMeans(fl.met.effshare[,fl.met.proj.avg.yrs,,ss])
+          if (j==n.fl.met & n.fl.met>1){
+            fleet@metiers[[nmfl.met]]@effshare[, proj.yrs,, ss] <- 1 - all.efs[ns]
+          } else {
+            fleet@metiers[[nmfl.met]]@effshare[,proj.yrs,,ss] <-  met.sefs
+          } 
+          all.efs[ss] <- all.efs[ss] + met.sefs
         }
         
         if(any(is.na(fl.met.effshare[,fl.met.proj.avg.yrs]))){
@@ -483,18 +491,18 @@ create.fleets.data <- function(){
    # assign(paste(nmfl,'.fleet',sep=''), fleet)
     list.FLFleet[[i]]<- fleet
 
-  #Checking that the sum is close to 1.
-  sum.efsh <- 0
-  sum.yr <- length(proj.yrs)
-  for (ss in 1:ns) {
-    for (j in 1:n.fl.met) {
-      nmfl.met <- nmfl.mets[j]
-      sum.efsh<- sum.efsh+ fleet@metiers[[nmfl.met]]@effshare[, proj.yrs[sum.yr], , ss]  #/all.efs
-    }
-    if(abs(sum.efsh-1)>=10^(-3)){ 
-      stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", flts[i],sep=""))
-    }
-  }
+  # #Checking that the sum is close to 1.
+  # sum.efsh <- 0
+  # sum.yr <- length(proj.yrs)
+  # for (ss in 1:ns) {
+  #   for (j in 1:n.fl.met) {
+  #     nmfl.met <- nmfl.mets[j]
+  #     sum.efsh<- sum.efsh+ fleet@metiers[[nmfl.met]]@effshare[, proj.yrs[sum.yr], , ss]  #/all.efs
+  #   }
+  #   if(abs(sum.efsh-1)>=10^(-3)){ 
+  #     stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", flts[i],sep=""))
+  #   }
+  # }
  }        #loop fleet
 
   #==============================================================================
