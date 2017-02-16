@@ -1,2 +1,6 @@
-^.*\.Rproj$
-^\.Rproj\.user$
+.travis.yml
+docs/
+man-roxygen/
+Makefile
+.git/
+^appveyor\.yml$
