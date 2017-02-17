@@ -48,13 +48,19 @@ plotFLBiols <- function(biols,pdfnm){
     biol.fec.df$variable <- 'fec'
     biol.fec.df$indicator <- names.biols[i] 
     biol.fec.df$age <- factor(biol.fec.df$age)
-        
+
+    biol.mat.df <- as.data.frame(mat(biol))
+    biol.mat.df$variable <- 'mat'
+    biol.mat.df$indicator <- names.biols[i] 
+    biol.mat.df$age <- factor(biol.mat.df$age)
+    
+            
     biol.spwn.df <- as.data.frame(spwn(biol))
     biol.spwn.df$variable <- 'spwn'
     biol.spwn.df$indicator <- names.biols[i] 
     biol.spwn.df$age <- factor(biol.spwn.df$age)
     
-    df <- rbind(biol.m.df,biol.fec.df,biol.spwn.df) 
+    df <- rbind(biol.m.df,biol.fec.df,biol.mat.df,biol.spwn.df) 
     df$stock <- names.biols[i] 
     temp <- aggregate(data ~ age + year+variable+stock+indicator, data = df, 
                       mean, na.rm=TRUE,na.action="na.pass")
