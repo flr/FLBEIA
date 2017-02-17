@@ -267,7 +267,7 @@ create.fleets.data <- function(){
         for(ss in 1:ns){
           met.sefs <- yearMeans(fl.met.effshare[,fl.met.proj.avg.yrs,,ss])
           if (j==n.fl.met & n.fl.met>1){
-            fleet@metiers[[nmfl.met]]@effshare[, proj.yrs,, ss] <- 1 - all.efs[ns]
+            fleet@metiers[[nmfl.met]]@effshare[, proj.yrs,, ss] <- 1 - all.efs[ss]
           } else {
             fleet@metiers[[nmfl.met]]@effshare[,proj.yrs,,ss] <-  met.sefs
           } 
