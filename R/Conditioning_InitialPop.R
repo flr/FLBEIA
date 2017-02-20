@@ -20,10 +20,10 @@ XSAboot <- function(Stock, Indices, control, parametric = TRUE, mvnorm = TRUE){
 
     # Run an XSA with the first iteration of Stock and Indices.
 
-    stk  <- qapply(Stock,E)
-    inds <- FLIndices(lapply(Indices,function(x) qapply(x,E)))
+    stk  <- qapply(Stock,function(x) apply(x,1:2,median))
+    inds <- FLIndices(lapply(Indices,function(x) qapply(x,function(y) apply(y,1:2,median))))
     
-    xsa.base <- FLXSA(stk, inds, control, diag.flag = TRUE)
+    xsa.base <- FLXSA::FLXSA(stk, inds, control, diag.flag = TRUE)
 
     ind    <- xsa.base@index
     logres <- xsa.base@index.res
@@ -58,7 +58,7 @@ XSAboot <- function(Stock, Indices, control, parametric = TRUE, mvnorm = TRUE){
               for(j in 1:na) cov_logres[-j,-j] <- 0           
             }
             
-            res0 <-  t(rmvnorm(it*ny,rep(0,na),cov_logres, method = 'svd'))   # [na,it*ny]
+            res0 <-  t(mvtnorm::rmvnorm(it*ny,rep(0,na),cov_logres, method = 'svd'))   # [na,it*ny]
             res  <-  Indices[[i]]@index
 
 
@@ -86,7 +86,7 @@ XSAboot <- function(Stock, Indices, control, parametric = TRUE, mvnorm = TRUE){
         }
     }
 
-     res  <- FLXSA(Stock, Indices, control, diag.flag = FALSE)
+     res  <- FLXSA::FLXSA(Stock, Indices, control, diag.flag = FALSE)
 
      Stock <- Stock + res
     
@@ -96,51 +96,50 @@ XSAboot <- function(Stock, Indices, control, parametric = TRUE, mvnorm = TRUE){
 
 
 #------------------------------------------------------------------------------#
-#  XSAboot(Stock, Indices, control, parametric = TRUE)
-# - Function taken from FLMSSim used extensively in NHake LTMP (2007).
-#------------------------------------------------------------------------------#
 # Generate Stock
 # Based upon the biological characteristics and the selection pattern it is possible to describe the expected equilibrium dynamics
+# Uses FLBRP
+#------------------------------------------------------------------------------#
 
-initPop_lifeHist <-function(k,Linf,steepness=0.75,vbiomass=1e3,srModel="bevholt",sel=c(a=1,sL=1,sR=1),mat95=3,age=1:75,fmsy=rep(1.0,101))
-   {
-   ## Dimension stuff
-   yrs<-1:length(fmsy)
-   dms<-list(age=age,year=1)
-
-
-   ## Biological stuff
-   wts       <-FLQuant(vbMass(Linf,k,age),dimnames=dms)
-   m         <-FLQuant(M(c(1000*vbMass(Linf,k,age+0.5))^(1/3),Linf),dimnames=dms)
-   mat50     <-Mat50(c(mean(m)),k)
-   selPattern<-dnormal(age,(mat50+mat95)*sel["a"],(mat50+mat95)*sel["sL"],(mat50+mat95)*sel["sR"])
-
-   ## create FLBRP object
-   res<-FLBRP(stock.wt       =wts,
-              landings.wt    =wts,
-              discards.wt    =wts,
-              bycatch.wt     =wts,
-              m              =m,
-              mat            =FLQuant(logistic(age,mat50,mat95), dimnames=dms),
-              landings.sel   =FLQuant(selPattern,dimnames=dms),
-              discards.sel   =FLQuant(0,dimnames=dms),
-              bycatch.harvest=FLQuant(0,dimnames=dms),
-              harvest.spwn   =FLQuant(0,dimnames=dms),
-              m.spwn         =FLQuant(0,dimnames=dms),
-              availability   =FLQuant(1,dimnames=dms))
-
-   ## Stock recruitment stuff
-   params(res)<-FLPar(array(abPars(s = steepness, v = vbiomass, spr0 = spr0(ssb = ssb(res), rec = rec(res), fbar = fbar(res)), model=srModel),dim=c(2,1),dimnames=list(params=c("a","b"),iter=1)))
-
-   if (is(srModel,"character")) srModel<-do.call(srModel, list())$model
-   if (!is(srModel,"formula")) stop("srModel must be either formula or character")
-
-   model(res) <-srModel
-   res        <-brp(res)
-
-   ## Equilibrium conditions at FMSY
-   fbar(res)[]   <-fmsy*refpts(res)["msy","harvest",1]
-
-   return(res)
-   }
-
+# initPop_lifeHist <-function(k,Linf,steepness=0.75,vbiomass=1e3,srModel="bevholt",sel=c(a=1,sL=1,sR=1),mat95=3,age=1:75,fmsy=rep(1.0,101))
+#    {
+#    ## Dimension stuff
+#    yrs<-1:length(fmsy)
+#    dms<-list(age=age,year=1)
+# 
+# 
+#    ## Biological stuff
+#    wts       <-FLQuant(vbMass(Linf,k,age),dimnames=dms)
+#    m         <-FLQuant(M(c(1000*vbMass(Linf,k,age+0.5))^(1/3),Linf),dimnames=dms)
+#    mat50     <-Mat50(c(mean(m)),k)
+#    selPattern<-dnormal(age,(mat50+mat95)*sel["a"],(mat50+mat95)*sel["sL"],(mat50+mat95)*sel["sR"])
+# 
+#    ## create FLBRP object
+#    res<-FLBRP(stock.wt       =wts,
+#               landings.wt    =wts,
+#               discards.wt    =wts,
+#               bycatch.wt     =wts,
+#               m              =m,
+#               mat            =FLQuant(logistic(age,mat50,mat95), dimnames=dms),
+#               landings.sel   =FLQuant(selPattern,dimnames=dms),
+#               discards.sel   =FLQuant(0,dimnames=dms),
+#               bycatch.harvest=FLQuant(0,dimnames=dms),
+#               harvest.spwn   =FLQuant(0,dimnames=dms),
+#               m.spwn         =FLQuant(0,dimnames=dms),
+#               availability   =FLQuant(1,dimnames=dms))
+# 
+#    ## Stock recruitment stuff
+#    params(res)<-FLPar(array(abPars(s = steepness, v = vbiomass, spr0 = spr0(ssb = ssb(res), rec = rec(res), fbar = fbar(res)), model=srModel),dim=c(2,1),dimnames=list(params=c("a","b"),iter=1)))
+# 
+#    if (is(srModel,"character")) srModel<-do.call(srModel, list())$model
+#    if (!is(srModel,"formula")) stop("srModel must be either formula or character")
+# 
+#    model(res) <-srModel
+#    res        <-brp(res)
+# 
+#    ## Equilibrium conditions at FMSY
+#    fbar(res)[]   <-fmsy*refpts(res)["msy","harvest",1]
+# 
+#    return(res)
+#    }
+# 

@@ -14,7 +14,7 @@
 #  - maximum of 20% change in TAC
 #
 #-------------------------------------------------------------------------------
-# Sonia Sánchez (AZTI)
+# Sonia Sanchez (AZTI)
 # Created: 2012-07-31 17:43:33
 #-------------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ neaMAC_ltmp <- function(stocks, advice, advice.ctrl, year, stknm,...){
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 
-    stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
    # if(dim(stk@m)[1] == 1)    stk@harvest[] <- stk@catch.n[]/stk@stock.n[] 
     
@@ -78,9 +78,9 @@ neaMAC_ltmp <- function(stocks, advice, advice.ctrl, year, stknm,...){
         int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
         
         if(int.yr == 'Fsq')
-            fwd.ctrl <- fwdControl(data.frame(year = c(0, 1, 1),  val = c(1, Ftg[i], NA), quantity = c( 'f', 'f', 'catch'), rel.year = c(-1,NA,0)))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1, 1),  val = c(1, Ftg[i], NA), quantity = c( 'f', 'f', 'catch'), rel.year = c(-1,NA,0)))
         else
-            fwd.ctrl <- fwdControl(data.frame(year = c(0, 1, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg[i], NA), quantity = c( 'catch', 'f', 'catch'), rel.year = c(-1,NA,0)))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg[i], NA), quantity = c( 'catch', 'f', 'catch'), rel.year = c(-1,NA,0)))
 
         # Refresh the years in fwd!!
         fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb

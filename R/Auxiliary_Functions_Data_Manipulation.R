@@ -1,6 +1,7 @@
 #-------------------------------------------------------------------------------
 #           Auxiliary functions to ease coding of the complex functions
 #
+#       - updateBiols()
 #       - unit2age()
 #       - age2unit()
 #       - unit2age() and age2unit() one inverse of the other one.
@@ -9,6 +10,32 @@
 # Dorleta Garcia - 05/08/2010 12:12:19
 #-------------------------------------------------------------------------------
 
+
+#-------------------------------------------------------------------------------
+# updateBiols(biols): Update the FLBiols object to the FLCore 2.6 
+#-------------------------------------------------------------------------------
+
+updateFLBiols <- function(biols){
+  
+  res        <- vector('list', length(biols))
+  names(res) <- names(biols)
+  
+  lapply(biols, function(x){
+    mat0   <- x@fec
+    mat0[] <- 1
+    res   <- FLBiol(name = x@name,
+                    desc = x@desc,
+                    range = x@range,
+                    n = x@n,
+                    m = x@m,
+                    wt = x@wt,
+                    rec = predictModel(model = ~n[1,]),
+                    mat = predictModel(mat = mat0, model = ~ mat),
+                    fec = predictModel(fec = x@fec, model = ~ fec),
+                    spwn = x@spwn)
+    return(res)
+  })
+}
 
 #-------------------------------------------------------------------------------
 # unit2age(FLQuant[na,ny,nu,ns,1,it]) => array[na*nu,ny,ns,it]

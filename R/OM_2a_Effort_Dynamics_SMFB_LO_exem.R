@@ -278,7 +278,7 @@ SMFB_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, fln
               if(!is.null(dim(rho))) rhoi <- rho[,i]
               else rhoi <- rho
               
-              fcube_lo <- QuotaSwap(E1, Cr.f = Cr.f[,i], Cr.f_exemp = Cr.f_min_qt[,i], N = Ni, B = B[,i,drop=F], efs.m = efs.m[,i,drop=F], q.m = q.m.i, alpha.m = alpha.m.i, beta.m = beta.m.i, 
+              fcube_lo <- QuotaSwap(stknms = sts, E1, Cr.f = Cr.f[,i], Cr.f_exemp = Cr.f_min_qt[,i], N = Ni, B = B[,i,drop=F], efs.m = efs.m[,i,drop=F], q.m = q.m.i, alpha.m = alpha.m.i, beta.m = beta.m.i, 
                                       wl.m = wl.m.i, wd.m = wd.m.i, ret.m = ret.m.i, K = K, rho = rhoi, flnm = flnm, fleets.ctrl = fleets.ctrl, stks_OF = stks_OF[,i],approach = 'fcube')
       
               eff[i] <- fcube_lo$E

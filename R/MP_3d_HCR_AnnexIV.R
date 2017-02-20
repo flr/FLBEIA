@@ -30,6 +30,8 @@ annexIVHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
     Idnm <- advice.ctrl[[stknm]][['index']]  # either the name or the position of the index in FLIndices object.
     Id <- indices[[stknm]][[Idnm]]@index
     
+    ni <- dim(Id)[6]
+    
     # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
     year.or <- year
     yrnm    <- dimnames(advice$TAC)[[2]][year]

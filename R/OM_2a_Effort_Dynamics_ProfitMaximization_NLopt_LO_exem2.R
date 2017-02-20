@@ -215,7 +215,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
                  maxtime = 300)
   else opts <- fleets.ctrl[[flnm]]$opts
   
-         eff_nloptr <- nloptr(Et*efs.m,
+         eff_nloptr <- nloptr::nloptr(Et*efs.m,
              eval_f= f_MP_nloptr,
              lb = rep(0, nmt),
              ub = rep(K, nmt),
@@ -269,7 +269,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
                 Cr.f_min_qt[sts] <- Cr.f[sts]*(1+min_p[sts]+yrt_p[sts]) # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
                 
      
-                eff_nloptr <- nloptr(Et*efs.m,
+                eff_nloptr <- nloptr::nloptr(Et*efs.m,
                                      eval_f= f_MP_nloptr,
                                      lb = rep(0, nmt),
                                      ub = rep(K, nmt),
@@ -293,7 +293,7 @@ MaxProfit_lo <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl
               # Convert N to the rigth dimension
            #   browser()
               Nqs <- lapply(N,function(x) return(array(x[,1,,1,1,], dim = dim(x)[c(1,3,6)])))
-              MP_LO <- QuotaSwap(E0 = sum(Et1.res[i]), Cr.f = Cr.f, Cr.f_exemp = Cr.f_min_qt, N = Nqs, B = B, efs.m = matrix(efs1.res[,i], nmt), q.m = q.m, 
+              MP_LO <- QuotaSwap(stknms = stnms, E0 = sum(Et1.res[i]), Cr.f = Cr.f, Cr.f_exemp = Cr.f_min_qt, N = Nqs, B = B, efs.m = matrix(efs1.res[,i], nmt), q.m = q.m, 
                                  alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, 
                                  fc = fc, vc.m = vc.m, crewS = crewS, K = K, rho = rho, stks_OF = stks_OF[,i],
                                  flnm = flnm, fleets.ctrl = fleets.ctrl, approach = 'maxprof')

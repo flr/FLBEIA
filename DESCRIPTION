@@ -1,9 +1,11 @@
 Package: FLBEIA
-Title: Bio-Economic Impact Assessment of Management strategies using FLR
+Title: Bio-Economic Impact Assessment of Management Strategies using FLR
 Version: 1.15
-Author: Dorleta Garcia (Azti-Tecnalia) <dgarcia@azti.es>
-Description: BEIA is a simulation model that describes a fishery system under a Management Strategy Estrategy framework.The objective of the model is to facilitate the Bio-Economic Impact Assessment of a great Variety of Management strategies. The model is multistock, multifleet and seasonal. The simulation is divided in 2 main parts, the Operating Model (OM) and the Management Procedure Model (MPM). At the same time the OM is divided in 3 components, the biological component, which simulates the stocks dynamics, the fleets component, that simulates the fleets' dynamics and the covariables component, that simulates the dynamic of any variable that is not included in biological and fleets component. The MPM is also divided in 3 components, the observation model, which simulates the data collection, the assessment model, which uses the simulated data to produce a 'observed population' and the advice model which produces the advice based on the output of the assessment model.
-Depends: methods, R(>= 2.15.0),FLCore, FLFleet
-Recommended: Matrix, FLash
+Authors@R:  c(person("Dorleta", "Garcia", email = "dgarcia@azti.es", role = "cre"))
+Description: A simulation toolbox that describes a fishery system under a Management Strategy Estrategy approach.The objective of the model is to facilitate the Bio-Economic evaluation of Management strategies. It is multistock, multifleet and seasonal. The simulation is divided in 2 main blocks, the Operating Model (OM) and the Management Procedure  (MP). In turn, these two bloack are divided in 3 components, the biological, the fleets and the covariables components on the one hand and the observation, the assessment and the advice on the other.
+Depends: methods, R(>= 3.2.3),FLCore (>= 2.6.0), FLFleet, ggplot2
+Import: FLash, FLAssess, nloptr, triangle, mvtnorm
+Recommended: FLXSA, Matrix
 Maintainer: Dorleta Garcia <dgarcia@azti.es>
 License: GPL-2
+RoxygenNote: 6.0.0

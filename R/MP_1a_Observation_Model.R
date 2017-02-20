@@ -456,7 +456,7 @@ age2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
          
     stck              <- age2bioDat(biol, fleets, advice, obs.ctrl, yr, stknm)    
-    stck@stock[]        <- Obs.btot(biol, stk.bio.error, yr)
+    stck@stock[]        <- Obs.stk.bio(biol, stk.bio.error, yr)
     stck@harvest[]      <- stck@catch/stck@stock
     
     stck@range[5]     <- yr-1

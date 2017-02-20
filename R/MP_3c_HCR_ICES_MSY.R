@@ -29,7 +29,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 
-    stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
    # if(dim(stk@m)[1] == 1)    stk@harvest[] <- stk@catch.n[]/stk@stock.n[] 
     
@@ -70,9 +70,9 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
         int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
         
         if(int.yr == 'Fsq')
-            fwd.ctrl <- fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg[i]), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg[i]), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
         else
-            fwd.ctrl <- fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg[i]), quantity = c( 'catch', 'f')))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg[i]), quantity = c( 'catch', 'f')))
 
         # Refresh the years in fwd!!
         fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
@@ -127,6 +127,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                 sr1[] <-  iter(sr.pars,i)[]
 
             }
+
             stki <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
         }
         else{

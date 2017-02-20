@@ -197,7 +197,7 @@ setMethod('revenue', signature('FLMetiersExt'),
   else if(missing(catch))
     revenue(metier(object, metier))
   else if(missing(metier))
-    Sums(lapply(object@metiers, revenue))
+    Reduce('+',lapply(object@metiers, revenue))
   else
     return(TRUE)
   }
@@ -468,7 +468,7 @@ setMethod('computeLandings', signature(object='FLCatchExt'),
 
 setMethod('computeCatch', signature(object='FLMetierExt'),
   function(object, catch=names(object@catches))
-  Sums(lapply(object@catches[catch], computeCatch))
+  Reduce('+',lapply(object@catches[catch], computeCatch))
 )
 setMethod('computeDiscards', signature(object='FLMetierExt'),
   function(object, catch=names(object@catches))

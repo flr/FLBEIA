@@ -17,7 +17,7 @@ TAC.OS.triangCond <- function(fleets, TAC, fleets.ctrl, flnm, stknm, year, seaso
     TACst <- TAC[stknm,]
     it <- length(TACst)
     triang.pars <-  fleets.ctrl[[flnm]][[stknm]][['TAC.OS.triangCond.params']] 
-    alpha <- rtriangle(it,triang.pars[['min']], triang.pars[['max']], triang.pars[['mode']])
+    alpha <- triangle::rtriangle(it,triang.pars[['min']], triang.pars[['max']], triang.pars[['mode']])
     alpha <- ifelse(TACst*alpha > Cmax, Cmax/TACst, alpha)
 
     return(alpha)

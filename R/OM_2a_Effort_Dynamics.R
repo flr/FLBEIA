@@ -15,6 +15,7 @@
 # Dorleta GarcYYYa
 # Created: 28/10/2010 12:33:04
 # Changed: 2011-02-28 16:17:37 (ssanchez)
+# changed: 2017-02-06 advice.ctrl added to the argument list of SSFB
 #-------------------------------------------------------------------------------
 
 
@@ -207,7 +208,7 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
 #-------------------------------------------------------------------------------
 # SSFB(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-SSFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1){
+SSFB <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1){
   
   if(length(year) > 1 | length(season) > 1)
     stop('Only one year and season is allowed' )

@@ -19,7 +19,7 @@ advice.mp <- function(stocks, fleets.obs, indices, covars, advice, advice.ctrl, 
     # OR overall and fleet especific effort restrictions.
     if(!is.null(advice.ctrl[['fleet']]$HCR.model))
         advice <- eval(call(advice.ctrl[['fleet']]$HCR.model, fleets.obs = fleets.obs, 
-        stock = stocks, covars = covars, advice = advice, year = year, advice.ctrl = advice.ctrl,...))     
+        stock = stocks, covars = covars, advice = advice, year = year, advice.ctrl = advice.ctrl))     
           
     return(advice)
 

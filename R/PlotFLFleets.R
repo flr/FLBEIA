@@ -233,8 +233,8 @@ plotFLFleets <- function(fleets,pdfnm){
         temp <- aggregate(data ~ age + year+stock+indicator, data = df, mean)
         
         p <- ggplot(data=temp, aes(x=year, y=data, fill=age))  + geom_line() +
-              geom_point(size=2, shape=21)+
-              facet_grid(indicator~stock,scales=c("free_y"))
+          geom_point(size=2, shape=21)+
+          facet_grid(indicator~stock,scales=c("free_y"))
         print(p)
 
         alpha.df <- as.data.frame(fleet@metiers[[k]]@catches[[j]]@alpha)
