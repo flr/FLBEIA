@@ -75,6 +75,7 @@ create.indices.data <- function(){
       cat('=============', stk,'index','=============\n')
       
       nms.stk.index <- get(paste(stk,'_indices',sep=''))
+      list.stk.index <- list()
       
       for(j in 1:length(nms.stk.index)){
         
@@ -100,12 +101,19 @@ create.indices.data <- function(){
         stk.index.range.startf   <- get(paste(stk,'_',nm.stk.index,'_range.startf',sep=''))
         stk.index.range.endf     <- get(paste(stk,'_',nm.stk.index,'_range.endf',sep=''))
         stk.index.range.plusgroup<- mget(paste(stk,'_',nm.stk.index,'_range.plusgroup',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
-  
+        stk.index.range.plusgroup<- mget(paste(stk,'_',nm.stk.index,'_range.plusgroup',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
+        stk.index.type <- mget(paste(stk,'_',nm.stk.index,'_type',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
         stk.unit     <- get(paste(stk,'.unit',sep=""))
       
         #-----------------------------------------------------------------------------
         #   Section 2.2:      Check dimensions
         #-----------------------------------------------------------------------------
+ 
+        if(stk.index.type=="FLIndex"){
+          stk.flindex<- FLIndex(name = nm.stk.index, index = flqa)
+        }else{
+          stk.flindex<- FLIndexBiomass(name = nm.stk.index, index = flq)
+          flqa <- flq}  
         
         log.dim <- equal.flq.Dimnames(lflq=list(flqa[,hist.yrs],stk.index[,hist.yrs], stk.index.var[,hist.yrs],
                                     stk.index.q[,hist.yrs]),1:2)
@@ -154,8 +162,7 @@ create.indices.data <- function(){
           if(!(any(dim(stk.index.sel.pattern)[4]==c(1,ns))))stop('in stk.index.sel.pattern number of seasons 1 or ns')
           if(!(any(dim(stk.index.sel.pattern)[6]==c(1,ni))))stop('in stk.index.sel.pattern number of iterations 1 or ni')}
         
-        stk.flindex<- FLIndex(name = nm.stk.index, index = flqa)
-        
+       
         stk.flindex@catch.n[]     <- stk.index.catch.n
         stk.flindex@effort[]      <- stk.index.effort
         stk.flindex@index.q[]     <- stk.index.q
@@ -171,11 +178,10 @@ create.indices.data <- function(){
         stk.flindex@range[['endf']]    <- stk.index.range.endf
         stk.flindex@range[['plusgroup']]    <- stk.index.range.plusgroup
       
-      assign(paste(nm.stk.index, ".FLIndex", sep = ""), stk.flindex)
-    }
-    indices[[stk]]<- FLIndices(sapply(paste(nms.stk.index, ".FLIndex", sep = ""), FUN = get, 
-                                      envir = sys.frame(which = -1)))
-    names(indices[[stk]]) <- nms.stk.index
+      list.stk.index[[j]] <- stk.flindex
+      }
+      names(list.stk.index) <- nms.stk.index
+    indices[[stk]]<- FLIndices(list.stk.index)
   }
   return(indices)
   }
