@@ -46,7 +46,7 @@ fwdBD <- function(stock, ctrl, growth.years)
     ## check iters in ctrl are '1 or n' and correct if necessary
 #    ctrl@trgtArray <- chkBDTrgtArrayIters(stock,ctrl@trgtArray,sr)
 
-    ctrl@target    <- chkBDTargetQuantity(ctrl@target,object)
+    ctrl@target    <- chkBDTargetQuantity(ctrl@target)
 
     stock.n(stock)[1,ac(min(ctrl@target[,"year"]))]<-NA
 

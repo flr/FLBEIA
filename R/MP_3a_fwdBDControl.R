@@ -24,7 +24,7 @@ validFwdBDControl <- function(object){
      warning("rows in target & trgtArray don't match")
      return(FALSE)}
 
-  if (any(object@target[,"quantity"] %in% names(quantity))){
+  if (any(object@target[,"quantity"] %in% quantityNms())){
      warning("quantity not recognised")
      return(FALSE)}
 
@@ -263,7 +263,7 @@ chkBDTrgtArrayIters <- function(object,trgtArray,sr)
     }
 
 # check target quantity is factor and that it is currently implemented
-chkBDTargetQuantity <- function(target,object)
+chkBDTargetQuantity <- function(target)
     {
     ordDmn<-function(dmn,val){
       tmp       <-1:length(dmn)
