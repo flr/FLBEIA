@@ -1,5 +1,7 @@
-# Changes: line 11 (stksnms). Added: lines 39 and 40 (Itsaso Carmona, 01/04/2015)
-QuotaSwap <- function(E0, Cr.f,Cr.f_exemp, N, B, efs.m, q.m, alpha.m, beta.m, pr.m = NULL,wl.m, wd.m, ret.m, fc = NULL, vc.m = NULL, crewS = NULL,  K,rho, flnm, fleets.ctrl, stks_OF, approach = 'maxprof'){
+# Changes: line 13 (stksnms). Added: lines 39 and 40 (Itsaso Carmona, 01/04/2015)
+# Changes: line 13 removed stknms, fleets is not an argument to the function and 
+#           the RCMD Check failed, now stknms an argument to the function. 2017/02/6
+QuotaSwap <- function(stknms, E0, Cr.f,Cr.f_exemp, N, B, efs.m, q.m, alpha.m, beta.m, pr.m = NULL,wl.m, wd.m, ret.m, fc = NULL, vc.m = NULL, crewS = NULL,  K,rho, flnm, fleets.ctrl, stks_OF, approach = 'maxprof'){
 
     if(!(approach %in% c('maxprof', 'fcube'))) stop("Approach in QuotaSwap function must be 'maxprof' or 'fcube'.")
     
@@ -9,7 +11,7 @@ QuotaSwap <- function(E0, Cr.f,Cr.f_exemp, N, B, efs.m, q.m, alpha.m, beta.m, pr
     names(quota_swap_p) <- names(quota_swap_st) <- names(N)
     
 #     stksnms <- names(N)
-    stksnms <- catchNames(fleets[[flnm]])
+    stksnms <-stknms
     LO_stk_grp <- fleets.ctrl[[flnm]]$LO_stk_grp
       
   
@@ -116,7 +118,7 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
                 
                 Nnl <- lapply(N, function(x) array(x, dim = c(dim(x)[1],1,dim(x)[2],1,1,dim(x)[3])))
                
-                std_nloptr <- nloptr(c(tau.init,E0m),
+                std_nloptr <- nloptr::nloptr(c(tau.init,E0m),
                            eval_f= f_MP_LO_nloptr,
                            lb = c(rep(0,length(STRs)), E0m*0.999),
                            ub = c(tau.up, E0m + (K-E0)),
@@ -130,7 +132,7 @@ Cr.f <- ifelse(Cr.f == 0, 1e-6, Cr.f)
             else{ # => approach == fcube
 
                 
-              std_nloptr <- nloptr(tau.init,
+              std_nloptr <- nloptr::nloptr(tau.init,
                                    eval_f= f_fcube_LO_nloptr,
                                    lb = rep(0,length(STRs)),
                                    ub = tau.up,
