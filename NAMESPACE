@@ -55,6 +55,7 @@ export(
   "F2CatchHCR",
   "F_flbeia",
   "FLBEIA",
+   "FLBDsim",
   "FroeseHCR",
   "ghlHCR",
 #  "initPop_lifeHist",
