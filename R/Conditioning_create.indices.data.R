@@ -47,9 +47,8 @@ create.indices.data <- function(){
   #   Section 1:        Is there any index data?
   #==============================================================================
   
-  nms.stks.index <- 'stks_index'
-  
-  if(!exists(nms.stks.index)){
+
+  if(is.null(nms.stks.index)){
     indices <- NULL
     
   }else{
@@ -58,7 +57,6 @@ create.indices.data <- function(){
     #   Section 2:        indices
     #==============================================================================
     
-    nms.stks.index <- get(nms.stks.index)
     n.stks.index   <- length(nms.stks.index)
     indices        <- vector('list',n.stks.index)
     names(indices) <- nms.stks.index
