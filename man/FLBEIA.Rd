@@ -39,6 +39,10 @@ FLBEIA(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL,
 }
 \value{
 A list with 8 elements biols, fleets, covars,  advice, stocks, indices,  fleets.ctrl,
+         pkgs.versions. All the elements except stocks and pkgs.versions correspond with the 
+         the updated versions of the objects used in the call to FLBEIA. stocks is a list of FLStocks object
+         containing the perceived stocks used in the management procedure to produce the management advice. 
+         pkgs.versions is a matrix indicating the packages and package version used along the simulation.
 }
 \description{
 FLBEIA is a simulation model that describes a fishery system under a Management Strategy Estrategy framework.The objective of the model is to facilitate the Bio-Economic evaluation of Management strategies. The model is multistock, multifleet and seasonal. The simulation is divided in 2 main blocks, the Operating Model (OM) and the Management Procedure  (MP). In turn, the OM is divided in 3 components, the biological, the fleets and the covariables component. The MP is also divided in 3 components, the observation, the assessment and the advice.
