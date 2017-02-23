@@ -253,6 +253,43 @@ BDsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
 }   # }}}
 
 
+
+# 
+# # FLBDsim
+# setGeneric('FLBDsim', function(x,...) standardGeneric('FLBDsim'))
+# 
+# ## FLBDsim()	{{{
+# # FLBDsim(FLCatch)
+# setMethod('FLBDsim', signature(x='FLQuant'),
+#           function(x, ...){
+#             FLBDsim(biomass=x, catch = x, uncertainty = x, ...)
+#       
+#           }
+# )
+# 
+# ## FLBDsim()	{{{
+# # FLBDsim(FLCatch)
+# setMethod('FLBDsim', signature(x='character'),
+#           function(x, ...){
+#             FLBDsim(name=x, ...)
+#             
+#           }
+# )
+# 
+# 
+# setGeneric('FLBDsim', function(biomass, catch, uncertainty, name,...) standardGeneric('FLBDsim'))
+# 
+# ## FLBDsim()	{{{
+# # FLBDsim(FLCatch)
+# setMethod('FLBDsim', signature(name='character', biomass = 'FLQuant', uncertainty = 'FLQuant', catch = 'FLQuant'),
+#           function(biomass, catch, uncertainty, name, ...){
+#             FLBDsim(name=name, biomass = biomass, catch = catch, uncertainty = uncertainty,...)
+#             
+#           }
+# )
+
+
+
 ## Pella-Tomlinson surplus production model
 # (from: Jennings et al., 2001. Marine Fisheries Ecology. Blackwell Science, Oxford, UK.)
 
