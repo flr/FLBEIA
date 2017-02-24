@@ -22,6 +22,7 @@
 #  Output: An FLQuant(age, year, unit, n_season,1,iter) with the total catch of 
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
+#' @rdname landStock.f
 landStock <- function(obj, stock){
     
     aux <- 0
@@ -53,7 +54,7 @@ landStock <- function(obj, stock){
 #  Output: An FLQuant(age, year, unit, n_season,1,iter) with the total catch of 
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
-
+#' @rdname landStock.f
 discStock <- function(obj, stock){
     aux <- 0
     res <- FLQuant()
@@ -85,7 +86,7 @@ discStock <- function(obj, stock){
 #  Output: An FLQuant(age, year, unit, n_season,1,iter) with the total catch of 
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
-
+#' @rdname landStock.f
 catchStock <- function(obj, stock){
     return(discStock(obj, stock) + landStock(obj,stock))
 }
@@ -97,6 +98,7 @@ catchStock <- function(obj, stock){
 #  Output: An FLQuant(age, year, unit, n_season,1,iter) with the total catch of 
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
+#' @rdname landStock.f
 landWStock <- function(obj, stock){
     
     aux <- 0
@@ -128,7 +130,7 @@ landWStock <- function(obj, stock){
 #  Output: An FLQuant(age, year, unit, n_season,1,iter) with the total catch of 
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
-
+#' @rdname landStock.f
 discWStock <- function(obj, stock){
     aux <- 0
     res <- FLQuant()
@@ -160,7 +162,7 @@ discWStock <- function(obj, stock){
 #  Output: An FLQuant(age, year, unit, n_season,1,iter) with the total catch of 
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
-
+#' @rdname landStock.f
 catchWStock <- function(obj, stock){
     return(discWStock(obj, stock) + landWStock(obj,stock))
 }
