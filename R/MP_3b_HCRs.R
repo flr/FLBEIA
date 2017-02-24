@@ -16,20 +16,41 @@
 #'          Model-based HCRs use estimates of stock abundance and stock exploitation level to generate the advice.
 #'\itemize{
 #'      \item    Model-Free HCRs: annexIVHCR and ghlHCR.
-#'      \item    Model-Based HCRs: CFPMSYHCR, F2CatchHCR, FroeseHCR, IcesHCR, MAPHCR, annualTAC, neaMAC_ltmp, pilRec_ane, aneHCRE, 
-#'                           aneRec_pil, neaMAC_ltmp, pilRec_ane, aneHCRE and aneRec_pil.
+#'      \item    Model-Based HCRs: CFPMSYHCR, F2CatchHCR, FroeseHCR, IcesHCR, MAPHCR, annualTAC, neaMAC_ltmp, aneHCRE, 
+#'                          
 #'}
 #'\itemize{
-#'       \item{annexIVHCR}{is the HCR used by EC and ICES to generate the TAC advice for data poor stocks}
-#'       \item{ghlHCR}{Is a HCR used in the management of greenland-halibut}
-#'       \item{CFPMSYHCR} 
+#'       \item{aneHCRE} {The HCR used in the bay of biscay anchovy long term management plan.}
+#'       \item{annexIVHCR}{The HCR used by EC and ICES to generate the TAC advice for data poor stocks.}
+#'       \item{annualTAC} {A HCR that generates annual TAC advice. The HCR provides the whole flexibility of fwd.}
+#'       \item{CFPMSYHCR}{HCR adapting the MAP HCR to allow flexibility in the year Fmsy is achieved. 
+#'               The user can specify the year in which you aim to reach Fmsy, with a linear transition between
+#'               Fsq to Fmsy in the intervening years}
 #'       \item{FroeseHCR} {The HCR defined in the paper by Froese, Branch et al. in Fish and Fisheries 2010.}
+#'       \item{ghlHCR}{The model-free HCR used in the management of greenland-halibut}
 #'       \item{IcesHCR} {The HCR used by ICES to generate TAC advice in the MSY framework.}
 #'       \item{MAPHRC} {The HCR proposed by the EC in the evaluation on multi-annual management plans in 2015.}
-#'       \item{annualTAC} {A HCR that generates annual TAC advice. The HCR provides the whole flexibility of fwd }
-#'}       
-#'         The HCRs are documented in the manual of the library.
-#'            
+#'       \item{MultiStockHRC} {A HCR that produces TAC advice for several stocks simultaneously. It uses a fishing mortality target and an upper bound to conciliate the TAC advices.}
+#'       \item{neaMAC_ltmp} {The HCR used in the north-east atlantic mackerel long term management plan. It is a particular case of the IcesHCR.}
+#'      }     
+#'         The HCRs are documented in detail in the manual of the library.
+#'
+#' @examples
+#'\dontrun{
+#' library(FLBEIA)
+#' library(FLAssess)          # required to use the IcesHCR. Not available for win64
+#' library(FLash)             # required to use the IcesHCR. Not available for win64
+#' library(ggplot2)  
+#' 
+#' # Load the data to run FLBEIA in a one stock one fleet example using the HCR used by ICES in the MSY framework. 
+#'  data(one) 
+#'  
+#' oneAdv$TAC[,ac(2009:2025)] <- NA # Put NA-s in the projection years to check how the function fills the advice object.
+#'  
+#' res <- IcesHCR(oneSt, oneAdv, oneAdvC, 19, 'stk1') # The value printed in the screen is the fishing mortality used in the advice.
+#'  
+#' res$TAC[,'2009']    # The resulting management advice.
+#' }  
 
 #-------------------------------------------------------------------------------
 #                          HCRs
@@ -47,7 +68,7 @@
 # The targets and constraints will differ iteration by iteration, thus 'fwd' 
 # must be applied iter by iter.
 #-------------------------------------------------------------------------------
-#' @export
+# @export
 annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
    
    # project the stock 3 years, (current year, TAC year, TAC year + 1 for ssb or biomass constraints). 

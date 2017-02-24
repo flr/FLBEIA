@@ -16,6 +16,7 @@
 # 31/01/2012 09:01:12
 #-------------------------------------------------------------------------------
 
+#' @rdname annualTAC
 ghlHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
 
     it <- dim(indices[[1]][[1]]@index)[6]

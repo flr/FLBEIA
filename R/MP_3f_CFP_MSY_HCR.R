@@ -7,7 +7,7 @@
 #     then Ftg is min(Fsq,((1-(1/(2020-y)))*Fsq)+((1/(2020-y))*Fmsy)) # don't want to increase F, so always capped by Fsq
 #     Keep the biomass safeguard, so you can only delay Fmsy when B>Bpa, else F is determined by the B rule
 #     Note you need new input in advice.ctrl, Yrtg, as specified below
-# Paul Dolder (adapting code by Dorleta GarcYYYa)
+# Paul Dolder (adapting code by Dorleta Garcia)
 # Created: 15/15/2015 
 # Changed: 
 #-------------------------------------------------------------------------------
@@ -24,6 +24,7 @@
 # Yrtg: The year in which Fmsy is aiming to be achieved
 #-------------------------------------------------------------------------------
 
+#' @rdname annualTAC
 CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
    
    # project the stock 3 years, (current year, TAC year, TAC year + 1 for ssb or biomass constraints). 

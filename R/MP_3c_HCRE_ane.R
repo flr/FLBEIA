@@ -14,6 +14,7 @@
 
 
 # COMPROBAR QUE VALOR DE year HAY QUE USAR (no habria que considerar tambien season?)
+#' @rdname annualTAC
 aneHCRE <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
     stk       <- stocks[[stknm]]

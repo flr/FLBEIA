@@ -11,7 +11,7 @@
 
 # 28/03/2014 13:15:58
 #-------------------------------------------------------------------------------
-
+#' @rdname annualTAC
 F2CatchHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
    # project the stock 3 years, (current year, TAC year, TAC year + 1 for ssb or biomass constraints).

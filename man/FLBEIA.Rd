@@ -90,7 +90,7 @@ names(s0)
 plot(s0$biols[[1]])
 
 # Create summary data frames (biological, economic, and catch)
-
+proj.yr     <- 2013 
 s0_sum      <- bioSum(s0)
 s0_eco      <- ecoSum(s0$fleets, flnms = 'all', years = ac(2007:2025))
 s0_catchFl  <- catchFlSum(s0$fleets, s0$advice,flnms= 'all', stknms= 'all', years=ac((proj.yr+1):last.yr))
