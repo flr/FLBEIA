@@ -116,6 +116,47 @@ total.discards.stock.df <- function(fleet){
 }
 #........................................................
 #........................................................
+#-------------------------------------------------------------------------------
+#
+#' Plots with fleets data 
+#' 
+#' For each fleet, return a pdf with plots using FLFleets object.
+#'
+#' @details
+#' For each fleet, the pdf contains plots of:
+#'\itemize{
+#'      \item Catch, discards, landings, capacity, crewshare, 
+#'      effort, fcost, effshare
+#'      \item For each metier: landings and discards ar age in numbers 
+#'      and mean weight, alpha, beta and catch.q 
+#'}
+
+#' @param fleets: a FLFleets object. 
+#' @param pdfnm: the name for the pdf document will be the fleet's name and pdfnm separated by a line.
+#
+#' @return A pdf for each fleet with plots.
+
+#' @examples
+#'\dontrun{
+#' library(FLBEIA)
+#' library(ggplot2)
+#' data(one)
+#' s0 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for stk1.
+#'                SRs = oneSR,        # A list with one FLSRSim object for stk1.
+#'                BDs = NULL,         # No Biomass Dynamic populations in this case.
+#'             fleets = oneFl,        # FLFleets object with on fleet.
+#'             covars = NULL,         # covars not used
+#'            indices = NULL,         # indices not used 
+#'             advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
+#'          main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
+#'         biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
+#'        fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
+#'        covars.ctrl = NULL,         # covars control not used 
+#'           obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
+#'        assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
+#'        advice.ctrl = oneAdvC) 
+#' plotFLFleets(s0$fleets,'s0')
+#' }
 
 
 
