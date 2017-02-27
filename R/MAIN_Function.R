@@ -20,10 +20,10 @@
 #' @param advice.ctrl A list with the settings to control the advice model for each stock (the HCR for each stock, the reference points used in the HCR, additional parameters, ...)
 #
 #' @return A list with 8 elements biols, fleets, covars,  advice, stocks, indices,  fleets.ctrl,
-#          pkgs.versions. All the elements except stocks and pkgs.versions correspond with the 
-#          the updated versions of the objects used in the call to FLBEIA. stocks is a list of FLStocks object
-#          containing the perceived stocks used in the management procedure to produce the management advice. 
-#          pkgs.versions is a matrix indicating the packages and package version used along the simulation. 
+#'          pkgs.versions. All the elements except stocks and pkgs.versions correspond with the 
+#'          the updated versions of the objects used in the call to FLBEIA. stocks is a list of FLStocks object
+#'          containing the perceived stocks used in the management procedure to produce the management advice. 
+#'          pkgs.versions is a matrix indicating the packages and package version used along the simulation. 
 #
 #' @examples
 #'\dontrun{
@@ -68,7 +68,7 @@
 #' plot(s0$biols[[1]])
 #' 
 #' # Create summary data frames (biological, economic, and catch)
-#' 
+#' proj.yr     <- 2013 
 #' s0_sum      <- bioSum(s0)
 #' s0_eco      <- ecoSum(s0$fleets, flnms = 'all', years = ac(2007:2025))
 #' s0_catchFl  <- catchFlSum(s0$fleets, s0$advice,flnms= 'all', stknms= 'all', years=ac((proj.yr+1):last.yr))
@@ -95,7 +95,7 @@
 #   * 20/10/2016           Itsaso Carmona - Check if some arguments are missing
 #-------------------------------------------------------------------------------
 
-#' @export
+# @export
 FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices = NULL, advice = NULL, main.ctrl, biols.ctrl, 
         fleets.ctrl, covars.ctrl, obs.ctrl, assess.ctrl,  advice.ctrl){
 

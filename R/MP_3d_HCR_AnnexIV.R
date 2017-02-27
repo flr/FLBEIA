@@ -24,7 +24,7 @@
 #                the index contained in FLIndices objetct as it was it only  
 #                worked with the first in the list.
 #-------------------------------------------------------------------------------
-
+#' @rdname annualTAC
 annexIVHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
 
     Idnm <- advice.ctrl[[stknm]][['index']]  # either the name or the position of the index in FLIndices object.

@@ -17,7 +17,7 @@
 #
 # 06/09/2011 12:11:51
 #-------------------------------------------------------------------------------
-
+#' @rdname annualTAC
 
 FroeseHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
