@@ -132,7 +132,7 @@ FLBDsim <- function(...){
     }      
         
     if('model' %in% slots){
-        nmparams <- all.vars(get(x[['model']], pos = 1)()[[2]])
+        nmparams <- all.vars(get(x[['model']])()[[2]])
         nmparams <- nmparams[!(nmparams %in% c('biomass','bprod'))]
     }
     
