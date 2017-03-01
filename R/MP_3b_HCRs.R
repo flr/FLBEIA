@@ -15,8 +15,8 @@
 #'          Model-free HCRs use abundance indices to generate the advice and hence it use  FLIndices object as input data.
 #'          Model-based HCRs use estimates of stock abundance and stock exploitation level to generate the advice.
 #'\itemize{
-#'      \item    Model-Free HCRs: annexIVHCR and ghlHCR.
-#'      \item    Model-Based HCRs: CFPMSYHCR, F2CatchHCR, FroeseHCR, IcesHCR, MAPHCR, annualTAC, neaMAC_ltmp, aneHCRE, 
+#'      \item    Model-Free HCRs: annexIVHCR, ghlHCR, little2011HCR, pidHCR and pidHCRItarg.
+#'      \item    Model-Based HCRs: aneHCRE, annualTAC, CFPMSYHCR, F2CatchHCR, FroeseHCR, IcesHCR, MAPHCR, neaMAC_ltmp.  
 #'                          
 #'}
 #'\itemize{
@@ -29,9 +29,11 @@
 #'       \item{FroeseHCR} {The HCR defined in the paper by Froese, Branch et al. in Fish and Fisheries 2010.}
 #'       \item{ghlHCR}{The model-free HCR used in the management of greenland-halibut}
 #'       \item{IcesHCR} {The HCR used by ICES to generate TAC advice in the MSY framework.}
+#'       \item{little2011HCR} {The HCR defined in the paper by Little et al. in ICES Journal of Marine Science 2011.}
 #'       \item{MAPHRC} {The HCR proposed by the EC in the evaluation on multi-annual management plans in 2015.}
 #'       \item{MultiStockHRC} {A HCR that produces TAC advice for several stocks simultaneously. It uses a fishing mortality target and an upper bound to conciliate the TAC advices.}
 #'       \item{neaMAC_ltmp} {The HCR used in the north-east atlantic mackerel long term management plan. It is a particular case of the IcesHCR.}
+#'       \item{pidHCR, pidHCRItarg.} {The HCRs defined in the paper by Pomaerede et al. in Aquatic Living Resources 2010.}
 #'      }     
 #'         The HCRs are documented in detail in the manual of the library.
 #'
