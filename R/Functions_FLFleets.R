@@ -173,12 +173,11 @@ catchWStock <- function(obj, stock){
 #           name of the stocks and colnames equal to fleet names '&&' metier names.
 #           if element (i,j) = 0, ith stock is not caught by fleet/metier flname&&metiername.
 #-------------------------------------------------------------------------------
-#' stock.fleetInfo.
+#' stock.fleetInfo
 #'
-#' \code{stock.fleetInfo} Return a matrix with rownames equal to the 
-#' name of the stocks and colnames equal to fleet names and metier names.
+#' Indicates which stocks are caugth by each fleet-metier combination.
 #'
-#' Return a matrix with rownames equal to the stocks names and colnames equal to names of fleet and metier.
+#' @return Return a matrix with rownames equal to the stocks names and colnames equal to names of fleet and metier.
 #' If element (i,j) is equal to 0, the stock (i) is not caught by fleet/metier (j). 
 #'
 #' @param fleets is an objetc of class FLFleetsExt.

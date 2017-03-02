@@ -363,7 +363,7 @@ revenue_flbeia <- function(fleet){
         for(st in sts){
             if(!(st %in% catchNames(m))) next
             dat <- m@catches[[st]]
-            res <- res + apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum,na.rm=T)
+            res <- res + FLQuant(apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum,na.rm=T), dim = D)
         }
     }
     return(res)               

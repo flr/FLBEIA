@@ -57,7 +57,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 
-    stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
    # if(dim(stk@m)[1] == 1)    stk@harvest[] <- stk@catch.n[]/stk@stock.n[] 
     
@@ -87,7 +87,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
    
     for(st in stocksInHCR){
       
-      ref.pts_st <- advice.ctrl.msmsy[[st]][['ref.pts']]
+      ref.pts_st <- advice.ctrl[[st]][['ref.pts']]
       
       if(stocksCat[st] == 1){     
         if(ageStruct)
@@ -99,7 +99,10 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
         b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts_st[c('Blim', 'Btrigger'),i]))  # [it]
 
         Ftg[st] <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',]*b.datyr/ref.pts_st[ 'Btrigger',], ref.pts['Fmsy',]))
-    
+        
+        minfbar <- stocks[[st]]@range['minfbar']
+        maxfbar <- stocks[[st]]@range['maxfbar']
+        
         Fsq[st] <- mean(yearMeans(stocks[[st]]@harvest[,(year-3):(year-1)])[ac(minfbar:maxfbar),drop=T])
     
         Fupp[st] <- ref.pts_st['Fupp',]
@@ -156,9 +159,9 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
         int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
         
         if(int.yr == 'Fsq')
-            fwd.ctrl <- fwdControl(data.frame(year = c(0, 1),  val = c(1, Fadv_st), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Fadv_st), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
         else
-            fwd.ctrl <- fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Fadv_st), quantity = c( 'catch', 'f')))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Fadv_st), quantity = c( 'catch', 'f')))
 
         # Refresh the years in fwd!!
         fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
@@ -214,7 +217,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
 
             }
 
-            stki <- fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
+            stki <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
         }
         else{
 

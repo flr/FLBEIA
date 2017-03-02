@@ -57,14 +57,14 @@ validFLBDsim <- function(object){
 #' 
 #' @details The FLBDsim has the following slots:
 #' \itemize{
-#'    \item{name}{The name of the stock.}
-#'    \item{desc}{A description of the object.}
-#'    \item{range}{The range of the object.}
-#'    \item{biomass}{An FLQuant with to store the biomass of the stock.} 
-#'    \item{catch}{An FLQuant with to store the catch of the stock.} 
-#'    \item{uncertainty}{An FLQuant with to store the uncertainty that is multiplied to the biomass in every step of the simulation.} 
-#'    \item{biomass}{An FLQuant with to store the biomass of the object.} 
-#'    \item{biomass}{An FLQuant with to store the biomass of the object.} 
+#'    \item{name}{ The name of the stock.}
+#'    \item{desc}{ A description of the object.}
+#'    \item{range}{ The range of the object.}
+#'    \item{biomass}{ An FLQuant with to store the biomass of the stock.} 
+#'    \item{catch}{ An FLQuant with to store the catch of the stock.} 
+#'    \item{uncertainty}{ An FLQuant with to store the uncertainty that is multiplied to the biomass in every step of the simulation.} 
+#'    \item{biomass}{ An FLQuant with to store the biomass of the object.} 
+#'    \item{biomass}{ An FLQuant with to store the biomass of the object.} 
 #' 
 #' } 
 #' 
