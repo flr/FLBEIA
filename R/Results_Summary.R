@@ -272,6 +272,7 @@ D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #'      years, it, indicators and value. 
 #'      \item{ecoSum:} The colums of the data frame are: year, quarter, stock, fleet, iter, profits, 
 #'      capacity, costs, discards, effort and landings.
+#'      \item{ecoSum_damara:} ecoSum for Damara project.
 #'      \item{effortMtSum:} The colums of the data frame are: year, quarter, fleet, metier, iter, 
 #'      effort and effshare.
 #'      \item{catchFlSum:} The colums of the data frame are: year, quarter, stock, fleet, iter, 
