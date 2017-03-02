@@ -75,6 +75,7 @@ vFLCs <- function(object){
 }
 
 # class
+#' @rdname FLCatchExt-class
 setClass("FLCatchesExt", contains="FLlst", 
 	validity=vFLCs
 )
@@ -85,6 +86,7 @@ setGeneric("FLCatchesExt", function(object, ...){
 	}
 )
 
+#' @rdname FLCatchExt-class
 setMethod("FLCatchesExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 
@@ -101,6 +103,7 @@ setMethod("FLCatchesExt", signature(object="ANY"), function(object, ...){
 	new("FLCatchesExt", lst)
 })
 
+#' @rdname FLCatchExt-class
 setMethod("FLCatchesExt", "missing", function(...){
 	if(missing(...)){
 		new("FLCatchesExt")
@@ -110,16 +113,20 @@ setMethod("FLCatchesExt", "missing", function(...){
 	}
 })
 
+#' @rdname FLCatchExt-class
 setMethod("FLCatchesExt", "list", function(object){
 	new("FLCatchesExt", object)
 })
 
+
 # is
+#' @rdname FLCatchExt-class
 setGeneric("is.FLCatchesExt", function(object, ...){
 	standardGeneric("is.FLCatchesExt")
 	}
 )
 
+#' @rdname FLCatchExt-class
 setMethod("is.FLCatchesExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLCatchesExt")
 })
@@ -137,6 +144,7 @@ vFLMs <- function(object){
 }
 
 # class
+#' @rdname FLMetierExt
 setClass("FLMetiersExt", contains="FLlst", 
 	validity=vFLMs
 )
@@ -147,6 +155,7 @@ setGeneric("FLMetiersExt", function(object, ...){
 	}
 )
 
+#' @rdname FLMetierExt
 setMethod("FLMetiersExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 	nlst <- length(lst1)
@@ -165,6 +174,7 @@ setMethod("FLMetiersExt", signature(object="ANY"), function(object, ...){
 	new("FLMetiersExt", lst)
 })
 
+#' @rdname FLMetierExt
 setMethod("FLMetiersExt", "missing", function(...){
 	if(missing(...)){
 		new("FLMetiersExt")
@@ -176,16 +186,19 @@ setMethod("FLMetiersExt", "missing", function(...){
 	}
 })
 
+#' @rdname FLMetierExt
 setMethod("FLMetiersExt", "list", function(object){
 	new("FLMetiersExt", object)
 })
 
 # is
+#' @rdname FLMetierExt
 setGeneric("is.FLMetiersExt", function(object, ...){
 	standardGeneric("is.FLMetiersExt")
 	}
 )
 
+#' @rdname FLMetierExt
 setMethod("is.FLMetiersExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLMetiersExt")
 })
@@ -203,6 +216,7 @@ vFLFs <- function(object){
 }
 
 # class
+#' @rdname FLleetExt
 setClass("FLFleetsExt", contains="FLlst",
 	validity=vFLFs
 )
@@ -213,6 +227,7 @@ setGeneric("FLFleetsExt", function(object, ...){
 	}
 )
 
+#' @rdname FLleetExt
 setMethod("FLFleetsExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 	nlst <- length(lst1)
@@ -223,6 +238,7 @@ setMethod("FLFleetsExt", signature(object="ANY"), function(object, ...){
 	new("FLFleetsExt", lst)
 })
 
+#' @rdname FLleetExt
 setMethod("FLFleetsExt", "missing", function(...){
 	if(missing(...)){
 		new("FLFleetsExt")
@@ -232,6 +248,7 @@ setMethod("FLFleetsExt", "missing", function(...){
 	}
 })
 
+#' @rdname FLleetExt
 setMethod("FLFleetsExt", "list", function(object){
 	new("FLFleetsExt", object)
 })
@@ -242,6 +259,7 @@ setGeneric("is.FLFleetsExt", function(object, ...){
 	}
 )
 
+#' @rdname FLleetExt
 setMethod("is.FLFleetsExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLFleetsExt")
 })
@@ -260,6 +278,7 @@ vFLBDSRsims <- function(object){
 }
 
 # class
+#' @rdname FLBDSRsim
 setClass("FLBDSRsims", contains="FLlst", 
 	validity=vFLBDSRsims
 )
@@ -270,6 +289,7 @@ setGeneric("FLBDSRsims", function(object, ...){
 	}
 )
 
+#' @rdname FLBDSRsim
 setMethod("FLBDSRsims", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 	nlst <- length(lst1)
@@ -288,6 +308,7 @@ setMethod("FLBDSRsims", signature(object="ANY"), function(object, ...){
 	new("FLBDSRsims", lst)
 })
 
+#' @rdname FLBDSRsim
 setMethod("FLBDSRsims", "missing", function(...){
 	if(missing(...)){
 		new("FLBDSRsims")
@@ -299,6 +320,7 @@ setMethod("FLBDSRsims", "missing", function(...){
 	}
 })
 
+#' @rdname FLBDSRsim
 setMethod("FLBDSRsims", "list", function(object){
 	new("FLBDSRsims", object)
 })
@@ -309,6 +331,7 @@ setGeneric("is.FLBDSRsims", function(object, ...){
 	}
 )
 
+#' @rdname FLBDSRsim
 setMethod("is.FLBDSRsims", "ANY", function(object, ...){
 	identical(is(object)[1],"FLBDSRsims")
 })

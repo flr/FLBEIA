@@ -15,10 +15,33 @@
 # Changed: 30/01/2011 20:50:32
 #------------------------------------------------------------------------------#
 
-
+#' Auxiliary summary Functions
+#'
+#' @details
+#' 
+#'#'\itemize{
+#'       \item{B_flbeia}{Auxiliary function to summarize the biological results.}
+#'       \item{F_flbeia}{Auxiliary function to summarize the fishing mortiality.}
+#'       \item{SSB_flbeia} {Auxiliary function to summarize the spawning stock biomass by species.}
+#'       \item{R_flbeia}{Auxiliary function to summarize the recruitment by species when the stock is defined by age;
+#'                        If the stock is follows a biomass dynamics, this function gives the growth.}
+#'       \item{C_flbeia}{Auxiliary function to summarize the catches by fleets and stock.} 
+#'       \item{L_flbeia}{Auxiliary function to summarize the landings by fleets and stock.}
+#'       \item{D_flbeia}{{Auxiliary function to summarize the discards by fleets and stock.}
+#'       \item{D_flbeia}{{Auxiliary function to summarize the discards by fleets and stoc.}
+#'      }     
+#'         
+#' @param  FLQuant object. 
+#' @param year. 
+# 
+#' @return A FLQuant object.  
+#' 
 #------------------------------------------------------------------------------#
 # F_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+# @export
+
+#' @rdname F_flbeia
 F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
     
@@ -70,6 +93,8 @@ F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # SSB_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+
+#' @rdname F_flbeia
 SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
 
@@ -100,6 +125,8 @@ SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # B_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+
+#' @rdname F_flbeia
 B_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
 
@@ -123,6 +150,7 @@ B_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 # If age struc => recruitment.
 # If biodyn    => growth.
 #------------------------------------------------------------------------------#
+#' @rdname F_flbeia
 R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
 
@@ -162,6 +190,7 @@ R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # C_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+#' @rdname F_flbeia
 C_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
 
@@ -183,6 +212,7 @@ C_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # L_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+#' @rdname F_flbeia
 L_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
 
@@ -203,6 +233,7 @@ L_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # D_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+#' @rdname F_flbeia
 D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
 
@@ -224,6 +255,7 @@ D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # summary_flbeia(obj) :: res[stocks, years, it, indicators] 
 #------------------------------------------------------------------------------#
+
 summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 
     stknms <- names(obj$biols)
@@ -251,6 +283,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # BIOsummary(obj) :: DATA.FRAME[stocks, years, it, indicators, value] 
 #------------------------------------------------------------------------------#
+
 bioSum <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     xx <- summary_flbeia(obj, years)
     n  <- prod(dim(xx))

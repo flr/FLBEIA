@@ -48,6 +48,18 @@ validFLCatchExt <- function(object)
 	return(TRUE)
 }
 
+#' FLcatchExt and FLCatches classes and the methods to construct it.
+#' 
+#' They extend the FLCatch and FLCatches classes defined in FLFleets package. the FLCatch class includes two extra slots alpha and beta
+#' used in the Cobb-Douglas production functions.
+#' 
+#'  @param  object An object of class FLQuant, missing or FLCatchExt.
+#'  
+#'  @return The constructors return an object of class FLCatchExt.
+#'  
+#' 
+#' 
+#' 
 setClass("FLCatchExt",
     representation(
 		'FLComp',
@@ -78,6 +90,7 @@ setGeneric('FLCatchExt', function(object, ...)
 		standardGeneric('FLCatchExt'))
 
 # TODO Fix size of input objects and validity
+#' @rdname FLCatchExt-class
 setMethod('FLCatchExt', signature(object='FLQuant'),
 	function(object, range='missing', name='NA', desc=character(0), ...) {
 		# initial objects
@@ -103,6 +116,7 @@ setMethod('FLCatchExt', signature(object='FLQuant'),
 		return(res)
 	}
 )
+#' @rdname FLCatchExt-class
 setMethod('FLCatchExt', signature(object='missing'),
 	function(...)
   {
@@ -125,6 +139,7 @@ setMethod('FLCatchExt', signature(object='missing'),
 
 
 ## computeLandings	{{{
+#' @rdname FLCatchExt
 setMethod("computeLandings", signature(object="FLCatchExt"),
 	function(object, na.rm=TRUE) {
         res <- quantSums(landings.n(object)*landings.wt(object), na.rm=na.rm)

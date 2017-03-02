@@ -48,7 +48,27 @@ validFLBDsim <- function(object){
    return(TRUE)
 
    }
-   
+
+#' FLBDsim class and methods
+#' 
+#' A class  to simulate the growth of populations aggregated in biomass.
+#' 
+#' @param ... Empty or FLQuants for 'biomass', 'catch' and 'uncertainty' slots and optionally the values for the rest of the slots.
+#' 
+#' @details The FLBDsim has the following slots:
+#' \itemize{
+#'    \item{name}{The name of the stock.}
+#'    \item{desc}{A description of the object.}
+#'    \item{range}{The range of the object.}
+#'    \item{biomass}{An FLQuant with to store the biomass of the stock.} 
+#'    \item{catch}{An FLQuant with to store the catch of the stock.} 
+#'    \item{uncertainty}{An FLQuant with to store the uncertainty that is multiplied to the biomass in every step of the simulation.} 
+#'    \item{biomass}{An FLQuant with to store the biomass of the object.} 
+#'    \item{biomass}{An FLQuant with to store the biomass of the object.} 
+#' 
+#' } 
+#' 
+#' @return  An object of class FLBDsim.
    
 setClass("FLBDsim",
 	representation(
@@ -132,7 +152,7 @@ FLBDsim <- function(...){
     }      
         
     if('model' %in% slots){
-        nmparams <- all.vars(get(x[['model']], pos = 1)()[[2]])
+        nmparams <- all.vars(get(x[['model']])()[[2]])
         nmparams <- nmparams[!(nmparams %in% c('biomass','bprod'))]
     }
     

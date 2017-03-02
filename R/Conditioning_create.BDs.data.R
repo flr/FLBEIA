@@ -9,6 +9,7 @@
         ny <- length(first.yr:last.yr)
         hist.yrs <- as.character(first.yr:(proj.yr - 1))
         proj.yrs <- as.character(proj.yr:last.yr)
+        list.BDs <- list()
         for (i in 1:n.stk.BD) {
             nmstk <- nmstks[i]
             cat("=============", nmstk, "BD", "=============\n")
@@ -121,12 +122,10 @@
             if (any(is.na(stk.bd@uncertainty[, proj.yrs]))) {
                 stop("Na values in uncertainty in the projection years")
             }
-            assign(paste(nmstk, ".bd", sep = ""), stk.bd)
+            list.BDs[[i]] <- stk.bd
         }
-        stk.bds <- paste(nmstks, ".bd", sep = "")
-        BDs <- sapply(stk.bds, get, envir = sys.frame(sys.parent(-1)),
-            simplify = FALSE)
-        names(BDs) <- nmstks
+        names(list.BDs) <- nmstks
+        BDs <- list.BDs
     }
     return(BDs)
 }

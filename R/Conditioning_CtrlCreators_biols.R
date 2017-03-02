@@ -6,7 +6,20 @@
 # do not have extra arguments, thus we don't call additional create.XYZ.ctrl  
 # within create.biols.ctrl
 #
+#' biols.ctrl object creator
+#' 
+#' It creates the biols.ctrl object to be used in the call to the main function FLBEIA.
+#' 
+#   :: ARGUMENTS ::
 #
+#' @param stksnames A vector with the name of the stocks in the OM.
+#' @param growth.models A character vector of the same length as stksnames with the name of the model used to project the stock populations in the simulation.
+#' @param immediate logical, indicating if the warnings should be output immediately.
+#' @param ... any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+#'        To assure the correct functioning the extra arguments must have a name.
+#' 
+#' @return A list of lists with the basic structure of the biols.ctrl object.
+
 # Dorleta Garc?a - Azti Tecnalia
 # 28/05/2013 10:42:07
 #-------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-#                    ** create.covars.ctrl **
+#                    ** create.advice.ctrl **
 #
 # Dorleta Garc?a - Azti Tecnalia
 # 29/05/2013 14:04:15
@@ -7,14 +7,23 @@
 # 9/11/2016  Agurtzane Urtizberea
 #-------------------------------------------------------------------------------
 #
+#' advice.ctrl object creator
+#' 
+#' It creates the advice.ctrl object to be used in the call to the main function FLBEIA.
+#' 
+#
 #   :: ARGUMENTS ::
 #
-# - ** stksnames ** : character vector with stocks names
-# - **  ** : characted vector with the same length as cvrsnames with the process model followed by each of the covariables. 
-#         the first element correspond with the process model of the first covariable in cvrsnames, the second with the second and so on.
-#         The default is NULL in which case 'fixedCovar' is used for **all** the fleets.    
+#' @param stksnames A vector with the name of the stocks in the OM.
+#' @param HCR.models A character vector of the same length as stksnames with the name of the HCR used to generate the management advice.
+#' @param immediate logical, indicating if the warnings should be output immediately.
+#' @param ... any extra arguments necessary in the HCR specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+#'        To assure the correct functioning the extra arguments must have a name.
+#' 
+#' @return A list of lists with the basic structure of the advice.ctrl object.
+#-------------------------------------------------------------------------------
 
-create.advice.ctrl <- function(stksnames, HCR.models = NULL, HCR.ctrls = NULL,...){
+create.advice.ctrl <- function(stksnames, HCR.models = NULL,...){
     
     HCR.models.available <- c('fixedAdvice','annualTAC','IcesHCR','ghlHCR','annexIVHCR', 'froeseHCR', 'F2CatchHCR')
 
