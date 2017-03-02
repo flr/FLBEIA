@@ -21,8 +21,8 @@
 #'}
 
 
-#' @param obj: a FLFleetExt (.f) or FLFleetsExt object 
-#' @param stock: stock name 
+#' @param obj a FLFleetExt (.f) or FLFleetsExt object 
+#' @param stock stock name 
 #
 #' @return A FLQuant object with landings, discards or catch at age. 
 

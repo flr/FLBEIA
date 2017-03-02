@@ -40,9 +40,9 @@ discWStock(obj, stock)
 catchWStock(obj, stock)
 }
 \arguments{
-\item{obj:}{a FLFleetExt (.f) or FLFleetsExt object}
+\item{obj}{a FLFleetExt (.f) or FLFleetsExt object}
 
-\item{stock:}{stock name}
+\item{stock}{stock name}
 }
 \value{
 A FLQuant object with landings, discards or catch at age.
