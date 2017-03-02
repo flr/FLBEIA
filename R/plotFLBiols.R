@@ -10,8 +10,8 @@
 #'}
 
 
-#' @param biols: a FLBiols object 
-#' @param pdfnm: the name for the pdf document will be stock's name and pdfnm separated by a line.
+#' @param biols A FLBiols object 
+#' @param pdfnm The name for the pdf document will be stock's name and pdfnm separated by a line.
 #
 #' @return A pdf for each stock with plots.
 

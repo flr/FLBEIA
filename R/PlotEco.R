@@ -1,3 +1,21 @@
+#' Plots with fleets data 
+#' 
+#' Return a pdf with plots using FLFleets object.
+#'
+#' @param fleets A FLFleets object. 
+#' @param pdfnm The name for the pdf document will be "Eco" and pdfnm separated by a line.
+#
+#' @return A pdf with capacity, costs, effort, profits by fleet.
+
+#' @examples
+#'\dontrun{
+#' library(FLBEIA)
+#' library(ggplot2)
+#' data(one)
+#' plotEco(s0$fleets,'s0')
+#' }
+
+
 ###############################################################################
 # AUTHOR(DATE):       Agurtzane Urtizberea, Dorleta Garcia 
 # RESEARCH INSTITUTE: AZTI-TECNALIA                      

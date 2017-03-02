@@ -7,9 +7,9 @@
 plotFLFleets(fleets, pdfnm)
 }
 \arguments{
-\item{fleets:}{a FLFleets object.}
+\item{fleets}{A FLFleets object.}
 
-\item{pdfnm:}{the name for the pdf document will be the fleet's name and pdfnm separated by a line.}
+\item{pdfnm}{The name for the pdf document will be the fleet's name and pdfnm separated by a line.}
 }
 \value{
 A pdf for each fleet with plots.

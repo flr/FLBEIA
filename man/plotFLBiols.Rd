@@ -7,9 +7,9 @@
 plotFLBiols(biols, pdfnm)
 }
 \arguments{
-\item{biols:}{a FLBiols object}
+\item{biols}{A FLBiols object}
 
-\item{pdfnm:}{the name for the pdf document will be stock's name and pdfnm separated by a line.}
+\item{pdfnm}{The name for the pdf document will be stock's name and pdfnm separated by a line.}
 }
 \value{
 A pdf for each stock with plots.
