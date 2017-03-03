@@ -5,12 +5,23 @@
 # 29/05/2013 14:04:15
 #-------------------------------------------------------------------------------
 #
+#' assess.ctrl object creator
+#' 
+#' It creates the assess.ctrl object to be used in the call to the main function FLBEIA.
+#' 
+#
 #   :: ARGUMENTS ::
 #
-# - ** stksnames ** : character vector with stocks names
-# - **  ** : characted vector with the same length as stksnames with the assess model followed by each of the covariables. 
-#         the first element correspond with the assess model of the first covariable in stksnames, the second with the second and so on.
-#         The default is NULL in which case 'fixedCovar' is used for **all** the fleets.    
+#' @param stksnames A vector with the name of the stocks in the OM.
+#' @param assess.models A character vector of the same length as stksnames with the name of the model used to obtaine the perceived population in the MP.
+#' @param assess.ctrls A list of the same length as stksnames with the arguments needed to fit the assessment model.
+#' @param immediate logical, indicating if the warnings should be output immediately.
+#' @param ... any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+#'        To assure the correct functioning the extra arguments must have a name.
+#' 
+#' @return A list of lists with the basic structure of the assess.ctrl object.
+#-------------------------------------------------------------------------------
+
 
 create.assess.ctrl <- function(stksnames, assess.models = NULL, assess.ctrls = NULL,...){
 

@@ -4,9 +4,14 @@
 # Dorleta Garc?a - Azti Tecnalia
 # 28/05/2013 10:42:07
 #-------------------------------------------------------------------------------
-#
+#' fleets.ctrl object creator
+#' 
+#' It creates the fleets.ctrl object to be used in the call to the main function FLBEIA.
+#' 
+#'  
 #   :: ARGUMENTS ::
 #
+<<<<<<< HEAD
 # - ** fls ** : character vector with fleet names
 # - ** n.fls.stks ** : numeric vector with the same length as fls with the  declaration the stocks caugth by each of the fleets.
 # - ** fls.stksnames **: character vector with length = sum(n.fls.stks), with the names of the stocks caught by the fleet, 
@@ -34,9 +39,44 @@
 #        the creators for specific models must have to arguments 'res' and largs: 
 #           o 'res': the element with the general structure created in the main function 
 #           o 'larg': A named list with the elements necessary within the creator. For example if we use elas = FLQuant(1,dimnames = DimsNms) 
+=======
+#' @param flts character vector with fleet names
+#' @param n.flts.stks numeric vector with the same length as flts with the  declaration of the number of stocks caugth by each of the fleets.
+#' @param flts.stksnames character vector with length = sum(n.flts.stks), with the names of the stocks caught by the fleet, the vector must follow the order used in the previous argument. 
+#'      \itemize{ 
+#'         \item the  first n.flts.stks[1] elements correspond to the stocks caught by the first fleet in flts
+#'         \item the  following n.flts.stks[2] elements correspond to the stocks caught by the second fleet in flts
+#'         \item and so on.}
+#' @param catch.threshold if(NULL) => 0.9 for all the stocks (NULL is the default)  
+#'                   else it must be an FLQuant with dim = c(nstks,ny,1,ns,nit)
+#' @param effort.models  characted vector with the same length as flts with the effort model followed by each of the fleet. 
+#'         the first element correspond with the effort model of the first fleet in flts, the second with the second and so on.
+#'         The default is NULL in which case 'fixedEffort' is used for **all** the fleets.    
+#' @param capital.models  characted vector with the same length as flts with the capital model followed by each of the fleet. 
+#'         the first element correspond with the capital model of the first fleet in flts, the second with the second and so on.
+#'         The default is NULL in which case 'fixedCapital' is used for **all** the fleets. 
+#' @param catch.models  characted vector with the same length as sum(n.flts.stks) with the catch model followed by each of the fleet for each stock. 
+#'         the first element correspond with the catch model of the first fleet in flts and the first stock in flts.stksnames, the second with the second and so on.
+#'         The default is NULL in which case 'CobbDouglasAge' is used for **all** the fleets. 
+#' @param price.models  characted vector with the same length as sum(n.flts.stks) with the price model followed by each of the fleet for each stock. 
+#'         the first element correspond with the price model of the first fleet in flts and the first stock in flts.stksnames, the second with the second and so on.
+#'         The default is NULL in which case 'fixedPrice' is used for **all** the fleets. 
+#' @param flq An flquant to give structure to the FLQuants to be used within the function, 
+#'         the dimensioan and dimnames in 'year', 'season' and 'iter' will be used to create the necessary FLQuants. 
+#' @param ...: Any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+#'        To assure the correct functioning the extra arguments must have a name, for example, elas = FLQuant(1,dimnames = DimsNms).
+# 
+# THIS TEXT IS ONLY RELEVANT FOR PEOPLE THAT GENERATE ITS OWN FUNCTIONS AND CREATORS TO RUN fleets.om
+#               
+#         and the creators for specific models must have the arguments 'res' and largs: 
+#         \itemize{ 
+#            \item res the element with the general structure created in the basice creator of fleets.ctrl object 
+#            \item larg A named list with the elements necessary within the creator. For example if we use elas = FLQuant(1,dimnames = DimsNms) 
+>>>>>>> d7043b21a1ef72b1c8212081b0828a123f041bd6
 #                 in the call to the main function within the specific creator this element will be used as 'largs$elas'.
-#                    
-
+#           }         
+#' @return A list of lists with the basic structure of the fleets.ctrl object.
+#' 
  
 create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
                                 effort.models = NULL, capital.models = NULL, catch.models = NULL, price.models = NULL, flq, ...){

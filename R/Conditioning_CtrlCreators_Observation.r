@@ -1,17 +1,27 @@
 #-------------------------------------------------------------------------------
 #                    ** create.observation.ctrl **
 #
-# Dorleta Garc?a - Azti Tecnalia
+# Dorleta Garcia - Azti Tecnalia
 # 29/05/2013 11:34:54
 #-------------------------------------------------------------------------------
 #
+#' obs.ctrl object creator
+#' 
+#' It creates the obs.ctrl object to be used in the call to the main function FLBEIA.
+#' 
 #   :: ARGUMENTS ::
 #
-# - **  ** : character vector with covariables names
-# - **  ** : characted vector with the same length as cvrsnames with the process model followed by each of the covariables. 
-#         the first element correspond with the process model of the first covariable in cvrsnames, the second with the second and so on.
-#         The default is NULL in which case 'fixedCovar' is used for **all** the fleets.    
-
+#' @param stksnames A vector with the name of the stocks in the OM.
+#' @param n.stks.inds numeric vector with the same length as stksnames with the  declaration of the number of abundance indices per stock, the order must be the same used in stksnames.
+#' @param stks.indsnames  NULL or a character vector of length equal to sum(n.stks.inds) with the names of the indices per stock. The order must be the same used in the previous arguments.
+#' @param stkObs.models A character vector of the same length as stksnames with the name of the model used to observed stock data.
+#' @param indObs.models A character vector of the same length as stks.indsnames with the name of the model used to generate the abundance indices.
+#' @param immediate logical, indicating if the warnings should be output immediately.
+#' @param ... any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+#'        To assure the correct functioning the extra arguments must have a name.
+#' 
+#' @return A list of lists with the basic structure of the obs.ctrl object.
+ 
 create.obs.ctrl <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL, stkObs.models = NULL, indObs.models = NULL, immediate = FALSE,...){
 
  

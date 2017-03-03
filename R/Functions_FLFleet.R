@@ -18,13 +18,16 @@
 #'      \item{landWStock:} Extract total landings at age in weight of a stock from a FLFleetExts obj.
 #'      \item{discWStock:} Extract total discards at age in weight of a stock from a FLFleetExts obj.
 #'      \item{catchWStock:} Extract total catch at age in weight of a stock from a FLFleetExts obj.                       
+#'      \item{tlandStock:} Total landings of a stock across fleets and metiers                
+#'      \item{tdiscStock:} Total discard of a stock across fleets and metiers  
 #'}
 
 
-#' @param obj: a FLFleetExt (.f) or FLFleetsExt object 
-#' @param stock: stock name 
+#' @param obj a FLFleetExt (.f) or FLFleetsExt object 
+#' @param stock stock name
+#' @param stknm stock name 
 #
-#' @return A FLQuant object with landings, discards or catch at age. 
+#' @return A FLQuant object with landings, discards or catch (total or at age). 
 
 #' @examples
 #'\dontrun{

@@ -1,3 +1,21 @@
+#' Plots with fleets data 
+#' 
+#' Return a pdf with plots using FLFleets and advice objects.
+#'
+#' @param fleets A FLFleets object.
+#' @param advice  A list with two FLQuant elements, TAC and quota.share.
+#' @param pdfnm The name for the pdf document will be 'Catch-' and pdfnm.
+#
+#' @return One pdf for with plots (landings, discards and price by fleet).
+
+#' @examples
+#'\dontrun{
+#' library(FLBEIA)
+#' library(ggplot2)
+#' data(one)
+#' plotCatchFl(fleets = oneFl,advice = oneAdv,pdfnm = "s0")
+#' }
+#' 
 ###############################################################################
 # AUTHOR(DATE):       Agurtzane Urtizberea, Dorleta Garcia 
 # RESEARCH INSTITUTE: AZTI-TECNALIA                      

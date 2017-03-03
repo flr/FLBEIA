@@ -131,8 +131,8 @@ total.discards.stock.df <- function(fleet){
 #'      and mean weight, alpha, beta and catch.q 
 #'}
 
-#' @param fleets: a FLFleets object. 
-#' @param pdfnm: the name for the pdf document will be the fleet's name and pdfnm separated by a line.
+#' @param fleets A FLFleets object. 
+#' @param pdfnm The name for the pdf document will be the fleet's name and pdfnm separated by a line.
 #
 #' @return A pdf for each fleet with plots.
 
