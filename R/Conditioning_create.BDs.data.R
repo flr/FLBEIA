@@ -1,94 +1,124 @@
+#-------------------------------------------------------------------------
+#  inputs: 
+#
+#   Required:
+#   ni:       Number of iterations (number)
+#   ns:	      Number of seasons (number)
+#   yrs: a vector with the next elements
+#     first.yr: First year of simulation (number)
+#     proj.yr:  First year of projection (number)
+#     last.yr:  Last year of projection (number)
+#   stks.data: a list with the name of the stks and with the next elements
+#     stk_sr.model: Name of the BD model (character)
+#     stk_params.n:	Number of the parameters in the model (number)
+#     stk_params.name:	Name of the parameters (vector)
+#     stk_params.array:	Parameter values(array)
+#     stk_biomass.flq:	biomass values (FLQuant)
+#     stk_catch.flq:	catch values (FLQuant)
+#     stk_range.min:	min age
+#     stk_range.max:	max age
+#     stk_range.minyear:	min year
+#     stk_range.plusgroup:	plusgroup
+#     stk_alpha:	maximum variability of carrying capacity 
+#
+# (optional)
+#   stk_uncertainty.flq: Uncertainty (FLQuant)
+#-------------------------------------------------------------------------------
 
- create.BDs.data <- function (path)
+create.BDs.data <- function (yrs,ns,ni,stks.data)
 {
-    nmstks <- unique(sub(".*?^(.*?)_bd.model*", "\\1", ls(pattern = "_bd.model",
-        envir = sys.frame(which = 0))))
+  ind <- unlist(sapply(stks.data,function(x) grep(x, pattern="_bd.model",value=TRUE)))
+  nmstks <- unique(sub('.*?^(.*?)_bd.model*', '\\1', ind))
+  BDs <- NULL
+  
+  if (length(nmstks) != 0) {
     n.stk.BD <- length(nmstks)
-    if (n.stk.BD != 0) {
-        list.stks.flq <- create.list.stks.flq()
-        ny <- length(first.yr:last.yr)
-        hist.yrs <- as.character(first.yr:(proj.yr - 1))
-        proj.yrs <- as.character(proj.yr:last.yr)
-        list.BDs <- list()
-        for (i in 1:n.stk.BD) {
-            nmstk <- nmstks[i]
-            cat("=============", nmstk, "BD", "=============\n")
-            stk.index <- which(names(list.stks.flq) == nmstk)
-            flq.stk <- list.stks.flq[[stk.index]][, , 1]
-            stk.model <- get(paste(nmstk, "_bd.model", sep = ""))
-            stk.unit <- get(paste(nmstk, ".unit", sep = ""))
-            stk.biomass <- get(paste(nmstk, "_biomass.flq", sep = ""))
-            stk.catch <- get(paste(nmstk, "_catch.flq", sep = ""))
-            stk.param.n <- get(paste(nmstk, "_param.n", sep = ""))
-            stk.params.name <- get(paste(nmstk, "_params.name",
-                sep = ""))
-            stk.params <- get(paste(nmstk, "_params.array", sep = ""))
-            stk.range.min <- get(paste(nmstk, "_range.min", sep = ""))
-            stk.range.max <- get(paste(nmstk, "_range.max", sep = ""))
-            stk.range.plusgroup <- get(paste(nmstk, "_range.plusgroup",
-                sep = ""))
-            stk.range.minyear <- get(paste(nmstk, "_range.minyear",
-                sep = ""))
-            stk.uncertainty <- mget(paste(nmstk, "_uncertainty.flq",
-                sep = ""), envir = as.environment(-1), ifnotfound = NA,
-                inherits = TRUE)[[1]]
-            stk.alpha <-  mget(paste(nmstk, "_alpha",
-                sep = ""), envir = as.environment(-1), ifnotfound = NA,
-                inherits = TRUE)[[1]]
-            params <- array(dim = c(stk.param.n, ny, ns, ni),
+    
+    first.yr <- yrs[["first.yr"]]
+    proj.yr  <- yrs[["proj.yr"]]
+    last.yr  <- yrs[["last.yr"]]
+    proj.yrs       <- as.character(proj.yr:last.yr)
+    hist.yrs       <- as.character(first.yr:(proj.yr-1))
+    ny <- length(first.yr:last.yr)
+    list.stks.unit <- lapply(stks.data, function(ch) grep(pattern="unit", ch, value = TRUE))
+    list.stks.flq <- create.list.stks.flq(nmstks,yrs,ni,ns,list.stks.unit)  
+    
+    list.BDs <- list()
+    for (i in 1:n.stk.BD) {
+      nmstk <- nmstks[i]
+      cat("=============", nmstk, "BD", "=============\n")
+      flq.stk <- list.stks.flq[[nmstk]][, , 1]
+      
+      stk.model  <- get(grep(stks.data[[nmstk]],pattern="_bd.model", value = TRUE))
+      stk.unit  <- get(grep(stks.data[[nmstk]],pattern=".unit", value = TRUE))
+      stk.biomass  <- get(grep(stks.data[[nmstk]],pattern="_biomass.flq", value = TRUE))
+      stk.catch  <- get(grep(stks.data[[nmstk]],pattern="_catch.flq", value = TRUE))
+      stk.params.n  <- get(grep(stks.data[[nmstk]],pattern="_params.n", value = TRUE))
+      stk.params.name  <- get(grep(stks.data[[nmstk]],pattern="_params.name", value = TRUE))
+      stk.params  <- get(grep(stks.data[[nmstk]],pattern="_params.array", value = TRUE))
+      stk.range.min       <- get(grep(stks.data[[nmstk]],pattern="_range.min", value = TRUE))
+      stk.range.max       <- get(grep(stks.data[[nmstk]],pattern="_range.max", value = TRUE))
+      stk.range.plusgroup       <- get(grep(stks.data[[nmstk]],pattern="_range.plusgroup", value = TRUE))
+      stk.range.minyear       <- get(grep(stks.data[[nmstk]],pattern="_range.minyear", value = TRUE))
+      stk.uncertainty       <- mget(grep(stks.data[[nmstk]],pattern="_uncertainty.flq", value = TRUE),envir=as.environment(1))
+      if(length(stk.uncertainty)==0) stk.uncertainty  <- NA    
+      stk.alpha      <- get(grep(stks.data[[nmstk]],pattern="_alpha", value = TRUE),envir=as.environment(1))
+  
+      
+      params <- array(dim = c(stk.param.n, ny, ns, ni),
                 dimnames = list(param = ac(1:stk.param.n), year = ac(first.yr:last.yr),
                   season = ac(1:ns), iter = 1:ni))
-            stk.bd <- FLBDsim(name = nmstk, model = stk.model,
+      stk.bd <- FLBDsim(name = nmstk, model = stk.model,
                 biomass = flq.stk, catch = flq.stk, uncertainty = flq.stk,alpha=stk.alpha,
                 params = params)
-            dimnames(stk.bd@params)$param <- stk.params.name
+      dimnames(stk.bd@params)$param <- stk.params.name
            
-            stk.bd@range[["min"]] <- stk.range.min
-            stk.bd@range[["max"]] <- stk.range.max
-            stk.bd@range[["plusgroup"]] <- stk.range.plusgroup
-            stk.bd@range[["minyear"]] <- stk.range.minyear
-            stk.bd@range[["maxyear"]] <- proj.yr - 1
-            if (!all(is.na(stk.uncertainty))) {
-                log.dim <- equal.flq.Dimnames(lflq = list(stk.uncertainty,
-                  stk.bd@uncertainty), 2)
-                if (!log.dim)
-                  stop("BD uncertainty dimension names \n")
-                if (!(any(dim(stk.uncertainty)[3] == c(1, stk.unit))))
-                  stop("in uncertainty number of stock units 1 or stk.unit")
-                if (!(any(dim(stk.uncertainty)[4] == c(1, ns))))
-                  stop("in uncertainty number of seasons 1 or ns")
-                if (!(any(dim(stk.uncertainty)[6] == c(1, ni))))
-                  stop("in uncertainty number of iterations 1 or ni")
+      stk.bd@range[["min"]] <- stk.range.min
+      stk.bd@range[["max"]] <- stk.range.max
+      stk.bd@range[["plusgroup"]] <- stk.range.plusgroup
+      stk.bd@range[["minyear"]] <- stk.range.minyear
+      stk.bd@range[["maxyear"]] <- proj.yr - 1
+      if (!all(is.na(stk.uncertainty))) {
+           log.dim <- equal.flq.Dimnames(lflq = list(stk.uncertainty,
+        stk.bd@uncertainty), 2)
+      if (!log.dim)
+           stop("BD uncertainty dimension names \n")
+      if (!(any(dim(stk.uncertainty)[3] == c(1, stk.unit))))
+            stop("in uncertainty number of stock units 1 or stk.unit")
+      if (!(any(dim(stk.uncertainty)[4] == c(1, ns))))
+            stop("in uncertainty number of seasons 1 or ns")
+      if (!(any(dim(stk.uncertainty)[6] == c(1, ni))))
+             stop("in uncertainty number of iterations 1 or ni")
             }
-            else {
-                stk.uncertainty = 1
-                cat("BD uncertainty = 1 \n")
+      else {
+          stk.uncertainty = 1
+          cat("BD uncertainty = 1 \n")
             }
-            if (!all(is.na(stk.biomass))) {
-                log.dim <- equal.flq.Dimnames(lflq = list(stk.biomass,
-                  stk.bd@biomass[, hist.yrs]), 2)
-                if (!log.dim)
-                  stop("in BD biomass dimension names \n")
-                if (!(any(dim(stk.biomass)[3] == c(1, stk.unit))))
-                  stop("in biomass number of stock units 1 or stk.unit")
-                if (!(any(dim(stk.biomass)[4] == c(1, ns))))
-                  stop("in biomass number of seasons 1 or ns")
-                if (!(any(dim(stk.biomass)[6] == c(1, ni))))
-                  stop("in biomass number of iterations 1 or ni")
+      if (!all(is.na(stk.biomass))) {
+          log.dim <- equal.flq.Dimnames(lflq = list(stk.biomass,
+              stk.bd@biomass[, hist.yrs]), 2)
+          if (!log.dim)
+              stop("in BD biomass dimension names \n")
+          if (!(any(dim(stk.biomass)[3] == c(1, stk.unit))))
+             stop("in biomass number of stock units 1 or stk.unit")
+          if (!(any(dim(stk.biomass)[4] == c(1, ns))))
+              stop("in biomass number of seasons 1 or ns")
+          if (!(any(dim(stk.biomass)[6] == c(1, ni))))
+              stop("in biomass number of iterations 1 or ni")
             }
-            else {
-                cat("BD biomass values all NA-s \n")
+       else {
+           cat("BD biomass values all NA-s \n")
             }
-            if (!all(is.na(stk.catch))) {
-                log.dim <- equal.flq.Dimnames(lflq = list(stk.catch,
+           if (!all(is.na(stk.catch))) {
+              log.dim <- equal.flq.Dimnames(lflq = list(stk.catch,
                   stk.bd@catch[, hist.yrs]), 2)
-                if (!log.dim)
+              if (!log.dim)
                   stop("in BD catch dimension names \n")
-                if (!(any(dim(stk.catch)[3] == c(1, stk.unit))))
+              if (!(any(dim(stk.catch)[3] == c(1, stk.unit))))
                   stop("in catch number of stock units 1 or stk.unit")
-                if (!(any(dim(stk.catch)[4] == c(1, ns))))
+              if (!(any(dim(stk.catch)[4] == c(1, ns))))
                   stop("in catch number of seasons 1 or ns")
-                if (!(any(dim(stk.catch)[6] == c(1, ni))))
+              if (!(any(dim(stk.catch)[6] == c(1, ni))))
                   stop("in catch number of iterations 1 or ni")
             }
             else {
@@ -106,6 +136,7 @@
               p <- stk.bd@params["p",,,]
               r <- stk.bd@params["r",,,]
               K <- stk.bd@params["K",,,]
+
               if(stk.bd@alpha<1 || stk.bd@alpha > min((p/r+1)^(1/p))){
                 stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
               } 

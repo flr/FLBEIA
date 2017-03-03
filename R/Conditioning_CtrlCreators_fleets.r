@@ -7,25 +7,25 @@
 #
 #   :: ARGUMENTS ::
 #
-# - ** flts ** : character vector with fleet names
-# - ** n.flts.stks ** : numeric vector with the same length as flts with the  declaration the stocks caugth by each of the fleets.
-# - ** flts.stksnames **: character vector with length = sum(n.flts.stks), with the names of the stocks caught by the fleet, 
-#        o the  first n.flts.stks[1] elements correspond to the stocks caught by the first fleet in flts
-#        o the  following n.flts.stks[2] elements correspond to the stocks caught by the second fleet in flts
+# - ** fls ** : character vector with fleet names
+# - ** n.fls.stks ** : numeric vector with the same length as fls with the  declaration the stocks caugth by each of the fleets.
+# - ** fls.stksnames **: character vector with length = sum(n.fls.stks), with the names of the stocks caught by the fleet, 
+#        o the  first n.fls.stks[1] elements correspond to the stocks caught by the first fleet in fls
+#        o the  following n.fls.stks[2] elements correspond to the stocks caught by the second fleet in fls
 #        o and so on.
 # - ** catch.threshold **: if(NULL) => 0.9 for all the stocks (NULL is the default)  
 #                   else it must be an FLQuant with dim = c(nstks,ny,1,ns,nit)
-# - ** effort.models **:  characted vector with the same length as flts with the effort model followed by each of the fleet. 
-#         the first element correspond with the effort model of the first fleet in flts, the second with the second and so on.
+# - ** effort.models **:  characted vector with the same length as fls with the effort model followed by each of the fleet. 
+#         the first element correspond with the effort model of the first fleet in fls, the second with the second and so on.
 #         The default is NULL in which case 'fixedEffort' is used for **all** the fleets.    
-# - ** capital.models **:  characted vector with the same length as flts with the capital model followed by each of the fleet. 
-#         the first element correspond with the capital model of the first fleet in flts, the second with the second and so on.
+# - ** capital.models **:  characted vector with the same length as fls with the capital model followed by each of the fleet. 
+#         the first element correspond with the capital model of the first fleet in fls, the second with the second and so on.
 #         The default is NULL in which case 'fixedCapital' is used for **all** the fleets. 
-# - ** catch.models **:  characted vector with the same length as sum(n.flts.stks) with the catch model followed by each of the fleet for each stock. 
-#         the first element correspond with the catch model of the first fleet in flts and the first stock in flts.stksnames, the second with the second and so on.
+# - ** catch.models **:  characted vector with the same length as sum(n.fls.stks) with the catch model followed by each of the fleet for each stock. 
+#         the first element correspond with the catch model of the first fleet in fls and the first stock in fls.stksnames, the second with the second and so on.
 #         The default is NULL in which case 'CobbDouglasAge' is used for **all** the fleets. 
-# - ** price.models **:  characted vector with the same length as sum(n.flts.stks) with the price model followed by each of the fleet for each stock. 
-#         the first element correspond with the price model of the first fleet in flts and the first stock in flts.stksnames, the second with the second and so on.
+# - ** price.models **:  characted vector with the same length as sum(n.fls.stks) with the price model followed by each of the fleet for each stock. 
+#         the first element correspond with the price model of the first fleet in fls and the first stock in fls.stksnames, the second with the second and so on.
 #         The default is NULL in which case 'fixedPrice' is used for **all** the fleets. 
 # - ** flq **: An flquant to give structure to the FLQuants to be used within the function, 
 #         the dimensioan and dimnames in 'year', 'season' and 'iter' will be used to create the necessary FLQuants. 
@@ -38,7 +38,7 @@
 #                    
 
  
-create.fleets.ctrl <- function(flts,  n.flts.stks, flts.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
+create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
                                 effort.models = NULL, capital.models = NULL, catch.models = NULL, price.models = NULL, flq, ...){
     
     effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit')
@@ -46,10 +46,10 @@ create.fleets.ctrl <- function(flts,  n.flts.stks, flts.stksnames, catch.thresho
     price.models.available   <- c('fixedPrice', 'elasticPrice')
     capital.models.available <- c('fixedCapital', 'SCD')
     
-    nfls <- length(flts) 
+    nfls <- length(fls) 
     res  <- vector('list', nfls + 2)
-    names(res) <- c('catch.threshold', 'seasonal.share', flts)
-    stknms <- unique(flts.stksnames)
+    names(res) <- c('catch.threshold', 'seasonal.share', fls)
+    stknms <- unique(fls.stksnames)
     
     extra.args <- list(...) # a named list with the extra arguments in the call to the function, it'll contain the arguments for specific  creators.
   
@@ -62,9 +62,9 @@ create.fleets.ctrl <- function(flts,  n.flts.stks, flts.stksnames, catch.thresho
     
     # Seasonal share.
     if(is.null(seasonal.share)){
-        res[['seasonal.share']]        <- vector('list', length(unique(flts.stksnames)))
-        names(res[['seasonal.share']]) <- unique(flts.stksnames)
-        Dims <- c(list(fleet = flts), dimnames(flq)[2:6])
+        res[['seasonal.share']]        <- vector('list', length(unique(fls.stksnames)))
+        names(res[['seasonal.share']]) <- unique(fls.stksnames)
+        Dims <- c(list(fleet = fls), dimnames(flq)[2:6])
         for(i in 1: length(res[['seasonal.share']])) res[['seasonal.share']][[i]] <- FLQuant(1/dim(flq)[4], dimnames = Dims)
     }
     else{
@@ -73,8 +73,8 @@ create.fleets.ctrl <- function(flts,  n.flts.stks, flts.stksnames, catch.thresho
     
     if(is.null(effort.models))  effort.models   <- rep('fixedEffort', nfls)                                                                      
     if(is.null(capital.models)) capital.models  <- rep('fixedCapital', nfls)  
-    if(is.null(catch.models))   catch.models    <- rep('CobbDouglasAge', sum(n.flts.stks)) 
-    if(is.null(price.models))   price.models    <- rep('fixedPrice', sum(n.flts.stks))  
+    if(is.null(catch.models))   catch.models    <- rep('CobbDouglasAge', sum(n.fls.stks)) 
+    if(is.null(price.models))   price.models    <- rep('fixedPrice', sum(n.fls.stks))  
     
     # check that all flq-s differ only in first (quant) dimension.
     test.flqs <- lapply(c('flq', names(extra.args)[grep(pattern = 'flq', names(extra.args))]), get)
@@ -83,25 +83,25 @@ create.fleets.ctrl <- function(flts,  n.flts.stks, flts.stksnames, catch.thresho
     
     # Check foo.models
     # effort models
-    if(length(effort.models) != nfls) stop("'effort.models' must be NULL or must have the same length as flts'")
+    if(length(effort.models) != nfls) stop("'effort.models' must be NULL or must have the same length as fls'")
     if(!all(effort.models %in% effort.models.available)){ 
         wmod <- effort.models[which(!(effort.models %in% effort.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'effort.models' is not an internal FLBEIA effort model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # catch models.
-    if(length(catch.models) != sum(n.flts.stks)) stop("'catch.models' must be NULL or must have the same length as stknames'")
+    if(length(catch.models) != sum(n.fls.stks)) stop("'catch.models' must be NULL or must have the same length as stknames'")
     if(!all(catch.models %in% catch.models.available)){ 
         wmod <- catch.models[which(!(catch.models %in% catch.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'catch.models' is not an internal FLBEIA catch model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # price models.
-    if(length(price.models) != sum(n.flts.stks)) stop("'price.models' must be NULL or must have the same length as stknames'")
+    if(length(price.models) != sum(n.fls.stks)) stop("'price.models' must be NULL or must have the same length as stknames'")
     if(!all(price.models %in% price.models.available)){ 
         wmod <- price.models[which(!(price.models %in% price.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'price.models' is not an internal FLBEIA price model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # capital models.
-    if(length(capital.models) != nfls) stop("'capital.models' must be NULL or must have the same length as flts'")
+    if(length(capital.models) != nfls) stop("'capital.models' must be NULL or must have the same length as fls'")
     if(!all(capital.models %in% capital.models.available)){ 
         wmod <- capital.models[which(!(capital.models %in% capital.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'capital.models' is not an internal FLBEIA capital model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
@@ -109,45 +109,45 @@ create.fleets.ctrl <- function(flts,  n.flts.stks, flts.stksnames, catch.thresho
     
     
     # Some check to test if declared number of stocks coincide with that used in the name declaration-
-#    if(length(nflsts.mtrs) != nfls) stop("The length of 'flts' and 'nflts.mtrs' must coincide")
-#    if(sum(nflts.mtrs) != length(flts.mtrsnames)) stop("The total number of metiers declared in 'nflts.mtrs' must be equal to the length of 'flts.mtrsnames'.")
-    if(sum(n.flts.stks) != length(flts.stksnames)) stop("The total number of stocks declared in 'n.flts.stks' must be equal to the length of 'flts.stksnames'.")
+#    if(length(nflsts.mtrs) != nfls) stop("The length of 'fls' and 'nfls.mtrs' must coincide")
+#    if(sum(nfls.mtrs) != length(fls.mtrsnames)) stop("The total number of metiers declared in 'nfls.mtrs' must be equal to the length of 'fls.mtrsnames'.")
+    if(sum(n.fls.stks) != length(fls.stksnames)) stop("The total number of stocks declared in 'n.fls.stks' must be equal to the length of 'fls.stksnames'.")
     if(length(effort.models) != nfls) stop("The length of 'effort.models' must coincide with the number of fleets")
     if(length(capital.models) != nfls) stop("The length of 'capital.models' must coincide with the number of fleets")
     
   
-    names(effort.models)  <- flts
-    names(capital.models) <- flts
-    names(n.flts.stks)    <- flts
-    names(price.models)   <- flts.stksnames
-    names(catch.models)   <- flts.stksnames
+    names(effort.models)  <- fls
+    names(capital.models) <- fls
+    names(n.fls.stks)    <- fls
+    names(price.models)   <- fls.stksnames
+    names(catch.models)   <- fls.stksnames
     
     # Create the fleet/metier/stock GENERAL structure in res. 
     k1 <- 1
     k2 <- 1
-    for(f in flts){  # fleet structure
+    for(f in fls){  # fleet structure
         
-        res[[f]]        <- vector('list', n.flts.stks[f] + 2) # minimum length
-        names(res[[f]]) <- c('effort.model', 'capital.model', flts.stksnames[k1:(k1 + n.flts.stks[f] - 1)])
+        res[[f]]        <- vector('list', n.fls.stks[f] + 2) # minimum length
+        names(res[[f]]) <- c('effort.model', 'capital.model', fls.stksnames[k1:(k1 + n.fls.stks[f] - 1)])
         
         res[[f]][['effort.model']]  <- unname(effort.models[f])
         res[[f]][['capital.model']] <- unname(capital.models[f])
         
         
-        for(st in flts.stksnames[k1:(k1+n.flts.stks[f]-1)]){ # stock structure.  
+        for(st in fls.stksnames[k1:(k1+n.fls.stks[f]-1)]){ # stock structure.  
             res[[f]][[st]] <- vector('list', 2) # minimun length
             names(res[[f]][[st]])  <- c('catch.model', 'price.model')
             res[[f]][[st]][['catch.model']] <- unname(catch.models[k2])
             res[[f]][[st]][['price.model']] <- unname(price.models[k2])
             k2 <- k2 + 1
         }
-        k1 <- k1 + n.flts.stks[f]
+        k1 <- k1 + n.fls.stks[f]
     }
     
     # Add the function specific elements by fleet/stock.
     k1 <- 1
     jf <- 1
-    for(f in flts){  # fleet level functions; effort and capital models
+    for(f in fls){  # fleet level functions; effort and capital models
       
         
         effmodcreator <- paste('create', effort.models[f],  'ctrl', sep = '.')
@@ -156,7 +156,7 @@ create.fleets.ctrl <- function(flts,  n.flts.stks, flts.stksnames, catch.thresho
         res[[f]] <- eval(call(effmodcreator, resf = res[[f]], fltname = f, largs = extra.args))
         res[[f]] <- eval(call(capmodcreator, resf = res[[f]], fltname = f, largs = extra.args))
                 
-        for(st in flts.stksnames[k1:(k1+n.flts.stks[jf]-1)]){ # stock level functios: catch and price models.  
+        for(st in fls.stksnames[k1:(k1+n.fls.stks[jf]-1)]){ # stock level functios: catch and price models.  
                 
             catchmodcreator <- paste('create', catch.models[k1], 'ctrl', sep = '.')
             pricemodcreator <- paste('create', price.models[k1], 'ctrl', sep = '.')

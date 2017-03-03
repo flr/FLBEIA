@@ -7,26 +7,29 @@
 #-------------------------------------------------------------------------
 #  inputs: 
 #
-#   first.yr: First year of simulation (number)
-#   proj.yr:  First year of projection (number)
-#   last.yr:	Last year of projection (number)
+#   (required)
 #   ni:       Number of iterations (number)
 #   ns:	      Number of seasons (number)
-#   stks:     Name of all the stocks (vector)
-#   stk.unit	Number of units of the stock (number) 
-#   stk.min.age: Minimum age of the stock (number)
-#   stk.max.age: Maximum age of the stock (number)
-#   stk_n.flq:   Abundance at age age (FLQuant)
-#   stk_wt.flq:  Weight age age (FLQuant)
-#   stk_m.flq:   Natural mortality age age (FLQuant)	
-#   stk_fec.flq: Fecundity at age	(FLQuant)	
-#   stk_spwn.flq:   Spawning at age	(FLQuant)
-#   stk_range.min:	Minimum age (number)
-#   stk_range.max:	Maximum age (number)
-#   stk.range.minyear:  Minimum year (number)
-#   stk_range.minfbar:	Minimum year to take into account in the calculation of 'f' (number)
-#   stk_range.maxfbar:	Maximum year to take into account in the calculation of 'f' (number)
-#   stk_biol.proj.avg.yrs:	historic years to calculate the average of spwn, fec, m and wt (vector)
+#   yrs: a vector with the next elements
+#     first.yr: First year of simulation (number)
+#     proj.yr:  First year of projection (number)
+#     last.yr:  Last year of projection (number)
+#   stks.data: a list with the name of the stks and with the next elements
+#     stks:     Name of all the stocks (vector)
+#     stk.unit	Number of units of the stock (number) 
+#     stk.min.age: Minimum age of the stock (number)
+#     stk.max.age: Maximum age of the stock (number)
+#     stk_n.flq:   Abundance at age age (FLQuant)
+#     stk_wt.flq:  Weight age age (FLQuant)
+#     stk_m.flq:   Natural mortality age age (FLQuant)	
+#     stk_fec.flq: Fecundity at age	(FLQuant)	
+#     stk_spwn.flq:   Spawning at age	(FLQuant)
+#     stk_range.min:	Minimum age (number)
+#     stk_range.max:	Maximum age (number)
+#     stk.range.minyear:  Minimum year (number)
+#     stk_range.minfbar:	Minimum year to take into account in the calculation of 'f' (number)
+#     stk_range.maxfbar:	Maximum year to take into account in the calculation of 'f' (number)
+#     stk_biol.proj.avg.yrs:	historic years to calculate the average of spwn, fec, m and wt (vector)
 #
 #   Required functions: Create.list.stks.flqa	function
 #-------------------------------------------------------------------------
@@ -39,12 +42,19 @@
 #   Section 3:      Return biols
 #-------------------------------------------------------------------------------
 
-create.biols.data <- function(){
+create.biols.data <- function(yrs,ns,ni,stks.data){
   
+  stks           <- names(stks.data)
   n.stk          <- length(stks)    
+  first.yr <- yrs[["first.yr"]]
+  proj.yr  <- yrs[["proj.yr"]]
+  last.yr  <- yrs[["last.yr"]]
   proj.yrs       <- as.character(proj.yr:last.yr)
   hist.yrs       <- as.character(first.yr:(proj.yr-1))
-  list.stks.flqa <- create.list.stks.flqa()  
+
+  list.stks.unit <- lapply(stks.data, function(ch) grep(pattern="unit", ch, value = TRUE))
+  list.stks.age <- lapply(stks.data, function(ch) grep(pattern="age", ch, value = TRUE))
+  list.stks.flqa <- create.list.stks.flqa(stks,yrs,ni,ns,list.stks.unit,list.stks.age)  
   #==============================================================================
   #   Section 1:     Create FLBIOL per stock
   #==============================================================================
@@ -59,21 +69,21 @@ create.biols.data <- function(){
     #------------------------------------------------------------------------------
     #   Section 1.1:      Historical data
     #------------------------------------------------------------------------------
-    stk.unit  <- get(paste(nmstk,'.unit',sep=""))
-    stk.wt     <- get(paste(nmstk,'_wt.flq',sep=""))
-    stk.n      <- get(paste(nmstk,'_n.flq',sep=""))
-    stk.m      <- get(paste(nmstk,'_m.flq',sep=""))
-    stk.fec    <- get(paste(nmstk,'_fec.flq',sep=""))
-    stk.mat    <- get(paste(nmstk,'_mat.flq',sep=""))
-    stk.spwn   <- get(paste(nmstk,'_spwn.flq',sep=""))
-    stk.range.min       <- get(paste(nmstk,'_range.min',sep=""))
-    stk.range.max       <- get(paste(nmstk,'_range.max',sep=""))
-    stk.range.plusgroup <- get(paste(nmstk,'_range.plusgroup',sep=""))
-    stk.range.minyear   <- get(paste(nmstk,'_range.minyear',sep=""))
+    stk.unit  <- get(grep(stks.data[[nmstk]],pattern=".unit", value = TRUE))
+    stk.wt     <- get(grep(stks.data[[nmstk]],pattern="_wt.flq", value = TRUE))
+    stk.n      <- get(grep(stks.data[[nmstk]],pattern="_n.flq", value = TRUE))
+    stk.m      <- get(grep(stks.data[[nmstk]],pattern="_m.flq", value = TRUE))
+    stk.fec    <- get(grep(stks.data[[nmstk]],pattern="_fec.flq", value = TRUE))
+    stk.mat    <- get(grep(stks.data[[nmstk]],pattern="_mat.flq", value = TRUE))
+    stk.spwn   <- get(grep(stks.data[[nmstk]],pattern="_spwn.flq", value = TRUE))
+    stk.range.min       <- get(grep(stks.data[[nmstk]],pattern="_range.min", value = TRUE)) 
+    stk.range.max       <- get(grep(stks.data[[nmstk]],pattern="_range.max", value = TRUE)) 
+    stk.range.plusgroup <- get(grep(stks.data[[nmstk]],pattern="_range.plusgroup", value = TRUE)) 
+    stk.range.minyear   <- get(grep(stks.data[[nmstk]],pattern="_range.minyear", value = TRUE)) 
     stk.range.maxyear   <- last.yr    
-    stk.range.minfbar   <- get(paste(nmstk,'_range.minfbar',sep=""))
-    stk.range.maxfbar   <- get(paste(nmstk,'_range.maxfbar',sep=""))
-    stk.proj.avg.yrs    <- get(paste(nmstk,'_biol.proj.avg.yrs',sep=""))
+    stk.range.minfbar   <-  get(grep(stks.data[[nmstk]],pattern="_range.minfbar", value = TRUE)) 
+    stk.range.maxfbar   <- get(grep(stks.data[[nmstk]],pattern="_range.maxfbar", value = TRUE)) 
+    stk.proj.avg.yrs    <- get(grep(stks.data[[nmstk]],pattern="_biol.proj.avg.yrs", value = TRUE)) 
     stk.proj.avg.yrs    <- as.character(stk.proj.avg.yrs) 
     
     # Check the dimension names of age and years

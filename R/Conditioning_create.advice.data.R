@@ -9,11 +9,12 @@
 #  inputs: 
 #
 #   Required:
-#   first.yr: First year of simulation (number)
-#   proj.yr:  First year of projection (number)
-#   last.yr:  Last year of projection (number)
 #   ni:       Number of iterations (number)
-#   ns:       Number of seasons (number)
+#   ns:	      Number of seasons (number)
+#   yrs: a vector with the next elements
+#     first.yr: First year of simulation (number)
+#     proj.yr:  First year of projection (number)
+#     last.yr:  Last year of projection (number)
 #
 #   Optional:
 #   fleets: an object called fleets, an FLFleets object, it could be the output of create_fleets_FLBEIA function. (FLFleets) 
@@ -31,7 +32,7 @@
 #   Section 3:        Return advice
 #-------------------------------------------------------------------------------
 
-create.advice.data<- function(){
+create.advice.data<- function(yrs,ns,ni,stks.data,fleets){
   
   #==============================================================================
   #   Section 1:        creating a list 
@@ -40,9 +41,15 @@ create.advice.data<- function(){
   advice        <- vector('list',3)
   names(advice) <- c('TAC','TAE','quota.share')
   
+  first.yr <- yrs[["first.yr"]]
+  proj.yr  <- yrs[["proj.yr"]]
+  last.yr  <- yrs[["last.yr"]]
+  proj.yrs       <- as.character(proj.yr:last.yr)
+  hist.yrs       <- as.character(first.yr:(proj.yr-1))
   yrs <- as.character(first.yr:last.yr)
-  hist.yrs <- as.character(first.yr:(proj.yr-1))
-  proj.yrs <- as.character(proj.yr:last.yr)
+  ny <- length(first.yr:last.yr)
+  
+  stks <- names(stks.data)
   n.stk <- length(stks)
   
   #==============================================================================
@@ -63,23 +70,29 @@ create.advice.data<- function(){
   
   advice$quota.share[[stk]]   <- FLQuant(dimnames=list(fleet = flnms, year = yrs, iter = 1:ni))
 
-  stk.advice.TAC    <- mget(paste(stk,'_advice.TAC.flq',sep='') ,envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-  stk.advice.TAE    <- mget(paste(stk,'_advice.TAE.flq',sep='') ,envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-  stk.advice.quota.share    <- mget(paste(stk,'_advice.quota.share.flq',sep='') ,envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-
+  stk.advice.TAC     <- mget(grep(stks.data[[nmstk]],pattern="_advice.TAC.flq", value = TRUE),envir=as.environment(1))
+  if(length(stk.advice.TAC)==0) stk.advice.TAC  <- NA    
+  stk.advice.TAE     <- mget(grep(stks.data[[nmstk]],pattern="_advice.TAE.flq", value = TRUE),envir=as.environment(1))
+  if(length(stk.advice.TAE)==0) stk.advice.TAE  <- NA    
+  stk.advice.quota.share     <- mget(grep(stks.data[[nmstk]],pattern="_advice.quota.share.flq", value = TRUE),envir=as.environment(1))
+  if(length(stk.advice.quota.share)==0) stk.advice.quota.share  <- NA    
+  
   if(!all(is.na(stk.advice.TAC))){
+    stk.advice.TAC <- stk.advice.TAC[[1]]
     log.dim <- equal.flq.Dimnames(lflq=list(stk.advice.TAC,advice$TAC[stk,]),2)
     if(!log.dim)stop('in TAC years dimension names \n')
     if(!(any(dim(stk.advice.TAC)[4]==c(1,ns))))stop('in TAC number of seasons 1 or ns')
     if(!(any(dim(stk.advice.TAC)[6]==c(1,ni))))stop('in TAC number of iterations 1 or ni')}
   
   if(!all(is.na(stk.advice.TAE))){
+    stk.advice.TAE <- stk.advice.TAE[[1]]
     log.dim <- equal.flq.Dimnames(lflq=list(stk.advice.TAE,advice$TAE[stk,]),2)
     if(!log.dim)stop('in TAE years dimension names \n')
     if(!(any(dim(stk.advice.TAE)[4]==c(1,ns))))stop('in TAE number of seasons 1 or ns')
     if(!(any(dim(stk.advice.TAE)[6]==c(1,ni))))stop('in TAE number of iterations 1 or ni')}
   
   if(!all(is.na(stk.advice.quota.share))){
+    stk.advice.quota.share <- stk.advice.quota.share[[1]]
     log.dim <- equal.flq.Dimnames(lflq=list(stk.advice.quota.share,advice$quota.share[[stk]]),2)
     if(!log.dim)stop('in quota share years dimension names \n')
     if(!(any(dim(stk.advice.quota.share)[4]==c(1,ns))))stop('in quota share number of seasons 1 or ns')

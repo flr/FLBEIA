@@ -9,28 +9,33 @@
 #  inputs: 
 #
 #   stks:     Name of all the stocks (vector)
-#   first.yr: First year of simulation (number)
-#   proj.yr:	First year of projection (number)
-#   last.yr:	Last year of projection (number)
+#   yrs:      a vector with c(first.yr,proj.yr,last.yr)
+#                 first.yr:	First year of simulation (number)
+#                 proj.yr:	First year of projection (number)
+#                 last.yr:	Last year of projection (number)
 #   ni:       Number of iterations (number)
 #   ns:	      Number of seasons (number)
-#   stk.unit	Number of units of the stock (number) 
-#   stk.min.age: Minimum age of the stock (number)
-#   stk.max.age: Maximum age of the stock (number)
+#   list.stks.unit: a list with the name of the stks and each 
+#                     stk includes the number of units
+#   list.stks.age: a list with the name of the stks and each 
+#                     stk includes min.age and max.age
 #-------------------------------------------------------------------------
 
 
-create.list.stks.flqa <- function(){
+create.list.stks.flqa <- function(stks,yrs,ni,ns,list.stks.unit,list.stks.age){
   
   n.stk   <- length(stks)    
+  first.yr <- yrs[["first.yr"]]
+  proj.yr  <- yrs[["proj.yr"]]
+  last.yr  <- yrs[["last.yr"]]
   nmy     <- as.character(first.yr:last.yr)
   list.stks.flqa <- NULL
   
   for(i in 1:n.stk){
     nmstk         <- stks[i]
-    stk.age.min <- get(paste(nmstk,'.age.min',sep=''))
-    stk.age.max <- get(paste(nmstk,'.age.max',sep=''))
-    stk.unit    <- get(paste(nmstk,'.unit',sep=""))
+    stk.age.min <- get(grep(list.stks.age[[nmstk]],pattern="age.min", value = TRUE))
+    stk.age.max <- get(grep(list.stks.age[[nmstk]],pattern="age.max", value = TRUE))
+    stk.unit <- get(grep(list.stks.unit[[nmstk]],pattern="unit", value = TRUE))
     nmu <- 1:stk.unit
     nms <- 1:ns
     if(stk.unit==1) nmu <- 'unique'
