@@ -34,6 +34,7 @@
 #       depreciationCosts, investmentCosts,GCF,GVA,netProfit,BER,employment,
 #       numberVessels] 
 #------------------------------------------------------------------------------#
+#' @rdname summary_flbeia
 ecoSum_damara <- function (fleets, flnms = "all", years, covars = NULL)
 {
     if (flnms[1] == "all")

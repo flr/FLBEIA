@@ -15,27 +15,28 @@
 # Changed: 30/01/2011 20:50:32
 #------------------------------------------------------------------------------#
 
-#' Auxiliary summary Functions
+#' Biological summary functions
+#' 
+#' These functions return the summary of the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D). 
+#' 
+#' @param  obj The output of the FLBEIA function.
+#' @param  years Is the period of years defined in the obj.
+#' 
+#' @return The summary of the selected biological item.
 #'
-#' @details
+#' @details 
 #' 
-#'#'\itemize{
-#'       \item{B_flbeia}{Auxiliary function to summarize the biological results.}
-#'       \item{F_flbeia}{Auxiliary function to summarize the fishing mortiality.}
-#'       \item{SSB_flbeia} {Auxiliary function to summarize the spawning stock biomass by species.}
-#'       \item{R_flbeia}{Auxiliary function to summarize the recruitment by species when the stock is defined by age;
+#' \itemize{
+#'       \item{B_flbeia}{ this function computes SSB.}
+#'       \item{F_flbeia}{ ithis function computes fishing mortiality.}
+#'       \item{SSB_flbeia}{ this function computes spawning stock biomass by species.}
+#'       \item{R_flbeia}{ this function computes recruitment by stock. If the stock is defined by age this function the recruiment is computed. ;
 #'                        If the stock is follows a biomass dynamics, this function gives the growth.}
-#'       \item{C_flbeia}{Auxiliary function to summarize the catches by fleets and stock.} 
-#'       \item{L_flbeia}{Auxiliary function to summarize the landings by fleets and stock.}
-#'       \item{D_flbeia}{{Auxiliary function to summarize the discards by fleets and stock.}
-#'       \item{D_flbeia}{{Auxiliary function to summarize the discards by fleets and stoc.}
+#'       \item{C_flbeia}{ this function computes catches by fleets and stock.} 
+#'       \item{L_flbeia}{ this function computes landings by fleets and stock.}
+#'       \item{D_flbeia}{ ithis function computes the discards by fleets and stock.}
 #'      }     
-#'         
-#' @param  FLQuant object. 
-#' @param year. 
-# 
-#' @return A FLQuant object.  
-#' 
+
 #------------------------------------------------------------------------------#
 # F_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
@@ -150,6 +151,7 @@ B_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 # If age struc => recruitment.
 # If biodyn    => growth.
 #------------------------------------------------------------------------------#
+
 #' @rdname F_flbeia
 R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
@@ -190,6 +192,7 @@ R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # C_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+
 #' @rdname F_flbeia
 C_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
@@ -233,6 +236,7 @@ L_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # D_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+
 #' @rdname F_flbeia
 D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
@@ -255,7 +259,60 @@ D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # summary_flbeia(obj) :: res[stocks, years, it, indicators] 
 #------------------------------------------------------------------------------#
+#' Summary of the FLBEIA output 
+#' 
+#' Summarize the results of the simulation in data frames.
+#'
+#' @details
+#' 
+#'\itemize{
+#'      \item{Summary_flbeia:} The data frame contains five columns: stock, years, iteration, 
+#'      indicator and value. The indicators are: recruitment, ssb, f, biomass, catch, landings and discards.
+#'      \item{bioSum:} The data frame contains biological results. The columns are stocks, 
+#'      years, it, indicators and value. 
+#'      \item{ecoSum:} The colums of the data frame are: year, quarter, stock, fleet, iter, profits, 
+#'      capacity, costs, discards, effort and landings.
+#'      \item{ecoSum_damara:} ecoSum for Damara project.
+#'      \item{effortMtSum:} The colums of the data frame are: year, quarter, fleet, metier, iter, 
+#'      effort and effshare.
+#'      \item{catchFlSum:} The colums of the data frame are: year, quarter, stock, fleet, iter, 
+#'      landings, discards, price and tacshare.
+#'      \item{catchMtSum:} The colums of the data frame are: year, quarter, stock, fleet, metier, iter, 
+#'      landings, discards and price.
+#'      
+#'}
 
+#' @arguments
+#' @inheritParams FLBEIA
+#' @inheritParams F_flbeia
+#' @param flnm Names of the fleets.
+#' @param stknms Names of the stocks.
+#' @param years The period of years. 
+#' 
+#
+#' @return A data frame.
+
+#' @examples
+#'\dontrun{
+#' library(FLBEIA)
+#' library(ggplot2)
+#' data(one)
+#' s0 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for stk1.
+#'                SRs = oneSR,        # A list with one FLSRSim object for stk1.
+#'                BDs = NULL,         # No Biomass Dynamic populations in this case.
+#'             fleets = oneFl,        # FLFleets object with on fleet.
+#'             covars = NULL,         # covars not used
+#'            indices = NULL,         # indices not used 
+#'             advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
+#'          main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
+#'         biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
+#'        fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
+#'        covars.ctrl = NULL,         # covars control not used 
+#'           obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
+#'        assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
+#'        advice.ctrl = oneAdvC) 
+#' summary_flbeia(obj=s0)
+#' }
 summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 
     stknms <- names(obj$biols)
@@ -283,7 +340,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #------------------------------------------------------------------------------#
 # BIOsummary(obj) :: DATA.FRAME[stocks, years, it, indicators, value] 
 #------------------------------------------------------------------------------#
-
+#' @rdname summary_flbeia
 bioSum <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     xx <- summary_flbeia(obj, years)
     n  <- prod(dim(xx))
@@ -315,6 +372,7 @@ bioSum <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 # ecoSum data.frame[year, quarter, stock, fleet, iter, ||,|| 
 #        profits, capacity, costs, discards, effort, landings] 
 #------------------------------------------------------------------------------#
+#' @rdname summary_flbeia
 ecoSum <- function (fleets, flnms = "all", years, covars = NULL)
 {
     if (flnms[1] == "all")
@@ -345,10 +403,34 @@ ecoSum <- function (fleets, flnms = "all", years, covars = NULL)
 }
     
 
-
 #-------------------------------------------------------------------------------
 # revenue_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
+
+#' Economic summary functions.
+#' 
+#' These functions provide summary results of costs, prices and revenues. Provided data can be dessagregated by fleet or by metier depending on the selected function.
+#' 
+#' @param fleet An element of FLfleets object.
+#' @param stock An FLStock object.
+#' @param flnm Names of the fleets.
+#' @inheritParams FLBEIA
+#'   
+#' 
+#' @details
+#'  
+#'\itemize{
+#'       \item{revenue_flbeia}{ computes the revenue by fleet and metier. The revenue is computed as
+#'        landings (weight) multiplied by the price.}
+#'       \item{costs_flbeia}{ computes total costs as the sum of fixed and variable costs.}
+#'       \item{totvcost_flbeia}{ computes the variable costs including crew share costs .}
+#'       \item{totfcost_flbeia}{ computes the total costs by vessel.}
+#'       \item{price_flbeia}{ computes the price by stock.} 
+#'      }     
+#'         
+
+
+#' @rdname revenue_flbeia
 revenue_flbeia <- function(fleet){
     
     sts <- catchNames(fleet)
@@ -372,6 +454,8 @@ revenue_flbeia <- function(fleet){
 #-------------------------------------------------------------------------------
 # costs_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
+
+#' @rdname revenue_flbeia
 costs_flbeia <- function(fleet, covars, flnm = NULL){
     
     res <- totvcost_flbeia(fleet) + totfcost_flbeia(fleet, covars, flnm)
@@ -382,6 +466,7 @@ costs_flbeia <- function(fleet, covars, flnm = NULL){
 #-------------------------------------------------------------------------------
 # totvcost_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
+#' @rdname revenue_flbeia
 totvcost_flbeia <- function(fleet){
     
     mts <- names(fleet@metiers)
@@ -401,6 +486,7 @@ totvcost_flbeia <- function(fleet){
 #-------------------------------------------------------------------------------
 # totvcost_flbeia(fleet, years)
 #-------------------------------------------------------------------------------
+#' @rdname revenue_flbeia
 totfcost_flbeia <- function(fleet, covars, flnm = NULL){
      if(is.null(flnm)) flnm <- 1
      return(fleet@fcost*covars[['NumbVessels']][flnm,])            
@@ -409,9 +495,10 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 
 #------------------------------------------------------------------------------#
 # catchFlSum data.frame[year, quarter, stock, fleet, iter, ||,|| 
-#        landings, discards,price] 
+#        landings, discards, price, tacshare] 
 #------------------------------------------------------------------------------#
-catchFlSum <- function(fleets, advice, flnms = 'all', stknms, years){
+#' @rdname summary_flbeia
+catchFlSum <- function(fleets, advice, flnms = 'all', stknms = 'all', years){
     
     if(flnms[1] == 'all') flnms <- names(fleets)
     if(stknms[1] == 'all') stknms <- catchNames(fleets)
@@ -462,6 +549,7 @@ catchFlSum <- function(fleets, advice, flnms = 'all', stknms, years){
 #-------------------------------------------------------------------------------
 # price_flbeia(fleet, years)(mean price in a fleet)
 #-------------------------------------------------------------------------------
+#' @rdname revenue_flbeia
 price_flbeia <- function(fleet, stock){
 
     mts <- names(fleet@metiers)
@@ -482,11 +570,12 @@ price_flbeia <- function(fleet, stock){
     return(res)                
 }
 
+
 #------------------------------------------------------------------------------#
-# effortMtSum data.frame[year, quarter, fleet, metier, iter ||,|| 
-#        effort, effshare] 
+# catchMtSum data.frame[year, quarter, stock, fleet, metier, iter ||,|| 
+#        landings, discards, price] 
 #------------------------------------------------------------------------------#
- 
+#' @rdname summary_flbeia 
 catchMtSum <- function(fleets, flnms = 'all', stknms = 'all', years){
     
     if(flnms[1] == 'all') flnms <- names(fleets)
@@ -535,13 +624,11 @@ catchMtSum <- function(fleets, flnms = 'all', stknms = 'all', years){
     return(res)
 }
 
-
-
 #------------------------------------------------------------------------------#
-# catchMtSum data.frame[year, quarter, stock, fleet, metier, iter ||,|| 
-#        landings, discards, price] 
+# effortMtSum data.frame[year, quarter, fleet, metier, iter ||,|| 
+#        effort, effshare] 
 #------------------------------------------------------------------------------#
-
+#' @rdname summary_flbeia
 effortMtSum <- function(fleets, flnms, years){
     
     if(flnms[1] == 'all') flnms <- names(fleets)

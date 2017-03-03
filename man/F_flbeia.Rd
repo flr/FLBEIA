@@ -8,7 +8,7 @@
 \alias{C_flbeia}
 \alias{L_flbeia}
 \alias{D_flbeia}
-\title{Auxiliary summary Functions}
+\title{Biological summary functions}
 \usage{
 F_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 
@@ -25,13 +25,25 @@ L_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 D_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 }
 \arguments{
-\item{FLQuant}{object.}
+\item{obj}{The output of the FLBEIA function.}
 
-\item{year.}{}
+\item{years}{Is the period of years defined in the obj.}
 }
 \value{
-A FLQuant object.
+The summary of the selected biological item.
 }
 \description{
-Auxiliary summary Functions
+These functions return the summary of the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D).
+}
+\details{
+\itemize{
+      \item{B_flbeia}{ this function computes SSB.}
+      \item{F_flbeia}{ ithis function computes fishing mortiality.}
+      \item{SSB_flbeia}{ this function computes spawning stock biomass by species.}
+      \item{R_flbeia}{ this function computes recruitment by stock. If the stock is defined by age this function the recruiment is computed. ;
+                       If the stock is follows a biomass dynamics, this function gives the growth.}
+      \item{C_flbeia}{ this function computes catches by fleets and stock.} 
+      \item{L_flbeia}{ this function computes landings by fleets and stock.}
+      \item{D_flbeia}{ ithis function computes the discards by fleets and stock.}
+     }
 }
