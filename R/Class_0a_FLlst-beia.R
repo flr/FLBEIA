@@ -75,7 +75,8 @@ vFLCs <- function(object){
 }
 
 # class
-#' @rdname FLCatchExt-class
+#' @aliases FLCatchesExt
+#' @rdname FLCatchExt
 setClass("FLCatchesExt", contains="FLlst", 
 	validity=vFLCs
 )
@@ -86,7 +87,8 @@ setGeneric("FLCatchesExt", function(object, ...){
 	}
 )
 
-#' @rdname FLCatchExt-class
+#' @aliases FLCatchesExt, ANY
+#' @rdname FLCatchExt
 setMethod("FLCatchesExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 
@@ -103,7 +105,8 @@ setMethod("FLCatchesExt", signature(object="ANY"), function(object, ...){
 	new("FLCatchesExt", lst)
 })
 
-#' @rdname FLCatchExt-class
+#' @aliases FLCatchesExt, missing
+#' @rdname FLCatchExt
 setMethod("FLCatchesExt", "missing", function(...){
 	if(missing(...)){
 		new("FLCatchesExt")
@@ -113,20 +116,22 @@ setMethod("FLCatchesExt", "missing", function(...){
 	}
 })
 
-#' @rdname FLCatchExt-class
+#' @aliases FLCatchesExt, list
+#' @rdname FLCatchExt
 setMethod("FLCatchesExt", "list", function(object){
 	new("FLCatchesExt", object)
 })
 
 
-# is
-#' @rdname FLCatchExt-class
+#' @aliases FLCatchesExt, is.FLCatchesExt
+#' @rdname FLCatchExt
 setGeneric("is.FLCatchesExt", function(object, ...){
 	standardGeneric("is.FLCatchesExt")
 	}
 )
 
-#' @rdname FLCatchExt-class
+#' @aliases FLCatchesExt, is.FLCatchesExt,ANY
+#' @rdname FLCatchExt
 setMethod("is.FLCatchesExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLCatchesExt")
 })
@@ -144,6 +149,7 @@ vFLMs <- function(object){
 }
 
 # class
+#' @aliases FLMetiersExt
 #' @rdname FLMetierExt
 setClass("FLMetiersExt", contains="FLlst", 
 	validity=vFLMs
@@ -155,6 +161,7 @@ setGeneric("FLMetiersExt", function(object, ...){
 	}
 )
 
+#' @aliases FLMetiersExt,ANY
 #' @rdname FLMetierExt
 setMethod("FLMetiersExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
@@ -174,6 +181,7 @@ setMethod("FLMetiersExt", signature(object="ANY"), function(object, ...){
 	new("FLMetiersExt", lst)
 })
 
+#' @aliases FLMetiersExt,missing
 #' @rdname FLMetierExt
 setMethod("FLMetiersExt", "missing", function(...){
 	if(missing(...)){
@@ -186,18 +194,21 @@ setMethod("FLMetiersExt", "missing", function(...){
 	}
 })
 
+#' @aliases FLMetiersExt,list
 #' @rdname FLMetierExt
 setMethod("FLMetiersExt", "list", function(object){
 	new("FLMetiersExt", object)
 })
 
 # is
+#' @aliases FLMetiersExt,is.FLMetiersExt
 #' @rdname FLMetierExt
 setGeneric("is.FLMetiersExt", function(object, ...){
 	standardGeneric("is.FLMetiersExt")
 	}
 )
 
+#' @aliases FLMetiersExt,is.FLMetiersExt,ANY
 #' @rdname FLMetierExt
 setMethod("is.FLMetiersExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLMetiersExt")
@@ -216,7 +227,8 @@ vFLFs <- function(object){
 }
 
 # class
-#' @rdname FLleetExt
+#' @aliases FLFleetsExt
+#' @rdname FLFleetExt
 setClass("FLFleetsExt", contains="FLlst",
 	validity=vFLFs
 )
@@ -227,7 +239,8 @@ setGeneric("FLFleetsExt", function(object, ...){
 	}
 )
 
-#' @rdname FLleetExt
+#' @aliases FLFleetsExt,ANY
+#' @rdname FLFleetExt
 setMethod("FLFleetsExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 	nlst <- length(lst1)
@@ -238,7 +251,8 @@ setMethod("FLFleetsExt", signature(object="ANY"), function(object, ...){
 	new("FLFleetsExt", lst)
 })
 
-#' @rdname FLleetExt
+#' @aliases FLFleetsExt,FLFleetExt-missing
+#' @rdname FLFleetExt
 setMethod("FLFleetsExt", "missing", function(...){
 	if(missing(...)){
 		new("FLFleetsExt")
@@ -248,18 +262,22 @@ setMethod("FLFleetsExt", "missing", function(...){
 	}
 })
 
-#' @rdname FLleetExt
+#' @aliases FLFleetsExt,list
+#' @rdname FLFleetExt
 setMethod("FLFleetsExt", "list", function(object){
 	new("FLFleetsExt", object)
 })
 
 # is
+#' @aliases is.FLFleetsExt
+#' @rdname FLFleetExt
 setGeneric("is.FLFleetsExt", function(object, ...){
 	standardGeneric("is.FLFleetsExt")
 	}
 )
 
-#' @rdname FLleetExt
+#' @aliases is.FLFleetsExt,ANY
+#' @rdname FLFleetExt
 setMethod("is.FLFleetsExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLFleetsExt")
 })

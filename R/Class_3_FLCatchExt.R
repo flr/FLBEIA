@@ -48,14 +48,28 @@ validFLCatchExt <- function(object)
 	return(TRUE)
 }
 
-#' FLcatchExt and FLCatches classes and the methods to construct it.
 #' 
-#' They extend the FLCatch and FLCatches classes defined in FLFleets package. the FLCatch class includes two extra slots alpha and beta
+#' @name FLCatchExt
+#' @aliases FLCatchExt-class FLCatchExt FLCatchExt-methods
+#' FLQuant,FLCatchExt-method
+#' 
+#' @title  FLcatchExt and FLCatchesExt classes and the methods to construct it.
+#'
+#' @description They extend the FLCatch and FLCatches classes defined in FLFleets package. the FLCatch class includes two extra slots alpha and beta
 #' used in the Cobb-Douglas production functions.
 #' 
-#'  @param  object An object of class FLQuant, missing or FLCatchExt.
-#'  
-#'  @return The constructors return an object of class FLCatchExt.
+#' @details The FLCatchExt object contains a representation of the catch of a  fish stock as constructed for the purposes of fleet dynamic modelling. 
+#'    This includes information on removals (i.e. landings and discards), selectivity, weight, price and catch production parameters (catchability and elasticities).
+#'    
+#' @param object,x An object of class FLQuant, missing or FLCatchExt.
+#' @param range Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.
+#' @param name The name of the stock.
+#' @param desc The description of the object.
+#' @param i,j,k,l,m,n subindices
+#' @param drop logical. Should the dimesions be dropped?
+#' @param ... Other objects to be assigned by name to the class slots 
+#' 
+#' @return The constructors return an object of class FLCatchExt.
 #'  
 #' 
 #' 
@@ -90,7 +104,8 @@ setGeneric('FLCatchExt', function(object, ...)
 		standardGeneric('FLCatchExt'))
 
 # TODO Fix size of input objects and validity
-#' @rdname FLCatchExt-class
+#' @aliases FLCatchExt,FLQuant-method
+#' @rdname FLCatchExt
 setMethod('FLCatchExt', signature(object='FLQuant'),
 	function(object, range='missing', name='NA', desc=character(0), ...) {
 		# initial objects
@@ -116,7 +131,9 @@ setMethod('FLCatchExt', signature(object='FLQuant'),
 		return(res)
 	}
 )
-#' @rdname FLCatchExt-class
+
+#' @aliases FLCatchExt-missing
+#' @rdname FLCatchExt
 setMethod('FLCatchExt', signature(object='missing'),
 	function(...)
   {
@@ -139,7 +156,7 @@ setMethod('FLCatchExt', signature(object='missing'),
 
 
 ## computeLandings	{{{
-#' @rdname FLCatchExt
+# @rdname FLCatchExt
 setMethod("computeLandings", signature(object="FLCatchExt"),
 	function(object, na.rm=TRUE) {
         res <- quantSums(landings.n(object)*landings.wt(object), na.rm=na.rm)
@@ -158,6 +175,8 @@ setMethod("computeDiscards", signature(object="FLCatchExt"),
 )	# }}}
 
 # '['       {{{
+#' @rdname FLCatchExt
+#' @aliases [,FLCatchExt,ANY,ANY,ANY-method
 setMethod('[', signature(x='FLCatchExt'),
 	function(x, i, j, k, l, m, n, ..., drop=FALSE)
   {
@@ -204,7 +223,9 @@ setMethod('[', signature(x='FLCatchExt'),
 )   # }}}
 
 ## "[<-"            {{{
-setMethod("[<-", signature(x="FLCatch", value="FLCatch"),
+#' @rdname FLCatchExt
+#' @aliases [<-,FLCatchExt,ANY,ANY,ANY-method
+setMethod("[<-", signature(x="FLCatchExt", value="FLCatchExt"),
 	function(x, i, j, k, l, m, n, ..., value)
 	{
     dn <- dimnames(landings.n(x))
@@ -247,7 +268,9 @@ setGeneric('catchNames<-', function(object, ..., value)
 		standardGeneric('catchNames<-'))
 		
 # addFLCatch for FLCatch {{{
-setMethod('addFLCatch', signature(e1='FLCatchExt', e2='FLCatchExt'),
+#' @aliases addFLCatch, FLCatchExt-methods, FLCatchExt, FLCatchExt
+#' @rdname FLCatchExt 
+ setMethod('addFLCatch', signature(e1='FLCatchExt', e2='FLCatchExt'),
   function(e1, e2)
   {
     # add
@@ -293,10 +316,14 @@ setMethod('setPlusGroup', signature(x='FLCatchExt', plusgroup='numeric'),
 )# }}}
 
 # catchNames {{{
+#' @aliases catchNames,  FLCatchExt
+#' @rdname FLCatchExt 
 setMethod('catchNames', signature(object='FLCatchExt'),
   function(object)
     return(object@name))
 
+#' @aliases catchNames<-,  FLCatchExt, character
+#' @rdname FLCatchExt 
 setReplaceMethod('catchNames', signature(object='FLCatchExt', value='character'),
   function(object, value)
   {

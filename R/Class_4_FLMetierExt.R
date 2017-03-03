@@ -38,6 +38,34 @@ validFLMetierExt <- function(object) {
 	return(TRUE)
 }
 
+
+#' 
+#' @name FLMetierExt
+#' @aliases FLMetierExt-class FLMetierExt FLMetierExt-methods
+#' FLMetierExt,FLMetierExt-method
+#' 
+#' @title  FLMetierExt and FLMetiersExt classes and the methods to construct it.
+#'
+#' @description They extend the FLMetier and FLMetiers classes defined in FLFleets package. The only different is that 
+#' that the catches slot is a FLCatchesExt object
+#' 
+#' @details The FLMetierExt object contains a representation of the metier of a  fishing fleet as constructed for the purposes of fleet dynamic modelling. 
+#'    This includes information on effortshare and variable costs.
+#
+#' 
+#' @param object An object of class FLQuant, missing or FLCatchExt.
+#' @param range Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.
+#' @param name The name of the metier.
+#' @param desc The description of the object.
+#' @param catches An object of class FLCatchesExt.
+#' @param gear A character vector with the name of the gear used in the metier.
+#' @param ... Other objects to be assigned by name to the class slots 
+#' 
+#' @return The constructors return an object of class FLMetierExt.
+#'  
+#' 
+#' 
+#' 
 setClass('FLMetierExt',
 	representation('FLComp',
 		gear='character',
@@ -59,6 +87,8 @@ setGeneric('FLMetierExt', function(catches, ...) standardGeneric('FLMetierExt'))
 
 ## FLMetier()	{{{
 # FLMetier(FLCatch)
+#' @aliases FLMetierExt,FLCatchExt-method
+#' @rdname FLMetierExt
 setMethod('FLMetierExt', signature(catches='FLCatchExt'),
 	function(catches, gear='NA', ...){
 	    FLMetierExt(catches=FLCatchesExt(catches), gear=gear, ...)
@@ -68,6 +98,9 @@ setMethod('FLMetierExt', signature(catches='FLCatchExt'),
 	   }
 )
 # FLMetier(FLCatches)
+
+#' @aliases FLMetierExt,FLCatchesExt-method
+#' @rdname FLMetierExt
 setMethod('FLMetierExt', signature(catches='FLCatchesExt'),
 	function(catches, gear='NA', ...)
     {
@@ -101,12 +134,17 @@ setMethod('FLMetierExt', signature(catches='FLCatchesExt'),
 		return(res)
     }
 )
+
 # FLMetier(FLQuant)
+#' @aliases FLMetierExt,FLQuant-method
+#' @rdname FLMetierExt
 setMethod('FLMetierExt', signature(catches='FLQuant'),
 	function(catches, gear='NA', ...)
       return(FLMetierExt(FLCatchExt(catches), gear=gear, ...))
 )
 # FLMetier(missing)
+#' @aliases FLMetierExt,missing-method
+#' @rdname FLMetierExt
 setMethod('FLMetierExt', signature(catches='missing'),
 	function(catches, gear='NA', ...)
     FLMetierExt(FLCatchesExt(FLCatchExt(name='NA')), ...)

@@ -45,6 +45,35 @@ validFLFleetExt <- function(object) {
 	return(TRUE)
 }
 
+
+#' 
+#' @name FLFleetExt
+#' @aliases FLFleetExt-class FLFleetExt FLFleetExt-methods
+#' FLFleetExt,FLFleetExt-method
+#' 
+#' @title  FLFleetExt and FLFleetsExt classes and the methods to construct it.
+#'
+#' @description They extend the FLFleetExt and FLFleetsExt classes defined in FLFleets package. The only different is that 
+#' that the metiers slot is a FLMetiersExt object
+#' 
+#' @details The FLFleetExt object contains a representation of a  fishing fleet as constructed for the purposes of fleet dynamic modelling. 
+#'    This includes information on effort, fixed-cost, capacity,  crew-share, metiers and variable costs.
+#
+#' 
+#' @param object An object of class FLQuant, missing or FLMetierExt.
+#' @param range Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.
+#' @param name The name of the fleet.
+#' @param desc The description of the object.
+#' @param metiers An object of class FLMetierExt or FLMetiersExt.
+#' @param catch A name of one of the elements in FLCatches object.
+#' @param metier A name of one of the elements in FLMetiers object.
+#' @param ... Other objects to be assigned by name to the class slots 
+#' 
+#' @return The constructors return an object of class FLFleetExt.
+#'  
+#' 
+#' 
+#' 
 setClass('FLFleetExt',
 	representation('FLComp',
 		effort='FLQuant',
@@ -67,6 +96,8 @@ setGeneric('FLFleetExt', function(object, ...) standardGeneric('FLFleetExt'))
 
 
 # FLFleetExt()		{{{
+#' @aliases FLFleetExt,FLMetiersExt-method
+#' @rdname FLFleetExt
 setMethod('FLFleetExt', signature(object='FLMetiersExt'),
 	function(object, ...)
 	{
@@ -88,24 +119,35 @@ setMethod('FLFleetExt', signature(object='FLMetiersExt'),
 )
 
 
+#' @aliases FLFleetExt,FLMetierExt-method
+#' @rdname FLFleetExt
 setMethod('FLFleetExt', signature(object='FLMetierExt'),
 	function(object, ...)
 	{
 		FLFleetExt(FLMetiersExt(met=object), ...)
 	}
 )
+
+#' @aliases FLFleetExt,FLCatchesExt-method
+#' @rdname FLFleetExt
 setMethod('FLFleetExt', signature(object='FLCatchesExt'),
 	function(object, ...)
 	{
 		FLFleetExt(FLMetiersExt(FLMetierExt(object)), ...)
 	}
 )
+
+#' @aliases FLFleetExt,FLCatchExt-method
+#' @rdname FLFleetExt
 setMethod('FLFleetExt', signature(object='FLCatchExt'),
 	function(object, ...)
 	{
 		FLFleetExt(FLMetiersExt(FLMetierExt(FLCatchesExt(object))), ...)
 	}
 )
+
+#' @aliases FLFleetExt,FLFleetExt-method
+#' @rdname FLFleetExt
 setMethod('FLFleetExt', signature(object='FLFleetExt'),
 	function(object, metier, catch, ...)
 	{
@@ -113,10 +155,15 @@ setMethod('FLFleetExt', signature(object='FLFleetExt'),
     if(!missing(metier))
       res@metiers <- res@metiers[metier]
     if(!missing(catch))
+      res@catches <- res@metiers[catch]
 
-		FLFleetExt(, ...)
+		return(res)
 	}
 )
+
+
+#' @aliases FLFleetExt,FLFleetExt-missing
+#' @rdname FLFleetExt
 setMethod('FLFleetExt', signature(object='missing'),
 	function(object, ...)
 	{

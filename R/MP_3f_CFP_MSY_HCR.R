@@ -45,7 +45,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
   
-    stk <- stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
     
     iter   <- dim(stk@m)[6]
     yrsnames <- dimnames(stk@m)[[2]]
@@ -113,7 +113,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             
       # Project the population one year using Fsq.
       fsq <- mean(fbar(stki)[,ac((assyrnumb-3):(assyrnumb-1))])
-      fwd.ctrl1 <- fwdControl(data.frame(year = assyrnumb,  val = c(fsq), quantity = c( 'f'),
+      fwd.ctrl1 <- FLash::fwdControl(data.frame(year = assyrnumb,  val = c(fsq), quantity = c( 'f'),
                                                min = c(NA)
                                          , max  = c(NA)))
       stki <- FLash::fwd(stki, ctrl = fwd.ctrl1, sr = list(model =sr.model, params = sr1))
@@ -132,7 +132,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                  
           ssbobj <- ssbTACyr + (Bpa - ssbTACyr)/K
             
-          fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1, assyrnumb+1),  val = c(ssbobj,NA,NA), quantity = c( 'ssb', 'f', Cadv),
+          fwd.ctrl2 <- FLash::fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1, assyrnumb+1),  val = c(ssbobj,NA,NA), quantity = c( 'ssb', 'f', Cadv),
                                                min = c(NA, 0.2*Ftg, TACnow[i]*Clo), max  = c(NA, Ftg, TACnow[i]*Cup)))
       
           stki <- FLash::fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))     
@@ -147,7 +147,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
       #print(Ftg2)
       Ftg2<-min(max(fsq,as.numeric(Ftg)),Ftg2) # take the min or fsq or the new target, but ensuring fsq is not below Ftg
       
-          fwd.ctrl2 <- fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1),  val = c(Ftg2,NA), quantity = c( 'f', Cadv),
+          fwd.ctrl2 <- FLash::fwdControl(data.frame(year = c(assyrnumb+1, assyrnumb+1),  val = c(Ftg2,NA), quantity = c( 'f', Cadv),
                                            min = c(NA, TACnow[i]*Clo), max  = c(NA, TACnow[i]*Cup)))
         
           stki <- FLash::fwd(stki, ctrl = fwd.ctrl2, sr = list(model =sr.model, params = sr1))           
