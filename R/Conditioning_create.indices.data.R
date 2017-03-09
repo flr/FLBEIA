@@ -8,30 +8,32 @@
 #  inputs: 
 #
 #   Required:
-#   first.yr:   First year of simulation (number)
-#   proj.yr:    First year of projection (number)
-#   last.yr:    Last year of projection (number)
-#   ni:         Number of iterations (number)
-#   ns:         Number of seasons (number)
-#   stks_index: Names of the stocks with index (vector)
-#   stk_indices:          Name of index for the stock 'stk'
-#   stk_ind_index.flq:	  Historical index data of stock 'stk'(FLQuant)
-#   stk_ind_index.var.flq:Variability in index of stock 'stk' (FLQuant)
-#   stk_ind_index.q.flq:  Catchability by index of stock 'stk' (FLQuant)
-#   stk_ind_catch.n.flq:  Number of catch at age of stock 'stk'(FLQuant)
-#   stk_ind_catch.wt.flq:  Weight of catch at age of stock 'stk'(FLQuant)
-#   stk_ind_effort.flq:	  Effort by index of stock 'stk'(FLQuant)
-#   stk_ind_sel.pattern.flq: Selection pattern of index of stock 'stk' (FLQuant)
-#   stk_ind_range.min:    Minimum age catch by index of stock 'stk'(number)
-#   stk_ind_range.max:    Maximum age catch by index of stock 'stk'(number)
-#   stk_ind_range.minyear: First year with index data of stock 'stk' (number)
-#   stk_ind_range.maxyear: Last year with index data of stock 'stk'(number)
-#   stk_ind_range.startf:	Minimum age to take into account in 'f'
-#   stk_ind_range.endf:   Maximum age to take into account in 'f'
+#   ni:       Number of iterations (number)
+#   ns:	      Number of seasons (number)
+#   yrs: a vector with the next elements
+#     first.yr: First year of simulation (number)
+#     proj.yr:  First year of projection (number)
+#     last.yr:  Last year of projection (number)
+#   stks.data: a list with the name of the stks and with the next elements
+#     stks_index: Names of the stocks with index (vector)
+#     stk_indices:          Name of index for the stock 'stk'
+#     stk_ind_index.flq:	  Historical index data of stock 'stk'(FLQuant)
+#    stk_ind_index.var.flq:Variability in index of stock 'stk' (FLQuant)
+#    stk_ind_index.q.flq:  Catchability by index of stock 'stk' (FLQuant)
+#    stk_ind_catch.n.flq:  Number of catch at age of stock 'stk'(FLQuant)
+#    stk_ind_catch.wt.flq:  Weight of catch at age of stock 'stk'(FLQuant)
+#    stk_ind_effort.flq:	  Effort by index of stock 'stk'(FLQuant)
+#    stk_ind_sel.pattern.flq: Selection pattern of index of stock 'stk' (FLQuant)
+#    stk_ind_range.min:    Minimum age catch by index of stock 'stk'(number)
+#    stk_ind_range.max:    Maximum age catch by index of stock 'stk'(number)
+#    stk_ind_range.minyear: First year with index data of stock 'stk' (number)
+#    stk_ind_range.maxyear: Last year with index data of stock 'stk'(number)
+#    stk_ind_range.startf:	Minimum age to take into account in 'f'
+#    stk_ind_range.endf:   Maximum age to take into account in 'f'
 #
 #   Optional:
-#   stk_distribution:  Name of the stock 'stk' distribution (character)
-#   stk_type:		Type of stock 'stk' (character)
+#     stk_distribution:  Name of the stock 'stk' distribution (character)
+#     stk_type:		Type of stock 'stk' (character)
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -41,18 +43,18 @@
 #         2.2              Check dimensions
 #-------------------------------------------------------------------------------
 
-create.indices.data <- function(){
+create.indices.data <- function(yrs,ns,ni,stks.data){
 
   #==============================================================================
   #   Section 1:        Is there any index data?
   #==============================================================================
-  
 
-  if(is.null(nms.stks.index)){
-    indices <- NULL
-    
-  }else{
-    
+  ind <- unlist(sapply(stks.data,function(x) grep(x, pattern="_indices",value=TRUE)))
+  nms.stks.index <- unique(sub('.*?^(.*?)_indices*', '\\1', ind))
+  indices <- NULL
+
+  if(!is.null(nms.stks.index)){
+
     #==============================================================================
     #   Section 2:        indices
     #==============================================================================
@@ -60,7 +62,16 @@ create.indices.data <- function(){
     n.stks.index   <- length(nms.stks.index)
     indices        <- vector('list',n.stks.index)
     names(indices) <- nms.stks.index
-    hist.yrs       <- as.character(first.yr:last.yr)
+    first.yr <- yrs[["first.yr"]]
+    proj.yr  <- yrs[["proj.yr"]]
+    last.yr  <- yrs[["last.yr"]]
+    proj.yrs       <- as.character(proj.yr:last.yr)
+    hist.yrs       <- as.character(first.yr:(proj.yr-1))
+    ny <- length(first.yr:last.yr)
+    list.stks.unit <- lapply(stks.data, function(ch) grep(pattern="unit", ch, value = TRUE))
+    list.stks.age <- lapply(stks.data, function(ch) grep(pattern="age", ch, value = TRUE))
+    list.stks.flqa <- create.list.stks.flqa(nmstks,yrs,ni,ns,list.stks.unit,list.stks.age)  
+    list.stks.flq  <- create.list.stks.flq(nmstks,yrs,ni,ns,list.stks.unit)  
     
     #-----------------------------------------------------------------------------
     #   Section 2.1:      Historical data per stock
@@ -68,41 +79,53 @@ create.indices.data <- function(){
     
     for (i in 1:n.stks.index){
       
-      stk <- nms.stks.index[i]
-      
+      nmstk <- nms.stks.index[i]
       cat('=============', stk,'index','=============\n')
+      nms.stk.index    <- get(grep(stks.data[[nmstk]],pattern="_indices", value = TRUE))
       
-      nms.stk.index <- get(paste(stk,'_indices',sep=''))
       list.stk.index <- list()
       
       for(j in 1:length(nms.stk.index)){
         
         nm.stk.index <-  nms.stk.index[j]
         
-        flqa <- create.list.stks.flqa ()[[stk]]
-        flq  <- create.list.stks.flq ()[[stk]]
+        flqa <- list.stks.flqa[[stk]]
+        flq  <- list.stks.flq[[stk]]
         
-        stk.index              <- get(paste(stk,'_',nm.stk.index,'_index.flq',sep=''))                                                                
-        stk.index.type         <- mget(paste(stk,'_',nm.stk.index,'_type',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]                
-        stk.index.distribution <- mget(paste(stk,'_',nm.stk.index,'_distribution',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]        
-        stk.index.var          <- get(paste(stk,'_',nm.stk.index,'_index.var.flq',sep=''))      
-        stk.index.q            <- get(paste(stk,'_',nm.stk.index,'_index.q.flq',sep=''))        
-        stk.index.catch.n      <- mget(paste(stk,'_',nm.stk.index,'_catch.n.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]   
-        stk.index.catch.wt     <- mget(paste(stk,'_',nm.stk.index,'_catch.wt.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]        
-        stk.index.effort       <- mget(paste(stk,'_',nm.stk.index,'_effort.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]   
-        stk.index.sel.pattern  <- mget(paste(stk,'_',nm.stk.index,'_sel.pattern.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
-      
-        stk.index.range.min      <- get(paste(stk,'_',nm.stk.index,'_range.min',sep=''))    
-        stk.index.range.max      <- get(paste(stk,'_',nm.stk.index,'_range.max',sep=''))    
-        stk.index.range.minyear  <- mget(paste(stk,'_',nm.stk.index,'_range.minyear',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
-        stk.index.range.maxyear  <- mget(paste(stk,'_',nm.stk.index,'_range.maxyear',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]     
-        stk.index.range.startf   <- get(paste(stk,'_',nm.stk.index,'_range.startf',sep=''))
-        stk.index.range.endf     <- get(paste(stk,'_',nm.stk.index,'_range.endf',sep=''))
-        stk.index.range.plusgroup<- mget(paste(stk,'_',nm.stk.index,'_range.plusgroup',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
-        stk.index.range.plusgroup<- mget(paste(stk,'_',nm.stk.index,'_range.plusgroup',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
-        stk.index.type <- mget(paste(stk,'_',nm.stk.index,'_type',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]    
-        stk.unit     <- get(paste(stk,'.unit',sep=""))
-      
+        stk.index              <- get(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_index.flq',sep=''), value = TRUE))
+        stk.index.type         <- get(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_type',sep=''), value = TRUE))
+        if(length(stk.index.type)==0) stk.index.type  <- NA    
+        stk.index.distribution <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_distribution',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.distribution)==0) stk.index.distribution  <- NA    
+        stk.index.var         <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_index.var.flq',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.var)==0) stk.index.var  <- NA    
+        stk.index.q          <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_index.q.flq',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.q)==0) stk.index.q  <- NA    
+        stk.index.catch.n    <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_catch.n.flq',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.catch.n)==0) stk.index.catch.n  <- NA    
+        stk.index.catch.wt   <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_catch.wt.flq',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.catch.wt)==0) stk.index.catch.wt  <- NA    
+        stk.index.sel.pattern<- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_sel.pattern.flq',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.sel.pattern)==0) stk.index.sel.pattern  <- NA    
+        stk.index.effort     <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_effort.flq',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.effort)==0) stk.index.effort  <- NA    
+        stk.index.range.min  <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_range.min',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.range.min)==0) stk.index.range.min  <- NA    
+        stk.index.range.max  <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_range.max',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.range.max)==0) stk.index.range.max  <- NA    
+        stk.index.startf    <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_startf',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.startf)==0) stk.index.startf  <- NA    
+        stk.index.endf      <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_endf',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.endf)==0) stk.index.endf  <- NA    
+        stk.index.range.plusgroup     <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_range.plusgroup',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.range.plusgroup)==0) stk.index.range.plusgroup  <- NA    
+        stk.index.range.minyear     <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_range.minyear',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.range.minyear)==0) stk.index.range.minyear  <- NA    
+        stk.index.range.maxyear     <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'_',nm.stk.index,'_range.maxyear',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.range.maxyear)==0) stk.index.range.maxyear  <- NA    
+        stk.unit     <- mget(grep(stks.data[[nmstk]],pattern=paste(stk,'.unit',sep=""), value = TRUE),envir=as.environment(1))
+        if(length(stk.unit)==0) stk.unit  <- NA    
+ 
         #-----------------------------------------------------------------------------
         #   Section 2.2:      Check dimensions
         #-----------------------------------------------------------------------------
@@ -112,55 +135,36 @@ create.indices.data <- function(){
         }else{
           stk.flindex<- FLIndexBiomass(name = nm.stk.index, index = flq)
           flqa <- flq}  
-        
-        log.dim <- equal.flq.Dimnames(lflq=list(flqa[,hist.yrs],stk.index[,hist.yrs], stk.index.var[,hist.yrs],
-                                    stk.index.q[,hist.yrs]),1:2)
+
         if(!log.dim)stop('in indices dimension \n')
       
-        if(!all(is.na(stk.index))){
-          if(!(any(dim(stk.index)[3]==c(1,stk.unit))))stop('in stk.index number of units 1 or stk.unit')
-          if(!(any(dim(stk.index)[4]==c(1,ns))))stop('in stk.index number of seasons 1 or ns')
-          if(!(any(dim(stk.index)[6]==c(1,ni))))stop('in stk.index number of iterations 1 or ni')}
-      
         if(!all(is.na(stk.index.var))){
-          if(!(any(dim(stk.index.var)[3]==c(1,stk.unit))))stop('in stk.index.var number of units 1 or stk.unit')
-          if(!(any(dim(stk.index.var)[4]==c(1,ns))))stop('in stk.index.var number of seasons 1 or ns')
-          if(!(any(dim(stk.index.var)[6]==c(1,ni))))stop('in stk.index.var number of iterations 1 or ni')}
-      
+          stk.index.var <- stk.index.var[[1]]}
         if(!all(is.na(stk.index.q))){
-          if(!(any(dim(stk.index.q)[3]==c(1,stk.unit))))stop('in stk.index.q number of units 1 or stk.unit')
-          if(!(any(dim(stk.index.q)[4]==c(1,ns))))stop('in stk.index.q number of seasons 1 or ns')
-          if(!(any(dim(stk.index.q)[6]==c(1,ni))))stop('in stk.index.q number of iterations 1 or ni')}
-
+          stk.index.q <- stk.index.q[[1]]}
         if(!all(is.na(stk.index.effort))){
-          log.dim <- equal.flq.Dimnames(lflq=list(flq[,hist.yrs],stk.index.effort[,hist.yrs]),1:2)
-          if(!log.dim)stop('in stk.index.effort dimension \n')          
-          if(!(any(dim(stk.index.effort)[3]==1)))stop('in stk.index.effort number of units 1 or stk.unit')
-          if(!(any(dim(stk.index.effort)[4]==c(1,ns))))stop('in stk.index.effort number of seasons 1 or ns')
-          if(!(any(dim(stk.index.effort)[6]==c(1,ni))))stop('in stk.index.effort number of iterations 1 or ni')}
-      
+          stk.index.effort <- stk.index.effort[[1]]}
         if(!all(is.na(stk.index.catch.n))){
-          log.dim <- equal.flq.Dimnames(lflq=list(flqa[,hist.yrs],stk.index.catch.n[,hist.yrs]),1:2)
-          if(!log.dim)stop('in stk.index.catch.n dimension \n')          
-          if(!(any(dim(stk.index.catch.n)[3]==c(1,stk.unit))))stop('in stk.index.catch.n number of units 1 or stk.unit')
-          if(!(any(dim(stk.index.catch.n)[4]==c(1,ns))))stop('in stk.index.catch.n number of seasons 1 or ns')
-          if(!(any(dim(stk.index.catch.n)[6]==c(1,ni))))stop('in stk.index.catch.n number of iterations 1 or ni')}
-      
+          stk.index.catch.n <- stk.index.catch.n[[1]]}
         if(!all(is.na(stk.index.catch.wt))){
-          log.dim <- equal.flq.Dimnames(lflq=list(flqa[,hist.yrs],stk.index.catch.wt[,hist.yrs]),1:2)
-          if(!log.dim)stop('in stk.index.catch.wt dimension \n')          
-          if(!(any(dim(stk.index.catch.wt)[3]==c(1,stk.unit))))stop('in stk.index.catch.wt number of units 1 or stk.unit')
-          if(!(any(dim(stk.index.catch.wt)[4]==c(1,ns))))stop('in stk.index.catch.wt number of seasons 1 or ns')
-          if(!(any(dim(stk.index.catch.wt)[6]==c(1,ni))))stop('in stk.index.catch.wt number of iterations 1 or ni')}
-      
+          stk.index.catch.wt <- stk.index.catch.wt[[1]]}
         if(!all(is.na(stk.index.sel.pattern))){
-          log.dim <- equal.flq.Dimnames(lflq=list(flqa[,hist.yrs],stk.index.sel.pattern[,hist.yrs]),1:2)
-          if(!log.dim)stop('in stk.index.sel.pattern dimension \n')          
-          if(!(any(dim(stk.index.sel.pattern)[3]==c(1,stk.unit))))stop('in sstk.index.sel.pattern number of units 1 or stk.unit')
-          if(!(any(dim(stk.index.sel.pattern)[4]==c(1,ns))))stop('in stk.index.sel.pattern number of seasons 1 or ns')
-          if(!(any(dim(stk.index.sel.pattern)[6]==c(1,ni))))stop('in stk.index.sel.pattern number of iterations 1 or ni')}
+          stk.index.sel.pattern <- stk.index.sel.pattern[[1]]}
+        if(!all(is.na(stk.index.range.min))){
+          stk.index.range.min <- stk.index.range.min[[1]]}
+        if(!all(is.na(stk.index.range.max))){
+          stk.index.range.max <- stk.index.range.max[[1]]}
+        if(!all(is.na(stk.index.startf))){
+          stk.index.startf <- stk.index.startf[[1]]}
+        if(!all(is.na(stk.index.endf))){
+          stk.index.endf <- stk.index.endf[[1]]}
+        if(!all(is.na(stk.index.range.plusgroup))){
+          stk.index.range.plusgroup <- stk.index.range.plusgroup[[1]]}
+        if(!all(is.na(stk.index.range.minyear))){
+          stk.index.range.minyear <- stk.index.range.minyear[[1]]}
+        if(!all(is.na(stk.index.range.maxyear))){
+          stk.index.range.maxyear <- stk.index.range.maxyear[[1]]}
         
-       
         stk.flindex@catch.n[]     <- stk.index.catch.n
         stk.flindex@effort[]      <- stk.index.effort
         stk.flindex@index.q[]     <- stk.index.q
@@ -172,8 +176,8 @@ create.indices.data <- function(){
         stk.flindex@range[['max']]     <- stk.index.range.max
         stk.flindex@range[['minyear']] <- stk.index.range.minyear
         stk.flindex@range[['maxyear']] <- stk.index.range.maxyear
-        stk.flindex@range[['startf']]  <- stk.index.range.startf
-        stk.flindex@range[['endf']]    <- stk.index.range.endf
+        stk.flindex@range[['startf']]  <- stk.index.startf
+        stk.flindex@range[['endf']]    <- stk.index.endf
         stk.flindex@range[['plusgroup']]    <- stk.index.range.plusgroup
       
       list.stk.index[[j]] <- stk.flindex

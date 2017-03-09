@@ -8,34 +8,38 @@
 #  inputs: 
 #
 #   (required)
-#   first.yr: First year of simulation (number)
-#   proj.yr:  First year of projection (number)
-#   last.yr:  Last year of projection (number)
+#   stks:     Name of all the stocks (vector)
+#   yrs:      a vector with c(first.yr,proj.yr,last.yr)
+#                 first.yr:	First year of simulation (number)
+#                 proj.yr:	First year of projection (number)
+#                 last.yr:	Last year of projection (number)
 #   ni:       Number of iterations (number)
 #   ns:	      Number of seasons (number)
-#   stks:     Name of all the stocks (vector)
-#   stk.unit	Number of units of the stock (number) 
-#   stk.min.age:  Minimum age of the stock (number)
-#   stk.max.age:  Maximum age of the stock (number)
-#   stk_wt.flq:   Weight age age (FLQuant)
-#   flts:	        Name of all the fleets (vector)
-#   fl.met.stks:	Name of the stocks in the metier 'met' and fleet 'fl' (vector)
-#   fl_effort.flq: 'fl' fleet's effort (FLQuant)
-#   fl.met_effshare.flq:        'fl' fleet and 'met' metier's effort share (FLQuant)
-#   fl.met.stk_landings.n.flq:  'fl' fleet,'met' m?tier and 'stk' stocks landings at age
-#   fl_proj.avg.yrs  vector:	  historic years to calculate the average of effort,fcost,crewshare,capacity in 'fl' fleet (vector)
+#   stks.data: a list with the name of the stocks with the next elements
+#     stk.unit	Number of units of the stock (number) 
+#     stk.min.age:  Minimum age of the stock (number)
+#     stk.max.age:  Maximum age of the stock (number)
+#     stk_wt.flq:   Weight age age (FLQuant)
+#     stk_n.flq:          Abundance at age (if alpha, beta or catch.q is not defined required) (FLQuant) 
+#   fls.data:a list with teh name of the fleets with the next elements
+#     fls:	        Name of all the fleets (vector)
+#     fl.met.stks:	Name of the stocks in the metier 'met' and fleet 'fl' (vector)
+#     fl_effort.flq: 'fl' fleet's effort (FLQuant)
+#     fl.met_effshare.flq:        'fl' fleet and 'met' metier's effort share (FLQuant)
+#     fl.met.stk_landings.n.flq:  'fl' fleet,'met' metier and 'stk' stocks landings at age
+#     fl.met.stk_landings.wt.flq:  'fl' fleet,'met' metier and 'stk' stocks weight of landings at age
+#     fl_proj.avg.yrs  vector:	  historic years to calculate the average of effort,fcost,crewshare,capacity in 'fl' fleet (vector)
 #
 #   (optionals)
-#   fl_capacity.flq:	  'fl' fleet's capacity (FLQuant)
-#   fl_fcost.flq:       'fl' fleet's fixed cost (FLQuant)
-#   fl_crewshare.flq:   'fl' fleet's crewshare (FLQuant)
-#   fl.met_vcost.flq:	  'fl' fleet and 'met' metier's variable cost (FLQuant)
-#   fl.met.stk_discards.n.flq: 'fl' fleet,'met' m?tier and 'stk' stocks discards at age (FLQuant)
-#   fl.met.stk_price.flq:	'fl' fleet,'met' m?tier and 'stk' stocks price at age (FLQuant)
-#   fl.met.stk_alpha.flq:	'fl' fleet,'met' m?tier and 'stk' stocks Cobb Douglass alpha parameter (FLQuant)
-#   fl.met.stk_beta.flq:	'fl' fleet,'met' m?tier and 'stk' stocks Cobb Douglass beta parameter (FLQuant)
-#   fl.met.stk_catch.q.flq:  'fl' fleet,'met' m?tier and 'stk' stocks Cobb Douglass catch.q parameter (FLQuant)
-#   stk_n.flq:          Abundance at age (if alpha, beta or catch.q is not defined required) (FLQuant) 
+#     fl_capacity.flq:	  'fl' fleet's capacity (FLQuant)
+#     fl_fcost.flq:       'fl' fleet's fixed cost (FLQuant)
+#     fl_crewshare.flq:   'fl' fleet's crewshare (FLQuant)
+#     fl.met_vcost.flq:	  'fl' fleet and 'met' metier's variable cost (FLQuant)
+#     fl.met.stk_discards.n.flq: 'fl' fleet,'met' m?tier and 'stk' stocks discards at age (FLQuant)
+#     fl.met.stk_price.flq:	'fl' fleet,'met' m?tier and 'stk' stocks price at age (FLQuant)
+#     fl.met.stk_alpha.flq:	'fl' fleet,'met' m?tier and 'stk' stocks Cobb Douglass alpha parameter (FLQuant)
+#     fl.met.stk_beta.flq:	'fl' fleet,'met' m?tier and 'stk' stocks Cobb Douglass beta parameter (FLQuant)
+#     fl.met.stk_catch.q.flq:  'fl' fleet,'met' m?tier and 'stk' stocks Cobb Douglass catch.q parameter (FLQuant)
 #   fl.met_proj.avg.yrs:	    historic years to calculate the average of effshare,vcost for 'fl' fleet and 'met' metier(vector)
 #   fl.met.stk_proj.avg.yrs:	historic years to calculate the average of landings.wt, discards.wt,landings.sel,discards.sel
 #                                   alpha,beta,catch.q for 'fl' fleet, 'met' metier and 'stk' stock(vector)
@@ -59,17 +63,22 @@
 #-------------------------------------------------------------------------------
 
 
-create.fleets.data <- function(){
+create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
   
-  n.fl      <- length(flts)  
+  fls       <- names(fls.data)
+  n.fl      <- length(fls)  
   n.stk     <- length(stks)
   ac        <- as.character
+  first.yr <- yrs[["first.yr"]]
+  proj.yr  <- yrs[["proj.yr"]]
+  last.yr  <- yrs[["last.yr"]]
+  
   hist.yrs  <- ac(first.yr:(proj.yr-1))
   proj.yrs  <- ac(proj.yr:last.yr)
   nmy       <- ac(first.yr:last.yr)
-  
-  list.stks.flqa <- create.list.stks.flqa ()
-  list.stks.flq  <- create.list.stks.flq ()
+  list.stks.unit <- lapply(stks.data, function(ch) grep(pattern="unit", ch, value = TRUE))
+  list.stks.flqa <-  create.list.stks.flqa(stks,yrs,ni,ns,list.stks.unit,list.stks.age)  
+  list.stks.flq  <-  create.list.stks.flq(stks,yrs,ni,ns,list.stks.unit)  
 
 
   #==============================================================================
@@ -78,14 +87,14 @@ create.fleets.data <- function(){
   
   for( i in 1:n.fl){  #loop fleet
     
-    nmfl <- flts[i]
-    nmfl.mets  <- get(paste(nmfl,'.mets',sep=''))
+    nmfl <- fls[i]
+    nmfl.mets  <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.mets',sep=''), value = TRUE))
     n.fl.met   <- length(nmfl.mets)
     
     for(j in 1: n.fl.met){   #loop metier
       
       nmfl.met      <- nmfl.mets[j]
-      nmfl.met.stks <- get(paste(nmfl,'.',nmfl.met,'.stks',sep=''))
+      nmfl.met.stks <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl.met,'.stks',sep=''), value = TRUE))
       n.fl.met.stks <- length(nmfl.met.stks)
       list.FLCatchExt <- list()
        for( k in 1:n.fl.met.stks){  #loop stock
@@ -117,8 +126,8 @@ create.fleets.data <- function(){
   
   for( i in 1: n.fl){  #loop fleet
  
-    nmfl       <- flts[i]
-    nmfl.mets  <- get(paste(nmfl,'.mets',sep=''))
+    nmfl       <- fls[i]
+    nmfl.mets  <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.mets',sep=''), value = TRUE))
     n.fl.met   <- length(nmfl.mets)   
     efs        <- 0
     list.FLMetierExt <- list()
@@ -161,11 +170,13 @@ create.fleets.data <- function(){
      #   Section 3.1:      Historical data per fleet 
      #-----------------------------------------------------------------------------
         
-      fl.effort    <- get(paste(nmfl,'_effort.flq',sep=''))
-      fl.fcost     <- mget(paste(nmfl,'_fcost.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-      fl.crewshare <- mget(paste(nmfl,'_crewshare.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-      fl.capacity  <- mget(paste(nmfl,'_capacity.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-      
+      fl.effort    <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_effort.flq',sep=''), value = TRUE)) 
+      fl.fcost     <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_fcost.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+      if(length(fl.fcost)==0) fl.fcost  <- NA
+      fl.crewshare     <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_crewshare.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+      if(length(fl.crewshare)==0) fl.crewshare  <- NA
+      fl.capacity  <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_capacity.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+      if(length(fl.capacity)==0) fl.capacity  <- NA
       # Check dimension names
       if(!is.na(fl.effort)){
         log.dim <- equal.flq.Dimnames(lflq=list(fl.effort,fleet@effort[,hist.yrs]),2)
@@ -182,6 +193,7 @@ create.fleets.data <- function(){
       
         
       if(!is.na(fl.capacity)){
+        fl.capacity <- fl.capacity[[1]]
         log.dim <- equal.flq.Dimnames(lflq=list(fl.capacity,fleet@capacity[,hist.yrs]),2)
         if(!log.dim)stop('in capacity dimension names  \n')
         if(!(any(dim(fl.capacity)[4]==c(1,ns))))stop('in capacity number of seasons 1 or ns')
@@ -189,6 +201,7 @@ create.fleets.data <- function(){
     
         
       if(!is.na(fl.crewshare)){
+        fl.crewshare <- fl.crewshare[[1]]
         log.dim <- equal.flq.Dimnames(lflq=list(fl.crewshare,fleet@crewshare[,hist.yrs]),2)
         if(!log.dim)stop('in crewshare dimension names \n')
         if(!(any(dim(fl.crewshare)[4]==c(1,ns))))stop('in crewshare number of seasons 1 or ns')
@@ -203,10 +216,8 @@ create.fleets.data <- function(){
      #-----------------------------------------------------------------------------
      #   Section 3.2:      Projection per fleet 
      #-----------------------------------------------------------------------------
-        
-    fl.proj.avg.yrs   <- mget(paste(nmfl,'_proj.avg.yrs',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-    fl.proj.avg.yrs <- ac(fl.proj.avg.yrs)
-    
+    fl.proj.avg.yrs    <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_proj.avg.yrs',sep=''), value = TRUE)))
+
     for(ss in 1:ns){
       effort(fleet)[,proj.yrs,,ss]   <-  yearMeans(effort(fleet)[,fl.proj.avg.yrs,,ss])
       fleet@fcost[,proj.yrs,,ss]     <-  yearMeans(fleet@fcost[,fl.proj.avg.yrs,,ss])
@@ -234,10 +245,10 @@ create.fleets.data <- function(){
         #-----------------------------------------------------------------------------
         #   3.3     Historic data per fleet/metier
         #-----------------------------------------------------------------------------
-        
-        fl.met.effshare <- mget(paste(nmfl,'.',nmfl.met,'_effshare.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-        fl.met.vcost    <- mget(paste(nmfl,'.',nmfl.met,'_vcost.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-
+       fl.met.effshare    <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'_effshare.flq',sep=''), value = TRUE)) 
+       if(length(fl.met.effshare)==0) fl.met.effshare  <- NA
+       fl.met.vcost       <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'_vcost.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+       if(length(fl.met.vcost)==0) fl.met.vcost  <- NA
         # Check dimension names in years
         
         if(!is.na(fl.met.effshare)){
@@ -247,6 +258,7 @@ create.fleets.data <- function(){
           if(!(any(dim(fl.met.effshare)[6]==c(1,ni))))stop('in effshare number of iterations 1 or ni')}
         
         if(!is.na(fl.met.vcost)){
+          fl.met.vcost <- fl.met.vcost[[1]]
           log.dim <- equal.flq.Dimnames(lflq=list(fl.met.vcost,fleet@metiers[[nmfl.met]]@vcost[,hist.yrs]),2)
           if(!log.dim)stop('in vcost dimensions  \n')
           if(!(any(dim(fl.met.vcost)[4]==c(1,ns))))stop('in vcost number of seasons 1 or ns')
@@ -258,9 +270,9 @@ create.fleets.data <- function(){
         #-----------------------------------------------------------------------------
         #   3.4     Projection per fleet/metier
         #-----------------------------------------------------------------------------
-        
-        fl.met.proj.avg.yrs <- ac(get(paste(nmfl,'.',nmfl.met,'_proj.avg.yrs',sep='')))
-        
+
+        fl.met.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'_proj.avg.yrs',sep=''), value = TRUE)))
+
         #   projection effshare
         # NOTE: the sum of all effshare must be one
 
@@ -300,13 +312,14 @@ create.fleets.data <- function(){
           #-----------------------------------------------------------------------------
           #   3.5     Historic data per fleet/metier/stock
           #-----------------------------------------------------------------------------
-    
-          landings.n  <- get(paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.n.flq',sep=''))
-          landings.wt <- get(paste(nmfl.met.stk,'_wt.flq',sep='')) 
-          discards.wt <- get(paste(nmfl.met.stk,'_wt.flq',sep=''))          
-          discards.n  <- mget(paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_discards.n.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-          price       <- mget(paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_price.flq',sep=''),envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-          
+          landings.n    <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.n.flq',sep=''), value = TRUE)) 
+          landings.wt   <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE)) 
+          discards.wt   <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE)) 
+          discards.n   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_discards.n.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+          if(length(discards.n)==0) discards.n <- NA
+          price   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_price.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+          if(length(price)==0) price <- NA
+
           #create the variables with the right dimensions
           
           fl.met.stk.landings.n   <- flqa.stk
@@ -322,12 +335,7 @@ create.fleets.data <- function(){
           fl.met.stk.beta    <- flqa.stk
           fl.met.stk.catch.q <- flqa.stk
           
-          fl.met.stk.landings.n[,hist.yrs]   <- landings.n
-          fl.met.stk.discards.n[,hist.yrs]   <- discards.n
-          fl.met.stk.landings.wt[,hist.yrs]  <- landings.wt
-          fl.met.stk.discards.wt[,hist.yrs]  <- discards.wt
-          fl.met.stk.price[,hist.yrs]  <- price
-        
+         
           if(all(is.na(landings.n))){
             stop('all NA-s in landings.n')} 
           
@@ -339,6 +347,7 @@ create.fleets.data <- function(){
         
           
           if(!all(is.na(discards.n))){
+            discards.n <- discards.n[[1]]
             log.dim <- equal.flq.Dimnames(lflq=list(discards.n,fl.met.stk.discards.n[,hist.yrs]),1:2)
             if(!log.dim)stop('in discards.n dimensions \n')
             fl.met.stk.discards.n [,hist.yrs] <- discards.n
@@ -350,13 +359,20 @@ create.fleets.data <- function(){
           }  
 
           if(!all(is.na(price))){
+            price <- price[[1]]
             log.dim <- equal.flq.Dimnames(lflq=list(price,fl.met.stk.price[,hist.yrs]),1:2)
             if(!log.dim)stop('in price dimensions \n')
             fl.met.stk.price [,hist.yrs] <- price
             if(!(any(dim(price)[3]==c(1,stk.unit))))stop('in price number of stock units 1 or stk.unit')
             if(!(any(dim(price)[4]==c(1,ns))))stop('in price number of seasons 1 or ns')
             if(!(any(dim(price)[6]==c(1,ni))))stop('in price number of iterations 1 or ni')}
-          
+
+                  
+          fl.met.stk.landings.n[,hist.yrs]   <- landings.n
+          fl.met.stk.discards.n[,hist.yrs]   <- discards.n
+          fl.met.stk.landings.wt[,hist.yrs]  <- landings.wt
+          fl.met.stk.discards.wt[,hist.yrs]  <- discards.wt
+          fl.met.stk.price[,hist.yrs]  <- price          
           
           #Transformation of NA in landings.n and discards.n in 0
           
@@ -365,7 +381,8 @@ create.fleets.data <- function(){
             if(!(any(dim(fl.met.stk.landings.wt)[3]==c(1,stk.unit))))stop('in stk.wt number of stock units 1 or stk.unit')
             if(!(any(dim(fl.met.stk.landings.wt)[4]==c(1,ns))))stop('in stk.wt number of seasons 1 or ns')
             if(!(any(dim(fl.met.stk.landings.wt)[6]==c(1,ni))))stop('in stk.wt number of iterations 1 or ni')}
-          
+
+                
           fl.met.stk.discards.n[,hist.yrs][is.na(fl.met.stk.discards.n[,hist.yrs])]   <- 0
           fl.met.stk.landings.n[,hist.yrs][is.na(fl.met.stk.landings.n[,hist.yrs])]   <- 0
           fl.met.stk.landings.wt[,hist.yrs][is.na(fl.met.stk.landings.wt[,hist.yrs])] <- 0
@@ -384,20 +401,26 @@ create.fleets.data <- function(){
           #   3.5.1     Cobb Douglas Parameters: alpha, beta, catch.q
           #-----------------------------------------------------------------------------
 
-          alpha       <- paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_alpha.flq',sep='')
-          beta        <- paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_beta.flq',sep='')
-          catch.q     <- paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_catch.q.flq',sep='')
-        
-          fl.met.stk.alpha[]       <- mget(alpha,envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-          fl.met.stk.beta[]        <- mget(beta,envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-          fl.met.stk.catch.q[]     <- mget(catch.q,envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
+          alpha       <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_alpha.flq',sep=''), value = TRUE),envir=as.environment(1))                  
+          if(length(alpha)==0) {alpha <- NA
+          }else{alpha <- alpha[[1]]}
+          beta      <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_beta.flq',sep=''), value = TRUE),envir=as.environment(1))                  
+          if(length(beta)==0) {beta <- NA
+          }else{beta <- beta[[1]]}
+          catch.q     <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_catch.q.flq',sep=''), value = TRUE),envir=as.environment(1))                  
+          if(length(catch.q)==0) {catch.q <- NA
+          }else{catch.q <- catch.q[[1]]}
+       
+          fl.met.stk.alpha[]     <- alpha
+          fl.met.stk.beta[]        <- beta
+          fl.met.stk.catch.q[]     <- catch.q
           
-          if(any(!exists(alpha) || !exists(beta) || !exists(catch.q))){
-            stk.n       <- get(paste(nmfl.met.stk,'_n.flq',sep=''))
+          if(any(is.na(alpha) || is.na(beta) || is.na(catch.q))){
+            stk.n       <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_n.flq',sep=''), value = TRUE)) 
             stk.n[,hist.yrs][is.na(stk.n[,hist.yrs])] <- 0
             fl.effort[,hist.yrs][is.na(fl.effort[,hist.yrs])] <- 0
-            stk.age.min <- get(paste(nmfl.met.stk,'.age.min',sep=''))
-            stk.age.max <- get(paste(nmfl.met.stk,'.age.max',sep=''))
+            stk.age.min <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'.age.min',sep=''), value = TRUE)) 
+            stk.age.max <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'.age.max',sep=''), value = TRUE)) 
 
             CD_param <- calculate.CDparam(stk.n, fl.met.stk.landings.n,fl.met.stk.discards.n,
                                          fl.effort,fl.met.effshare,stk.age.min,stk.age.max,
@@ -409,7 +432,7 @@ create.fleets.data <- function(){
             
           }else{
             # Check dimension names
-            log.dim <- equal.flq.Dimnames(lflq=list(get(alpha),get(beta),get(catch.q),flqa.stk),1:2)
+            log.dim <- equal.flq.Dimnames(lflq=list(alpha,beta,catch.q,flqa.stk),1:2)
             if(!log.dim)stop('in alpha,beta or catch.q dimensions \n')
             if(!(any(dim(fl.met.stk.alpha)[3]==c(1,stk.unit))))stop('in alpha number of stock units 1 or stk.unit')
             if(!(any(dim(fl.met.stk.alpha)[4]==c(1,ns))))stop('in alpha number of seasons 1 or ns')
@@ -425,9 +448,8 @@ create.fleets.data <- function(){
           #-----------------------------------------------------------------------------
           #   3.6     Projection per fleet/metier/stock
           #-----------------------------------------------------------------------------
-          
-          fl.met.stk.proj.avg.yrs <- ac(get(paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep='') ))
-          
+          fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
+
           if(any(is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs]))){
             cat('warning: all NA-s in landings.sel projection \n')
             fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs])] <- 0}
@@ -500,7 +522,7 @@ create.fleets.data <- function(){
   #     sum.efsh<- sum.efsh+ fleet@metiers[[nmfl.met]]@effshare[, proj.yrs[sum.yr], , ss]  #/all.efs
   #   }
   #   if(abs(sum.efsh-1)>=10^(-3)){ 
-  #     stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", flts[i],sep=""))
+  #     stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", fls[i],sep=""))
   #   }
   # }
  }        #loop fleet
@@ -508,10 +530,10 @@ create.fleets.data <- function(){
   #==============================================================================
   #   Section 4:     FLFleetsExt: create fleets
   #==============================================================================
-  names(list.FLFleet) <- flts
+  names(list.FLFleet) <- fls
   fleets <- FLFleetsExt(list.FLFleet)
-  #fleets        <- FLFleetsExt(sapply(paste(flts,'.fleet',sep=''),FUN=get, envir=sys.frame(which=-1)))
-  #names(fleets) <- flts
+  #fleets        <- FLFleetsExt(sapply(paste(fls,'.fleet',sep=''),FUN=get, envir=sys.frame(which=-1)))
+  #names(fleets) <- fls
 
   #==============================================================================
   #   Section 5:           Return

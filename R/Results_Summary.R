@@ -285,7 +285,7 @@ D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @arguments
 #' @inheritParams FLBEIA
 #' @inheritParams F_flbeia
-#' @param flnm Names of the fleets.
+#' @param flnms Names of the fleets.
 #' @param stknms Names of the stocks.
 #' @param years The period of years. 
 #' 

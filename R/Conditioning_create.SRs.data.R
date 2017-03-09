@@ -8,20 +8,22 @@
 #  inputs: 
 #
 #   Required:
-#   first.yr: First year of simulation (number)
-#   proj.yr: First year of projection (number)
-#   last.yr: Last year of projection (number)
-#   ni: Number of iterations (number)
-#   ns:	Number of seasons (number)
-#   stk_sr.model: Name of the SR model (character)
-#   stk_params.n:	Number of the parameters in the model (number)
-#   stk_params.name:	Name of the parameters (vector)
-#   stk_params.array:	Parameter values(array)
-#   stk_rec.flq:	Recruitment values (FLQuant)
-#   stk_ssb.flq:	SSB values (FLQuant)
-#   stk_proportion.flq:	Proportion of recruits per season (FLQuant) 
-#   stk_prop.avg.yrs:	Historical years to calculate the average of proportion (vector) 
-#   stk_timelag.matrix: timelag of spawning in years and season (matrix)
+#   ni:       Number of iterations (number)
+#   ns:	      Number of seasons (number)
+#   yrs: a vector with the next elements
+#     first.yr: First year of simulation (number)
+#     proj.yr:  First year of projection (number)
+#     last.yr:  Last year of projection (number)
+#   stks.data: a list with the name of the stks and with the next elements
+#     stk_sr.model: Name of the SR model (character)
+#     stk_params.n:	Number of the parameters in the model (number)
+#     stk_params.name:	Name of the parameters (vector)
+#     stk_params.array:	Parameter values(array)
+#     stk_rec.flq:	Recruitment values (FLQuant)
+#     stk_ssb.flq:	SSB values (FLQuant)
+#     stk_proportion.flq:	Proportion of recruits per season (FLQuant) 
+#     stk_prop.avg.yrs:	Historical years to calculate the average of proportion (vector) 
+#     stk_timelag.matrix: timelag of spawning in years and season (matrix)
 #
 # (optional)
 #   stk_uncertainty.flq: Uncertainty (FLQuant)
@@ -35,61 +37,69 @@
 #   Section 2:        SRs 
 #-------------------------------------------------------------------------------
 
-create.SRs.data <- function(path){  
+create.SRs.data <- function(yrs,ns,ni,stks.data){  
   
-  nmstks       <- unique(sub('.*?^(.*?)_sr.model*', '\\1', ls(pattern='_sr.model',envir=sys.frame(which=0))))
-  n.stk.SR     <- length(nmstks)
+  ind <- unlist(sapply(stks.data,function(x) grep(x, pattern="sr.model",value=TRUE)))
+  nmstks <- unique(sub('.*?^(.*?)_sr.model*', '\\1', ind))
+  SRs <- NULL
   
-  if(n.stk.SR != 0){
-    
-    list.stks.flqa <- create.list.stks.flqa ()
-    list.stks.flq  <- create.list.stks.flq ()
-    
-    ny <- length(first.yr:last.yr)
-    hist.yrs <- as.character(first.yr:(proj.yr-1))
-    proj.yrs <- as.character(proj.yr:last.yr)
+  if(length(nmstks)!=0){
 
+    n.stk.SR     <- length(nmstks)
+
+    first.yr <- yrs[["first.yr"]]
+    proj.yr  <- yrs[["proj.yr"]]
+    last.yr  <- yrs[["last.yr"]]
+    proj.yrs       <- as.character(proj.yr:last.yr)
+    hist.yrs       <- as.character(first.yr:(proj.yr-1))
+    ny <- length(first.yr:last.yr)
+    list.stks.unit <- lapply(stks.data, function(ch) grep(pattern="unit", ch, value = TRUE))
+    list.stks.age <- lapply(stks.data, function(ch) grep(pattern="age", ch, value = TRUE))
+    list.stks.flqa <- create.list.stks.flqa(nmstks,yrs,ni,ns,list.stks.unit,list.stks.age)  
+    list.stks.flq  <- create.list.stks.flq(nmstks,yrs,ni,ns,list.stks.unit)  
+        
     #==============================================================================
     #   Section 1:         Create FLSRSim for each stock
     #==============================================================================
     
+    list.SRs <- list()
     for(i in 1:n.stk.SR){
       
       nmstk       <- nmstks[i]
+
       
       cat('=============', nmstk,'SR','=============\n')
       
       flqa.stk    <-list.stks.flqa[[nmstk]][1,,1]  #age=1 and unit=1
-   
       flq.stk     <- list.stks.flq[[nmstk]][,,1]
       
       #-----------------------------------------------------------------------------
       #    1.1         Historic and projection data(params,uncertainty*)
       #-----------------------------------------------------------------------------
 
-        stk.model        <- get(paste(nmstk,'_sr.model',sep=''))
-        stk.unit         <- get(paste(nmstk,'.unit',sep=""))
-        stk.rec          <- get(paste(nmstk,'_rec.flq',sep=""))
-        stk.ssb          <- get(paste(nmstk,'_ssb.flq',sep=""))
-        stk.params.n     <- get(paste(nmstk,'_params.n',sep=''))
-        stk.params.name  <- get(paste(nmstk,'_params.name',sep=''))
-        stk.params          <- get(paste(nmstk,'_params.array',sep=""))
-        stk.proportion      <- get(paste(nmstk,'_proportion.flq',sep=""))
-        stk.timelag         <- get(paste(nmstk,'_timelag.matrix',sep=""))
-        stk.range.min       <- get(paste(nmstk,'_range.min',sep=""))
-        stk.range.max       <- get(paste(nmstk,'_range.max',sep=""))
-        stk.range.plusgroup <- get(paste(nmstk,'_range.plusgroup',sep=""))
-        stk.range.minyear   <- get(paste(nmstk,'_range.minyear',sep=""))
-      
-        stk.uncertainty    <- mget(paste(nmstk,'_uncertainty.flq',sep=''),
-                                   envir=as.environment(-1),ifnotfound=NA,inherits=TRUE)[[1]]
-      
+        stk.model           <- get(grep(stks.data[[nmstk]],pattern="_sr.model", value = TRUE))
+        stk.unit            <- get(grep(stks.data[[nmstk]],pattern=".unit", value = TRUE))
+        stk.rec             <- get(grep(stks.data[[nmstk]],pattern="_rec.flq", value = TRUE))
+        stk.ssb             <- get(grep(stks.data[[nmstk]],pattern="_ssb.flq", value = TRUE))
+        stk.params.n        <- get(grep(stks.data[[nmstk]],pattern="_params.n", value = TRUE))
+        stk.params.name     <- get(grep(stks.data[[nmstk]],pattern="_params.name", value = TRUE))
+        stk.params          <- get(grep(stks.data[[nmstk]],pattern="_params.array", value = TRUE))
+        stk.proportion      <- get(grep(stks.data[[nmstk]],pattern="_proportion.flq", value = TRUE))
+        stk.timelag         <- get(grep(stks.data[[nmstk]],pattern="_timelag.matrix", value = TRUE))
+        stk.range.min       <- get(grep(stks.data[[nmstk]],pattern="_range.min", value = TRUE))
+        stk.range.max       <- get(grep(stks.data[[nmstk]],pattern="_range.max", value = TRUE))
+        stk.range.plusgroup <- get(grep(stks.data[[nmstk]],pattern="_range.plusgroup", value = TRUE))
+        stk.range.minyear   <- get(grep(stks.data[[nmstk]],pattern="_range.minyear", value = TRUE))
+        stk.uncertainty     <- mget(grep(stks.data[[nmstk]],pattern="_uncertainty.flq", value = TRUE),envir=as.environment(1))
+        if(length(stk.uncertainty)==0) stk.uncertainty  <- NA    
+       
         params <- array(dim = c(stk.params.n,ny,ns,ni), 
                  dimnames = list(param=ac(1:stk.params.n),year = ac(first.yr:last.yr),season=ac(1:ns), iter = 1:ni))
                       
         stk.sr <- FLSRsim(name = nmstk, model =stk.model, rec = flqa.stk, 
                           ssb = flq.stk,params = params, uncertainty = flqa.stk,
                           proportion = flqa.stk, covar=FLQuants())
+        
         dimnames(stk.sr@params)$param <-stk.params.name
       
         stk.sr@timelag[]      <- stk.timelag
@@ -120,6 +130,7 @@ create.SRs.data <- function(path){
         }else{cat('SR ssb all NA-s \n')}
       
         if(!all(is.na(stk.uncertainty))){
+          stk.uncertainty <- stk.uncertainty[[1]]
           log.dim <- equal.flq.Dimnames(lflq=list(stk.uncertainty,stk.sr@uncertainty),2)
           if(!log.dim)stop('in SR uncertainty year dimension names \n')
           if(!(any(dim(stk.uncertainty)[3]==c(1,stk.unit))))stop('in uncertainty number of stock units 1 or stk.unit')
@@ -160,20 +171,18 @@ create.SRs.data <- function(path){
         }
         if(any(is.na(stk.sr@uncertainty[,proj.yrs]))){
           stop('Na values in uncertainty in the projection years')}
-      
-        assign(paste(nmstk,'.sr',sep=''),stk.sr)
-    
+
+        list.SRs[[i]] <- stk.sr 
      }
     
     #==============================================================================
     #   Section 2:        Save SRs 
     #==============================================================================
     
-      all.stk.sr <- paste(nmstks,'.sr',sep='')
-      SRs <-  sapply(all.stk.sr, get, envir=sys.frame(sys.parent(-1)), simplify=FALSE)
-      names(SRs)<- nmstks
+    names(list.SRs) <- nmstks
+    SRs <- list.SRs
     }  
     
   return(SRs)
-  
-}
+  }  
+

@@ -1,3 +1,4 @@
+#' @rdname landStock.f
 #Landings
 
 #tlandStock
@@ -62,6 +63,7 @@ wtalStock <- function(obj, stknm)
 #Total discards of a stock across fleets and metiers
 #obj : an object of class FlFleetsExt
 #stknm : character, the name of the stock
+#' @rdname landStock.f
 tdiscStock <- function(obj, stknm){
     aux <- 0
     for(f in obj){

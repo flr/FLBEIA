@@ -31,13 +31,13 @@ ecoSum_damara(fleets, flnms = "all", years, covars = NULL)
 
 \item{fleets}{An FLFleetsExt object. An extended version of the FLFleet object defined in FLCore.}
 
+\item{flnms}{Names of the fleets.}
+
 \item{covars}{A list of FLQuants used to store any kind of variables that are used within the simulation and are not stored in the standard objects.}
 
 \item{advice}{A list with two FLQuant elements, TAC and quota.share. TAC is an FLQuant  with quant dimension equal to the number of stocks in biols object, the names used in in the quant dimension must be equal to those used in biols. quota.share is a list with one element per stock in biols object indicating the quota share per stock and fleet. The quant dimension of the elements must be equal to the number of fleets and the names used must be equal to those in fleets objects.}
 
 \item{stknms}{Names of the stocks.}
-
-\item{flnm}{Names of the fleets.}
 }
 \value{
 A data frame.
