@@ -77,6 +77,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
   proj.yrs  <- ac(proj.yr:last.yr)
   nmy       <- ac(first.yr:last.yr)
   list.stks.unit <- lapply(stks.data, function(ch) grep(pattern="unit", ch, value = TRUE))
+  list.stks.age <- lapply(stks.data, function(ch) grep(pattern="age", ch, value = TRUE))
   list.stks.flqa <-  create.list.stks.flqa(stks,yrs,ni,ns,list.stks.unit,list.stks.age)  
   list.stks.flq  <-  create.list.stks.flq(stks,yrs,ni,ns,list.stks.unit)  
 
