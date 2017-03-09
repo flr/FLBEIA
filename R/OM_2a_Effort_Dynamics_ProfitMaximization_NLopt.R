@@ -184,7 +184,7 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
          if(is.null(fleets.ctrl[[flnm]]$opts)) opts <- list("algorithm" = "NLOPT_LN_COBYLA", maxeval = 1e9, xtol_abs = rep(1e-4,nmt), xtol_rel = 1e-4, maxtime = 300)
          else  opts <- fleets.ctrl[[flnm]]$opts
   
-         eff_nloptr <- nloptr(Et*efs.m,
+         eff_nloptr <- nloptr::nloptr(Et*efs.m,
              eval_f= f_MP_nloptr,
              lb = rep(0, nmt),
              ub = rep(K, nmt),

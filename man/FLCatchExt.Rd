@@ -68,7 +68,7 @@ is.FLCatchesExt(object, ...)
 \S4method{catchNames}{FLCatchExt,character}(object) <- value
 }
 \arguments{
-\item{object}{An object of class FLQuant, missing or FLCatchExt.}
+\item{object, x}{An object of class FLQuant, missing or FLCatchExt.}
 
 \item{...}{Other objects to be assigned by name to the class slots}
 
@@ -77,6 +77,10 @@ is.FLCatchesExt(object, ...)
 \item{name}{The name of the stock.}
 
 \item{desc}{The description of the object.}
+
+\item{i, j, k, l, m, n}{subindices}
+
+\item{drop}{logical. Should the dimesions be dropped?}
 }
 \value{
 The constructors return an object of class FLCatchExt.

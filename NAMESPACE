@@ -102,7 +102,6 @@ exportMethods(
   "FLFleetsExt",
   "FLMetierExt",
   "FLMetiersExt",
-  "is.FLBDSRsims",
   "is.FLCatchesExt",
   "is.FLFleetsExt",
   "is.FLMetiersExt"

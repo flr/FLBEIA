@@ -117,7 +117,7 @@ SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
         spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
         d  <- si-spwn.sson 
       }
-        res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]])[,years,,spwn.sson]), c(2,6), sum, na.rm = TRUE)[drop=T]
+        res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]]))[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
     }
     return(res)
 }

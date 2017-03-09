@@ -286,70 +286,63 @@ setMethod("is.FLFleetsExt", "ANY", function(object, ...){
 #! FLBDSRsims
 
 # validity
-vFLBDSRsims <- function(object){
-	# Make sure the list contains all items of the same class
-	for(i in 1:length(object)){
-		if(!is(object[[i]], "FLSRsim") & !is(object[[i]], "FLBDsim") ) stop("Components must be 'FLSRsim' or 'FLBDsim'")	
-	}
-	# Everything is fine
-	return(TRUE)
-}
 
 # class
-#' @rdname FLBDSRsim
-setClass("FLBDSRsims", contains="FLlst", 
-	validity=vFLBDSRsims
-)
+# @rdname FLBDSRsim
+# setClass("FLBDSRsims", contains="FLlst", 
+# 	validity=vFLBDSRsims
+# )
+# 
+# # constructor
+# setGeneric("FLBDSRsims", function(object, ...){
+# 	standardGeneric("FLBDSRsims")
+# 	}
+# )
 
-# constructor
-setGeneric("FLBDSRsims", function(object, ...){
-	standardGeneric("FLBDSRsims")
-	}
-)
-
-#' @rdname FLBDSRsim
-setMethod("FLBDSRsims", signature(object="ANY"), function(object, ...){
-	lst1 <- list(...)
-	nlst <- length(lst1)
-	lst <- list()
-	length(lst) <- nlst + 1
-	lst[[1]] <- object
-	lst[-1] <- lst1
-
-  if(is.null(names(lst1)))
-    names(lst1) <- rep("", nlst)
-  names(lst) <- c(object@name, names(lst1))
-  if(any(names(lst) == ""))
-  names(lst)[names(lst)==""] <- unlist(lapply(lst[names(lst)==""], function(x) x@name))
-
-	attr(lst, "lock") <- TRUE
-	new("FLBDSRsims", lst)
-})
-
-#' @rdname FLBDSRsim
-setMethod("FLBDSRsims", "missing", function(...){
-	if(missing(...)){
-		new("FLBDSRsims")
-	} else { 
-		lst <- list(...)
-    if(any(names(lst) == ""))
-      names(lst)[names(lst)==""] <- unlist(lapply(lst[names(lst)==""], function(x) x@name))
-		new("FLBDSRsims", lst)
-	}
-})
-
-#' @rdname FLBDSRsim
-setMethod("FLBDSRsims", "list", function(object){
-	new("FLBDSRsims", object)
-})
-
-# is
-setGeneric("is.FLBDSRsims", function(object, ...){
-	standardGeneric("is.FLBDSRsims")
-	}
-)
-
-#' @rdname FLBDSRsim
-setMethod("is.FLBDSRsims", "ANY", function(object, ...){
-	identical(is(object)[1],"FLBDSRsims")
-})
+# # @rdname FLBDSRsim
+# setMethod("FLBDSRsims", signature(object="ANY"), function(object, ...){
+# 	lst1 <- list(...)
+# 	nlst <- length(lst1)
+# 	lst <- list()
+# 	length(lst) <- nlst + 1
+# 	lst[[1]] <- object
+# 	lst[-1] <- lst1
+# 
+#   if(is.null(names(lst1)))
+#     names(lst1) <- rep("", nlst)
+#   names(lst) <- c(object@name, names(lst1))
+#   if(any(names(lst) == ""))
+#   names(lst)[names(lst)==""] <- unlist(lapply(lst[names(lst)==""], function(x) x@name))
+# 
+# 	attr(lst, "lock") <- TRUE
+# 	new("FLBDSRsims", lst)
+# })
+# 
+# # @rdname FLBDSRsim
+# setMethod("FLBDSRsims", "missing", function(...){
+# 	if(missing(...)){
+# 		new("FLBDSRsims")
+# 	} else { 
+# 		lst <- list(...)
+#     if(any(names(lst) == ""))
+#       names(lst)[names(lst)==""] <- unlist(lapply(lst[names(lst)==""], function(x) x@name))
+# 		new("FLBDSRsims", lst)
+# 	}
+# })
+# 
+# # @rdname FLBDSRsim
+# setMethod("FLBDSRsims", "list", function(object){
+# 	new("FLBDSRsims", object)
+# })
+# 
+# # is
+# # @rdname FLBDSRsim
+# setGeneric("is.FLBDSRsims", function(object, ...){
+# 	standardGeneric("is.FLBDSRsims")
+# 	}
+# )
+# 
+# # @rdname FLBDSRsim
+# setMethod("is.FLBDSRsims", "ANY", function(object, ...){
+# 	identical(is(object)[1],"FLBDSRsims")
+# })

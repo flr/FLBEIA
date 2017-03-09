@@ -83,7 +83,7 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
   
-    stk <- stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
+    stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
     
     fwd.ctrl <- advice.ctrl[[stknm]]$fwd.ctrl
     

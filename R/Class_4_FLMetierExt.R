@@ -42,7 +42,7 @@ validFLMetierExt <- function(object) {
 #' 
 #' @name FLMetierExt
 #' @aliases FLMetierExt-class FLMetierExt FLMetierExt-methods
-#' FLMetierExt,FLMetierExt-method
+#' FLMetierExt,FLMetierExt-method, FLMetiersExt, FLMEtiersExt-methods
 #' 
 #' @title  FLMetierExt and FLMetiersExt classes and the methods to construct it.
 #'
@@ -209,6 +209,8 @@ setMethod("iter", signature(obj="FLMetierExt"),
 ) # }}}
 
 # "[" and "[["             {{{
+#' @rdname FLMetierExt
+#' @aliases [,FLMetierExt,ANY,missing-method
 setMethod("[", signature(x="FLMetierExt", i="ANY", j="missing"),
   function(x, i, drop=FALSE)
   {
@@ -219,6 +221,8 @@ setMethod("[", signature(x="FLMetierExt", i="ANY", j="missing"),
 	}
 )
 
+#' @rdname FLMetierExt
+#' @aliases [[,FLMetierExt,ANY,missing-method
 setMethod("[[", signature(x="FLMetierExt", i="ANY", j="missing"),
   function(x, i, drop=FALSE)
   {

@@ -1,5 +1,35 @@
-# An object to simulate recruitment.
 
+#' 
+#' @name FLSRsim
+#' 
+#' @title  FLSRsim class
+#'
+#' @description This class is used to store the necessary information to simulate the recruitment process within FLBEIA.
+#' 
+#' @details The FLSRsim class contains a representation of the recruitment process of a  fish stock. 
+#'    This includes information on recruitment, ssb, recruitment model, uncertainty and distribution of the recruitment along seasons.
+#'    The slots in this class:  
+#'    
+#' @slot rec An FLQuant with to store the recruitment.
+#' @slot ssb An FLQuant with to store the ssb.
+#' @slot covar An FLQuants to store the covariates considered in the stock-recruitment model, one FQuant per covariate.
+#' @slot uncertainty An FLQuant with to store the uncertainty that is multiplied to the recruitment point estimate in each step of the simulation.
+#' @slot proportion An FLQuant with values between 0 and 1 to indicate how the recruitment in each of the time steps is distributed along season.
+#' @slot model A character with the name of the model to simulate the recruitment process.
+#' @slot params An array with dimensions [number of params,number of years,number of seasons,number of iteration].
+#' @slot timelag A matrix [2, number of seasons]. The element (1,j) indicates the time lag between the spawning and recruitment year and the element (2,j) the season in which the recruitment was spawn.
+#' @slot name A character with the name of the stock.
+#' @slot desc A description of the object.
+#' @slot range A numeric vector with c(min, max,plusgroup, minyear, maxyear) as in the rest of the FLR objects.
+#'    
+#'        
+#' @param ... Any of the slots in FLSRsim class. 
+#' 
+#' @return An object of class FLSRsim.
+#'  
+#' 
+#' 
+#' 
 validFLSRsim <- function(object){
 
    ## All FLQuant objects must have same dimensions, including 'iter'.

@@ -17,11 +17,16 @@
 \alias{FLMetierExt}
 \alias{FLMetierExt-class}
 \alias{FLMetierExt-methods}
-\alias{FLMetierExt,FLMetierExt-method}
+\alias{FLMetierExt,FLMetierExt-method,}
+\alias{FLMetiersExt,}
+\alias{FLMEtiersExt-methods}
 \alias{FLMetierExt,FLCatchExt-method}
 \alias{FLMetierExt,FLCatchesExt-method}
 \alias{FLMetierExt,FLQuant-method}
 \alias{FLMetierExt,missing-method}
+\alias{[,FLMetierExt,ANY,missing,ANY-method}
+\alias{[,FLMetierExt,ANY,missing-method}
+\alias{[[,FLMetierExt,ANY,missing-method}
 \title{FLMetierExt and FLMetiersExt classes and the methods to construct it.}
 \usage{
 \S4method{FLMetiersExt}{ANY}(object, ...)
@@ -41,6 +46,10 @@ is.FLMetiersExt(object, ...)
 \S4method{FLMetierExt}{FLQuant}(catches, gear = "NA", ...)
 
 \S4method{FLMetierExt}{missing}(catches, gear = "NA", ...)
+
+\S4method{[}{FLMetierExt,ANY,missing,ANY}(x, i, drop = FALSE)
+
+\S4method{[[}{FLMetierExt,ANY,missing}(x, i, drop = FALSE)
 }
 \arguments{
 \item{object}{An object of class FLQuant, missing or FLCatchExt.}

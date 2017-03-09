@@ -49,24 +49,27 @@ validFLBDsim <- function(object){
 
    }
 
-#' FLBDsim class and methods
+#' @name FLBDsim
+#' @title FLBDsim class and methods
 #' 
-#' A class  to simulate the growth of populations aggregated in biomass.
+#' @description A class  to simulate the growth of populations aggregated in biomass.
 #' 
 #' @param ... Empty or FLQuants for 'biomass', 'catch' and 'uncertainty' slots and optionally the values for the rest of the slots.
 #' 
 #' @details The FLBDsim has the following slots:
-#' \itemize{
-#'    \item{name}{ The name of the stock.}
-#'    \item{desc}{ A description of the object.}
-#'    \item{range}{ The range of the object.}
-#'    \item{biomass}{ An FLQuant with to store the biomass of the stock.} 
-#'    \item{catch}{ An FLQuant with to store the catch of the stock.} 
-#'    \item{uncertainty}{ An FLQuant with to store the uncertainty that is multiplied to the biomass in every step of the simulation.} 
-#'    \item{biomass}{ An FLQuant with to store the biomass of the object.} 
-#'    \item{biomass}{ An FLQuant with to store the biomass of the object.} 
 #' 
-#' } 
+#' @slot name The name of the stock.
+#' @slot desc A description of the object.
+#' @slot range The range of the object.
+#' @slot biomass An FLQuant with to store the biomass of the stock. 
+#' @slot catch An FLQuant with to store the catch of the stock. 
+#' @slot uncertainty An FLQuant with to store the uncertainty that is multiplied to the biomass in every step of the simulation. 
+#' @slot covar An FLQuants with to store the covariates that are part of the growth model.
+#' @slot params An array with dimension [numb.params, numb.year, numd.season, numb.iteration] with time, year and season and iteration dependent parameters of the growth model.
+#' @slot alpha A numeric value bigger than one which indicates, in percentage, how big can be the biomass in comparison with the carrying capacity.
+#' @slot name  The name of the object.
+#' @slot desc  Character with the description of the object.
+#' @slot range A numeric vector with the range of the object as in other FLR objects.
 #' 
 #' @return  An object of class FLBDsim.
    

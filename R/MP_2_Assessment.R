@@ -62,7 +62,7 @@ NoAssessment <- function(stock,...){
 #-------------------------------------------------------------------------------
 #  XSA FOR SIMULATION
 #-------------------------------------------------------------------------------
-FLXSAnew <- function(stock, indices, control) return(FLXSA(stock, indices, control, diag.flag = FALSE))
+FLXSAnew <- function(stock, indices, control) return(FLXSA::FLXSA(stock, indices, control, diag.flag = FALSE))
 
 
 

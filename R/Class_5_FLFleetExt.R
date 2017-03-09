@@ -448,30 +448,44 @@ setReplaceMethod("effort", signature(object="FLFleetExt", value="FLQuant"),
 # }}}
 
 # catchNames {{{
+#' @rdname FLCatchesExt
+#' @aliases catchNames, FLCatchesExt
 setMethod('catchNames', signature(object='FLCatchesExt'),
   function(object)
   {
     return(unname(unlist(lapply(object, catchNames))))
   }
 )
+
+#' @rdname FLCatchesExt
+#' @aliases catchNames, FLMetierExt
 setMethod('catchNames', signature(object='FLMetierExt'),
   function(object)
   {
     return(catchNames(object@catches))
   }
 )
+
+#' @rdname FLCatchesExt
+#' @aliases catchNames, FLMetiersExt
 setMethod('catchNames', signature(object='FLMetiersExt'),
   function(object)
   {
     return(unique(unlist(lapply(object, catchNames))))
   }
 )
+
+#' @rdname FLCatchesExt
+#' @aliases catchNames, FLFleetExt
 setMethod('catchNames', signature(object='FLFleetExt'),
   function(object)
   {
     return(catchNames(object@metiers))
   }
 ) 
+
+#' @rdname FLCatchesExt
+#' @aliases catchNames, FLFleetsExt
 setMethod('catchNames', signature(object='FLFleetsExt'),
   function(object)
   {
@@ -540,6 +554,8 @@ setMethod('computeLandings', signature(object='FLFleetExt'),
 ) # }}}
 
 # "[" and "[["             {{{
+#' @rdname FLFleetExt
+#' @aliases [,FLFleetExt,ANY,missing-method
 setMethod("[", signature(x="FLFleetExt", i="ANY", j="missing"),
   function(x, i, drop=FALSE)
   {
@@ -550,6 +566,8 @@ setMethod("[", signature(x="FLFleetExt", i="ANY", j="missing"),
 	}
 )
 
+#' @rdname FLFleetExt
+#' @aliases [,FLFleetExt,ANY,ANY-method
 setMethod("[", signature(x="FLFleetExt", i="ANY", j="ANY"),
   function(x, i, j, drop=FALSE)
   {
@@ -561,6 +579,9 @@ setMethod("[", signature(x="FLFleetExt", i="ANY", j="ANY"),
 	}
 )
 
+
+#' @rdname FLFleetExt
+#' @aliases [[,FLFleetExt,ANY,missing-method
 setMethod("[[", signature(x="FLFleetExt", i="ANY", j="missing"),
   function(x, i, drop=FALSE)
   {

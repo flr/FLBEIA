@@ -101,6 +101,8 @@ pidHCRItarg <- function(indices, advice, advice.ctrl, year, stknm,...){
 # Dorleta Garcia
 # 09/11/2013 18:44:26
 # Implementation of the HCR presented in Little 2011. 
+# We have include the contraint min(res,Cmax) not to allow very high catches it can be turn off
+# setting Cmax equal to a really high number or Inf.
 #-------------------------------------------------------------------------------
 #' @rdname annualTAC
 little2011HCR <- function(indices, advice, advice.ctrl, year, stknm,...){
@@ -116,8 +118,8 @@ little2011HCR <- function(indices, advice, advice.ctrl, year, stknm,...){
   Ctarg  <- advice.ctrl[[stknm]][['ref.pts']]['Ctarg',]
   Ilim   <- advice.ctrl[[stknm]][['ref.pts']]['Ilim',]
   Itarg  <- advice.ctrl[[stknm]][['ref.pts']]['Itarg',]
-  Imax <- advice.ctrl[[stknm]][['ref.pts']]['Itarg',]
-  
+  Cmax <- advice.ctrl[[stknm]][['ref.pts']]['Cmax',]
+
   Iy <- (yearSums(Id[,(year-1):(year-2)])/2)[drop=T] # [it]
   
   TAC <- min(Ctarg*max(0,(Iy-Ilim)/(Itarg-Ilim)),Cmax)

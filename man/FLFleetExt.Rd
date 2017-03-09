@@ -24,6 +24,11 @@
 \alias{FLFleetExt,FLFleetExt-method}
 \alias{FLFleetExt,missing-method}
 \alias{FLFleetExt,FLFleetExt-missing}
+\alias{[,FLFleetExt,ANY,missing,ANY-method}
+\alias{[,FLFleetExt,ANY,missing-method}
+\alias{[,FLFleetExt,ANY,ANY,ANY-method}
+\alias{[,FLFleetExt,ANY,ANY-method}
+\alias{[[,FLFleetExt,ANY,missing-method}
 \title{FLFleetExt and FLFleetsExt classes and the methods to construct it.}
 \usage{
 \S4method{FLFleetsExt}{ANY}(object, ...)
@@ -47,6 +52,12 @@ is.FLFleetsExt(object, ...)
 \S4method{FLFleetExt}{FLFleetExt}(object, metier, catch, ...)
 
 \S4method{FLFleetExt}{missing}(object, ...)
+
+\S4method{[}{FLFleetExt,ANY,missing,ANY}(x, i, drop = FALSE)
+
+\S4method{[}{FLFleetExt,ANY,ANY,ANY}(x, i, j, drop = FALSE)
+
+\S4method{[[}{FLFleetExt,ANY,missing}(x, i, drop = FALSE)
 }
 \arguments{
 \item{object}{An object of class FLQuant, missing or FLMetierExt.}

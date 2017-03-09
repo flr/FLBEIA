@@ -93,7 +93,7 @@ plot(s0$biols[[1]])
 proj.yr     <- 2013 
 s0_sum      <- bioSum(s0)
 s0_eco      <- ecoSum(s0$fleets, flnms = 'all', years = ac(2007:2025))
-s0_catchFl  <- catchFlSum(s0$fleets, s0$advice,flnms= 'all', stknms= 'all', years=ac((proj.yr+1):last.yr))
+s0_catchFl  <- catchFlSum(s0$fleets, s0$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
 
 
 # Create several plots and save them in the working directory using 'pdf' format and 

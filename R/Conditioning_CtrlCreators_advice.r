@@ -16,14 +16,16 @@
 #
 #' @param stksnames A vector with the name of the stocks in the OM.
 #' @param HCR.models A character vector of the same length as stksnames with the name of the HCR used to generate the management advice.
-#' @param immediate logical, indicating if the warnings should be output immediately.
+#' @param first.year The first year in which advice is calculated.
+#' @param last.year The last year in which advice is calculated.
+# @param immediate logical, indicating if the warnings should be output immediately.
 #' @param ... any extra arguments necessary in the HCR specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
 #'        To assure the correct functioning the extra arguments must have a name.
 #' 
 #' @return A list of lists with the basic structure of the advice.ctrl object.
 #-------------------------------------------------------------------------------
 
-create.advice.ctrl <- function(stksnames, HCR.models = NULL,...){
+create.advice.ctrl <- function(stksnames, HCR.models = NULL, ...){
     
     HCR.models.available <- c('fixedAdvice','annualTAC','IcesHCR','ghlHCR','annexIVHCR', 'froeseHCR', 'F2CatchHCR')
 
@@ -36,7 +38,7 @@ create.advice.ctrl <- function(stksnames, HCR.models = NULL,...){
         if(length(HCR.models) != length(stksnames)) stop("'HCR.models' must be NULL or must have the same length as stknames'")
         if(!all(HCR.models %in% HCR.models.available)){ 
             wmod <- unique(HCR.models[which(!(HCR.models %in% HCR.models.available))])  
-            warning(paste(unique(wmod), collapse = "-")," in 'HCR.models' is not an internal FLBEIA covariables model. If you want to use create.covars.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)
+            warning(paste(unique(wmod), collapse = "-")," in 'HCR.models' is not an internal FLBEIA covariables model. If you want to use create.covars.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = TRUE)
         }}
     
     
@@ -67,7 +69,7 @@ create.fixedAdvice.ctrl <- function(resst,stkname, largs) return(resst)
 #------------------------------------------------------------------------------#
 #                        *** create.annualTAC.ctrl ***
 #-------------------------------------------------------------------------------
-create.annualTAC.ctrl <- function(resst,stkname, largs){
+create.annualTAC.ctrl <- function(resst,stkname, first.yr, last.yr, largs){
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
                 fwd.ctrl = NULL,AdvCatch=NULL,  
@@ -104,7 +106,7 @@ create.annualTAC.ctrl <- function(resst,stkname, largs){
       cat("------------------------------------------------------------------------------\n")
     }    
     
-    resst$fwd.ctrl <- fwdControl(data.frame(year = c(0, 1, 1, 1),  val = c(1, Ftarget.stk, NA, NA), quantity = c( 'f', 'f', 'f', 'catch'),
+    resst$fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1, 1, 1),  val = c(1, Ftarget.stk, NA, NA), quantity = c( 'f', 'f', 'f', 'catch'),
                      min = c(NA,NA,0.9, 0.85), max  = c(NA,NA,1.1,1.15), rel.year = c(-1,NA,0, 0)))
 
     resst$AdvCatch <- AdvCatch.stk
@@ -117,6 +119,9 @@ create.annualTAC.ctrl <- function(resst,stkname, largs){
 #-------------------------------------------------------------------------------
 create.IcesHCR.ctrl <- function(resst,stkname, largs){
 
+    first.yr <- largs$first.yr  
+    last.yr <- largs$last.yr
+    
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
                 ref.pts = NULL, AdvCatch=NULL, intermediate.year = 'Fsq',
                 growth.years = NULL, first.yr=NULL,last.yr=NULL)
@@ -278,7 +283,7 @@ create.froeseHCR.ctrl <- function(resst,stkname, largs){
 #------------------------------------------------------------------------------#
 #                        *** create.F2CatchHCR.ctrl  ***
 #-------------------------------------------------------------------------------
-create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
+create.F2CatchHCR.ctrl <- function(resst,stkname, first.yr, last.yr, largs){
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
                 ref.pts = NULL, AdvCatch=NULL, intermediate.year = 'Fsq',

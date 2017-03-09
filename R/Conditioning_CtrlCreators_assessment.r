@@ -15,7 +15,7 @@
 #' @param stksnames A vector with the name of the stocks in the OM.
 #' @param assess.models A character vector of the same length as stksnames with the name of the model used to obtaine the perceived population in the MP.
 #' @param assess.ctrls A list of the same length as stksnames with the arguments needed to fit the assessment model.
-#' @param immediate logical, indicating if the warnings should be output immediately.
+# @param immediate logical, indicating if the warnings should be output immediately.
 #' @param ... any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
 #'        To assure the correct functioning the extra arguments must have a name.
 #' 
@@ -36,7 +36,7 @@ create.assess.ctrl <- function(stksnames, assess.models = NULL, assess.ctrls = N
       if(length(assess.models) != length(stksnames)) stop("'assess.models' must be NULL or must have the same length as stknames'")
       if(!all(assess.models %in% assess.models.available)){ 
         wmod <- unique(assess.models[which(!(assess.models %in% assess.models.available))])  
-        warning(paste(unique(wmod), collapse = "-")," in 'assess.models' is not an internal FLBEIA covariables model. If you want to use create.covars.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = immediate)
+        warning(paste(unique(wmod), collapse = "-")," in 'assess.models' is not an internal FLBEIA covariables model. If you want to use create.covars.ctrl you must create, ", paste('create', paste(unique(wmod), collapse = ', ') ,'ctrl', sep = ".")," function.", immediate. = TRUE)
       }}
     
     
@@ -69,7 +69,7 @@ create.NoAssessment.ctrl <- function(resst,stkname,largs) return(resst)
 # No extra arguments needed
 #-------------------------------------------------------------------------------
 create.FLXSA.ctrl <- function(resst,stkname,largs){ 
-    resst <- c(resst, control = FLXSA.control())
+    resst <- c(resst, control = FLXSA::FLXSA.control())
     warning("Default values have been used to create 'FLXSA.control' for stock '", stkname, "' change it by hand if the values are not appropiate.")
     
     return(resst)}

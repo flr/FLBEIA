@@ -69,6 +69,23 @@ validFLCatchExt <- function(object)
 #' @param drop logical. Should the dimesions be dropped?
 #' @param ... Other objects to be assigned by name to the class slots 
 #' 
+#' @slot landings An FLQuant of dimension [1,num. years, num. units, numb.season, 1, numb. iters] with the total landings in weight of the stock.
+#' @slot landings.n An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the  landings in numbers at age of the stock.
+#' @slot landings.wt An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the weight at age of the landings.
+#' @slot landings.sel An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the retention ogive of the metier for this stock. Elements must be between 0 and 1. landings.sel = 1-discards.sel. 
+#' @slot discards An FLQuant of dimension [1,num. years, num. units, numb.season, 1, numb. iters] with the total discards in weight of the stock.
+#' @slot discards.n An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the discards in numbers at age of the stock.
+#' @slot discards.wt An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the weight at age of the discards
+#' @slot discards.sel landings.sel An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the discard ogive of the metier for this stock. Elements must be between 0 and 1. discards.sel. = 1-landings.sel. 
+#' @slot catch.q An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the catchability at age of the stock for the corresponding metier. This is the catchability used in the catch production model.
+#' @slot price An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the price at age of the stock.
+#' @slot alpha An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the elsaticity parameter at age of the stock for the corresponding metier. This is one of the parameters used in the catch production model.
+#' @slot beta An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the elsaticity parameter at age of the stock for the corresponding metier. This is one of the parameters used in the catch production model
+#' @slot name The name of the stock.
+#' @slot desc A description of the object.
+#' @slot range The range as in other FLR objects. c("min","max","plusgroup","minyear","maxyear")
+#'
+#' 
 #' @return The constructors return an object of class FLCatchExt.
 #'  
 #' 

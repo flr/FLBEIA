@@ -16,8 +16,6 @@ create.assess.ctrl(stksnames, assess.models = NULL, assess.ctrls = NULL,
 
 \item{...}{any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
 To assure the correct functioning the extra arguments must have a name.}
-
-\item{immediate}{logical, indicating if the warnings should be output immediately.}
 }
 \value{
 A list of lists with the basic structure of the assess.ctrl object.

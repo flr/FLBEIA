@@ -22,6 +22,8 @@ create.fleets.ctrl(flts, n.flts.stks, flts.stksnames, catch.threshold = NULL,
 \item{catch.threshold}{if(NULL) => 0.9 for all the stocks (NULL is the default)
 else it must be an FLQuant with dim = c(nstks,ny,1,ns,nit)}
 
+\item{seasonal.share}{an FLQuant with dimension [num. fleets, num. years, 1,num. seasons, 1, num. iterations] with elements between 0 and 1 to indicate how the quota of each fleet is distributed along seasons. The sum along seasons (seasonSums) must return an FLQuant with all elements equal to 1.}
+
 \item{effort.models}{characted vector with the same length as flts with the effort model followed by each of the fleet. 
 the first element correspond with the effort model of the first fleet in flts, the second with the second and so on.
 The default is NULL in which case 'fixedEffort' is used for **all** the fleets.}
@@ -41,7 +43,7 @@ The default is NULL in which case 'fixedPrice' is used for **all** the fleets.}
 \item{flq}{An flquant to give structure to the FLQuants to be used within the function, 
 the dimensioan and dimnames in 'year', 'season' and 'iter' will be used to create the necessary FLQuants.}
 
-\item{...:}{Any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+\item{...}{Any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
 To assure the correct functioning the extra arguments must have a name, for example, elas = FLQuant(1,dimnames = DimsNms).}
 }
 \value{

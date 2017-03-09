@@ -453,7 +453,7 @@ seasonshare.CAA  <- function(fleets, biols, fleets.ctrl, advice, advice.ctrl, ye
 # in the same degree in all the fleets. This could imply a 'revision' in the
 # production function parameters for the year, season and iteration in question
 # but it is not done internally because it does not affect other steps and it
-# would imply a los in the generality of the 'CorrectCatch' function because in
+# would imply a loss in the generality of the 'CorrectCatch' function because in
 # for doing so the catch production function should be used.
 #-------------------------------------------------------------------------------
 
