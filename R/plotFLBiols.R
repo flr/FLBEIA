@@ -115,8 +115,12 @@ plotFLBiols <- function(biols,pdfnm){
     biol.ssb.df$variable <- 'ssb'
     biol.ssb.df$indicator <- names.biols[i]
     biol.ssb.df$age <- factor(biol.ssb.df$age)
-    
-    biol.rec.df <- as.data.frame(rec(biol))
+    rec <- biol@n[1,,1,1,,]
+    ss <- dim(biol@n)[4]
+    if(ss>2){
+      for(k in 2:length(ss)){
+        rec <- rec+biol@n[1,,k,k,,]}}
+    biol.rec.df <- as.data.frame(rec)
     biol.rec.df$variable <- 'rec'
     biol.rec.df$indicator <- names.biols[i]
     biol.rec.df$age <- factor(biol.rec.df$age)
