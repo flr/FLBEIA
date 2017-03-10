@@ -187,6 +187,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
       
         
       if(!is.na(fl.fcost)){
+        fl.fcost <- fl.fcost[[1]]
         log.dim <- equal.flq.Dimnames(lflq=list(fl.fcost,fleet@fcost[,hist.yrs]),2)
         if(!log.dim)stop('in fcost dimension names  \n')
         if(!(any(dim(fl.fcost)[4]==c(1,ns))))stop('in fcost number of seasons 1 or ns')
@@ -314,8 +315,10 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           #   3.5     Historic data per fleet/metier/stock
           #-----------------------------------------------------------------------------
           landings.n    <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.n.flq',sep=''), value = TRUE)) 
-          landings.wt   <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE)) 
-          discards.wt   <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE)) 
+          landings.wt   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+          if(length(landings.wt)==0) landings.wt <- NA
+          discards.wt   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+          if(length(discards.wt)==0) discards.wt <- NA
           discards.n   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_discards.n.flq',sep=''), value = TRUE),envir=as.environment(1)) 
           if(length(discards.n)==0) discards.n <- NA
           price   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_price.flq',sep=''), value = TRUE),envir=as.environment(1)) 
@@ -339,13 +342,23 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
          
           if(all(is.na(landings.n))){
             stop('all NA-s in landings.n')} 
-          
           log.dim <- equal.flq.Dimnames(lflq=list(landings.n,fl.met.stk.landings.n[,hist.yrs]),1:2)
           if(!log.dim)stop('in landings.n dimensions')
           if(!(any(dim(landings.n)[3]==c(1,stk.unit))))stop('in landings.n number of stock units 1 or stk.unit')
           if(!(any(dim(landings.n)[4]==c(1,ns))))stop('in landings.n number of seasons 1 or ns')
           if(!(any(dim(landings.n)[6]==c(1,ni))))stop('in landings.n number of iterations 1 or ni')
-        
+          
+          browser()
+          if(!all(is.na(landings.wt))){
+            landings.wt <- landings.wt[[1]] 
+          log.dim <- equal.flq.Dimnames(lflq=list(landings.wt,fl.met.stk.landings.wt[,hist.yrs]),1:2)
+          if(!log.dim)stop('in landings.n dimensions')
+          if(!(any(dim(landings.wt)[3]==c(1,stk.unit))))stop('in landings.wt number of stock units 1 or stk.unit')
+          if(!(any(dim(landings.wt)[4]==c(1,ns))))stop('in landings.wt number of seasons 1 or ns')
+          if(!(any(dim(landings.wt)[6]==c(1,ni))))stop('in landings.wt number of iterations 1 or ni')
+          }else{    
+            landings.wt <- get(grep(stks.data[[nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_wt.flq',sep=''), value = TRUE)) 
+          } 
           
           if(!all(is.na(discards.n))){
             discards.n <- discards.n[[1]]
@@ -357,8 +370,21 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             if(!(any(dim(discards.n)[6]==c(1,ni))))stop('in discards.n number of iterations 1 or ni')
           }else{    
             cat('warning: all NA-s in discards.n \n')   
+          } 
+          
+          if(!all(is.na(discards.wt))){
+            discards.wt <- discards.wt[[1]]
+            log.dim <- equal.flq.Dimnames(lflq=list(discards.wt,fl.met.stk.discards.wt[,hist.yrs]),1:2)
+            if(!log.dim)stop('in discards.wt dimensions \n')
+            fl.met.stk.discards.wt [,hist.yrs] <- discards.wt
+            if(!(any(dim(discards.wt)[3]==c(1,stk.unit))))stop('in discards.wt number of stock units 1 or stk.unit')
+            if(!(any(dim(discards.wt)[4]==c(1,ns))))stop('in discards.wt number of seasons 1 or ns')
+            if(!(any(dim(discards.wt)[6]==c(1,ni))))stop('in discards.wt number of iterations 1 or ni')
+          }else{    
+            discards.wt <- get(grep(stks.data[[nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_wt.flq',sep=''), value = TRUE))  
           }  
-
+          
+          
           if(!all(is.na(price))){
             price <- price[[1]]
             log.dim <- equal.flq.Dimnames(lflq=list(price,fl.met.stk.price[,hist.yrs]),1:2)
