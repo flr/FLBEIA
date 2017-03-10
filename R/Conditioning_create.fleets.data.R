@@ -348,7 +348,6 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           if(!(any(dim(landings.n)[4]==c(1,ns))))stop('in landings.n number of seasons 1 or ns')
           if(!(any(dim(landings.n)[6]==c(1,ni))))stop('in landings.n number of iterations 1 or ni')
           
-          browser()
           if(!all(is.na(landings.wt))){
             landings.wt <- landings.wt[[1]] 
           log.dim <- equal.flq.Dimnames(lflq=list(landings.wt,fl.met.stk.landings.wt[,hist.yrs]),1:2)
