@@ -64,7 +64,6 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       if(length(stk.uncertainty)==0) stk.uncertainty  <- NA    
       stk.alpha      <- get(grep(stks.data[[nmstk]],pattern="_alpha", value = TRUE),envir=as.environment(1))
   
-      browser()
       params <- array(dim = c(length(stk.params.n), ny, ns, ni),
                 dimnames = list(param = stk.params.n, year = ac(first.yr:last.yr),
                   season = ac(1:ns), iter = 1:ni))
@@ -79,7 +78,8 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       stk.bd@range[["minyear"]] <- stk.range.minyear
       stk.bd@range[["maxyear"]] <- proj.yr - 1
       if (!all(is.na(stk.uncertainty))) {
-           log.dim <- equal.flq.Dimnames(lflq = list(stk.uncertainty,
+        stk.uncertainty <- stk.uncertainty[[1]]
+        log.dim <- equal.flq.Dimnames(lflq = list(stk.uncertainty,
         stk.bd@uncertainty), 2)
       if (!log.dim)
            stop("BD uncertainty dimension names \n")
