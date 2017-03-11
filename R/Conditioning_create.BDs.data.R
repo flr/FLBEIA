@@ -64,9 +64,9 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       if(length(stk.uncertainty)==0) stk.uncertainty  <- NA    
       stk.alpha      <- get(grep(stks.data[[nmstk]],pattern="_alpha", value = TRUE),envir=as.environment(1))
   
-      
-      params <- array(dim = c(stk.params.n, ny, ns, ni),
-                dimnames = list(param = ac(1:stk.params.n), year = ac(first.yr:last.yr),
+      browser()
+      params <- array(dim = c(length(stk.params.n), ny, ns, ni),
+                dimnames = list(param = stk.params.n, year = ac(first.yr:last.yr),
                   season = ac(1:ns), iter = 1:ni))
       stk.bd <- FLBDsim(name = nmstk, model = stk.model,
                 biomass = flq.stk, catch = flq.stk, uncertainty = flq.stk,alpha=stk.alpha,
