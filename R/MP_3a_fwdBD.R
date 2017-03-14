@@ -1,6 +1,7 @@
 #-------------------------------------------------------------------------------
-#           OBSERVATION MODEL FUNCTIONS
+#           ADVICE MODEL FUNCTIONS
 #   - gmeanHistGrowth(stock, y0,y1)
+#   - stfBD
 #   - fwdBD(stock,fwdControl)       
 #   - biomass.tg, catch.tg, discards.tg, f.tg, fdisc.tg, fland.tg, landings.tg
 #
@@ -139,7 +140,36 @@ fwdBD <- function(stock, ctrl, growth.years)
     return(stock)
 }
     
-    
+
+#---------------------------------------------------------------------
+# stfBD : The anologous of stf in FLAssess Package
+#---------------------------------------------------------------------
+
+stfBD <- function(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3){
+  
+  year  <- length(dimnames(stk@m)[[2]]) + 1 
+  
+  minyear <- as.numeric(dimnames(stk@m)[[2]])[1] 
+  maxyear <- as.numeric(dimnames(stk@m)[[2]])[length(dimnames(stk@m)[[2]])] 
+  
+  res <- window(stk, minyear, maxyear + 3)
+  
+  res@harvest[, year] <- mean(res@harvest[, (year-fbar.nyears-1):(year-1)])
+  
+  res@stock.wt[, year:(year+2)]    <- mean(res@stock.wt[, (year-wts.nyears-1):(year-1)]) 
+  res@catch.wt[, year:(year+2)]    <- mean(res@catch.wt[, (year-wts.nyears-1):(year-1)])
+  res@discards.wt[, year:(year+2)] <- mean(res@discards.wt[, (year-wts.nyears-1):(year-1)])
+  res@landings.wt[, year:(year+2)] <- mean(res@landings.wt[, (year-wts.nyears-1):(year-1)])
+  
+  res@mat[, year:(year+2)] <- mean(res@mat[, (year-wts.nyears-1):(year-1)])
+  res@m[, year:(year+2)]   <- mean(res@m[, (year-wts.nyears-1):(year-1)])
+  
+  res@harvest.spwn[, year:(year+2)] <- mean(res@harvest.spwn[, (year-fbar.nyears-1):(year-1)])
+  res@m.spwn[, year:(year+2)] <- mean(res@m.spwn[, (year-fbar.nyears-1):(year-1)])
+  
+  return(res)
+}
+
 #-------------------------------------------------------------------------------
 #  gmeanHistGrowth: Calculate the geometric mean growth to be used for the 
 #       projection in fwd.
