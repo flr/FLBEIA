@@ -52,8 +52,10 @@ create.indices.data <- function(yrs,ns,ni,stks.data){
   ind <- unlist(sapply(stks.data,function(x) grep(x, pattern="_indices",value=TRUE)))
   nms.stks.index <- unique(sub('.*?^(.*?)_indices*', '\\1', ind))
   indices <- NULL
-  cat('Indices is NULL')
-  if(length(nms.stks.index)!=0){
+  
+  if(length(nms.stks.index)==0){
+    cat("Warning:indices is NULL  \n")
+  }else{
 
     #==============================================================================
     #   Section 2:        indices
