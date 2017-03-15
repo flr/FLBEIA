@@ -301,7 +301,7 @@ f.tg <- function(stock, gr, target, year){
     
     Fy <- target
     
-    if(Fy >= 1) stop('Harvest rate must be < 1')
+  #  if(Fy >= 1) stop('Harvest rate must be < 1')
     
     catch <- Fy*By
     
@@ -323,7 +323,7 @@ f.landings.tg <- function(stock, gr, target, year){
 
     Fy <- target/(1-dr) 
     
-    if(Fy >= 1) stop('Harvest rate must be < 1')
+ #   if(Fy >= 1) stop('Harvest rate must be < 1')
     
     catch <- Fy*By
     
@@ -342,7 +342,7 @@ f.discards.tg <- function(stock, gr, target, year){
 
     Fy <- target/dr
     
-    if(Fy >= 1) stop('Harvest rate must be < 1')
+  #  if(Fy >= 1) stop('Harvest rate must be < 1')
     
     catch <- Fy*By
     
