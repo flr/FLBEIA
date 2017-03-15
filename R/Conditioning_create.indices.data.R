@@ -115,10 +115,10 @@ create.indices.data <- function(yrs,ns,ni,stks.data){
         if(length(stk.index.range.min)==0) stk.index.range.min  <- NA    
         stk.index.range.max  <- mget(grep(stks.data[[stk]],pattern=paste(stk,'_',nm.stk.index,'_range.max',sep=''), value = TRUE),envir=as.environment(1))
         if(length(stk.index.range.max)==0) stk.index.range.max  <- NA    
-        stk.index.startf    <- mget(grep(stks.data[[stk]],pattern=paste(stk,'_',nm.stk.index,'_startf',sep=''), value = TRUE),envir=as.environment(1))
-        if(length(stk.index.startf)==0) stk.index.startf  <- NA    
-        stk.index.endf      <- mget(grep(stks.data[[stk]],pattern=paste(stk,'_',nm.stk.index,'_endf',sep=''), value = TRUE),envir=as.environment(1))
-        if(length(stk.index.endf)==0) stk.index.endf  <- NA    
+        stk.index.range.startf    <- mget(grep(stks.data[[stk]],pattern=paste(stk,'_',nm.stk.index,'_range.startf',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.range.startf)==0) stk.index.range.startf  <- NA    
+        stk.index.range.endf      <- mget(grep(stks.data[[stk]],pattern=paste(stk,'_',nm.stk.index,'_range.endf',sep=''), value = TRUE),envir=as.environment(1))
+        if(length(stk.index.range.endf)==0) stk.index.range.endf  <- NA    
         stk.index.range.plusgroup     <- mget(grep(stks.data[[stk]],pattern=paste(stk,'_',nm.stk.index,'_range.plusgroup',sep=''), value = TRUE),envir=as.environment(1))
         if(length(stk.index.range.plusgroup)==0) stk.index.range.plusgroup  <- NA    
         stk.index.range.minyear     <- mget(grep(stks.data[[stk]],pattern=paste(stk,'_',nm.stk.index,'_range.minyear',sep=''), value = TRUE),envir=as.environment(1))
@@ -154,10 +154,10 @@ create.indices.data <- function(yrs,ns,ni,stks.data){
           stk.index.range.min <- stk.index.range.min[[1]]}
         if(!all(is.na(stk.index.range.max))){
           stk.index.range.max <- stk.index.range.max[[1]]}
-        if(!all(is.na(stk.index.startf))){
-          stk.index.startf <- stk.index.startf[[1]]}
-        if(!all(is.na(stk.index.endf))){
-          stk.index.endf <- stk.index.endf[[1]]}
+        if(!all(is.na(stk.index.range.startf))){
+          stk.index.range.startf <- stk.index.range.startf[[1]]}
+        if(!all(is.na(stk.index.range.endf))){
+          stk.index.range.endf <- stk.index.range.endf[[1]]}
         if(!all(is.na(stk.index.range.plusgroup))){
           stk.index.range.plusgroup <- stk.index.range.plusgroup[[1]]}
         if(!all(is.na(stk.index.range.minyear))){
@@ -181,8 +181,8 @@ create.indices.data <- function(yrs,ns,ni,stks.data){
         stk.flindex@range[['max']]     <- stk.index.range.max
         stk.flindex@range[['minyear']] <- stk.index.range.minyear
         stk.flindex@range[['maxyear']] <- stk.index.range.maxyear
-        stk.flindex@range[['startf']]  <- stk.index.startf
-        stk.flindex@range[['endf']]    <- stk.index.endf
+        stk.flindex@range[['startf']]  <- stk.index.range.startf
+        stk.flindex@range[['endf']]    <- stk.index.range.endf
         stk.flindex@range[['plusgroup']]    <- stk.index.range.plusgroup
       
       list.stk.index[[j]] <- stk.flindex
