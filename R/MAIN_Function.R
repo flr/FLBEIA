@@ -168,7 +168,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
 
         cat('------------ FLEETS OM ------------\n')
             # - Fleets OM.
-            res        <- fleets.om(fleets = fleets, biols = biols, covars = covars, advice = advice, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, year = yr, season = ss)
+            res        <- fleets.om(fleets = fleets, biols = biols, BDs = BDs, covars = covars, advice = advice, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, year = yr, season = ss)
             fleets     <- res$fleets
             fleets.ctrl <- res$fleets.ctrl
             covars     <- res$covars

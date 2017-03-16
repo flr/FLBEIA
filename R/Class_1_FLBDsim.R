@@ -77,6 +77,7 @@ setClass("FLBDsim",
 	representation(
 		"FLComp",
     biomass           = "FLQuant",        # [1,ny,1,ns,1,it]
+		gB                = "FLQuant",        # [1,ny,1,ns,1,it]
     catch             = "FLQuant",        # [1,ny,1,ns,1,it]
 		covar             = "FLQuants",       # [1,ny,1,ns,1,it]
 		uncertainty       = "FLQuant",        # [1,ny,1,ns,1,it]
@@ -89,6 +90,7 @@ setClass("FLBDsim",
 		desc     =character(0),
 		range    =unlist(list(min=NA, max=NA, plusgroup=NA, minyear=1, maxyear=1)),
     biomass           = FLQuant(),        # [1,ny,1,ns,1,it]
+		gB                = FLQuant(), 
 		catch             = FLQuant(),        # [1,ny,1,ns,1,it]
 		covar             = FLQuants(),       # [1,ny,1,ns,1,it]
 		uncertainty       = FLQuant(),        # [1,ny,1,ns,1,it]
@@ -264,12 +266,36 @@ BDsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
   newB <- object@biomass[,yr0,,ss0,] - object@catch[,yr0,,ss0,] + res*object@uncertainty[,yr0,,ss0,]
 
   if(object@model=="PellaTom"){
-    if((object@biomass[,yr0,,ss0,]+ res*object@uncertainty[,yr0,,ss0,])> 
-         (object@alpha*object@params["K",yr0,ss0,]))
-      newB <- (object@alpha*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,]
+    
+    newB <- ifelse((object@biomass[,yr0,,ss0,]+ res*object@uncertainty[,yr0,,ss0,])> 
+             (object@alpha*object@params["K",yr0,ss0,]),(object@alpha*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,],
+              newB)   
   }
  
+  object@gB[,yr0,,ss0,]      <- newB + object@catch[,yr0,,ss0,] - object@biomass[,yr0,,ss0,]
+  
   object@biomass[,yr,,ss,] <- newB
+  
+  # 2017/03/16 update gB in year 'yr'
+  
+  # Extract biomass  # numeric[1 OR it]
+  datam <- list(biomass = c(object@biomass[,yr,,ss,]))
+  
+  # Extract catches  # numeric[1 OR it]
+  # datam[['catch']] <- c(object@catch[,yr,,ss,])
+  
+  # Extract covars.
+  for(i in names(object@covar))
+    datam[[i]] <-  c(object@covar[[i]][,yr,, ss,])
+  
+  # Extract params
+  for(i in dimnames(object@params)[[1]])
+    datam[[i]] <-  c(object@params[i,yr,ss,])
+  
+  res <- eval(model, datam)
+  
+  object@gB[,yr,,ss,] <-  res*object@uncertainty[,yr,,ss,]
+  
     
   return(object)
 

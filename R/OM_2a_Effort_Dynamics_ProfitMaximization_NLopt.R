@@ -13,7 +13,7 @@
 # Catch production function based on Cobb-Doug at age level.
 # OVER-QUOTA LANDINGS ARE DISCARDED => NOT BENEFIT FROM THEM.
 #-------------------------------------------------------------------------------
-MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
+MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     dimnms <- dimnames(biols[[1]]@n)
     
@@ -58,12 +58,12 @@ MaxProfit <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1
         B    <- sapply(stnms, function(x){   # biomass in the middle of the season  [nst]
                                 if(dim(biols[[x]]@n)[1] > 1)
                                     return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss,,i, drop=T])
-                                else return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss,,i, drop=T])})
+                                else return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss,,i, drop=T])})
 
         N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,1]
                                 if(dim(biols[[x]]@n)[1] > 1)
                                     return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss,,i, drop = FALSE])
-                                else return((biols[[x]]@n)[,yr,,ss,,i, drop = F])})
+                                else return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss,,i, drop = F])})
         names(N) <- stnms
 
         QS.fls   <- sapply(stnms, function(x){           # matrix [nf,nst]

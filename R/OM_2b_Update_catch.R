@@ -16,7 +16,7 @@
 #-------------------------------------------------------------------------------
 # updateCatch(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl, year = 1, season = 1){
+updateCatch <- function(fleets, biols, BDs, advice, fleets.ctrl, advice.ctrl, year = 1, season = 1){
 
     fleet.names <- names(fleets)
         
@@ -25,7 +25,7 @@ updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl, year = 
         flsts <- catchNames(fleets[[flnm]])
         for(st in flsts){
             catch.model <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CAA', sep = ".")
-            fleets <- eval(call(catch.model, fleets = fleets, biols = biols, fleets.ctrl = fleets.ctrl, advice = advice, advice.ctrl = advice.ctrl, year = year, season = season, flnm = flnm, stknm = st))
+            fleets <- eval(call(catch.model, fleets = fleets, biols = biols, BDs = BDs, fleets.ctrl = fleets.ctrl, advice = advice, advice.ctrl = advice.ctrl, year = year, season = season, flnm = flnm, stknm = st))
         }
     }
     
@@ -47,7 +47,7 @@ updateCatch <- function(fleets, biols, advice, fleets.ctrl, advice.ctrl, year = 
 #-------------------------------------------------------------------------------
 # aggregated.CobbDoug(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...){
+CobbDouglasBio.CAA  <- function(fleets, biols, BDs, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...){
 
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,,season,drop=T] # [it]
 
@@ -88,11 +88,15 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
         tac <- (advice$TAC[st,yr]*QS)[drop=T] # it
     }
     
-    # biomass in the middle if age struc. of the season  B[it]
-    B <- unitSums(quantSums(biols[[st]]@n*biols[[st]]@wt*exp(-biols[[st]]@m/2)))[,yr,,ss, drop=T]
-
-    N <- (biols[[stknm]]@n[,yr,,ss]*exp(-biols[[stknm]]@m[,yr,,ss]/2))  # Ba[na,1,1,1,1,it]
-            
+    # biomass in the middle of the season  B[it] if age struc.
+    if(dim(biols[[st]]@n)[1] > 1){
+      B <- unitSums(quantSums(biols[[st]]@n*biols[[st]]@wt*exp(-biols[[st]]@m/2)))[,yr,,ss, drop=T]
+      N <- (biols[[stknm]]@n[,yr,,ss]*exp(-biols[[stknm]]@m[,yr,,ss]/2))  # Ba[na,1,1,1,1,it]
+    }
+    { # biomass dynamic poulation
+      B <- BDs[[stknm]]@biomass[,yr,,ss] + BDs[[stknm]]@gB[,yr,,ss]
+      N <- B/biols[[stknm]]@wt[,yr,,ss]
+    }
     efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
                 length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
     eff   <- matrix(fl@effort[,yr,,ss],length(mtnms), it, dimnames = list(mtnms, 1:it), byrow = T)
@@ -181,7 +185,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, fleets.ctrl, advice, year = 1, se
 #-------------------------------------------------------------------------------
 # ageBased.CobbDoug(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-CobbDouglasAge.CAA <- function(fleets, biols, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
+CobbDouglasAge.CAA <- function(fleets, biols, BDs,fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
 
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,, season,drop=T] # [it]
 

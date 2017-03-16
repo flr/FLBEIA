@@ -29,7 +29,7 @@ fixedEffort <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year =
 #-------------------------------------------------------------------------------
 # SMFB(fleets, biols, covars, fleets.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
+SMFB <- function(fleets, biols, BDs, covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
@@ -65,12 +65,12 @@ SMFB <- function(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, sea
     B    <- matrix(t(sapply(stnms, function(x){   # biomass in the middle of the season  [nst,it]
                                 if(dim(biols[[x]]@n)[1] > 1)
                                     return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss, drop=T])
-                                else return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss, drop=T])})) , nst,it, dimnames = list(stnms, 1:it))
+                                else return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss, drop=T])})) , nst,it, dimnames = list(stnms, 1:it))
 
     N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
                                 if(dim(biols[[x]]@n)[1] > 1)
                                     return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss, drop = FALSE])
-                                else return((biols[[x]]@n)[,yr,,ss])})
+                                else return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss])})
     names(N) <- stnms
     
 

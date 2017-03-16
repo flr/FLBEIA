@@ -17,7 +17,7 @@
 # Changed: 09/12/2010 08:36:59
 #-------------------------------------------------------------------------------
 
-fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, year, season){
+fleets.om <- function(fleets, biols, BDs, covars, advice, fleets.ctrl, advice.ctrl, year, season){
    
     flnms <- names(fleets)
     
@@ -33,7 +33,7 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, y
         
         dyn.model <- fleets.ctrl[[fl]]$effort.model
         
-        res <- eval(call(dyn.model, biols = biols, fleets = fleets, flnm = fl, advice = advice,
+        res <- eval(call(dyn.model, biols = biols, fleets = fleets, BDs = BDs, flnm = fl, advice = advice,
                     year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars, advice.ctrl = advice.ctrl)) 
          
         fleets[[fl]]         <- res$fleets[[fl]]
@@ -47,7 +47,7 @@ fleets.om <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, y
 
      print('~~~~~~ UPDATE CATCH ~~~~~~')
 
-    fleets <- updateCatch(fleets, biols, advice, fleets.ctrl, advice.ctrl, year = year, season = season)
+    fleets <- updateCatch(fleets, biols, BDs, advice, fleets.ctrl, advice.ctrl, year = year, season = season)
     
     #  3. Calculate price. [seasonal].
     print('~~~~~~~~~~ PRICE ~~~~~~~~~~')
