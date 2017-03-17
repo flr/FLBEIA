@@ -333,10 +333,10 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
 
-    stk.bio.error     <- obs.ctrl$stk.bio.error[,1:ny]  
-    land.bio.error    <- obs.ctrl$land.bio.error[,1:ny] 
-    disc.bio.error    <- obs.ctrl$disc.bio.error[,1:ny]
-    TAC.ovrsht        <- obs.ctrl$TAC.ovrsht[,1:ny]
+    stk.bio.error     <- obs.ctrl$stk.bio.error[,1:ny,drop=F]  
+    land.bio.error    <- obs.ctrl$land.bio.error[,1:ny,drop=F] 
+    disc.bio.error    <- obs.ctrl$disc.bio.error[,1:ny,drop=F]
+    TAC.ovrsht        <- obs.ctrl$TAC.ovrsht[,1:ny,drop=F]
     
     for (e in c('stk.bio.error', 'land.bio.error', 'disc.bio.error')) {
       err <- get(e)
