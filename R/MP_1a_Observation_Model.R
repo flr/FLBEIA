@@ -418,7 +418,8 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
         stop(paste("check values in '",e,"' array for stock '",stknm,"' (required values > 0)",sep=""))
       }
              
-    biolbio <- setPlusGroup(biol,biol@range[1])
+    biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
+    
     stck                <- as(biolbio, "FLStock")[,1:ny]
     stck@landings[]       <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
     stck@landings[]     <- ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings)
