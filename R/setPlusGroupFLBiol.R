@@ -38,6 +38,8 @@ setPlusGroupFLBiol<-	function(x, plusgroup, na.rm=FALSE)
   x@n[as.character(x@range["plusgroup"])]<-quantSums(x@n[pg.range])
   
   x<-x[as.character(x@range["min"]:x@range["plusgroup"])]
+  fec(x) <- fec(x)[as.character(x@range["min"]:x@range["plusgroup"])]
+  mat(x) <- mat(x)[as.character(x@range["min"]:x@range["plusgroup"])]
   
   x@range["max"]<-x@range["plusgroup"]
   
