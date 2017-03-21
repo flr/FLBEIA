@@ -109,6 +109,9 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     
     # Stock names
     stnms <- names(biols)
+    
+    # If SimultaneousMngt argument missing in main.ctrl => set it to FALSE, the original FLBEIA configuration.
+    main.ctrl$SimultaneousMngt <- ifelse(is.null(main.ctrl$SimultaneousMngt), FALSE, TRUE)
    
     # Check that all FLQuants have the rigth [ny,ns,it] dimensions. 
     chckdim0 <- checkDims(biols,  minyear, maxyear, ns, it)
@@ -168,7 +171,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
 
         cat('------------ FLEETS OM ------------\n')
             # - Fleets OM.
-            res        <- fleets.om(fleets = fleets, biols = biols, BDs = BDs, covars = covars, advice = advice, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, year = yr, season = ss)
+            res        <- fleets.om(fleets = fleets, biols = biols, BDs = BDs, covars = covars, advice = advice, biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, year = yr, season = ss)
             fleets     <- res$fleets
             fleets.ctrl <- res$fleets.ctrl
             covars     <- res$covars
@@ -184,15 +187,16 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         
         # In last year of the simulation, if last season, there is no assessment => go to the end.
         if(yr == sim.years[length(sim.years)] & ss == ns) next    
-            
-        for (st in stnms) {
+         
+        if(main.ctrl$SimultaneousMngt == FALSE){   
+          for (st in stnms) {
           
-          ass.yr <- advice.ctrl[[st]][['ass.year']] # assessment years
-          if (is.null(ass.yr)) { # no value, then assessment yearly
+            ass.yr <- advice.ctrl[[st]][['ass.year']] # assessment years
+            if (is.null(ass.yr)) { # no value, then assessment yearly
               ass.yr <- sim.years
-          } else if (ass.yr=='all' | is.na(ass.yr)) {
+            } else if (ass.yr=='all' | is.na(ass.yr)) {
               ass.yr <- sim.years
-          } else { # convert assessment years into positions
+            } else { # convert assessment years into positions
               ass.yr <- as.numeric(ass.yr)
               if(sum(!(ass.yr %in% as.numeric(minyear):as.numeric(maxyear)))>0) # check
                 stop("Assessment years for: '", st, "' outside year range in the objects")
@@ -230,12 +234,41 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
            advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
                                 advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
       
-       
+        }}}}
+        if(main.ctrl$SimultaneousMngt == TRUE){  # Simultaneous and Yearly management. 
         
+        #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
+        cat('************ MANAGEMENT PROCEDURE ****************************\n')
+        
+        # - Observation.
+        cat('----------- OBSERVATION MODEL ------------\n')
+        for(st in stnms){
+
+          res          <- observation.mp(biols = biols, fleets = fleets, covars = covars, indices = indices, 
+                                       advice = advice, obs.ctrl = obs.ctrl, year = yr.man, season=ss, stknm=st)
+          stocks[[st]] <- res$stock
+          fleets.obs   <- res$fleets.obs
+          indices      <- res$indices
+        }
+        
+        # - Assessment.
+        cat('------------ ASSESSMENT MODEL ------------\n')
+        for(st in stnms){
+     
+          datayr <- dimnames(biols[[1]]@n)[[2]][yr.man-1]
+        
+          stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = datayr, stknm=st)    
+        }
+        
+        
+        # - Advice. 
+        cat('----------------- ADVICE -----------------\n')
+        for(st in stnms){
+          advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
+                            advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
           }
         }
-      }
-      #  browser()
+
     }
     
     if(!exists('stocks'))  stocks <- NULL
