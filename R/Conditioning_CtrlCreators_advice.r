@@ -69,7 +69,10 @@ create.fixedAdvice.ctrl <- function(resst,stkname, largs) return(resst)
 #------------------------------------------------------------------------------#
 #                        *** create.annualTAC.ctrl ***
 #-------------------------------------------------------------------------------
-create.annualTAC.ctrl <- function(resst,stkname, first.yr, last.yr, largs){
+create.annualTAC.ctrl <- function(resst,stkname, largs){
+   
+    first.yr <- largs$first.yr  
+    last.yr <- largs$last.yr
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
                 fwd.ctrl = NULL,AdvCatch=NULL,  
@@ -283,7 +286,11 @@ create.froeseHCR.ctrl <- function(resst,stkname, largs){
 #------------------------------------------------------------------------------#
 #                        *** create.F2CatchHCR.ctrl  ***
 #-------------------------------------------------------------------------------
-create.F2CatchHCR.ctrl <- function(resst,stkname, first.yr, last.yr, largs){
+create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
+  
+   first.yr <- largs$first.yr  
+   last.yr <- largs$last.yr
+  
 
     resst <- c(resst, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = TRUE, 
                 ref.pts = NULL, AdvCatch=NULL, intermediate.year = 'Fsq',

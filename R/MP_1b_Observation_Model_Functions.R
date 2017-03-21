@@ -374,7 +374,7 @@ Obs.stk.bio <- function(biol, stk.bio.error, yr){
 Obs.land.bio <- function(fleets, land.bio.error,  yr, stknm){                                                                       
     ny        <- yr - 1
     tland     <- unitSums(seasonSums(tlandStock(fleets, stknm)))[,1:ny]
-    tland     <- tland[drop=T]*land.bio.error[,1:ny,]
+    tland     <- tland[drop=T]*land.bio.error[,1:ny]
 
     return(tland)
 }
@@ -393,7 +393,7 @@ Obs.land.bio <- function(fleets, land.bio.error,  yr, stknm){
 Obs.disc.bio <- function(fleets, disc.bio.error, yr, stknm){
      ny        <- yr -1
      tdisc     <- unitSums(seasonSums(tdiscStock(fleets, stknm)))[,1:ny]
-     tdisc     <- tdisc[drop=T]*disc.bio.error[,1:ny,]
+     tdisc     <- tdisc[drop=T]*disc.bio.error[,1:ny]
 
      return(tdisc)
 }

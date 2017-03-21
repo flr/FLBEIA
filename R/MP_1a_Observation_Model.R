@@ -333,10 +333,10 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
 
-    stk.bio.error     <- obs.ctrl$stk.bio.error[,1:ny]  
-    land.bio.error    <- obs.ctrl$land.bio.error[,1:ny] 
-    disc.bio.error    <- obs.ctrl$disc.bio.error[,1:ny]
-    TAC.ovrsht        <- obs.ctrl$TAC.ovrsht[,1:ny]
+    stk.bio.error     <- obs.ctrl$stk.bio.error[,1:ny,drop=F]  
+    land.bio.error    <- obs.ctrl$land.bio.error[,1:ny,drop=F] 
+    disc.bio.error    <- obs.ctrl$disc.bio.error[,1:ny,drop=F]
+    TAC.ovrsht        <- obs.ctrl$TAC.ovrsht[,1:ny,drop=F]
     
     for (e in c('stk.bio.error', 'land.bio.error', 'disc.bio.error')) {
       err <- get(e)
@@ -351,7 +351,7 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck              <- as(biol, "FLStock")[,1:ny]
 
     stck@landings[]     <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
-    stck@landings[]     <- FLQuant(ifelse(stck@landings > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
+    stck@landings[]     <- FLQuant(ifelse(stck@landings > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
     stck@discards[]     <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
     stck@catch[]        <- stck@landings + stck@discards
 
@@ -404,9 +404,9 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
 
-    land.bio.error      <- obs.ctrl$land.bio.error[,1:ny] 
-    disc.bio.error      <- obs.ctrl$disc.bio.error[,1:ny] 
-    TAC.ovrsht          <- obs.ctrl$TAC.ovrsht[,1:ny]
+    land.bio.error      <- obs.ctrl$land.bio.error[,1:ny,drop=F] 
+    disc.bio.error      <- obs.ctrl$disc.bio.error[,1:ny,drop=F] 
+    TAC.ovrsht          <- obs.ctrl$TAC.ovrsht[,1:ny,drop=F]
     
     for (e in c('land.bio.error', 'disc.bio.error')) {
       err <- get(e)
@@ -418,10 +418,11 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
         stop(paste("check values in '",e,"' array for stock '",stknm,"' (required values > 0)",sep=""))
       }
              
-    biolbio <- setPlusGroup(biol,biol@range[1])
+    biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
+    
     stck                <- as(biolbio, "FLStock")[,1:ny]
     stck@landings[]       <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
-    stck@landings[]     <- ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings)
+    stck@landings[]     <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
     stck@discards[]       <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
     stck@catch[]          <- stck@landings + stck@discards
     stck@catch.n[]      <- stck@catch 

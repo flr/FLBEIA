@@ -14,7 +14,7 @@
 # assessment.mp(stocks, fleets.obs, indices, assess.ctrl)   
 #  For the time being only single stock assessments.
 #-------------------------------------------------------------------------------
-assessment.mp <- function(stocks, fleets.obs, indices, assess.ctrl, datayr, stknm){
+assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctrl, datayr, stknm){
 
     st <- stknm
      
