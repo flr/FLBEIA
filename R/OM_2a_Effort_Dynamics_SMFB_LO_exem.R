@@ -71,12 +71,27 @@ SMFB_lo <- function(fleets, biols, BDs, covars, advice, fleets.ctrl, advice.ctrl
     B    <- matrix(t(sapply(stnms, function(x){   # biomass in the middle of the season  [nst,it]
                                 if(dim(biols[[x]]@n)[1] > 1)
                                     return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss, drop=T])
-                                else return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss, drop=T])})) , nst,it, dimnames = list(stnms, 1:it))
+                                else{
+                                  if(biols.ctrl[[x]] == 'fixedPopulation'){
+                                    return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss, drop=T])
+                                  }
+                                  else{
+                                    return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss, drop=T])
+                                  }
+                                  
+                                } })) , nst,it, dimnames = list(stnms, 1:it))
 
     N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
                                 if(dim(biols[[x]]@n)[1] > 1)
                                     return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss, drop = FALSE])
-                                else return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss])})
+                                else{
+                                  if(biols.ctrl[[x]] == 'fixedPopulation'){
+                                    return((biols[[x]]@n)[,yr,,ss, drop=F])
+                                  }
+                                  else{
+                                    return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=F])
+                                  } } })
+    
     names(N) <- stnms
     
 
