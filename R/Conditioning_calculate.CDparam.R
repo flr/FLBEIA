@@ -64,7 +64,7 @@
   #==============================================================================
   if(length(age.min:age.max)==1){
     gB <- largs$gB
-    catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[aa,hist.yrs])/(met.effort*(stk.n+gB))
+    catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[,hist.yrs])/(met.effort*(stk.n+gB))
    }else{
   for (aa in 1:length(age.min:age.max)){  
     catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[aa,hist.yrs])/(met.effort*stk.n[aa,])}
