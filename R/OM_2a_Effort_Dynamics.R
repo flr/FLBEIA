@@ -83,10 +83,10 @@ SMFB_old <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl
                                     return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss, drop = FALSE])
                                 else{
                                   if(biols.ctrl[[x]] == 'fixedPopulation'){
-                                    return((biols[[x]]@n)[,yr,,ss, drop=T])
+                                    return((biols[[x]]@n)[,yr,,ss, drop=FALSE])
                                   }
                                   else{
-                                    return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=T])
+                                    return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=FALSE])
                                   } } })
     
     names(N) <- stnms
