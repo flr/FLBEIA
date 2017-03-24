@@ -27,8 +27,9 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
         
         if(assess.ctrl[[st]]$work_w_Iter == TRUE){  # The assessment model works with iters => all the iterations are 'adjusted' in one run.
             res <- eval(call(assess.ctrl[[st]][['assess.model']], stock = stocks[[st]], indices = indST, control = assess.ctrl[[st]]$control))
-            stock.n(stocks[[st]]) <- res@stock.n
-            harvest(stocks[[st]]) <- res@harvest
+            stock.n(stocks[[st]]) <- res$stock@stock.n
+            harvest(stocks[[st]]) <- res$stock@harvest
+            covars <- res$covars
            # stock(stocks[[st]])   <- res@stock
         }
         else{  # The assessment model _DOES NOT_ work with iters =>  the iterations are 'adjusted' one by one.
@@ -37,8 +38,9 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
             for(i in 1:it){ 
                 res <- eval(call(assess.ctrl[[st]][['assess.model']], stock = iter(stocks[[st]],i), 
                             indices = iter(indST,i), control = assess.ctrl[[st]]$control))
-                iter(stock.n(stocks[[st]]),i) <- res@stock.n
-                iter(harvest(stocks[[st]]),i) <- res@harvest
+                iter(stock.n(stocks[[st]]),i) <- res$stock@stock.n
+                iter(harvest(stocks[[st]]),i) <- res$stock@harvest
+                covars <- res$covars
             }
         }
         stock(stocks[[st]])   <- computeStock(stocks[[st]])
