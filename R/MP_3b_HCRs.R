@@ -20,20 +20,21 @@
 #'                          
 #'}
 #'\itemize{
-#'       \item{aneHCRE} {The HCR used in the bay of biscay anchovy long term management plan.}
-#'       \item{annexIVHCR}{The HCR used by EC and ICES to generate the TAC advice for data poor stocks.}
-#'       \item{annualTAC} {A HCR that generates annual TAC advice. The HCR provides the whole flexibility of fwd.}
-#'       \item{CFPMSYHCR}{HCR adapting the MAP HCR to allow flexibility in the year Fmsy is achieved. 
+#'       \item{aneHCRE:} {The HCR used in the bay of biscay anchovy long term management plan.}
+#'       \item{annexIVHCR:} {The HCR used by EC and ICES to generate the TAC advice for data poor stocks.}
+#'       \item{annualTAC:} {A HCR that generates annual TAC advice. The HCR provides the whole flexibility of fwd.}
+#'       \item{CFPMSYHCR:} {HCR adapting the MAP HCR to allow flexibility in the year Fmsy is achieved. 
 #'               The user can specify the year in which you aim to reach Fmsy, with a linear transition between
 #'               Fsq to Fmsy in the intervening years}
-#'       \item{FroeseHCR} {The HCR defined in the paper by Froese, Branch et al. in Fish and Fisheries 2010.}
-#'       \item{ghlHCR}{The model-free HCR used in the management of greenland-halibut}
-#'       \item{IcesHCR} {The HCR used by ICES to generate TAC advice in the MSY framework.}
-#'       \item{little2011HCR} {The HCR defined in the paper by Little et al. in ICES Journal of Marine Science 2011.}
-#'       \item{MAPHRC} {The HCR proposed by the EC in the evaluation on multi-annual management plans in 2015.}
-#'       \item{MultiStockHRC} {A HCR that produces TAC advice for several stocks simultaneously. It uses a fishing mortality target and an upper bound to conciliate the TAC advices.}
-#'       \item{neaMAC_ltmp} {The HCR used in the north-east atlantic mackerel long term management plan. It is a particular case of the IcesHCR.}
-#'       \item{pidHCR, pidHCRItarg.} {The HCRs defined in the paper by Pomaerede et al. in Aquatic Living Resources 2010.}
+#'       \item{F2CatchHCR:} {This HCR transforms the fishing mortality advice given as input data to catch advice without any other restriction.}
+#'       \item{FroeseHCR:} {The HCR defined in the paper by Froese, Branch et al. in Fish and Fisheries 2010.}
+#'       \item{ghlHCR:} {The model-free HCR used in the management of greenland-halibut}
+#'       \item{IcesHCR:} {The HCR used by ICES to generate TAC advice in the MSY framework.}
+#'       \item{little2011HCR:} {The HCR defined in the paper by Little et al. in ICES Journal of Marine Science 2011.}
+#'       \item{MAPHRC:} {The HCR proposed by the EC in the evaluation on multi-annual management plans in 2015.}
+#'       \item{MultiStockHRC:} {A HCR that produces TAC advice for several stocks simultaneously. It uses a fishing mortality target and an upper bound to conciliate the TAC advices. In the case of stocks without exploitation rate estimates it uses the catch.}
+#'       \item{neaMAC_ltmp:} {The HCR used in the north-east atlantic mackerel long term management plan. It is a particular case of the IcesHCR.}
+#'       \item{pidHCR, pidHCRItarg:} {The HCRs defined in the paper by Pomaerede et al. in Aquatic Living Resources 2010.}
 #'      }     
 #'         The HCRs are documented in detail in the manual of the library.
 #'
