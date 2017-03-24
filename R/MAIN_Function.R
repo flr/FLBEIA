@@ -201,7 +201,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
               if(sum(!(ass.yr %in% as.numeric(minyear):as.numeric(maxyear)))>0) # check
                 stop("Assessment years for: '", st, "' outside year range in the objects")
               # convert ass.yr in positon of the FLR objects
-              ass.yr <- which(ass.yr == as.numeric(minyear):as.numeric(maxyear))
+              # ass.yr <- which(ass.yr == as.numeric(minyear):as.numeric(maxyear))
               for (i in 1:length(ass.yr)) ass.yr[i] <- which(ass.yr[i] == as.numeric(minyear):as.numeric(maxyear))
           }
           ass.ss <- advice.ctrl[[st]][['ass.season']]
@@ -241,12 +241,17 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
         cat('************ MANAGEMENT PROCEDURE ****************************\n')
         
+        stocks <- vector('list', length(stnms))
+        names(stocks) <- stnms
+        #indices <- vector('list', length(stnms))
+        #names(indices) <- stnms
+        
         # - Observation.
         cat('----------- OBSERVATION MODEL ------------\n')
         for(st in stnms){
 
           res          <- observation.mp(biols = biols, fleets = fleets, covars = covars, indices = indices, 
-                                       advice = advice, obs.ctrl = obs.ctrl, year = yr.man, season=ss, stknm=st)
+                                       advice = advice, obs.ctrl = obs.ctrl, year = yr, season=ns, stknm=st)
           stocks[[st]] <- res$stock
           fleets.obs   <- res$fleets.obs
           indices      <- res$indices
@@ -255,10 +260,8 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         # - Assessment.
         cat('------------ ASSESSMENT MODEL ------------\n')
         for(st in stnms){
-     
-          datayr <- dimnames(biols[[1]]@n)[[2]][yr.man-1]
         
-          stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = datayr, stknm=st)    
+          stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
         }
         
         
@@ -266,7 +269,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         cat('----------------- ADVICE -----------------\n')
         for(st in stnms){
           advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
-                            advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
+                            advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ns, stknm=st)
           }
         }
 

@@ -56,8 +56,11 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     stk@harvest[stk@harvest < 0] <- 0.00001
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
-
-    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    
+    stocksInHCR    <- advice.ctrl[['stocksInHCR']]
+    stocksCat      <- advice.ctrl[['stocksCategory']]
+    
+    if(stocksCat[stknm] == 1) stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
    # if(dim(stk@m)[1] == 1)    stk@harvest[] <- stk@catch.n[]/stk@stock.n[] 
     
@@ -71,8 +74,6 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     assyrname <- yrsnames[year]
     assyrnumb <- yrsnumbs[year]
 
-   stocksInHCR    <- advice.ctrl[['stocksInHCR']]
-   stocksCat      <- advice.ctrl[['stocksCategory']]
    
     # Build fwd.ctrl.
     #-----------------
@@ -98,7 +99,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
       
         b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts_st[c('Blim', 'Btrigger'),i]))  # [it]
 
-        Ftg[st] <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',]*b.datyr/ref.pts_st[ 'Btrigger',], ref.pts['Fmsy',]))
+        Ftg[st] <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts_st['Fmsy',]*b.datyr/ref.pts_st[ 'Btrigger',], ref.pts_st['Fmsy',]))
         
         minfbar <- stocks[[st]]@range['minfbar']
         maxfbar <- stocks[[st]]@range['maxfbar']
@@ -110,11 +111,11 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
       
       if(stocksCat[st] == 3){     
              Brat    <- c(mean(indices[[st]][[1]]@index[,(year-2):(year-1)])/mean(indices[[st]][[1]]@index[,(year-3):(year-5)])) # [it]
-             C       <- yearMeans(stocks[[st]]@catch[,(year-3):(year-1), drop=T])   # [it]
+             C       <- yearMeans(stocks[[st]]@catch[,(year-3):(year-1)])[drop=T]   # [it]
              tac     <- advice[['TAC']][st, year-1,drop=T]
-             alpha   <- advice.ctrl[[stknm]][["ref.pts"]]["alpha", ]
-             beta    <- advice.ctrl[[stknm]][["ref.pts"]]["beta", ]
-             betaUp  <- advice.ctrl[[stknm]][["ref.pts"]]["betaUp", ]
+             alpha   <- advice.ctrl[[st]][["ref.pts"]]["alpha", ]
+             beta    <- advice.ctrl[[st]][["ref.pts"]]["beta", ]
+             betaUp  <- advice.ctrl[[st]][["ref.pts"]]["betaUp", ]
              
              tacUpMult <- ifelse(Brat < 1-alpha, 1,      ifelse(Brat < 1+alpha, 1 + beta, 1 + betaUp))
              tacMult   <- ifelse(Brat < 1-alpha, 1-beta, ifelse(Brat < 1+alpha, 1, 1 + beta))
@@ -149,7 +150,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
 
     for(i in 1:iter){
       
-      if(stocksCat[st] == 1){
+      if(stocksCat[stknm] == 1){
       
         if(is.na(Fadv_st) | Fadv_st == 0){
             advice[['TAC']][stknm,year+1,,,,i] <- 0
@@ -241,7 +242,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
 #        cat('-------------------------------------------\n')
    #     save(stki, file = 'stki.RData')
       }
-      if(stocksCat[st] == 3){
+      if(stocksCat[stknm] == 3){
         advice[['TAC']][stknm,year+1,,,,i] <- Fsq[st]*Fadv_st
       }
 
