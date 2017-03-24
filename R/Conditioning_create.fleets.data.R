@@ -1,6 +1,6 @@
 ###############################################################################
 # AUTHOR(DATE):       Agurtzane Urtizberea, Dorleta Garcia and Sonia Sanchez
-# RESEARCH INSTITUTE: AZTI-TECNALIA                      
+# RESEARCH INSTITUTE: AZTI                      
 # TITLE:        create.fleets.data
 # NOTE #1:      Return FLFleets object called fleets
 ###############################################################################
