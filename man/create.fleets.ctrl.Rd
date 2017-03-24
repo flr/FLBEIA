@@ -4,19 +4,19 @@
 \alias{create.fleets.ctrl}
 \title{fleets.ctrl object creator}
 \usage{
-create.fleets.ctrl(flts, n.flts.stks, flts.stksnames, catch.threshold = NULL,
+create.fleets.ctrl(fls, n.fls.stks, fls.stksnames, catch.threshold = NULL,
   seasonal.share = NULL, effort.models = NULL, capital.models = NULL,
   catch.models = NULL, price.models = NULL, flq, ...)
 }
 \arguments{
-\item{flts}{character vector with fleet names}
+\item{fls}{character vector with fleet names}
 
-\item{n.flts.stks}{numeric vector with the same length as flts with the  declaration of the number of stocks caugth by each of the fleets.}
+\item{n.fls.stks}{numeric vector with the same length as fls with the  declaration of the number of stocks caugth by each of the fleets.}
 
-\item{flts.stksnames}{character vector with length = sum(n.flts.stks), with the names of the stocks caught by the fleet, the vector must follow the order used in the previous argument. 
+\item{fls.stksnames}{character vector with length = sum(n.fls.stks), with the names of the stocks caught by the fleet, the vector must follow the order used in the previous argument. 
 \itemize{ 
-   \item the  first n.flts.stks[1] elements correspond to the stocks caught by the first fleet in flts
-   \item the  following n.flts.stks[2] elements correspond to the stocks caught by the second fleet in flts
+   \item the  first n.fls.stks[1] elements correspond to the stocks caught by the first fleet in fls
+   \item the  following n.fls.stks[2] elements correspond to the stocks caught by the second fleet in fls
    \item and so on.}}
 
 \item{catch.threshold}{if(NULL) => 0.9 for all the stocks (NULL is the default)
@@ -24,20 +24,20 @@ else it must be an FLQuant with dim = c(nstks,ny,1,ns,nit)}
 
 \item{seasonal.share}{an FLQuant with dimension [num. fleets, num. years, 1,num. seasons, 1, num. iterations] with elements between 0 and 1 to indicate how the quota of each fleet is distributed along seasons. The sum along seasons (seasonSums) must return an FLQuant with all elements equal to 1.}
 
-\item{effort.models}{characted vector with the same length as flts with the effort model followed by each of the fleet. 
-the first element correspond with the effort model of the first fleet in flts, the second with the second and so on.
+\item{effort.models}{characted vector with the same length as fls with the effort model followed by each of the fleet. 
+the first element correspond with the effort model of the first fleet in fls, the second with the second and so on.
 The default is NULL in which case 'fixedEffort' is used for **all** the fleets.}
 
-\item{capital.models}{characted vector with the same length as flts with the capital model followed by each of the fleet. 
-the first element correspond with the capital model of the first fleet in flts, the second with the second and so on.
+\item{capital.models}{characted vector with the same length as fls with the capital model followed by each of the fleet. 
+the first element correspond with the capital model of the first fleet in fls, the second with the second and so on.
 The default is NULL in which case 'fixedCapital' is used for **all** the fleets.}
 
-\item{catch.models}{characted vector with the same length as sum(n.flts.stks) with the catch model followed by each of the fleet for each stock. 
-the first element correspond with the catch model of the first fleet in flts and the first stock in flts.stksnames, the second with the second and so on.
+\item{catch.models}{characted vector with the same length as sum(n.fls.stks) with the catch model followed by each of the fleet for each stock. 
+the first element correspond with the catch model of the first fleet in fls and the first stock in fls.stksnames, the second with the second and so on.
 The default is NULL in which case 'CobbDouglasAge' is used for **all** the fleets.}
 
-\item{price.models}{characted vector with the same length as sum(n.flts.stks) with the price model followed by each of the fleet for each stock. 
-the first element correspond with the price model of the first fleet in flts and the first stock in flts.stksnames, the second with the second and so on.
+\item{price.models}{characted vector with the same length as sum(n.fls.stks) with the price model followed by each of the fleet for each stock. 
+the first element correspond with the price model of the first fleet in fls and the first stock in fls.stksnames, the second with the second and so on.
 The default is NULL in which case 'fixedPrice' is used for **all** the fleets.}
 
 \item{flq}{An flquant to give structure to the FLQuants to be used within the function, 

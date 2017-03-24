@@ -93,3 +93,37 @@ used in the Cobb-Douglas production functions.
 The FLCatchExt object contains a representation of the catch of a  fish stock as constructed for the purposes of fleet dynamic modelling. 
    This includes information on removals (i.e. landings and discards), selectivity, weight, price and catch production parameters (catchability and elasticities).
 }
+\section{Slots}{
+
+\describe{
+\item{\code{landings}}{An FLQuant of dimension [1,num. years, num. units, numb.season, 1, numb. iters] with the total landings in weight of the stock.}
+
+\item{\code{landings.n}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the  landings in numbers at age of the stock.}
+
+\item{\code{landings.wt}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the weight at age of the landings.}
+
+\item{\code{landings.sel}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the retention ogive of the metier for this stock. Elements must be between 0 and 1. landings.sel = 1-discards.sel.}
+
+\item{\code{discards}}{An FLQuant of dimension [1,num. years, num. units, numb.season, 1, numb. iters] with the total discards in weight of the stock.}
+
+\item{\code{discards.n}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the discards in numbers at age of the stock.}
+
+\item{\code{discards.wt}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the weight at age of the discards}
+
+\item{\code{discards.sel}}{landings.sel An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the discard ogive of the metier for this stock. Elements must be between 0 and 1. discards.sel. = 1-landings.sel.}
+
+\item{\code{catch.q}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the catchability at age of the stock for the corresponding metier. This is the catchability used in the catch production model.}
+
+\item{\code{price}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the price at age of the stock.}
+
+\item{\code{alpha}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the elsaticity parameter at age of the stock for the corresponding metier. This is one of the parameters used in the catch production model.}
+
+\item{\code{beta}}{An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the elsaticity parameter at age of the stock for the corresponding metier. This is one of the parameters used in the catch production model}
+
+\item{\code{name}}{The name of the stock.}
+
+\item{\code{desc}}{A description of the object.}
+
+\item{\code{range}}{The range as in other FLR objects. c("min","max","plusgroup","minyear","maxyear")}
+}}
+
