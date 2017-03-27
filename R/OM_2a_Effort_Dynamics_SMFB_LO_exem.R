@@ -111,7 +111,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, fleets.ctrl, advice.ctrl, f
     rho       <- fleets.ctrl$catch.threshold[,yr,,ss, drop=T]  # [ns,it]
     
     # if rho is a numeric => there is only one stock and one iteration wihout names => name it
-    if(is.null(dim(rho)) & is.null(names(a))) names(rho) <- stnms
+    if(is.null(dim(rho)) & is.null(names(rho))) names(rho) <- stnms
       
     QS.ss    <- matrix(t(sapply(stnms, function(x) apply(QS[[x]],2,sum))), nst,it, dimnames = list(stnms, 1:it))  # [nst,it]
                             
