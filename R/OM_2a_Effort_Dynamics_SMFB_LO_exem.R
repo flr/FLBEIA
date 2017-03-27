@@ -29,7 +29,7 @@
 #-------------------------------------------------------------------------------
 # SMFB_LO(fleets, biols, covars, fleets.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-SMFB <- function(fleets, biols, BDs, covars, advice, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
+SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
     
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
@@ -72,7 +72,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, fleets.ctrl, advice.ctrl, f
                                 if(dim(biols[[x]]@n)[1] > 1)
                                     return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss, drop=T])
                                 else{
-                                  if(biols.ctrl[[x]] == 'fixedPopulation'){
+                                  if(biols.ctrl[[x]][['growth.model']] == 'fixedPopulation'){
                                     return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss, drop=T])
                                   }
                                   else{
@@ -125,7 +125,11 @@ SMFB <- function(fleets, biols, BDs, covars, advice, fleets.ctrl, advice.ctrl, f
 
     }
     
-    if(it > 1)    TAC <- ifelse(B*rho[stnms,] < TAC.yr*QS.ss, B*rho[stnms,], TAC.yr*QS.ss) 
+    if(it > 1){    
+      if(length(stnms) == 1) rho <- matrix(rho, 1,it, dimnames = list(stnms, 1:it))
+      
+      TAC <- ifelse(B*rho[stnms,] < TAC.yr*QS.ss, B*rho[stnms,], TAC.yr*QS.ss)
+    }
     else TAC <- ifelse(B*rho[stnms] < TAC.yr*QS.ss, B*rho[stnms], TAC.yr*QS.ss)
 
     # Re-scale QS to fleet share within the season instead of season-fleet share within year.

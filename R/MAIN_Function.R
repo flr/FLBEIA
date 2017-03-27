@@ -32,6 +32,11 @@
 #' library(FLash)             # required to use the IcesHCR. Not available for win64
 #' library(ggplot2)  
 #' 
+#' 
+#' #---------------------------------------------------------------- 
+#' # Example with 1 stock, 1 Fleets, 1 seasons and 1 iteration: one
+#' #----------------------------------------------------------------
+#' 
 #' # Load the data to run FLBEIA in a one stock one fleet example using the HCR used by ICES in the MSY framework. 
 #'  data(one) 
 #' 
@@ -82,6 +87,101 @@
 #' plotFLFleets(s0$fleets,'s0')
 #' plotCatchFl(s0$fleets,s0$advice,'s0') 
 #' plotEco(s0$fleets,'s0')
+#' 
+#' #------------------------------------------------------------ 
+#' # Example with several iterations: oneIters
+#' #------------------------------------------------------------
+#'  
+#'  # Load the same data set as before but with 3 iterations.
+#'  # Run FLBEIA and plot the results
+#'  
+#' data(oneIters)
+#'  
+#' s1 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for stk1.
+#'                SRs = oneSR,        # A list with one FLSRSim object for stk1.
+#'                BDs = NULL,         # No Biomass Dynamic populations in this case.
+#'             fleets = oneFl,        # FLFleets object with on fleet.
+#'             covars = NULL,         # covars not used
+#'            indices = NULL,         # indices not used 
+#'             advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
+#'          main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
+#'         biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
+#'        fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
+#'        covars.ctrl = NULL,         # covars control not used 
+#'           obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
+#'        assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
+#'        advice.ctrl = oneAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
+#' 
+#' # Names of the object returned by FLBEIA
+#' names(s1)
+#' 
+#' # The default plot for FLBiol defined in FLCore
+#' plot(s1$biols[[1]])
+#' 
+#' # Create summary data frames (biological, economic, and catch)
+#' proj.yr     <- 2013 
+#' s1_sum      <- bioSum(s1)
+#' s1_eco      <- ecoSum(s1$fleets, flnms = 'all', years = ac(2007:2025))
+#' s1_catchFl  <- catchFlSum(s1$fleets, s1$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
+#'
+#'
+#' # Create several plots and save them in the working directory using 'pdf' format and 
+#' # 's1' suffix in the name.
+#' 
+#' 
+#' plotFLBiols(s1$biols, 's1')
+#' plotFLFleets(s1$fleets,'s1')
+#' plotCatchFl(s1$fleets,s1$advice,'s1') 
+#' plotEco(s1$fleets,'s1')
+#' 
+#' #------------------------------------------------------------------ 
+#' # Example with 2 stock, 2 Fleets, 4 seasons and 1 iteration: multi
+#' #------------------------------------------------------------------
+#'  
+#'  # Load the multi data set. This dataset has 2 stocks, one stk1 is 
+#'  # age structured and the second one stk2 is aggregated in biomass.
+#'  
+#' data(multi)
+#'  
+#'  # Run FLBEIA.
+#'  
+#' s2 <- FLBEIA(biols = multiBio,       # FLBiols object with 2 FLBiol element for stk1.
+#'                SRs = multiSR,        # A list with 1 FLSRSim object for stk1.
+#'                BDs = multiBD,        # A list with 1 FLBDSim object for stk2.
+#'             fleets = multiFl,        # FLFleets object with on fleet.
+#'             covars = NULL,         # covars not used
+#'            indices = NULL,         # indices not used 
+#'             advice = multiAdv,       # A list with two elements 'TAC' and 'quota.share'
+#'          main.ctrl = multiMainC,     # A list with one element to define the start and end of the simulation.
+#'         biols.ctrl = multiBioC,      # A list with one element to select the model to simulate the stock dynamics.
+#'        fleets.ctrl = multiFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
+#'        covars.ctrl = NULL,         # covars control not used 
+#'           obs.ctrl = multiObsC,      # A list with one element to define how the stock observed ("PerfectObs").
+#'        assess.ctrl = multiAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
+#'        advice.ctrl = multiAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
+#' 
+#' # Names of the object returned by FLBEIA
+#' names(s2)
+#' 
+#' # The default plot for FLBiol defined in FLCore
+#' plot(s2$biols[[1]])
+#' 
+#' # Create summary data frames (biological, economic, and catch)
+#' proj.yr     <- 2013 
+#' s2_sum      <- bioSum(s2)
+#' s2_eco      <- ecoSum(s2$fleets, flnms = 'all', years = ac(2007:2025))
+#' s2_catchFl  <- catchFlSum(s2$fleets, s2$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
+#'
+#'
+#' # Create several plots and save them in the working directory using 'pdf' format and 
+#' # 's2' suffix in the name.
+#' 
+#' 
+#' plotFLBiols(s2$biols, 's2')
+#' plotFLFleets(s2$fleets,'s2')
+#' plotCatchFl(s2$fleets,s2$advice,'s2') 
+#' plotEco(s2$fleets,'s2')
+
 #' }
 #' 
 #' 
