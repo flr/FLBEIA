@@ -432,7 +432,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           #-----------------------------------------------------------------------------
           #   3.5.1     Cobb Douglas Parameters: alpha, beta, catch.q
           #-----------------------------------------------------------------------------
-browser()
+
           alpha       <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_alpha.flq',sep=''), value = TRUE),envir=as.environment(1))                  
           if(length(alpha)==0) {alpha <- NA
           }else{alpha <- alpha[[1]]}
