@@ -55,13 +55,13 @@
 #'                SRs = oneSR,        # A list with one FLSRSim object for stk1.
 #'                BDs = NULL,         # No Biomass Dynamic populations in this case.
 #'             fleets = oneFl,        # FLFleets object with on fleet.
-#'             covars = NULL,         # covars not used
+#'             covars = oneCv,         # covars not used
 #'            indices = NULL,         # indices not used 
 #'             advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
 #'          main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
 #'         biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
 #'        fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
-#'        covars.ctrl = NULL,         # covars control not used 
+#'        covars.ctrl = oneCvC,         # covars control not used 
 #'           obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
 #'        assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
 #'        advice.ctrl = oneAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
@@ -75,7 +75,7 @@
 #' # Create summary data frames (biological, economic, and catch)
 #' proj.yr     <- 2013 
 #' s0_sum      <- bioSum(s0)
-#' s0_eco      <- ecoSum(s0$fleets, flnms = 'all', years = ac(2007:2025))
+#' s0_eco      <- ecoSum(s0)
 #' s0_catchFl  <- catchFlSum(s0$fleets, s0$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
 #'
 #'
@@ -101,13 +101,13 @@
 #'                SRs = oneSR,        # A list with one FLSRSim object for stk1.
 #'                BDs = NULL,         # No Biomass Dynamic populations in this case.
 #'             fleets = oneFl,        # FLFleets object with on fleet.
-#'             covars = NULL,         # covars not used
+#'             covars = oneCv,         # covars not used
 #'            indices = NULL,         # indices not used 
 #'             advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
 #'          main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
 #'         biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
 #'        fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
-#'        covars.ctrl = NULL,         # covars control not used 
+#'        covars.ctrl = oneCvC,         # covars control not used 
 #'           obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
 #'        assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
 #'        advice.ctrl = oneAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
@@ -120,8 +120,19 @@
 #' 
 #' # Create summary data frames (biological, economic, and catch)
 #' proj.yr     <- 2013 
-#' s1_sum      <- bioSum(s1)
-#' s1_eco      <- ecoSum(s1$fleets, flnms = 'all', years = ac(2007:2025))
+#' s1_bio    <- bioSum(s1)
+#' s1_eco    <- ecoSum(s1)
+#' 
+#' s1_bioQ   <- bioSumQ(s1_bio)
+#' s1_ecoQ   <- ecoSumQ(s1_eco)
+#' 
+#' s1_bio    <- bioSum(s1, long = FALSE)
+#' s1_eco    <- ecoSum(s1, long = FALSE)
+#' 
+#' s1_bioQ   <- bioSumQ(s1_bio)
+#' s1_ecoQ   <- ecoSumQ(s1_eco)
+#' 
+#'
 #' s1_catchFl  <- catchFlSum(s1$fleets, s1$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
 #'
 #'
@@ -149,13 +160,13 @@
 #'                SRs = multiSR,        # A list with 1 FLSRSim object for stk1.
 #'                BDs = multiBD,        # A list with 1 FLBDSim object for stk2.
 #'             fleets = multiFl,        # FLFleets object with on fleet.
-#'             covars = NULL,         # covars not used
+#'             covars = multiCv,         # covars not used
 #'            indices = NULL,         # indices not used 
 #'             advice = multiAdv,       # A list with two elements 'TAC' and 'quota.share'
 #'          main.ctrl = multiMainC,     # A list with one element to define the start and end of the simulation.
 #'         biols.ctrl = multiBioC,      # A list with one element to select the model to simulate the stock dynamics.
 #'        fleets.ctrl = multiFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
-#'        covars.ctrl = NULL,         # covars control not used 
+#'        covars.ctrl = multiCvC,         # covars control not used 
 #'           obs.ctrl = multiObsC,      # A list with one element to define how the stock observed ("PerfectObs").
 #'        assess.ctrl = multiAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
 #'        advice.ctrl = multiAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
@@ -168,8 +179,12 @@
 #' 
 #' # Create summary data frames (biological, economic, and catch)
 #' proj.yr     <- 2013 
+#' 
 #' s2_sum      <- bioSum(s2)
-#' s2_eco      <- ecoSum(s2$fleets, flnms = 'all', years = ac(2007:2025))
+#' s2_eco      <- ecoSum(s2)
+#' 
+#' s2_eco      <- ecoSum(s2, byyear = FALSE)
+#' 
 #' s2_catchFl  <- catchFlSum(s2$fleets, s2$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
 #'
 #'

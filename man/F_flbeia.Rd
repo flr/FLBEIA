@@ -8,6 +8,7 @@
 \alias{C_flbeia}
 \alias{L_flbeia}
 \alias{D_flbeia}
+\alias{summary_flbeia}
 \title{Biological summary functions}
 \usage{
 F_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
@@ -23,17 +24,20 @@ C_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 L_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 
 D_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
+
+summary_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 }
 \arguments{
 \item{obj}{The output of the FLBEIA function.}
 
-\item{years}{Is the period of years defined in the obj.}
+\item{years}{The  years for which the indicators are extracted.}
 }
 \value{
-The summary of the selected biological item.
+B_flbeia, F_flbeia... return an array with three dimensions (stock, year and iter).
+The summary_flbeia function returns an array with 4 dimensions (stock, year, iter, indicator) with the value of all the indicators.
 }
 \description{
-These functions return the summary of the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D).
+These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators.
 }
 \details{
 \itemize{
