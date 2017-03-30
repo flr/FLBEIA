@@ -1,28 +1,29 @@
 #-------------------------------------------------------------------------
-#  inputs: 
-#
-#   Required:
-#   ni:       Number of iterations (number)
-#   ns:	      Number of seasons (number)
-#   yrs: a vector with the next elements
-#     first.yr: First year of simulation (number)
-#     proj.yr:  First year of projection (number)
-#     last.yr:  Last year of projection (number)
-#   stks.data: a list with the name of the stks and with the next elements
-#     stk_sr.model: Name of the BD model (character)
-#     stk_params.n:	Number of the parameters in the model (number)
-#     stk_params.name:	Name of the parameters (vector)
-#     stk_params.array:	Parameter values(array)
-#     stk_biomass.flq:	biomass values (FLQuant)
-#     stk_catch.flq:	catch values (FLQuant)
-#     stk_range.min:	min age
-#     stk_range.max:	max age
-#     stk_range.minyear:	min year
-#     stk_range.plusgroup:	plusgroup
-#     stk_alpha:	maximum variability of carrying capacity 
-#
-# (optional)
-#   stk_uncertainty.flq: Uncertainty (FLQuant)
+#' Run create.fleets.data create a FLFleetsExt object
+#' 
+#' create.biols.data create an FLBiols object
+#' @param   ni Number of iterations (number).
+#' @param   ns Number of seasons (number).
+#' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where
+#'\itemize{
+#'      \item first.yr: First year of simulation (number).
+#'      \item proj.yr: First year of projection (number).
+#'      \item last.yr: Last year of projection (number).}
+ #' @param   stks.data A list with the name of the stks and with the next elements.
+#'\itemize{
+#'      \item stk_sr.model: Name of the BD model (character)
+#'      \item stk_params.n:	Number of the parameters in the model (number)
+#'      \item stk_params.name:	Name of the parameters (vector)
+#'      \item stk_params.array:	Parameter values(array)
+#'      \item stk_biomass.flq:	biomass values (FLQuant)
+#'      \item stk_catch.flq:	catch values (FLQuant)
+#'      \item stk_range.min:	min age
+#'      \item stk_range.max:	max age
+#'      \item stk_range.minyear:	min year
+#'      \item stk_range.plusgroup:	plusgroup
+#'      \item stk_alpha:	maximum variability of carrying capacity 
+#' Optional
+#'   stk_uncertainty.flq: Uncertainty (FLQuant)
 #-------------------------------------------------------------------------------
 
 create.BDs.data <- function (yrs,ns,ni,stks.data)

@@ -10,55 +10,31 @@
 #' 
 #' create.biols.data create an FLBiols object
 #'
-#' @param   ni Number of iterations (number)
-#' @param   ns	      Number of seasons (number)
-#' @param   yrs a vector with c(first.yr,proj.yr, last.yr) where
-#' *          first.yr: First year of simulation (number)
-#' @param     proj.yr:  First year of projection (number)
-#' @param     last.yr:  Last year of projection (number)
-#' @param   stks.data: a list with the name of the stks and with the next elements
-#' @param     stks:     Name of all the stocks (vector)
-#' @param     stk.unit	Number of units of the stock (number) 
-#' @param     stk.min.age: Minimum age of the stock (number)
-#' @param     stk.max.age: Maximum age of the stock (number)
-#' @param     stk_n.flq:   Abundance at age age (FLQuant)
-#' @param     stk_wt.flq:  Weight age age (FLQuant)
-#' @param     stk_m.flq:   Natural mortality age age (FLQuant)	
-#' @param     stk_fec.flq: Fecundity at age	(FLQuant)	
-#' @param     stk_spwn.flq:   Spawning at age	(FLQuant)
-#' @param     stk_range.min:	Minimum age (number)
-#' @param     stk_range.max:	Maximum age (number)
-#' @param     stk.range.minyear:  Minimum year (number)
-#' @param     stk_range.minfbar:	Minimum year to take into account in the calculation of 'f' (number)
-#' @param     stk_range.maxfbar:	Maximum year to take into account in the calculation of 'f' (number)
-#' @param     stk_biol.proj.avg.yrs:	historic years to calculate the average of spwn, fec, m and wt (vector)
-
-#-------------------------------------------------------------------------
-#  inputs: 
-#
-#   (required)
-#   ni:       Number of iterations (number)
-#   ns:	      Number of seasons (number)
-#   yrs: a vector with the next elements
-#     first.yr: First year of simulation (number)
-#     proj.yr:  First year of projection (number)
-#     last.yr:  Last year of projection (number)
-#   stks.data: a list with the name of the stks and with the next elements
-#     stks:     Name of all the stocks (vector)
-#     stk.unit	Number of units of the stock (number) 
-#     stk.min.age: Minimum age of the stock (number)
-#     stk.max.age: Maximum age of the stock (number)
-#     stk_n.flq:   Abundance at age age (FLQuant)
-#     stk_wt.flq:  Weight age age (FLQuant)
-#     stk_m.flq:   Natural mortality age age (FLQuant)	
-#     stk_fec.flq: Fecundity at age	(FLQuant)	
-#     stk_spwn.flq:   Spawning at age	(FLQuant)
-#     stk_range.min:	Minimum age (number)
-#     stk_range.max:	Maximum age (number)
-#     stk.range.minyear:  Minimum year (number)
-#     stk_range.minfbar:	Minimum year to take into account in the calculation of 'f' (number)
-#     stk_range.maxfbar:	Maximum year to take into account in the calculation of 'f' (number)
-#     stk_biol.proj.avg.yrs:	historic years to calculate the average of spwn, fec, m and wt (vector)
+#' @param   ni Number of iterations (number).
+#' @param   ns	      Number of seasons (number).
+#' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where
+#'\itemize{
+#'      \item first.yr: First year of simulation (number).
+#'      \item proj.yr:  First year of projection (number).
+#'      \item last.yr:  Last year of projection (number).}
+#' @param   stks.data A list with the name of the stks and with the next elements
+#'\itemize{
+#'      \item  stks: Name of the stocks (vector).
+#'      \item  stk.unit: Number of units of the stock (number). 
+#'      \item  stk.min.age: Minimum age of the stock (number).
+#'      \item  stk.max.age: Maximum age of the stock (number).
+#'      \item  stk_n.flq: Numbers at age in the population(FLQuant).
+#'      \item  stk_wt.flq: Weight at age of an individual (FLQuant).
+#'      \item  stk_m.flq: Mortality rate at age of the population (FLQuant).	
+#'      \item  stk_fec.flq: Fecundity at age	(FLQuant).	
+#'      \item  stk_mat.flq: Percentage of mature individuals at age	(FLQuant).	
+#'      \item  stk_spwn.flq: Proportion of time step at which spawning ocurrs	(FLQuant).
+#'      \item  stk_range.min:	Minimum age (number).
+#'      \item  stk_range.max:	Maximum age (number).
+#'      \item  stk.range.minyear: Minimum year (number).
+#'      \item  stk_range.minfbar: Minimum year to take into account in the calculation of 'f' (number).
+#'      \item  stk_range.maxfbar: Maximum year to take into account in the calculation of 'f' (number).
+#'      \item  stk_biol.proj.avg.yrs:	Historic years to calculate the average of spwn, fec, m and wt for the projection (vector).}
 #
 #   Required functions: Create.list.stks.flqa	function
 #-------------------------------------------------------------------------
