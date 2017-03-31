@@ -1275,7 +1275,162 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 
 #------------------------------------------------------------------------------#
-# mtSum data.frame[year, season, fleet, metier, iter ||,|| 
+# mtSum data.frame[year, season, stock, fleet, metier, iter ||,|| 
+#        landings, discards, price] 
+#------------------------------------------------------------------------------#
+#' @rdname summary_flbeia 
+mtSum <- function(obj, flnms = names(obj$fleets),
+                     years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
+  
+  if(flnms[1] == 'all') flnms <- names(obj$fleets)
+  
+  fleets <- obj$fleets
+  
+  Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
+  Dimnm <- dimnames(fleets[[1]]@effort[,years,])
+  
+  res <- NULL
+  
+  if(byyear == FALSE){  
+  for(f in flnms){
+    fl <- fleets[[f]]
+    mts <- names(fl@metiers)
+    n <- prod(Dim)*length(mts)
+    
+    dff <-  data.frame(year = rep(years, prod(Dim[2:3])*length(mts)), 
+                       season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3]*length(mts)), 
+                       fleet = rep(f, n), 
+                       metier = rep(mts, each = prod(Dim)),
+                       iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(mts)),  
+                       effshare = numeric(n), 
+                       effort = numeric(n),
+                       income = numeric(n), 
+                       vcost = numeric(n))
+    k <- 1
+    for(m in mts){
+      mt <- fl@metiers[[m]]
+      dff[k:(k+prod(Dim)-1),'effort']   <- c((fl@effort*mt@effshare)[,years,])
+      dff[k:(k+prod(Dim)-1),'effshare'] <- c(mt@effshare[,years,])
+      dff[k:(k+prod(Dim)-1),'vcost']    <- c((fl@effort*mt@effshare*mt@vcost)[,years,])
+       dff[k:(k+prod(Dim)-1),'income'] <- c(Reduce('+', lapply(mt@catches, function(x) unitSums(quantSums(x@landings.n*x@price))[,years])))
+
+      k <- k + prod(Dim)
+    }
+    
+    res <- rbind(res, dff)      
+  }}
+  else{
+    for(f in flnms){
+      fl <- fleets[[f]]
+      mts <- names(fl@metiers)
+      n <- prod(Dim)*length(mts)
+      
+      dff <-  data.frame(year = rep(years, prod(Dim[3])*length(mts)), 
+                         fleet = rep(f, n), 
+                         metier = rep(mts, each = prod(Dim)),
+                         iter = rep(rep(1:Dim[3], each = prod(Dim[1])), length(mts)),  
+                         effshare = numeric(n), 
+                         effort = numeric(n),
+                         income = numeric(n), 
+                         vcost = numeric(n))
+      k <- 1
+      for(m in mts){
+        mt <- fl@metiers[[m]]
+        dff[k:(k+prod(Dim)-1),'effort']   <- c(seasonSums((fl@effort*mt@effshare)[,years,]))
+        dff[k:(k+prod(Dim)-1),'effshare'] <- c(seasonSums(mt@effshare[,years,]))
+        dff[k:(k+prod(Dim)-1),'vcost']    <- c(seasonSums(fl@effort*mt@effshare*mt@vcost)[,years,])
+        dff[k:(k+prod(Dim)-1),'income'] <- c(Reduce('+', lapply(mt@catches, function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years])))
+        
+        k <- k + prod(Dim)
+      }
+      
+      res <- rbind(res, dff)   
+      
+    }
+  }
+    
+  if(long == TRUE){
+     # transform res into long format
+      r1 <- ifelse(byyear == TRUE, 5,6)
+      r2 <- ifelse(byyear == TRUE, 8,9)
+      
+      names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
+      res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
+      rownames(res) <- 1:dim(res)[1]
+      names(res)[r1:(r1+1)] <- c('indicator', 'value') 
+    }
+    
+    res <- cbind(scenario = scenario, res)
+    
+
+  return(res)
+}
+
+
+# mtStkSumQ 
+mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
+  
+  if(dim(obj)[2] < 8){ # the object is in long format
+    
+    if(!('season' %in% names(obj))){
+      res <- aggregate(value ~ fleet + metier + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+      res <- cbind(res[,1:5], data.frame(res[,6]))
+      
+      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      
+      names(res)[6:(6+length(prob)-1)] <- nms
+    }
+    else{
+      res <- aggregate(value ~ fleet + metier + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+      res <- cbind(res[,1:6], data.frame(res[,7]))
+      
+      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      names(res)[7:(7+length(prob)-1)] <- nms
+    }
+  }
+  else{
+    
+    if(!('season' %in% names(obj))){
+      res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, income = obj$income,       
+                            vcost = obj$vcost), 
+                       list(fleet = obj$fleet, metier = obj$metier, year = obj$year), 
+                       quantile, prob = prob, na.rm=T)
+      
+      res <- cbind(res[,1:3], 
+                   data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  
+                   data.frame(res[,7]))
+      
+      nms1  <- paste('effort_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      nms2  <- paste('effshare_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      nms3  <- paste('income_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      nms4  <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+       
+      names(res)[-c(1:3)] <- unlist(mget(paste('nms', 1:4, sep="")))
+    }
+    else{
+      res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, income = obj$income,       
+                            vcost = obj$vcost),                    
+                       list(fleet = obj$fleet, metier = obj$metier,  year = obj$year, season = obj$season), quantile, prob = prob, na.rm = TRUE)
+      
+      res <- cbind(res[,1:4], 
+                   data.frame(res[,5]),  data.frame(res[,6]),   data.frame(res[,7]),  data.frame(res[,8]))
+                   
+      
+      nms1  <- paste('effort_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      nms2  <- paste('effshare_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      nms3  <- paste('income_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      nms4  <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      
+      names(res)[-c(1:4)] <-  unlist(mget(paste('nms', 1:4, sep="")))
+      
+    }
+  }
+  
+  return(res)
+}
+
+#------------------------------------------------------------------------------#
+# advSum data.frame[year, season, fleet, metier, iter ||,|| 
 #        effort, effshare] 
 #------------------------------------------------------------------------------#
 #' @rdname summary_flbeia
