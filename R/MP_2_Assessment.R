@@ -26,7 +26,7 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
             indST <- FLIndices(lapply(indices[[st]],function(x) trim(x, year = dimnames(x@index)[[2]][1]:datayr)))
         
         if(assess.ctrl[[st]]$work_w_Iter == TRUE){  # The assessment model works with iters => all the iterations are 'adjusted' in one run.
-            res <- eval(call(assess.ctrl[[st]][['assess.model']], stock = stocks[[st]], indices = indST, control = assess.ctrl[[st]]$control))
+            res <- eval(call(assess.ctrl[[st]][['assess.model']], stock = stocks[[st]], indices = indST, control = assess.ctrl[[st]]$control,covars=covars))
             stock.n(stocks[[st]]) <- res$stock@stock.n
             harvest(stocks[[st]]) <- res$stock@harvest
             covars <- res$covars
