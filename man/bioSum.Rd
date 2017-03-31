@@ -48,26 +48,69 @@ Summarize the results of the simulation in data frames.
 }
 \examples{
 \dontrun{
+
 library(FLBEIA)
 library(ggplot2)
-data(one)
-s0 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for stk1.
-               SRs = oneSR,        # A list with one FLSRSim object for stk1.
-               BDs = NULL,         # No Biomass Dynamic populations in this case.
-            fleets = oneFl,        # FLFleets object with on fleet.
-            covars = NULL,         # covars not used
-           indices = NULL,         # indices not used 
-            advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
-         main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
-        biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
-       fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
-       covars.ctrl = NULL,         # covars control not used 
-          obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
-       assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
-       advice.ctrl = oneAdvC) 
-       
-s0_bio <- bioSum(obj=s0)
-s0_eco <- ecoSum(obj=s0)
+
+# Apply the summary functions to the examples runs in FLBEIA help page.
+# Test the different arguments in summary function.
+
+data(res_flbeia)
+
+# Example One: One stock, one fleet, one iter.
+s0_bio    <- bioSum(s0)
+s0_flt    <- fltSum(s0)
+
+s0_bioQ   <- bioSumQ(s0_bio)
+s0_fltQ   <- fltSumQ(s0_flt)
+
+s0_bio    <- bioSum(s0, long = FALSE, years = ac(2016:2020))
+s0_flt    <- fltSum(s0, long = FALSE, years = ac(2016:2020))
+
+s0_bioQ   <- bioSumQ(s0_bio)
+s0_fltQ   <- fltSumQ(s0_flt)
+
+s0_flt    <- fltSum(s0, long = FALSE, byyear = FALSE)
+s0_fltQ   <- fltSumQ(s0_flt)
+
+
+# Example OneIters: As one but with iterations.
+s1_bio    <- bioSum(s1, years = ac(2016:2020))
+s1_flt    <- fltSum(s1, years = ac(2016:2020))
+
+s1_bioQ   <- bioSumQ(s1_bio)
+s1_fltQ   <- fltSumQ(s1_flt)
+
+s1_bio    <- bioSum(s1, long = FALSE)
+s1_flt    <- fltSum(s1, long = FALSE)
+
+s1_bioQ   <- bioSumQ(s1_bio)
+s1_fltQ   <- fltSumQ(s1_flt)
+
+s1_flt    <- fltSum(s1, long = FALSE, byyear = FALSE)
+s1_fltQ   <- fltSumQ(s1_flt)
+
+# Example Multi: Two stock, two fleet, four iters. 
+s2_bio    <- bioSum(s2, years = ac(2016:2020))
+s2_flt    <- fltSum(s2, years = ac(2016:2020))
+
+s2_bioQ   <- bioSumQ(s2_bio)
+s2_fltQ   <- fltSumQ(s2_flt)
+
+s2_bio    <- bioSum(s2, long = FALSE)
+s2_flt    <- fltSum(s2, long = FALSE)
+
+s2_bioQ   <- bioSumQ(s2_bio)
+s2_fltQ   <- fltSumQ(s2_flt)
+
+s2_flt    <- fltSum(s2, long = FALSE, byyear = FALSE)
+s2_fltQ   <- fltSumQ(s2_flt)
+
+s2_bio    <- bioSum(s2, stocks = 'stk2')
+s2_flt    <- fltSum(s2, flnms = 'fl1')
+
+s2_bioQ   <- bioSumQ(s2_bio)
+s2_fltQ   <- fltSumQ(s2_flt)
 
 }
 }
