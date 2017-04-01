@@ -7,7 +7,6 @@
 # Changed: 13/01/2011 12:27:18
 # Changes: 2012-06-15 13:26:13  Sonia Sanchez - for allowing assessment in different seasons and multiannual advice
 #-------------------------------------------------------------------------------
-
 advice.mp <- function(stocks, fleets.obs, indices, covars, advice, advice.ctrl, year, season, stknm){
    
    cat('----------------- ', stknm, ' -----------------\n')
