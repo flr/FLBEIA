@@ -7,7 +7,7 @@
 #-------------------------------------------------------------------------
 #' Run create.fleets.data create a FLFleetsExt object
 #' 
-#' create.biols.data create an FLBiols object
+#' create.fleets.data create an FLFleetsExt object
 #' @param   ni Number of iterations (number).
 #' @param   ns Number of seasons (number).
 #' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where
