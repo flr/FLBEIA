@@ -378,8 +378,10 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         cat('------------ ASSESSMENT MODEL ------------\n')
         for(st in stnms){
         
-          stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
-        }
+          res <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
+          stocks <- res$stocks
+          covars <- res$covars
+          }
         
         
         # - Advice. 
