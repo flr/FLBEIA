@@ -54,7 +54,6 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       stk.unit  <- get(grep(stks.data[[nmstk]],pattern=".unit", value = TRUE))
       stk.biomass  <- get(grep(stks.data[[nmstk]],pattern="_biomass.flq", value = TRUE))
       stk.catch  <- get(grep(stks.data[[nmstk]],pattern="_catch.flq", value = TRUE))
-      stk.params.n  <- get(grep(stks.data[[nmstk]],pattern="_params.n", value = TRUE))
       stk.params.name  <- get(grep(stks.data[[nmstk]],pattern="_params.name", value = TRUE))
       stk.params  <- get(grep(stks.data[[nmstk]],pattern="_params.array", value = TRUE))
       stk.range.min       <- get(grep(stks.data[[nmstk]],pattern="_range.min", value = TRUE))
@@ -65,8 +64,8 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       if(length(stk.uncertainty)==0) stk.uncertainty  <- NA    
       stk.alpha      <- get(grep(stks.data[[nmstk]],pattern="_alpha", value = TRUE),envir=as.environment(1))
   
-      params <- array(dim = c(length(stk.params.n), ny, ns, ni),
-                dimnames = list(param = stk.params.n, year = ac(first.yr:last.yr),
+      params <- array(dim = c(length(stk.params.name), ny, ns, ni),
+                dimnames = list(param = stk.params.name, year = ac(first.yr:last.yr),
                   season = ac(1:ns), iter = 1:ni))
       stk.bd <- FLBDsim(name = nmstk, model = stk.model,
                 biomass = flq.stk, gB=flq.stk, catch = flq.stk, uncertainty = flq.stk,alpha=stk.alpha,
