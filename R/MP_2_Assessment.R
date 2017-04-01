@@ -47,7 +47,7 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
         units(harvest(stocks[[st]])) <- assess.ctrl[[st]]$harvest.units
     }
     
-    return(stocks))
+    return(stocks)
 
 }  
 
