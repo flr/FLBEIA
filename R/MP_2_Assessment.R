@@ -47,16 +47,16 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
         units(harvest(stocks[[st]])) <- assess.ctrl[[st]]$harvest.units
     }
     
-    return(list(stocks,covars))
+    return(stocks))
 
 }  
 
 #-------------------------------------------------------------------------------
 # NoAssessment(stock)   
 #-------------------------------------------------------------------------------
-NoAssessment <- function(stocks,...){
+NoAssessment <- function(stock,...){
    
-    return(list(stocks,covars)) 
+    return(stock) 
 
 }  
 
