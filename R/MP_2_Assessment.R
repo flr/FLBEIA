@@ -54,9 +54,9 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
 #-------------------------------------------------------------------------------
 # NoAssessment(stock)   
 #-------------------------------------------------------------------------------
-NoAssessment <- function(stock,...){
+NoAssessment <- function(stocks,...){
    
-    return(list(stock,covars)) 
+    return(list(stocks,covars)) 
 
 }  
 
