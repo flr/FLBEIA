@@ -379,7 +379,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         for(st in stnms){
         
           res <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
-          stocks <- res$stocks
+          stocks[[st]] <- res$stocks[[st]]
           covars <- res$covars
           }
         
