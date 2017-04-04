@@ -343,8 +343,8 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
             datayr <- dimnames(biols[[1]]@n)[[2]][yr.man-1]
           
             stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars=covars, 
-                                    assess.ctrl = assess.ctrl, datayr = datayr, stknm=st)    
-                
+                                    assess.ctrl = assess.ctrl, datayr = datayr, stknm=st)   
+
             # - Advice. 
             cat('----------------- ADVICE -----------------\n')
            advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
@@ -376,8 +376,10 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         cat('------------ ASSESSMENT MODEL ------------\n')
         for(st in stnms){
         
-          stocks <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
-        }
+          res <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
+          stocks[[st]] <- res$stocks[[st]]
+          covars <- res$covars
+          }
         
         
         # - Advice. 

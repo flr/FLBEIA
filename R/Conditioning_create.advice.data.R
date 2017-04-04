@@ -68,6 +68,7 @@ create.advice.data<- function(yrs,ns,ni,stks.data,fleets){
   
   stk <- stks[i]
   
+  
   advice$quota.share[[stk]]   <- FLQuant(dimnames=list(fleet = flnms, year = yrs, iter = 1:ni))
 
   stk.advice.TAC     <- mget(grep(stks.data[[stk]],pattern="_advice.TAC.flq", value = TRUE),envir=as.environment(1))
@@ -76,7 +77,7 @@ create.advice.data<- function(yrs,ns,ni,stks.data,fleets){
   if(length(stk.advice.TAE)==0) stk.advice.TAE  <- NA    
   stk.advice.quota.share     <- mget(grep(stks.data[[stk]],pattern="_advice.quota.share.flq", value = TRUE),envir=as.environment(1))
   if(length(stk.advice.quota.share)==0) stk.advice.quota.share  <- NA    
-  
+
   if(!all(is.na(stk.advice.TAC))){
     stk.advice.TAC <- stk.advice.TAC[[1]]
     log.dim <- equal.flq.Dimnames(lflq=list(stk.advice.TAC,advice$TAC[stk,]),2)
@@ -106,7 +107,6 @@ create.advice.data<- function(yrs,ns,ni,stks.data,fleets){
   #-----------------------------------------------------------------------------
   #   2.1       If there is not projection data, then average
   #-----------------------------------------------------------------------------
- 
   stk.proj.avg.yrs <- as.character(get(paste(stk,'_advice.avg.yrs',sep='')))
   
   if(any(is.na(advice$TAC[stk,proj.yrs]))){

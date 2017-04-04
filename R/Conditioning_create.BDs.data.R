@@ -54,7 +54,6 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       stk.unit  <- get(grep(stks.data[[nmstk]],pattern=".unit", value = TRUE))
       stk.biomass  <- get(grep(stks.data[[nmstk]],pattern="_biomass.flq", value = TRUE))
       stk.catch  <- get(grep(stks.data[[nmstk]],pattern="_catch.flq", value = TRUE))
-      stk.params.n  <- get(grep(stks.data[[nmstk]],pattern="_params.n", value = TRUE))
       stk.params.name  <- get(grep(stks.data[[nmstk]],pattern="_params.name", value = TRUE))
       stk.params  <- get(grep(stks.data[[nmstk]],pattern="_params.array", value = TRUE))
       stk.range.min       <- get(grep(stks.data[[nmstk]],pattern="_range.min", value = TRUE))
@@ -62,11 +61,16 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       stk.range.plusgroup       <- get(grep(stks.data[[nmstk]],pattern="_range.plusgroup", value = TRUE))
       stk.range.minyear       <- get(grep(stks.data[[nmstk]],pattern="_range.minyear", value = TRUE))
       stk.uncertainty       <- mget(grep(stks.data[[nmstk]],pattern="_uncertainty.flq", value = TRUE),envir=as.environment(1))
-      if(length(stk.uncertainty)==0) stk.uncertainty  <- NA    
+      stk.gB       <- mget(grep(stks.data[[nmstk]],pattern="_gB.flq", value = TRUE),envir=as.environment(1))
+      
+      if(length(stk.uncertainty)==0) stk.uncertainty  <- NA 
+      if(length(stk.gB)==0) stk.gB  <- NA    
+      
       stk.alpha      <- get(grep(stks.data[[nmstk]],pattern="_alpha", value = TRUE),envir=as.environment(1))
-  
-      params <- array(dim = c(length(stk.params.n), ny, ns, ni),
-                dimnames = list(param = stk.params.n, year = ac(first.yr:last.yr),
+
+
+      params <- array(dim = c(length(stk.params.name), ny, ns, ni),
+                dimnames = list(param = stk.params.name, year = ac(first.yr:last.yr),
                   season = ac(1:ns), iter = 1:ni))
       stk.bd <- FLBDsim(name = nmstk, model = stk.model,
                 biomass = flq.stk, gB=flq.stk, catch = flq.stk, uncertainty = flq.stk,alpha=stk.alpha,
@@ -94,7 +98,23 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       else {
           stk.uncertainty = 1
           cat("BD uncertainty = 1 \n")
-            }
+      }
+      if (!all(is.na(stk.gB))) {
+        stk.gB <- stk.gB[[1]]
+        log.dim <- equal.flq.Dimnames(lflq = list(stk.gB,
+                                                  stk.bd@gB[,hist.yrs]), 2)
+        if (!log.dim)
+          stop("BD gB dimension names \n")
+        if (!(any(dim(stk.gB)[3] == c(1, stk.unit))))
+          stop("in gB number of stock units 1 or stk.unit")
+        if (!(any(dim(stk.gB)[4] == c(1, ns))))
+          stop("in gB number of seasons 1 or ns")
+        if (!(any(dim(stk.gB)[6] == c(1, ni))))
+          stop("in gB number of iterations 1 or ni")
+      }else {
+        stk.gB = stk.bd@gB
+        cat("gB is all NA-s")
+      }
       if (!all(is.na(stk.biomass))) {
           log.dim <- equal.flq.Dimnames(lflq = list(stk.biomass,
               stk.bd@biomass[, hist.yrs]), 2)
@@ -143,6 +163,8 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
               } 
             } 
             stk.bd@uncertainty[] <- stk.uncertainty
+            stk.bd@gB[,hist.yrs] <- stk.gB
+            
             if (!any(is.na(stk.params[, proj.yrs, , ]))) {
                 if (!all(dim(stk.params) == dim(stk.bd@params))) {
                   stop("in BD parameters dimension names \n")
