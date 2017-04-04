@@ -66,7 +66,8 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
   
     # Give default values to NULL elements.
     if(is.null(catch.threshold)){ res[['catch.threshold']] <- FLQuant(0.9, dimnames = list(stock = stknms, year = dimnames(flq)[['year']], 
-                                                                        season = dimnames(flq)[['season']], iter = dimnames(flq)[['iter']]))
+                                                                        season = dimnames(flq)[['season']], iter = dimnames(flq)[['iter']]),
+                                                                      area="unique",unit="unique")
     }else{
         res[['catch.threshold']] <- catch.threshold
     }
