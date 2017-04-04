@@ -295,119 +295,295 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @details 
 #' 
 #'\itemize{
-#      \item{Summary_flbeia:} The data frame contains five columns: stock, years, iteration, 
-#      indicator and value. The indicators are: recruitment, ssb, f, biomass, catch, landings and discards.
-#'      \item{bioSum:} Data frame with the biological indicators The columns are stocks, 
-#'      years, it, indicators and value. 
-#'      \item{fleetSum:} The colums of the data frame are: year, season, stock, fleet, iter, profits, 
-#'      capacity, costs, discards, effort and landings.
-#'      \item{ecoSum_damara:} ecoSum for Damara project.
-#'      \item{metierSum:} The colums of the data frame are: year, season, fleet, metier, iter, 
-#'      effort and effshare.
-#'      \item{stockFleetSum:} The colums of the data frame are: year, season, stock, fleet, iter, 
-#'      landings, discards, price and tacshare.
-#'      \item{stockMetierSum:} The colums of the data frame are: year, season, stock, fleet, metier, iter, 
-#'      landings, discards and price.
-#'      
+#'      \item{advSum, advSumQ:} 
+#'      \item{bioSum, bioSumQ:} Data frame with the biological indicators. The indicators are: 
+#'      \item{fltSum, fltSumQ:} Data frame with the indicators at fleet level. The indicators are:
+#'      \item{fltMtSum, fltMtSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
+#'      \item{ecoSum_damara:} ecoSum built in the framework of Damara project.
+#'      \item{npv:} A data frame with the nep present value per fleet over the selected range of years.
+#'      \item{mtSum, mtSumQ:} Data frame with the indicators at fleet. The indicators are:
+#'      \item{mtStkSum, mtStkSumQ:} Data frame with the indicators at fleet and metier level. The indicators are:
+#'      \item{riskSum:} A data frame with the risk indicators. The columns of the data frame are 
+#'      \item{Summary_flbeia:} An array with four dimensions: stock, year, iteration, 
+#'      indicator. The indicators are: recruitment, ssb, f, biomass, catch, landings and discards.
 #'}
+#'      
+#' The data frames       
+#'
 #'
 #' @return The data frames can be of wide or long format. In long format all the indicators are in the same column.
-#'  There is one column, indicator, for the name of the indicator and a second one value for the numerica value of the indicator.
+#'  There is one column, indicator, for the name of the indicator and a second one value for the numeric value of the indicator.
 #'  In the wide format each of the indicators correspond with one column in the data frame. 
-#'  The long format it is recommendable to work with ggplot2 functions for example and the wide format 
+#'  The long format it is recommendable to work with ggplot2 functions for example while the wide format 
 #'  it is more efficient for memory allocation and speed of computations. 
-
+#'  
+#'  The quantile version of the summaries, fooQ, returns the quantiles of the indicators. 
+#'  In the long format as many columns as elements in prob are created. The name of the columns are
+#'  the elements in prob preceded by a q. In the wide format for each of the indicators as many 
+#'  columns as elements in prob are created. The names of the colums are the elements in prob preceded by
+#'  q_name_of_the_indicator. 
+#'
 #' @arguments
 #' @inheritParams FLBEIA
 #' @inheritParams F_flbeia
-#' @param flnms Names of the fleets.
-#' @param stknms Names of the stocks.
-#' @param years The period of years. 
-#' @param long The data frame should be constructed using long or wide format?
-#' 
-#
-#' @return A data frame.
+#' @param flnms Names of the fleet for which the indicators will be calculated.
+#' @param stknms Names of the stock for which the indicators will be calculated.
+#' @param years the names of the years for which the indicators will be calculated. 
+#' @param long logical. The data frame should be constructed using long or wide format? Default TRUE.
+#' @param byyear logical. The indicators should be provided at season or year level? Default TRUE.
+#' @param prob a numeric vector with the probabilities used to calculate the quantiles. 
+#' @param scenario a character string with the name of the scenario corresponding with obj. Default bc.
+#' @param Bpa named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.
+#' @param Blim named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.
+#' @param Prflim named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate biological risk yearly.
 
 #' @examples
 #'\dontrun{
 #'
 #' library(FLBEIA)
-#' library(ggplot2)
 #'
 #' # Apply the summary functions to the examples runs in FLBEIA help page.
 #' # Test the different arguments in summary function.
 #' 
 #' data(res_flbeia)
-#'
+# 
+#' #------------------------------------------------
 #' # Example One: One stock, one fleet, one iter.
+#' #------------------------------------------------
 #' s0_bio    <- bioSum(s0)
 #' s0_flt    <- fltSum(s0)
+#' s0_fltStk <- fltStkSum(s0)
+#' s0_mt     <- mtSum(s0)
+#' s0_mtStk  <- mtStkSum(s0)
+#' s0_adv    <- advSum(s0)
 #' 
-#' s0_bioQ   <- bioSumQ(s0_bio)
-#' s0_fltQ   <- fltSumQ(s0_flt)
+#' head(s0_bio)
+#' head(s0_flt)
+#' head(s0_fltStk)
+#' head(s0_mt)
+#' head(s0_mtStk)
+#' head(s0_adv)
 #' 
+#' s0_bioQ    <- bioSumQ(s0_bio)
+#' s0_fltQ    <- fltSumQ(s0_flt)
+#' s0_fltStkQ <- fltStkSumQ(s0_fltStk)
+#' s0_mtQ     <- mtSumQ(s0_mt)
+#' s0_mtStkQ  <- mtStkSumQ(s0_mtStk)
+#' s0_advQ    <- advSumQ(s0_adv)
+#' 
+#' head(s0_bioQ)
+#' head(s0_fltQ)
+#' head(s0_fltStkQ)
+#' head(s0_mtQ)
+#' head(s0_mtStkQ)
+#' head(s0_advQ)
+#' 
+#' # Wide format
 #' s0_bio    <- bioSum(s0, long = FALSE, years = ac(2016:2020))
 #' s0_flt    <- fltSum(s0, long = FALSE, years = ac(2016:2020))
+#' s0_fltStk <- fltStkSum(s0, long = FALSE, years = ac(2016:2020))
+#' s0_mt     <- mtSum(s0, long = FALSE, years = ac(2016:2020))
+#' s0_mtStk  <- mtStkSum(s0, long = FALSE, years = ac(2016:2020))
+#' s0_adv    <- advSum(s0, long = FALSE, years = ac(2016:2020))
+#'
+#' head(s0_bio)
+#' head(s0_flt)
+#' head(s0_fltStk)
+#' head(s0_mt)
+#' head(s0_mtStk)
+#' head(s0_adv)
 #' 
-#' s0_bioQ   <- bioSumQ(s0_bio)
-#' s0_fltQ   <- fltSumQ(s0_flt)
+#' s0_bioQ    <- bioSumQ(s0_bio)
+#' s0_fltQ    <- fltSumQ(s0_flt)
+#' s0_fltStkQ <- fltStkSumQ(s0_fltStk)
+#' s0_mtQ     <- mtSumQ(s0_mt)
+#' s0_mtStkQ  <- mtStkSumQ(s0_mtStk)
+#' s0_advQ    <- advSumQ(s0_adv)
 #' 
+#' head(s0_bio)
+#' head(s0_flt)
+#' head(s0_fltStk)
+#' head(s0_mt)
+#' head(s0_mtStk)
+#' head(s0_adv)
+#' 
+#' # Wide format with seasonal disaggregation. No seasonal disagregation available for bio and adv summaries.
+#' 
+#' s0_bio    <- bioSum(s0, long = FALSE) # Biol summary is only by year.
 #' s0_flt    <- fltSum(s0, long = FALSE, byyear = FALSE)
-#' s0_fltQ   <- fltSumQ(s0_flt)
+#' s0_fltStk <- fltStkSum(s0, long = FALSE, byyear = FALSE)
+#' s0_mt     <- mtSum(s0, long = FALSE, byyear = FALSE)
+#' s0_mtStk  <- mtStkSum(s0, long = FALSE, byyear = FALSE)
+#' s0_adv    <- advSum(s0, long = FALSE) # Advice summary is only by year.
+#' 
+#' s0_bioQ    <- bioSumQ(s0_bio)
+#' s0_fltQ    <- fltSumQ(s0_flt)
+#' s0_fltStkQ <- fltStkSumQ(s0_fltStk)
+#' s0_mtQ     <- mtSumQ(s0_mt)
+#' s0_mtStkQ  <- mtStkSumQ(s0_mtStk)
+#' s0_advQ    <- advSumQ(s0_adv)
+# 
+#  # Long format and seasonal
+#' s0_bio    <- bioSum(s0, long = TRUE) # Biol summary is only by year.
+#' s0_flt    <- fltSum(s0, long = TRUE, byyear = FALSE)
+#' s0_fltStk <- fltStkSum(s0, long = TRUE, byyear = FALSE)
+#' s0_mt     <- mtSum(s0, long = TRUE, byyear = FALSE)
+#' s0_mtStk  <- mtStkSum(s0, long = TRUE, byyear = FALSE)
+#' s0_adv    <- advSum(s0, long = TRUE) # Advice summary is only by year.
+#' 
+#' s0_bioQ    <- bioSumQ(s0_bio)
+#' s0_fltQ    <- fltSumQ(s0_flt)
+#' s0_fltStkQ <- fltStkSumQ(s0_fltStk)
+#' s0_mtQ     <- mtSumQ(s0_mt)
+#' s0_mtStkQ  <- mtStkSumQ(s0_mtStk)
+#' s0_advQ    <- advSumQ(s0_adv)
 #' 
 #' 
+#' #------------------------------------------------
 #' # Example OneIters: As one but with iterations.
-#' s1_bio    <- bioSum(s1, years = ac(2016:2020))
-#' s1_flt    <- fltSum(s1, years = ac(2016:2020))
+#' #------------------------------------------------
+#' s1_bio    <- bioSum(s1, scenario = 'with_iters')
+#' s1_flt    <- fltSum(s1, scenario = 'with_iters')
+#' s1_fltStk <- fltStkSum(s1, scenario = 'with_iters')
+#' s1_mt     <- mtSum(s1, scenario = 'with_iters')
+#' s1_mtStk  <- mtStkSum(s1, scenario = 'with_iters')
+#' s1_adv    <- advSum(, scenario = 'with_iters')
 #' 
-#' s1_bioQ   <- bioSumQ(s1_bio)
-#' s1_fltQ   <- fltSumQ(s1_flt)
+#' s1_bioQ    <- bioSumQ(s1_bio)
+#' s1_fltQ    <- fltSumQ(s1_flt)
+#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
+#' s1_mtQ     <- mtSumQ(s1_mt)
+#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
+#' s1_advQ    <- advSumQ(s1_adv)
 #' 
-#' s1_bio    <- bioSum(s1, long = FALSE)
-#' s1_flt    <- fltSum(s1, long = FALSE)
+#' s1_bio    <- bioSum(s1, long = FALSE, years = ac(2016:2020))
+#' s1_flt    <- fltSum(s1, long = FALSE, years = ac(2016:2020))
+#' s1_fltStk <- fltStkSum(s1, long = FALSE, years = ac(2016:2020))
+#' s1_mt     <- mtSum(s1, long = FALSE, years = ac(2016:2020))
+#' s1_mtStk  <- mtStkSum(s1, long = FALSE, years = ac(2016:2020))
+#' s1_adv    <- advSum(s1, long = FALSE, years = ac(2016:2020))
 #' 
-#' s1_bioQ   <- bioSumQ(s1_bio)
-#' s1_fltQ   <- fltSumQ(s1_flt)
 #' 
+#' s1_bioQ    <- bioSumQ(s1_bio)
+#' s1_fltQ    <- fltSumQ(s1_flt)
+#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
+#' s1_mtQ     <- mtSumQ(s1_mt)
+#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
+#' s1_advQ    <- advSumQ(s1_adv)
+#' 
+#' 
+#' s1_bio    <- bioSum(s1, long = FALSE) # Biol summary is only by year.
 #' s1_flt    <- fltSum(s1, long = FALSE, byyear = FALSE)
-#' s1_fltQ   <- fltSumQ(s1_flt)
+#' s1_fltStk <- fltStkSum(s1, long = FALSE, byyear = FALSE)
+#' s1_mt     <- mtSum(s1, long = FALSE, byyear = FALSE)
+#' s1_mtStk  <- mtStkSum(s1, long = FALSE, byyear = FALSE)
+#' s1_adv    <- advSum(s1, long = FALSE) # Advice summary is only by year.
 #' 
-#' # Example Multi: Two stock, two fleet, four iters. 
-#' s2_bio    <- bioSum(s2, years = ac(2016:2020))
-#' s2_flt    <- fltSum(s2, years = ac(2016:2020))
+#' s1_bioQ    <- bioSumQ(s1_bio)
+#' s1_fltQ    <- fltSumQ(s1_flt)
+#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
+#' s1_mtQ     <- mtSumQ(s1_mt)
+#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
+#' s1_advQ    <- advSumQ(s1_adv)
 #' 
-#' s2_bioQ   <- bioSumQ(s2_bio)
-#' s2_fltQ   <- fltSumQ(s2_flt)
 #' 
-#' s2_bio    <- bioSum(s2, long = FALSE)
-#' s2_flt    <- fltSum(s2, long = FALSE)
+#' s1_bio    <- bioSum(s1, long = TRUE) # Biol summary is only by year.
+#' s1_flt    <- fltSum(s1, long = TRUE, byyear = FALSE)
+#' s1_fltStk <- fltStkSum(s1, long = TRUE, byyear = FALSE)
+#' s1_mt     <- mtSum(s1, long = TRUE, byyear = FALSE)
+#' s1_mtStk  <- mtStkSum(s1, long = TRUE, byyear = FALSE)
+#' s1_adv    <- advSum(s1, long = TRUE) # Advice summary is only by year.
 #' 
-#' s2_bioQ   <- bioSumQ(s2_bio)
-#' s2_fltQ   <- fltSumQ(s2_flt)
+#' s1_bioQ    <- bioSumQ(s1_bio)
+#' s1_fltQ    <- fltSumQ(s1_flt)
+#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
+#' s1_mtQ     <- mtSumQ(s1_mt)
+#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
+#' s1_advQ    <- advSumQ(s1_adv)
 #' 
+#' s1_risk <- riskSum(s1, Bpa = c(stk1= 900), Blim = c(stk1 = 600), Prflim = c(flt1 = 0), scenario = 'alternative')
+#' 
+#' s1_npv  <- npv(s1, y0 = '2014')
+#'
+#' #------------------------------------------------
+#' # Example Multi: Two stock, two fleet, four iters.
+#' #------------------------------------------------
+#' s2_bio    <- bioSum(s2)
+#' s2_flt    <- fltSum(s2)
+#' s2_fltStk <- fltStkSum(s2)
+#' s2_mt     <- mtSum(s2)
+#' s2_mtStk  <- mtStkSum(s2)
+#' s2_adv    <- advSum(s2)
+#' 
+#' s2_bioQ    <- bioSumQ(s2_bio)
+#' s2_fltQ    <- fltSumQ(s2_flt)
+#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
+#' s2_mtQ     <- mtSumQ(s2_mt)
+#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
+#' s2_advQ    <- advSumQ(s2_adv)
+#' 
+#' s2_bio    <- bioSum(s2, long = FALSE, years = ac(2016:2020))
+#' s2_flt    <- fltSum(s2, long = FALSE, years = ac(2016:2020))
+#' s2_fltStk <- fltStkSum(s2, long = FALSE, years = ac(2016:2020))
+#' s2_mt     <- mtSum(s2, long = FALSE, years = ac(2016:2020))
+#' s2_mtStk  <- mtStkSum(s2, long = FALSE, years = ac(2016:2020))
+#' s2_adv    <- advSum(s2, long = FALSE, years = ac(2016:2020))
+#' 
+#' 
+#' s2_bioQ    <- bioSumQ(s2_bio)
+#' s2_fltQ    <- fltSumQ(s2_flt)
+#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
+#' s2_mtQ     <- mtSumQ(s2_mt)
+#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
+#' s2_advQ    <- advSumQ(s2_adv)
+#' 
+#' 
+#' s2_bio    <- bioSum(s2, long = FALSE) # Biol summary is only by year.
 #' s2_flt    <- fltSum(s2, long = FALSE, byyear = FALSE)
-#' s2_fltQ   <- fltSumQ(s2_flt)
+#' s2_fltStk <- fltStkSum(s2, long = FALSE, byyear = FALSE)
+#' s2_mt     <- mtSum(s2, long = FALSE, byyear = FALSE)
+#' s2_mtStk  <- mtStkSum(s2, long = FALSE, byyear = FALSE)
+#' s2_adv    <- advSum(s2, long = FALSE) # Advice summary is only by year.
 #' 
-#' s2_bio    <- bioSum(s2, stocks = 'stk2')
-#' s2_flt    <- fltSum(s2, flnms = 'fl1')
+#' s2_bioQ    <- bioSumQ(s2_bio)
+#' s2_fltQ    <- fltSumQ(s2_flt)
+#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
+#' s2_mtQ     <- mtSumQ(s2_mt)
+#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
+#' s2_advQ    <- advSumQ(s2_adv)
 #' 
-#' s2_bioQ   <- bioSumQ(s2_bio)
-#' s2_fltQ   <- fltSumQ(s2_flt)
 #' 
+#' s2_bio    <- bioSum(s2, long = TRUE) # Biol summary is only by year.
+#' s2_flt    <- fltSum(s2, long = TRUE, byyear = FALSE)
+#' s2_fltStk <- fltStkSum(s2, long = TRUE, byyear = FALSE)
+#' s2_mt     <- mtSum(s2, long = TRUE, byyear = FALSE)
+#' s2_mtStk  <- mtStkSum(s2, long = TRUE, byyear = FALSE)
+#' s2_adv    <- advSum(s2, long = TRUE) # Advice summary is only by year.
+#' 
+#' s2_bioQ    <- bioSumQ(s2_bio)
+#' s2_fltQ    <- fltSumQ(s2_flt)
+#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
+#' s2_mtQ     <- mtSumQ(s2_mt)
+#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
+#' s2_advQ    <- advSumQ(s2_adv)
+#' 
+#' s2_npv  <- npv(s2, y0 = '2014')
+#' risk_s2 <- riskSum(s2, Bpa = c(stk1= 135000, stk2 = 124000), Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(flt1 = 0, flt2 = 0), scenario = 'alternative')
+#'
 #' }
-bioSum <- function(obj, stocks = 'all', years = dimnames(obj$biols[[1]]@n)$year, long = TRUE, scenario = 'bc'){
+bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year, long = TRUE, scenario = 'bc'){
     xx <- summary_flbeia(obj, years)
      
     dnms <- dimnames(xx)
     
-    if(stocks == 'all') stocks <- dnms[[1]]
+    if(stknms[1] == 'all') stknms <- dnms[[1]]
     
-    xx <- xx[stocks,,,,drop=F]
+    xx <- xx[stknms,,,,drop=F]
     dnms <- dimnames(xx)
     
     if(long == TRUE){
       
-      df <- expand.grid(iter = dnms[[3]], year = dnms[[2]],indicator = c(dnms[[4]], 'land.iyv', 'disc.iyv', 'catch.iyv'),  stock = stocks)[,4:1]
+      df <- expand.grid(iter = dnms[[3]], year = dnms[[2]],indicator = c(dnms[[4]], 'land.iyv', 'disc.iyv', 'catch.iyv'),  stock = stknms)[,4:1]
 
       df$stock     <- as.character(df$stock)
       df$year      <- as.numeric(as.character(df$year))
@@ -456,6 +632,7 @@ bioSum <- function(obj, stocks = 'all', years = dimnames(obj$biols[[1]]@n)$year,
     return(df)
 }
 
+#' @rdname bioSum
 bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
   if(dim(obj)[2] <= 6){ # the object is in long format
@@ -500,10 +677,10 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   
 #------------------------------------------------------------------------------#
-# ecoSum data.frame[year, season, stock, fleet, iter, ||,|| 
+# fltSum data.frame[year, season, stock, fleet, iter, ||,|| 
 #        profits, capacity, costs, discards, effort, landings] 
 #------------------------------------------------------------------------------#
-#' @rdname summary_flbeia
+#' @rdname bioSum
 fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = TRUE, scenario = 'bc')
 {
   fleets <- obj$fleets
@@ -526,7 +703,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       dimnames(covars$Salaries) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, years, ])[2:6])
     }
     if(is.null(covars$MaxDays)){ 
-      covars$MaxDays <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, years, ])[2:6]))
+      covars$MaxDays <- FLQuant(365/dim(fleets[[1]]@effort[, years, ])[4], dim = c(length(fleets),dim(fleets[[1]]@effort[, years, ])[2:6]))
       dimnames(covars$MaxDays) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, years, ])[2:6])
     }
     if(is.null(covars$NumbVessels)){ 
@@ -565,13 +742,13 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         
         
         temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
-        res[k:(k + prod(Dim) - 1), "catch"] <- c(Reduce('+',temp))
+        res[k:(k + prod(Dim) - 1), "catch"] <- c(Reduce('+',temp)[,years])
         
         temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(landWStock.f(fl, x))))
-        res[k:(k + prod(Dim) - 1), "landings"] <- c(Reduce('+',temp))
+        res[k:(k + prod(Dim) - 1), "landings"] <- c(Reduce('+',temp)[,years])
         
         temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(discWStock.f(fl, x))))
-        res[k:(k + prod(Dim) - 1), "discards"] <- c(Reduce('+',temp))
+        res[k:(k + prod(Dim) - 1), "discards"] <- c(Reduce('+',temp)[,years])
         
         res[k:(k + prod(Dim) - 1), "discRat"] <- res[k:(k + prod(Dim) - 1), "discards"]/res[k:(k + prod(Dim) - 1), "catch"]
           
@@ -595,16 +772,17 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         
         res[k:(k + prod(Dim) - 1), "profitability"] <- res[k:(k + prod(Dim) - 1), "profits"]/res[k:(k + prod(Dim) - 1), "income"]
  
-        res[k:(k + prod(Dim) - 1), "nVessels"]  <- c(covars[['NumbVessels']][f,])
+        res[k:(k + prod(Dim) - 1), "nVessels"]  <- c(covars[['NumbVessels']][f,years])
           
-        res[k:(k + prod(Dim) - 1), "netProfit"] <- c(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,]*covars[['NumbVessels']][f,])
+        res[k:(k + prod(Dim) - 1), "netProfit"] <- c(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years])
 
         temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
-        temp <- Reduce('+',temp)
-        totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,]*obj$advice$TAC[x,]))
-        res[k:(k + prod(Dim) - 1), "quotaUpt"] <- c(sweep(temp, 4,totTAC/dim(temp)[4], "/"))
+        temp <- Reduce('+',temp)[,years]
+        totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
+        if(dim(temp)[4] > 1) {res[k:(k + prod(Dim) - 1), "quotaUpt"] <- c(sweep(temp, c(1:3,5:6),totTAC/dim(temp)[4], "/"))}
+        else{       res[k:(k + prod(Dim) - 1), "quotaUpt"] <- c(temp/totTAC)}
         
-          k <- k + prod(Dim)
+        k <- k + prod(Dim)
     }}
     else{
       n <- prod(Dim[-2]) * length(flnms)
@@ -633,51 +811,52 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       
       k <- 1
       for (f in flnms) {
+        print(f)
         fl <- fleets[[f]]
         mts <- names(fl@metiers)
         
         
         temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
-        res[k:(k + prod(Dim) - 1), "catch"] <- c(Reduce('+',temp)[, years, ])
+        res[k:(k + prod(Dim[-2]) - 1), "catch"] <- c(Reduce('+',temp)[, years, ])
         
         temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(landWStock.f(fl, x)))))
-        res[k:(k + prod(Dim) - 1), "landings"] <- c(Reduce('+',temp)[, years, ])
+        res[k:(k + prod(Dim[-2]) - 1), "landings"] <- c(Reduce('+',temp)[, years, ])
         
         temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(discWStock.f(fl, x)))))
-        res[k:(k + prod(Dim) - 1), "discards"] <- c(Reduce('+',temp)[, years, ])
+        res[k:(k + prod(Dim[-2]) - 1), "discards"] <- c(Reduce('+',temp)[, years, ])
         
-        res[k:(k + prod(Dim) - 1), "discRat"] <- res[k:(k + prod(Dim) - 1), "discards"]/res[k:(k + prod(Dim) - 1), "catch"]
+        res[k:(k + prod(Dim[-2]) - 1), "discRat"] <- res[k:(k + prod(Dim[-2]) - 1), "discards"]/res[k:(k + prod(Dim[-2]) - 1), "catch"]
         
-        res[k:(k + prod(Dim) - 1), "capacity"] <- c(seasonSums(fl@capacity[,years, ]))
+        res[k:(k + prod(Dim[-2]) - 1), "capacity"] <- c(seasonSums(fl@capacity[,years, ]))
         
-        res[k:(k + prod(Dim) - 1), "effort"] <- c(seasonSums(fl@effort[,years, ]))
+        res[k:(k + prod(Dim[-2]) - 1), "effort"] <- c(seasonSums(fl@effort[,years, ]))
         
-        res[k:(k + prod(Dim) - 1), "fcosts"] <- c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ]))
+        res[k:(k + prod(Dim[-2]) - 1), "fcosts"] <- c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ]))
         
-        res[k:(k + prod(Dim) - 1), "vcosts"] <- c(seasonSums(totvcost_flbeia(fl)[,years, ]))
+        res[k:(k + prod(Dim[-2]) - 1), "vcosts"] <- c(seasonSums(totvcost_flbeia(fl)[,years, ]))
         
-        res[k:(k + prod(Dim) - 1), "costs"] <- c(seasonSums(costs_flbeia(fl, covars, f)[,years, ]))
+        res[k:(k + prod(Dim[-2]) - 1), "costs"] <- c(seasonSums(costs_flbeia(fl, covars, f)[,years, ]))
         
-        res[k:(k + prod(Dim) - 1), "income"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) 
+        res[k:(k + prod(Dim[-2]) - 1), "income"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) 
         
-        res[k:(k + prod(Dim) - 1), "profits"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) - res[k:(k + prod(Dim) - 1), "costs"]
+        res[k:(k + prod(Dim[-2]) - 1), "profits"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) - res[k:(k + prod(Dim[-2]) - 1), "costs"]
         
-        res[k:(k + prod(Dim) - 1), "salaries"] <- c(seasonSums(fl@crewshare[,years,]*revenue_flbeia(fl)[,years, ] + covars[['Salaries']][f,years]))
+        res[k:(k + prod(Dim[-2]) - 1), "salaries"] <- c(seasonSums(fl@crewshare[,years,]*revenue_flbeia(fl)[,years, ] + covars[['Salaries']][f,years]))
         
-        res[k:(k + prod(Dim) - 1), "gva"] <- res[k:(k + prod(Dim) - 1), "income"] - res[k:(k + prod(Dim) - 1), "costs"] + res[k:(k + prod(Dim) - 1), "salaries"]
+        res[k:(k + prod(Dim[-2]) - 1), "gva"] <- res[k:(k + prod(Dim[-2]) - 1), "income"] - res[k:(k + prod(Dim[-2]) - 1), "costs"] + res[k:(k + prod(Dim[-2]) - 1), "salaries"]
         
-        res[k:(k + prod(Dim) - 1), "profitability"] <- res[k:(k + prod(Dim) - 1), "profits"]/res[k:(k + prod(Dim) - 1), "income"]
+        res[k:(k + prod(Dim[-2]) - 1), "profitability"] <- res[k:(k + prod(Dim[-2]) - 1), "profits"]/res[k:(k + prod(Dim[-2]) - 1), "income"]
         
-        res[k:(k + prod(Dim) - 1), "nVessels"]  <- c(seasonMeans(covars[['NumbVessels']][f, years, ]))
+        res[k:(k + prod(Dim[-2]) - 1), "nVessels"]  <- c(seasonMeans(covars[['NumbVessels']][f, years, ]))
         
-        res[k:(k + prod(Dim) - 1), "netProfit"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years]))
+        res[k:(k + prod(Dim[-2]) - 1), "netProfit"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years]))
         
         temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
         temp <- Reduce('+',temp)[, years, ]
         totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
-        res[k:(k + prod(Dim) - 1), "quotaUpt"] <- c(totTAC/temp)
+        res[k:(k + prod(Dim[-2]) - 1), "quotaUpt"] <- c(totTAC/temp)
         
-        k <- k + prod(Dim)
+        k <- k + prod(Dim[-2])
     }}
     
     if(long == TRUE){ # transform res into long format
@@ -694,7 +873,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
     return(res)
 }
     
-
+#' @rdname bioSum
 fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] < 10){ # the object is in long format
@@ -883,7 +1062,7 @@ totvcost_flbeia <- function(fleet){
 #' @rdname revenue_flbeia
 totfcost_flbeia <- function(fleet, covars, flnm = NULL){
      if(is.null(flnm)) flnm <- 1
-     return(sweep(fleet@fcost, 4,covars[["NumbVessels"]][flnm, ], "*"))            
+     return(fleet@fcost*covars[["NumbVessels"]][flnm, ])            
 }
 
 
@@ -891,7 +1070,7 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 # catchFlSum data.frame[year, season, stock, fleet, iter, ||,|| 
 #        landings, discards, price, tacshare] 
 #------------------------------------------------------------------------------#
-#' @rdname summary_flbeia
+#' @rdname bioSum
 fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
     
   fleets <- obj$fleets
@@ -969,15 +1148,15 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
         
         for(st in sts){
           
-          dff[k:(prod(Dim) + k-1),'landings'] <- c(apply(landWStock.f(fl, st),c(2,6), sum)[,years])    
-          dff[k:(prod(Dim) + k-1),'discards'] <- c(apply(discWStock.f(fl, st),c(2,6), sum)[,years]) 
-          dff[k:(prod(Dim) + k-1),'catch']    <- dff[k:(prod(Dim) + k-1),'discards'] + dff[k:(prod(Dim) + k-1),'landings']
-          dff[k:(prod(Dim) + k-1),'discRat']  <- dff[k:(prod(Dim) + k-1),'discards']/dff[k:(prod(Dim) + k-1),'catch']
-          dff[k:(prod(Dim) + k-1),'price']    <- c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(landWStock.f(fl, st)[,years]))/seasonSums(quantSums(landWStock.f(fl, st)[,years])))
-          dff[k:(prod(Dim) + k-1),'quota']    <- c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years])
-          dff[k:(prod(Dim) + k-1),'quotaUpt'] <- dff[k:(prod(Dim) + k-1),'catch']/dff[k:(prod(Dim) + k-1),'quota']
+          dff[k:(prod(Dim[-2]) + k-1),'landings'] <- c(apply(landWStock.f(fl, st),c(2,6), sum)[,years])    
+          dff[k:(prod(Dim[-2]) + k-1),'discards'] <- c(apply(discWStock.f(fl, st),c(2,6), sum)[,years]) 
+          dff[k:(prod(Dim[-2]) + k-1),'catch']    <- dff[k:(prod(Dim[-2]) + k-1),'discards'] + dff[k:(prod(Dim[-2]) + k-1),'landings']
+          dff[k:(prod(Dim[-2]) + k-1),'discRat']  <- dff[k:(prod(Dim[-2]) + k-1),'discards']/dff[k:(prod(Dim[-2]) + k-1),'catch']
+          dff[k:(prod(Dim[-2]) + k-1),'price']    <- c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(unitSums(landWStock.f(fl, st)[,years])))/seasonSums(unitSums(quantSums(landWStock.f(fl, st)[,years]))))
+          dff[k:(prod(Dim[-2]) + k-1),'quota']    <- c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years])
+          dff[k:(prod(Dim[-2]) + k-1),'quotaUpt'] <- dff[k:(prod(Dim[-2]) + k-1),'catch']/dff[k:(prod(Dim[-2]) + k-1),'quota']
           
-          k <- k + prod(Dim)     
+          k <- k + prod(Dim[-2])     
         }
         res <- rbind(res, dff)
       }
@@ -999,6 +1178,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
 }                               
 
 # fltStkSumQ 
+#' @rdname bioSum
 fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] < 10){ # the object is in long format
@@ -1097,7 +1277,7 @@ price_flbeia <- function(fleet, stock){
 # mtStkSum data.frame[year, season, stock, fleet, metier, iter ||,|| 
 #        landings, discards, price] 
 #------------------------------------------------------------------------------#
-#' @rdname summary_flbeia 
+#' @rdname bioSum
 mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), 
                      years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
     
@@ -1178,13 +1358,13 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
           
           for(ss in sts){
             cc <- mt@catches[[ss]]
-            dfm[k:(k+prod(Dim)-1),'landings'] <- c(apply(cc@landings[,years,], c(2,6), sum, na.rm=T))
-            dfm[k:(k+prod(Dim)-1),'discards'] <- c(apply(cc@discards[,years,], c(2,6), sum, na.rm=T))
-            dfm[k:(k+prod(Dim)-1),'catch'] <- dfm[k:(k+prod(Dim)-1),'discards'] + dfm[k:(k+prod(Dim)-1),'landings']
-            dfm[k:(k+prod(Dim)-1),'discRat'] <-  dfm[k:(k+prod(Dim)-1),'discards']/dfm[k:(k+prod(Dim)-1),'catch']
+            dfm[k:(k+prod(Dim[-2])-1),'landings'] <- c(apply(cc@landings[,years,], c(2,6), sum, na.rm=T))
+            dfm[k:(k+prod(Dim[-2])-1),'discards'] <- c(apply(cc@discards[,years,], c(2,6), sum, na.rm=T))
+            dfm[k:(k+prod(Dim[-2])-1),'catch'] <- dfm[k:(k+prod(Dim[-2])-1),'discards'] + dfm[k:(k+prod(Dim[-2])-1),'landings']
+            dfm[k:(k+prod(Dim[-2])-1),'discRat'] <-  dfm[k:(k+prod(Dim[-2])-1),'discards']/dfm[k:(k+prod(Dim[-2])-1),'catch']
             revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,6), sum, na.rm=T)[,years,]
-            dfm[k:(k+prod(Dim)-1),'price']  <- c(revst)/dfm[k:(k+prod(Dim)-1),'landings']  
-            k <- k + prod(Dim)
+            dfm[k:(k+prod(Dim[-2])-1),'price']  <- c(revst)/dfm[k:(k+prod(Dim[-2])-1),'landings']  
+            k <- k + prod(Dim[-2])
           }
           res <- rbind(res, dfm) 
         }  
@@ -1210,6 +1390,7 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
 
 
 # mtStkSumQ 
+#' @rdname bioSum
 mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] < 10){ # the object is in long format
@@ -1278,7 +1459,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 # mtSum data.frame[year, season, stock, fleet, metier, iter ||,|| 
 #        landings, discards, price] 
 #------------------------------------------------------------------------------#
-#' @rdname summary_flbeia 
+#' @rdname bioSum
 mtSum <- function(obj, flnms = names(obj$fleets),
                      years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
   
@@ -1336,10 +1517,10 @@ mtSum <- function(obj, flnms = names(obj$fleets),
       k <- 1
       for(m in mts){
         mt <- fl@metiers[[m]]
-        dff[k:(k+prod(Dim)-1),'effort']   <- c(seasonSums((fl@effort*mt@effshare)[,years,]))
-        dff[k:(k+prod(Dim)-1),'effshare'] <- c(seasonSums(mt@effshare[,years,]))
-        dff[k:(k+prod(Dim)-1),'vcost']    <- c(seasonSums(fl@effort*mt@effshare*mt@vcost)[,years,])
-        dff[k:(k+prod(Dim)-1),'income'] <- c(Reduce('+', lapply(mt@catches, function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years])))
+        dff[k:(k+prod(Dim[-2])-1),'effort']   <- c(seasonSums((fl@effort*mt@effshare)[,years,]))
+        dff[k:(k+prod(Dim[-2])-1),'effshare'] <- c(seasonSums(mt@effshare[,years,]))
+        dff[k:(k+prod(Dim[-2])-1),'vcost']    <- c(seasonSums(fl@effort*mt@effshare*mt@vcost)[,years,])
+        dff[k:(k+prod(Dim[-2])-1),'income'] <- c(Reduce('+', lapply(mt@catches, function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years])))
         
         k <- k + prod(Dim)
       }
@@ -1368,9 +1549,10 @@ mtSum <- function(obj, flnms = names(obj$fleets),
 
 
 # mtStkSumQ 
+#' @rdname bioSum
 mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
-  if(dim(obj)[2] < 8){ # the object is in long format
+  if(dim(obj)[2] < 9){ # the object is in long format
     
     if(!('season' %in% names(obj))){
       res <- aggregate(value ~ fleet + metier + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
@@ -1433,7 +1615,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 # advSum data.frame[year, season, fleet, metier, iter ||,|| 
 #        effort, effshare] 
 #------------------------------------------------------------------------------#
-#' @rdname summary_flbeia
+#' @rdname bioSum
 advSum <- function(obj, stknms = catchNames(obj$fleets), 
                      years = dimnames(obj$biols[[1]]@n)[[2]], long = TRUE, scenario = 'bc'){
   
@@ -1495,6 +1677,7 @@ advSum <- function(obj, stknms = catchNames(obj$fleets),
 
 
 # mtStkSumQ 
+#' @rdname bioSum
 advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] < 8){ # the object is in long format
@@ -1537,12 +1720,12 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 # Blim = a named vector with the limit biomass per stock.
 # Blim = a named vector with the limit profit per fleet
 #----------------------------------------------------------------------
+#' @rdname bioSum
+riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
 
-riskSum <- function(obj, stocks = names(obj$biols), Bpa, Blim, Prflim, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], long = TRUE, scenario = 'bc'){
-
-  bioS <- bioSum(obj, stocks = names(obj$biols), years = dimnames(obj$biols[[1]]@n)[[2]], long = FALSE)
+  bioS <- bioSum(obj, stknms = names(obj$biols), years = dimnames(obj$biols[[1]]@n)[[2]], long = FALSE)
   bioS <- cbind(bioS, Bpa = Bpa[bioS$stock],  Blim = Blim[bioS$stock])
-  bioS <- cbind(bioS, risk.pa = as.numeric(bioS$ssb > bioS$Bpa), risk.lim = as.numeric(bioS$ssb > bioS$Blim))
+  bioS <- cbind(bioS, risk.pa = as.numeric(bioS$ssb < bioS$Bpa), risk.lim = as.numeric(bioS$ssb < bioS$Blim))
   
   flS <- fltSum(obj, years = dimnames(obj$biols[[1]]@n)[[2]], flnms = names(obj$fleets), long = FALSE)
   flS <- cbind(flS, refp = Prflim[flS$fleet])
@@ -1560,22 +1743,30 @@ riskSum <- function(obj, stocks = names(obj$biols), Bpa, Blim, Prflim, flnms = n
                cbind(auxFl[,1:2],     indicator = 'pPrflim', value = auxFl[,3]),
                cbind(auxBioPa[,1:2],  indicator = 'pBpa',    value = auxBioPa[,3]),
                cbind(auxBiolim[,1:2], indicator = 'pBlim',   value = auxBiolim[,3])))
+ # No sense in wide format  
+#  if(long == FALSE){
+#    temp <- reshape(res,v.names = 'value', timevar = 'indicator', idvar = c('scenario', 'year', 'unit'), direction = 'wide')  }
+
+
   return(res)
 }
 
 #----------------------------------------------------------------------
 # npv(obj, years, flnms)
 #----------------------------------------------------------------------
+#' @rdname bioSum
 npv <- function(obj, discF = 0.05, y0, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
   
-  flS <- fltSum(obj, years = dimnames(obj$biols[[1]]@n)[[2]], flnms = names(obj$fleets), long = FALSE)
+  flS <- fltSum(obj, years = years, flnms = flnms, long = FALSE)
+  
+  y0 <- as.numeric(y0)
   
   flS <- cbind(flS, discount= (1+discF)^(as.numeric(flS$year)-y0))
   flS <- cbind(flS, discProf = flS$profits/flS$discount)
   
   flS <- subset(flS, year %in% c(years))
   
-  res <- aggregate(discProf ~ fleet, data = flS, FUN = sum)
+  res <- aggregate(discProf ~ fleet + iter, data = flS, FUN = sum)
   
   names(res)[2] <- 'npv'
   
