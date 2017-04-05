@@ -54,5 +54,5 @@ Optionals:
      \item  stk_gB.flq: Biomass growth for the stock modeled in biomass (FLQuant). Required if Cobb Douglas parameters are not defined.}}
 }
 \description{
-create.biols.data create an FLBiols object
+create.fleets.data create an FLFleetsExt object
 }

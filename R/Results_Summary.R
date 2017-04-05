@@ -295,17 +295,35 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @details 
 #' 
 #'\itemize{
-#'      \item{advSum, advSumQ:} 
+#'      \item{advSum, advSumQ:} Data frame with the indicators related with the management advice (TAC). The indicators are:
+#'              "catch", "discards", "discRat",  "landings", "quotaUpt" and "tac".              
 #'      \item{bioSum, bioSumQ:} Data frame with the biological indicators. The indicators are: 
+#'              "biomass", "catch", "catch.iyv", "discards",  "disc.iyv",  "f", "landings",  "land.iyv",  "rec" and      "ssb".
 #'      \item{fltSum, fltSumQ:} Data frame with the indicators at fleet level. The indicators are:
-#'      \item{fltMtSum, fltMtSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
-#'      \item{ecoSum_damara:} ecoSum built in the framework of Damara project.
+#'              "capacity", "catch", "costs", "discards", "discRat", "effort",       
+#'              "fcosts", "gva", "income", "landings", "netProfit", "nVessels", "price", "profits",
+#'              "quotaUpt", "salaries", "vcosts" and "profitability".
+#'      \item{fltStkSum, fltStkSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
+#'              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
 #'      \item{npv:} A data frame with the nep present value per fleet over the selected range of years.
 #'      \item{mtSum, mtSumQ:} Data frame with the indicators at fleet. The indicators are:
+#'              "effshare", "effort", "income" and "vcost".   
 #'      \item{mtStkSum, mtStkSumQ:} Data frame with the indicators at fleet and metier level. The indicators are:
-#'      \item{riskSum:} A data frame with the risk indicators. The columns of the data frame are 
+#'              "catch",  "discards", "discRat", "landings" and "price"   
+#'      \item{riskSum:} A data frame with the risk indicators. The indicators are:
+#'              "pBlim", "pBpa" and "pPrflim"
+#'          
+#'      
+#'      
+#'      \item{vesselSum, vesselSumQ:} Data frame with the indicators at vessel level. The indicators are:
+#'               "catch", "costs", "discards", "discRat", "effort",       
+#'              "fcosts", "gva", "income", "landings", "netProfit",  "price", "profits",
+#'              "quotaUpt", "salaries", "vcosts" and "profitability".
+#'      \item{vesselStkSum, vesselStkSumQ:} Data frame with the indicators at vessel and stock level. The indicators are:
+#'              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
 #'      \item{Summary_flbeia:} An array with four dimensions: stock, year, iteration, 
 #'      indicator. The indicators are: recruitment, ssb, f, biomass, catch, landings and discards.
+#'      \item{ecoSum_damara:} ecoSum built in the framework of Damara project.
 #'}
 #'      
 #' The data frames       
