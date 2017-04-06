@@ -44,7 +44,7 @@
   if(any(is.na(age.min)|| is.na(age.max))) {
     stop('Cobb Douglas parameters: Cobb Douglas parameters: Wrong min or max age')}
   
-  if(all(is.na(landings.n))|| all(is.na(discards.n))) {
+  if(all(is.na(landings.n)) & all(is.na(discards.n))) {
        stop('Cobb Douglas parameters: Na-s in landings.n and discards.n')}
   
   #==============================================================================
