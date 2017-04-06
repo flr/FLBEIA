@@ -15,6 +15,11 @@
 \alias{advSumQ}
 \alias{riskSum}
 \alias{npv}
+\alias{npvQ}
+\alias{vesselSum}
+\alias{vesselSumQ}
+\alias{vesselStkSum}
+\alias{vesselStkSumQ}
 \title{Summary of the FLBEIA output}
 \usage{
 bioSum(obj, stknms = "all", years = dimnames(obj$biols[[1]]@n)$year,
@@ -56,6 +61,19 @@ riskSum(obj, stknms = names(obj$biols), Bpa, Blim, Prflim,
 
 npv(obj, discF = 0.05, y0, flnms = names(obj$fleets),
   years = dimnames(obj$biols[[1]]@n)[[2]], scenario = "bc")
+
+npvQ(obj, prob = c(0.05, 0.5, 0.95))
+
+vesselSum(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
+  byyear = TRUE, long = TRUE, scenario = "bc")
+
+vesselSumQ(obj, prob = c(0.95, 0.5, 0.05))
+
+vesselStkSum(obj, flnms = names(obj$fleets),
+  stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]],
+  byyear = TRUE, long = TRUE, scenario = "bc")
+
+vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 }
 \arguments{
 \item{obj}{The output of the FLBEIA function.}
@@ -100,7 +118,11 @@ Summarize the results of the simulation in data frames.
 \itemize{
      \item{advSum, advSumQ:} 
      \item{bioSum, bioSumQ:} Data frame with the biological indicators. The indicators are: 
+             "biomass", "catch", "catch.iyv", "discards",  "disc.iyv",  "f", "landings",  "land.iyv",  "rec" and      "ssb".
      \item{fltSum, fltSumQ:} Data frame with the indicators at fleet level. The indicators are:
+     "capacity", "catch", "costs", "discards", "discRat", "effort",       
+     "fcosts", "gva", "income", "landings", "netProfit", "nVessels", "price", "profits",
+     "quotaUpt", "salaries", "vcosts" and "profitability".
      \item{fltMtSum, fltMtSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
      \item{ecoSum_damara:} ecoSum built in the framework of Damara project.
      \item{npv:} A data frame with the nep present value per fleet over the selected range of years.
