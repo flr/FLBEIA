@@ -107,7 +107,7 @@ create.SRs.data <- function(yrs,ns,ni,stks.data){
         stk.sr@range[['max']] <- stk.range.max
         stk.sr@range[['plusgroup']] <- stk.range.plusgroup
         stk.sr@range[['minyear']] <- stk.range.minyear
-        stk.sr@range[['maxyear']] <- proj.yr-1
+        stk.sr@range[['maxyear']] <- last.yr
 
       #-----------------------------------------------------------------------------
       #       1.2         Check dimensions

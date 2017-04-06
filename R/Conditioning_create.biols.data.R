@@ -104,14 +104,7 @@ create.biols.data <- function(yrs,ns,ni,stks.data){
            any(dim(stk.fec)[6]==c(1,ni)) & any(dim(stk.mat)[3]==c(1,stk.unit)) & any(dim(stk.spwn)[6]==c(1,ni)))){stop('Number of iterations 1 or ni')}
     
     # Historical NA-s transformed in 0-s
-    
-    stk.wt[is.na(stk.wt)]     <- 0
-    stk.n[is.na(stk.n)]       <- 0
-    stk.m[is.na(stk.m)]       <- 0
-    stk.fec[is.na(stk.fec)]   <- 0
-    stk.mat[is.na(stk.fec)]   <- 0
-    stk.spwn[is.na(stk.spwn)] <- 0
-    
+
     stk.biol   <- FLBiol(n = stk.flqa, m=stk.flqa, wt=stk.flqa, spwn= stk.flqa, name=nmstk)
     fec(stk.biol) <- stk.flqa
     stk.biol@n[,hist.yrs]   <- stk.n
