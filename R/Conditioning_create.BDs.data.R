@@ -81,7 +81,7 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
       stk.bd@range[["max"]] <- stk.range.max
       stk.bd@range[["plusgroup"]] <- stk.range.plusgroup
       stk.bd@range[["minyear"]] <- stk.range.minyear
-      stk.bd@range[["maxyear"]] <- proj.yr - 1
+      stk.bd@range[["maxyear"]] <- last.yr
       if (!all(is.na(stk.uncertainty))) {
         stk.uncertainty <- stk.uncertainty[[1]]
         log.dim <- equal.flq.Dimnames(lflq = list(stk.uncertainty,
