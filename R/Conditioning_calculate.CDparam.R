@@ -44,8 +44,10 @@
   if(any(is.na(age.min)|| is.na(age.max))) {
     stop('Cobb Douglas parameters: Cobb Douglas parameters: Wrong min or max age')}
   
-  if(all(is.na(landings.n))|| all(is.na(discards.n))) {
-       stop('Cobb Douglas parameters: Na-s in landings.n and discards.n')}
+  if(all(is.na(landings.n)) & all(is.na(discards.n))) {
+    stop('Cobb Douglas parameters: Na-s in landings.n and discards.n')}
+   if(all(is.na(discards.n))) {
+     warning('warning: all NA-s in discards.n')}
   
   #==============================================================================
   # Section 2:        Set dimensions
@@ -62,13 +64,14 @@
   #==============================================================================
   # Section 3:        Calculate catch.q
   #==============================================================================
+  catches.n <- ifelse( is.na(discards.n), landings.n, (landings.n + discards.n))
   if(length(age.min:age.max)==1){
     stk.gB <- largs$stk.gB
-    catch.q[,hist.yrs]   <- ((landings.n + discards.n)[,hist.yrs])/(met.effort*(stk.n+stk.gB[,hist.yrs]))
-   }else{
-  for (aa in 1:length(age.min:age.max)){  
-    catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[aa,hist.yrs])/(met.effort*stk.n[aa,])}
-   }      
+    catch.q[,hist.yrs]   <- (catches.n[,hist.yrs])/(met.effort*(stk.n+stk.gB[,hist.yrs]))
+  }else{
+    for (aa in 1:length(age.min:age.max)){  
+      catch.q[aa,hist.yrs]   <- (catches.n[aa,hist.yrs])/(met.effort*stk.n[aa,])}
+  }      
   catch.q[is.infinite(catch.q)] <- 0
   
   #==============================================================================
