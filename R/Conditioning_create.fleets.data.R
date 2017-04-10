@@ -413,7 +413,11 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             if(!(any(dim(fl.met.stk.landings.wt)[3]==c(1,stk.unit))))stop('in stk.wt number of stock units 1 or stk.unit')
             if(!(any(dim(fl.met.stk.landings.wt)[4]==c(1,ns))))stop('in stk.wt number of seasons 1 or ns')
             if(!(any(dim(fl.met.stk.landings.wt)[6]==c(1,ni))))stop('in stk.wt number of iterations 1 or ni')}
-
+          
+          fl.met.stk.discards.n[,hist.yrs][is.na(fl.met.stk.discards.n[,hist.yrs])] <- 0 
+          fl.met.stk.discards.wt[,hist.yrs][is.na(fl.met.stk.discards.wt[,hist.yrs])] <- 0 
+          fl.met.stk.landings.n[,hist.yrs][is.na(fl.met.stk.landings.n[,hist.yrs])] <- 0  
+          fl.met.stk.landings.wt[,hist.yrs][is.na(fl.met.stk.landings.wt[,hist.yrs])] <- 0  
           
           fl.met.stk.discards     <- unitSums(quantSums(fl.met.stk.discards.n*fl.met.stk.discards.wt))
           fl.met.stk.landings     <- unitSums(quantSums(fl.met.stk.landings.n*fl.met.stk.landings.wt))
@@ -421,7 +425,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           fl.met.stk.discards.sel <- fl.met.stk.discards.n/(fl.met.stk.landings.n+fl.met.stk.discards.n)
             
           if(any((fl.met.stk.landings.n+fl.met.stk.discards.n)==0, na.rm=TRUE)){
-            fl.met.stk.landings.sel[(fl.met.stk.landings.n+fl.met.stk.discards.n)==0] <- 0
+            fl.met.stk.landings.sel[(fl.met.stk.landings.n+fl.met.stk.discards.n)==0] <- 1
             fl.met.stk.discards.sel[(fl.met.stk.landings.n+fl.met.stk.discards.n)==0] <- 0}
           
           #-----------------------------------------------------------------------------
