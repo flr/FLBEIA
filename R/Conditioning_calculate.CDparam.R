@@ -64,7 +64,7 @@
   #==============================================================================
   # Section 3:        Calculate catch.q
   #==============================================================================
-  catches.n <- ifelse( is.na(discards.n), landings.n, (landings.n + discards.n))
+  catches.n <- base::ifelse( is.na(discards.n), landings.n, (landings.n + discards.n))
   if(length(age.min:age.max)==1){
     stk.gB <- largs$stk.gB
     catch.q[,hist.yrs]   <- (catches.n[,hist.yrs])/(met.effort*(stk.n+stk.gB[,hist.yrs]))
