@@ -67,6 +67,7 @@
   catches.n <- base::ifelse( is.na(discards.n), landings.n, (landings.n + discards.n))
   if(length(age.min:age.max)==1){
     stk.gB <- largs$stk.gB
+    catch.q[,hist.yrs]   <- (as.FLQuant(catches.n)[,hist.yrs])/(met.effort*(stk.n+stk.gB[,hist.yrs]))
   }else{
     for (aa in 1:length(age.min:age.max)){  
       catch.q[aa,hist.yrs]   <- (catches.n[aa,hist.yrs])/(met.effort*stk.n[aa,])}
