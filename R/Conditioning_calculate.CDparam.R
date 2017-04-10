@@ -72,8 +72,8 @@
       catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[aa,hist.yrs])/(met.effort*stk.n[aa,])}
   }       
  
-   catch.q[is.infinite(catch.q) || is.na(catch.q)] <- 0
-  
+   catch.q[is.infinite(catch.q)] <- 0
+   catch.q[is.na(catch.q)] <- 0
   #==============================================================================
   # Section 4:         Set alpha, beta
   #==============================================================================
