@@ -97,8 +97,8 @@ plot(s0$biols[[1]])
 # Create summary data frames (biological, economic, and catch)
 proj.yr     <- 2013 
 s0_sum      <- bioSum(s0)
-s0_eco      <- ecoSum(s0)
-s0_catchFl  <- catchFlSum(s0$fleets, s0$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
+s0_flt      <- fltSum(s0)
+s0_fltStk   <- fltStkSum(s0)
 
 
 # Create several plots and save them in the working directory using 'pdf' format and 
@@ -143,16 +143,16 @@ plot(s1$biols[[1]])
 # Create summary data frames (biological, economic, and catch)
 proj.yr     <- 2013 
 s1_bio    <- bioSum(s1)
-s1_eco    <- ecoSum(s1)
+s1_flt    <- fltSum(s1)
 
 s1_bioQ   <- bioSumQ(s1_bio)
-s1_ecoQ   <- ecoSumQ(s1_eco)
+s1_fltQ   <- fltSumQ(s1_flt)
 
 s1_bio    <- bioSum(s1, long = FALSE)
-s1_eco    <- ecoSum(s1, long = FALSE)
+s1_flt    <- fltSum(s1, long = FALSE)
 
-s1_bioQ   <- bioSumQ(s1_bio)
-s1_ecoQ   <- ecoSumQ(s1_eco)
+s1_fltQ   <- bioSumQ(s1_bio)
+s1_fltQ   <- fltSumQ(s1_flt)
 
 
 s1_catchFl  <- catchFlSum(s1$fleets, s1$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
@@ -200,14 +200,13 @@ names(s2)
 plot(s2$biols[[1]])
 
 # Create summary data frames (biological, economic, and catch)
-proj.yr     <- 2013 
 
 s2_sum      <- bioSum(s2)
-s2_eco      <- ecoSum(s2)
+s2_flt      <- fltSum(s2)
 
-s2_eco      <- ecoSum(s2, byyear = FALSE)
+s2_flt      <- fltSum(s2, byyear = FALSE)
 
-s2_catchFl  <- catchFlSum(s2$fleets, s2$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
+s2_fltStk   <- fltStkSum(s2)
 
 
 # Create several plots and save them in the working directory using 'pdf' format and 

@@ -35,7 +35,8 @@ updateCatch <- function(fleets, biols, BDs, advice, biols.ctrl, fleets.ctrl, adv
     # Correct the catch in case:
     # Age structured: Ca > (Ba*catch.threshold)
     # Biomass: C > (B*catch.threshold)
-    fleets <- CorrectCatch(fleets = fleets, biols = biols, fleets.ctrl = fleets.ctrl, year = year, season = season)
+     
+    fleets <- CorrectCatch(fleets = fleets, biols = biols, BDs = BDs, biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, year = year, season = season)
     
     
     return(fleets)
@@ -467,7 +468,7 @@ seasonshare.CAA  <- function(fleets, biols, fleets.ctrl, advice, advice.ctrl, ye
 # for doing so the catch production function should be used.
 #-------------------------------------------------------------------------------
 
-CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
+CorrectCatch <- function(fleets, biols, BDs, biols.ctrl,fleets.ctrl, year = 1, season = 1,...){
 
     fleets <- unclass(fleets)
     yr <- year
@@ -482,17 +483,29 @@ CorrectCatch <- function(fleets, biols, fleets.ctrl, year = 1, season = 1,...){
                 dimnames = list(dimnames(fleets.ctrl$catch.threshold)[[1]], 1:it)) # matrix[nstk,nit]
 
     Ba   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,it] if age structured, [1,it] if biomass.
-                            if(dim(biols[[x]]@n)[1] > 1)
-                                return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss])
-                            else return(matrix((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss],1,it))})
+      if(dim(biols[[x]]@n)[1] > 1)
+        return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss])
+      else{
+        if(biols.ctrl[[x]] == 'fixedPopulation'){
+          return((biols[[x]]@n)[,yr,,ss, drop=F])
+        }
+        else{
+          return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=F])
+        } }})
     names(Ba) <- stnms
-
+    
     B    <- matrix(t(sapply(stnms, function(x){   # biomass in the middle if age struc. of the season  [ns,it]
-                if(dim(biols[[x]]@n)[1] > 1)
-                    return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss, drop=T])
-                else return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss, drop=T])})) , nst,it, dimnames = list(stnms, 1:it))
-
-
+      if(dim(biols[[x]]@n)[1] > 1)
+        return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss, drop=T])
+      else{
+        if(biols.ctrl[[x]][['growth.model']] == 'fixedPopulation'){
+          return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss, drop=T])
+        }
+        else{
+          return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss, drop=T])
+        }
+        
+      }})) , nst,it, dimnames = list(stnms, 1:it))
     for(st in stnms){
     
    #    print(st)

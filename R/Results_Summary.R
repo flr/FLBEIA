@@ -111,14 +111,15 @@ SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # SSB in spawning season
-      # spawning season: first season with fraction of natural mortality before spawning < 1
+      # Before 2017: spawning season: first season with fraction of natural mortality before spawning < 1
+      # Since 2017: SSB 1st January
       spwn.sson <- 1
-      si <- 0
-      while( (si-spwn.sson)!=0) { 
-        si <- spwn.sson
-        spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
-        d  <- si-spwn.sson 
-      }
+      # si <- 0
+      # while( (si-spwn.sson)!=0) { 
+      #   si <- spwn.sson
+      #   spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
+      #   d  <- si-spwn.sson 
+      # }
         res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]]))[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
     }
     return(res)
@@ -1749,7 +1750,14 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   flS <- cbind(flS, refp = Prflim[flS$fleet])
   flS <- cbind(flS, risk = as.numeric(flS$profits > flS$refp))
   
-  auxFl      <- aggregate(risk ~  year + fleet, data=flS, FUN=function(x){sum(x)/length(x)})
+  if(all(is.na(flS$risk))){ # if economic data not available for exampel
+    flS$risk <- 0
+    auxFl      <- aggregate(risk ~  year + fleet, data=flS, FUN=function(x){sum(x)/length(x)})
+    auxFl$risk[] <- NA
+  }else{
+    auxFl      <- aggregate(risk ~  year + fleet, data=flS, FUN=function(x){sum(x)/length(x)})
+  }
+  
   auxBioPa   <- aggregate(risk.pa ~ year + stock, data=bioS, FUN=function(x){sum(x)/length(x)})
   auxBiolim  <- aggregate(risk.lim ~ year + stock, data=bioS, FUN=function(x){sum(x)/length(x)})
   
@@ -1779,8 +1787,8 @@ npv <- function(obj, discF = 0.05, y0, flnms = names(obj$fleets), years = dimnam
   
   y0 <- as.numeric(y0)
   
-  flS <- cbind(flS, discount= (1+discF)^(as.numeric(flS$year)-y0))
-  flS <- cbind(flS, discProf = flS$profits/flS$discount)
+  flS <- cbind(flS, discount= (1+discF)^(as.numeric(as.character(flS$year))-y0))
+  flS <- cbind(flS, discProf = flS$profits/(flS$discount))
   
   flS <- subset(flS, year %in% c(years))
   
