@@ -122,7 +122,7 @@ little2011HCR <- function(indices, advice, advice.ctrl, year, stknm,...){
 
   Iy <- (yearSums(Id[,(year-1):(year-2)])/2)[drop=T] # [it]
   
-  TAC <- min(Ctarg*max(0,(Iy-Ilim)/(Itarg-Ilim)),Cmax)
+  TAC <- pmin(Ctarg*pmax(0,(Iy-Ilim)/(Itarg-Ilim)),Cmax)
   
   cat("..........", TAC, "............\n")
   

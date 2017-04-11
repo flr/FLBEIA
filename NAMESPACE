@@ -98,6 +98,8 @@ export(
   "updateFLBiols",
 "vesselSum",
 "vesselSumQ",
+"vesselStkSum",
+"vesselStkSumQ",
    "unit2age",
   "wtadStock",
   "wtalStock",
