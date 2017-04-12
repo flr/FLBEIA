@@ -432,7 +432,7 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck@harvest.spwn[] <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
     stck@m.spwn[]       <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
     stck@mat[]          <- 1
-    stck@range[5]       <- stck@range[4]+ny
+    stck@range[5]       <- stck@range[4]+ny-1
     stck@range[6:7]     <- 0
     return(stck)
 }
