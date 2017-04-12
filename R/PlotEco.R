@@ -28,7 +28,7 @@
 plotEco <- function(fleets,pdfnm){
 
  names.fl <- names(fleets)
- eco  <- ecoSum(fleets, flnms= names.fl, years=dimnames(fleets[[1]]@effort)$year)
+ eco  <- ecoSum_damara(fleets, flnms= names.fl, years=dimnames(fleets[[1]]@effort)$year)
  
 
   path.pdf <- ''
