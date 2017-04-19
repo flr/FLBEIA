@@ -47,7 +47,7 @@ aneHCRE <- function(stocks, advice, advice.ctrl, year, season, stknm,...){
     TAC  <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, 7, 0.3*b.datyr))
     
     ifelse( TAC >33, 33, TAC)
-    advice[['TAC']][stknm,yr,,,,] <- TAC
+    advice[['TAC']][stknm,year,,,,] <- TAC
 
     return(advice)
 }
