@@ -12,7 +12,7 @@ advice.mp <- function(stocks, fleets.obs, indices, covars, advice, advice.ctrl, 
    cat('----------------- ', stknm, ' -----------------\n')
    
       advice <- eval(call(advice.ctrl[[stknm]]$HCR.model, stocks = stocks, covars = covars,  stknm = stknm,
-              advice = advice, year = year, indices = indices, advice.ctrl = advice.ctrl, season = season))
+              advice = advice, year = year, indices = indices, advice.ctrl = advice.ctrl))
       
     # Apply fleet based advice, this could affect both, the advice itself and the annual quota-share among fleets. 
     # OR overall and fleet especific effort restrictions.
