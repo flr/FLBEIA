@@ -52,7 +52,7 @@
 create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
                                 effort.models = NULL, capital.models = NULL, catch.models = NULL, price.models = NULL, flq, ...){
     
-    effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit')
+    effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit', 'MaxProfitSeq')
     catch.models.available   <- c('CobbDouglasAge', 'CobbDouglasBio')
     price.models.available   <- c('fixedPrice', 'elasticPrice')
     capital.models.available <- c('fixedCapital', 'SCD')
@@ -214,7 +214,7 @@ create.SMFB.ctrl <- function(resf, fltname,largs){
 
 #-------------------------------------------------------------------------------
 #                       ** create.MaxProfit.stkCnst.ctrl **
-# extra args:  stk.cnst.fltname
+# extra args:  restriction.fltname, effort.restr.fltname
 #-------------------------------------------------------------------------------
 create.MaxProfit.ctrl <- function(resf,fltname,largs){
     
@@ -229,6 +229,36 @@ create.MaxProfit.ctrl <- function(resf,fltname,largs){
     resf[['restriction']]  <- rest 
     
     return(resf)
+}
+
+#-------------------------------------------------------------------------------
+#                       ** create.MaxProfitSeq.ctrl **
+# extra args:  restriction.fltname, effort.restr.fltname, effort.range.fltname
+#-------------------------------------------------------------------------------
+create.MaxProfitSeq.ctrl <- function (resf, fltname, largs) {
+  
+  effort.restr <- ifelse(is.null(largs[[paste("effort.restr", 
+                                              fltname, sep = ".")]]), NA, largs[[paste("effort.restr", 
+                                                                                       fltname, sep = ".")]])
+  rest <- ifelse(is.null(largs[[paste("restriction", fltname, 
+                                      sep = ".")]]), NA, largs[[paste("restriction", fltname, 
+                                                                      sep = ".")]])
+  
+  
+  effort.range <- largs[[paste("effort.range", fltname, 
+                               sep = ".")]]
+  
+  if (is.na(effort.restr)) 
+    warning("Effort constraint in (effort.restr argument) is missing for fleet, ", 
+            fltname, ", NA used, you MUST fill it otherwise MaxProfitSeq will not work.")
+  if (is.na(rest)) 
+    warning("Catch/landing restriction in (srestriction argument) is missing for fleet, ", 
+            fltname, ", NA used, you MUST fill it otherwise MaxProfitSeq will not work.")
+  
+  resf[["effort.restr"]] <- effort.restr
+  resf[["restriction"]]  <- rest
+  resf[["effort.range"]] <- effort.range
+  return(resf)
 }
 
 #-------------------------------------------------------------------------------
