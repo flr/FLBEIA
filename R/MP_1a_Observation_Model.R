@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 #                       OBSERVATION MODEL FUNCTIONS
 #
-#   - perfectObservation: Variables in FLStock are observed without error.  
+#   - perfectObs: Variables in FLStock are observed without error.  
 #   - age2ageDat: Create an age structured FLStock from an age structured FLBiol. 
 #              (Aging error, underreporting....).Only the data neccesary for the 
 #              assessment is generated (NO stock.n, NO harvest)
@@ -39,7 +39,7 @@
 
 
 #-------------------------------------------------------------------------------
-# perfectObservation(biol, fleets, covars, obs.ctrl, year = 1, season = 1)
+# perfectObs(biol, fleets, covars, obs.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
 perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, ...){
 
@@ -176,7 +176,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
                                                                 
     ages.error        <- obs.ctrl$ages.error
     nmort.error       <- obs.ctrl$nmort.error[,1:ny,,drop=F]
-    fec.error         <- obs.ctrl$fec.error[,1:ny,,drop=F]
+    mat.error         <- obs.ctrl$mat.error[,1:ny,,drop=F]
     land.wgt.error    <- obs.ctrl$land.wgt.error[,1:ny,,drop=F]
     disc.wgt.error    <- obs.ctrl$disc.wgt.error[,1:ny,,drop=F]
     land.nage.error   <- obs.ctrl$land.nage.error[,1:ny,,drop=F]
@@ -194,7 +194,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
          stop("Some rows in ages.error array  don't add up to 1")
     
     for (e in c('nmort.error', 'land.wgt.error', 'disc.wgt.error', 
-                 'fec.error', 'land.nage.error', 'disc.nage.error')) {
+                 'mat.error', 'land.nage.error', 'disc.nage.error')) {
       err <- get(e)
       if (is.null(err))
         stop(paste("'",e,"' array not defined for stock '",stknm,"'",sep=""))
@@ -215,7 +215,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # because it is suppose that the biological sampling is independent.
     
     stck@m[]            <- Obs.nmort(biol, ages.error, nmort.error, yr)
-    stck@mat[]          <- Obs.fec(biol, ages.error, fec.error, yr)
+    stck@mat[]          <- Obs.mat(biol, ages.error, mat.error, yr)
 
     # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
     # reported homogeneously.

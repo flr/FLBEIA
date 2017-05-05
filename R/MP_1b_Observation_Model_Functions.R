@@ -8,7 +8,7 @@
 # Obs.stk.nage  : Age reading observation error (observation) and total N observation error (estimation)
 # Obs.nmort     : Natural mortality random variation
 # Obs.stk.wgt   : Weight at age in the stock observation error
-# Obs.fec       : Fecundity at age observation error
+# Obs.mat       : Maturity at age observation error
 # Obs.land.nage : Landings in numbers at age observation error
 # Obs.land.wgt  : Weight at age in landings observation error
 # Obs.disc.nage : Discards in numbers at age observation error
@@ -124,14 +124,14 @@ Obs.stk.wgt <- function(biol, ages.error, stk.wgt.error, yr){
     return(mwgt.obs)
 }
 
-# Obs.fec
+# Obs.mat
 #---------------
-# Function to simulate the fecundity observation at age (yearly mean), taking into account the age misclassification
-# - Fec at age observation error
+# Function to simulate the maturity observation at age (yearly mean), taking into account the age misclassification
+# - Mat at age observation error
 #Input
 # biol       : an object of class FLBiol
 # ages.error : an array of probabilities of age assignment of dim = c(na, na, ny, iter)
-# fec.error  : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
+# mat.error  : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
 # yr         : integer, the year the stock is observed from
 #Details
 #! Observation error of proportions are not additive nor multiplicative. Thus to introduce observation error in proportion
@@ -141,22 +141,22 @@ Obs.stk.wgt <- function(biol, ages.error, stk.wgt.error, yr){
 #!(i.e. age 0) will not be reproducing no matter what, and obviously adult fish will be sexually mature (ceteris paribus).
 #!If bot.age and top.age are equal then maturity will go from 0 at age (bot.age - 1) to 1 at age (top.age)
 #! ACLARAR CON DORLETA
-Obs.fec  <- function(biol, ages.error, fec.error, yr){
+Obs.mat  <- function(biol, ages.error, mat.error, yr){
     
     ny   <- yr -1
     
-    fec.real  <- seasonMeans(unitMeans(fec(biol)))[,1:ny]
-    fec.obs  <- fec.real
-    it <- dim(fec.real)[6]
+    mat.real  <- seasonMeans(unitMeans(mat(biol)))[,1:ny]
+    mat.obs  <- mat.real
+    it <- dim(mat.real)[6]
     
     for(i in 1:it){
         for(y in 1:ny){
-            fec.obs[,y,,,,i] <- fec.real[,y,,,,i]%*%ages.error[,,y,i] 
+            mat.obs[,y,,,,i] <- mat.real[,y,,,,i]%*%ages.error[,,y,i] 
         }
     }
-    fec.obs  <- fec.obs[drop=T]*fec.error[,1:ny,]
+    mat.obs  <- mat.obs[drop=T]*mat.error[,1:ny,]
     
-    return(fec.obs)
+    return(mat.obs)
 }
 
 ## OPERATING ON OBJECTS OF CLASS FLFleetExt
