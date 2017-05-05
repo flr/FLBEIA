@@ -20,8 +20,6 @@ create.biols.data(yrs, ns, ni, stks.data)
 \item{stks.data}{A list with the name of the stks and the following elements:
 \itemize{
      \item  stk.unit: Number of units of the stock (number). 
-     \item  stk.min.age: Minimum age of the stock (number).
-     \item  stk.max.age: Maximum age of the stock (number).
      \item  stk_n.flq: Numbers at age in the population(FLQuant).
      \item  stk_wt.flq: Weight at age of an individual (FLQuant).
      \item  stk_m.flq: Mortality rate at age of the population (FLQuant).    

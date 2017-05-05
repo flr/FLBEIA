@@ -33,7 +33,7 @@
 \alias{is.FLCatchesExt,ANY-method}
 \alias{list}
 \alias{missing}
-\title{FLcatchExt and FLCatchesExt classes and the methods to construct it.}
+\title{FLCatchExt and FLCatchesExt classes and the methods to construct it.}
 \usage{
 \S4method{FLCatchesExt}{ANY}(object, ...)
 

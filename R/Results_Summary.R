@@ -15,9 +15,9 @@
 # Changed: 30/01/2011 20:50:32
 #------------------------------------------------------------------------------#
 
-#' Biological summary functions
+#' @title Biological summary functions
 #' 
-#' These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. 
+#' @description These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. 
 #' 
 #' @param  obj The output of the FLBEIA function.
 #' @param  years The  years for which the indicators are extracted.
