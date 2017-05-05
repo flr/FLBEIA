@@ -2,7 +2,7 @@
 % Please edit documentation in R/Conditioning_create.biols.data.R
 \name{create.biols.data}
 \alias{create.biols.data}
-\title{Run create.biols.data create an FLBiols object}
+\title{FLBEIA easy conditioning: biols argument creator}
 \usage{
 create.biols.data(yrs, ns, ni, stks.data)
 }
@@ -17,9 +17,8 @@ create.biols.data(yrs, ns, ni, stks.data)
 
 \item{ni}{Number of iterations (number).}
 
-\item{stks.data}{A list with the name of the stks and with the next elements
+\item{stks.data}{A list with the name of the stks and the following elements:
 \itemize{
-     \item  stks: Name of the stocks (vector).
      \item  stk.unit: Number of units of the stock (number). 
      \item  stk.min.age: Minimum age of the stock (number).
      \item  stk.max.age: Maximum age of the stock (number).
@@ -31,11 +30,17 @@ create.biols.data(yrs, ns, ni, stks.data)
      \item  stk_spwn.flq: Proportion of time step at which spawning ocurrs    (FLQuant).
      \item  stk_range.min:    Minimum age (number).
      \item  stk_range.max:    Maximum age (number).
+     \item  stk.range.plusgroup: Plusgroup age (number).
      \item  stk.range.minyear: Minimum year (number).
-     \item  stk_range.minfbar: Minimum year to take into account in the calculation of 'f' (number).
-     \item  stk_range.maxfbar: Maximum year to take into account in the calculation of 'f' (number).
+     \item  stk.range.maxyear: Maximum year (number).
+     \item  stk_range.minfbar: Minimum age to calculate average fishing mortality (number).
+     \item  stk_range.maxfbar: Maximum age to calculate average fishing mortality (number).
      \item  stk_biol.proj.avg.yrs:    Historic years to calculate the average of spwn, fec, m and wt for the projection (vector).}}
 }
-\description{
-create.biols.data create an FLBiols object
+\value{
+An FLBiol object
 }
+\description{
+create.biols.data function creates an FLBiols object.
+}
+

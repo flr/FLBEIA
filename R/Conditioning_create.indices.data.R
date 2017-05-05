@@ -5,35 +5,45 @@
 # NOTE #1:      Return a list with FLIndex objects
 ###############################################################################
 #-------------------------------------------------------------------------
-#  inputs: 
+#' 
+#' FLBEIA easy conditioning: indices argument creator
+#' 
+#' create.indices.data function creates an FLIndices object
+#' 
+#' @param   ni Number of iterations (number).
+#' @param   ns Number of seasons (number).
+#' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where
+#'\itemize{
+#'      \item first.yr: First year of simulation (number).
+#'      \item proj.yr: First year of projection (number).
+#'      \item last.yr: Last year of projection (number).}
+#' @param   stks.data A list with the names of the stocks with indices and the following elements:
+#'\itemize{
+#'      \item  stk.unit: Number of units of the stock (number). 
+#'      \item  stk.age: Number of age classes of the stock (number).
+#'      \item  stk_indices: Name of indices for the stock 'stk' (vector).
+#'      \item  stk_ind_index.flq: Historical index data for index 'ind' of stock 'stk' (FLQuant).}
+#' Optionals:
+#'\itemize{
+#'      \item  stk_ind_type: Type of index (character).
+#'      \item  stk_ind_distribution: Name of the statistical distribution of the 'ind' index values for stock 'stk' (character).
+#'      \item  stk_ind_index.var.flq: Variability in 'ind' index of stock 'stk' (FLQuant).
+#'      \item  stk_ind_index.q.flq: Catchability for 'ind' index of stock 'stk' (FLQuant).
+#'      \item  stk_ind_catch.n.flq: Catch at age in numbers for 'ind' index of stock 'stk'(FLQuant).
+#'      \item  stk_ind_catch.wt.flq: Mean weight at age in the catch for 'ind' index of stock 'stk' (FLQuant).
+#'      \item  stk_ind_effort.flq: Effort for 'ind' index of stock 'stk' (FLQuant).
+#'      \item  stk_ind_sel.pattern.flq: Selection pattern for 'ind' index of stock 'stk' (FLQuant).
+#'      \item  stk_ind_range.min: Minimum age in 'ind' index of stock 'stk' (number).
+#'      \item  stk_ind_range.max: Maximum age in 'ind' index of stock 'stk' (number).
+#'      \item  stk_ind_range.plusgroup: Plusgroup age in 'ind' index of stock 'stk' (number).
+#'      \item  stk_ind_range.minyear: First year with 'ind' index data of stock 'stk' (number).
+#'      \item  stk_ind_range.maxyear: Last year with 'ind' index data of stock 'stk' (number).
+#'      \item  stk_ind_range.startf: Minimum age for calculating average fishing mortality for 'ind' index of stock 'stk' (number).
+#'      \item  stk_ind_range.endf:   Maximum age for calculating average fishing mortality for 'ind' index of stock 'stk' (number).}
+#'      
+#' @return An FLIndices object.
+#' 
 #
-#   Required:
-#   ni:       Number of iterations (number)
-#   ns:	      Number of seasons (number)
-#   yrs: a vector with the next elements
-#     first.yr: First year of simulation (number)
-#     proj.yr:  First year of projection (number)
-#     last.yr:  Last year of projection (number)
-#   stks.data: a list with the name of the stks and with the next elements
-#     stks_index: Names of the stocks with index (vector)
-#     stk_indices:          Name of index for the stock 'stk'
-#     stk_ind_index.flq:	  Historical index data of stock 'stk'(FLQuant)
-#    stk_ind_index.var.flq:Variability in index of stock 'stk' (FLQuant)
-#    stk_ind_index.q.flq:  Catchability by index of stock 'stk' (FLQuant)
-#    stk_ind_catch.n.flq:  Number of catch at age of stock 'stk'(FLQuant)
-#    stk_ind_catch.wt.flq:  Weight of catch at age of stock 'stk'(FLQuant)
-#    stk_ind_effort.flq:	  Effort by index of stock 'stk'(FLQuant)
-#    stk_ind_sel.pattern.flq: Selection pattern of index of stock 'stk' (FLQuant)
-#    stk_ind_range.min:    Minimum age catch by index of stock 'stk'(number)
-#    stk_ind_range.max:    Maximum age catch by index of stock 'stk'(number)
-#    stk_ind_range.minyear: First year with index data of stock 'stk' (number)
-#    stk_ind_range.maxyear: Last year with index data of stock 'stk'(number)
-#    stk_ind_range.startf:	Minimum age to take into account in 'f'
-#    stk_ind_range.endf:   Maximum age to take into account in 'f'
-#
-#   Optional:
-#     stk_distribution:  Name of the stock 'stk' distribution (character)
-#     stk_type:		Type of stock 'stk' (character)
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------

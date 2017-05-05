@@ -1,29 +1,42 @@
+###############################################################################
+# AUTHOR(DATE): Agurtzane Urtizberea, Dorleta Garcia and Sonia Sanchez
+# RESEARCH INSTITUTE: AZTI-TECNALIA                      
+# TITLE:        create.BDs.data
+# NOTE #1:      Return a list of FLBDsim object called BDs
+###############################################################################
 #-------------------------------------------------------------------------
-#' Run create.fleets.data create a FLFleetsExt object
 #' 
-#' create.biols.data create an FLBiols object
+#' FLBEIA easy conditioning: BDs argument creator
+#' 
+#' create.BDs.data function creates a list of FLBDsim objects.
+#' 
 #' @param   ni Number of iterations (number).
 #' @param   ns Number of seasons (number).
-#' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where
-#'\itemize{
+#' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where:
+#'  \itemize{
 #'      \item first.yr: First year of simulation (number).
 #'      \item proj.yr: First year of projection (number).
 #'      \item last.yr: Last year of projection (number).}
- #' @param   stks.data A list with the name of the stks and with the next elements.
-#'\itemize{
-#'      \item stk_sr.model: Name of the BD model (character)
-#'      \item stk_params.n:	Number of the parameters in the model (number)
-#'      \item stk_params.name:	Name of the parameters (vector)
-#'      \item stk_params.array:	Parameter values(array)
-#'      \item stk_biomass.flq:	biomass values (FLQuant)
-#'      \item stk_catch.flq:	catch values (FLQuant)
-#'      \item stk_range.min:	min age
-#'      \item stk_range.max:	max age
-#'      \item stk_range.minyear:	min year
-#'      \item stk_range.plusgroup:	plusgroup
-#'      \item stk_alpha:	maximum variability of carrying capacity 
-#' Optional
-#'   stk_uncertainty.flq: Uncertainty (FLQuant)
+#' @param   stks.data A list with the name of the stks and the following elements:
+#'  \itemize{
+#'      \item stk.unit: Number of units of the stock (number).
+#'      \item stk_bd.model: Name of the model to simulate biomass dinamics of the stock (character).
+#'      \item stk_params.name: Name of the parameters (vector).
+#'      \item stk_params.array:	Parameter values (array).
+#'      \item stk_biomass.flq: Biomass values (FLQuant).
+#'      \item stk_catch.flq: Catch values (FLQuant).
+#'      \item stk_range.min: Minimum age.
+#'      \item stk_range.max: Maximum age.
+#'      \item stk_range.plusgroup: Plusgroup age.
+#'      \item stk_range.minyear: Minimum year.
+#'      \item stk_alpha: Maximum variability of carrying capacity.}
+#'  Optionals:
+#'  \itemize{
+#'      \item stk_gB.flq: Surplus production (FLQuant).
+#'      \item stk_uncertainty.flq: Uncertainty (FLQuant).}
+#'   
+#' @return A list of FLBDsim objects.
+#'     
 #-------------------------------------------------------------------------------
 
 create.BDs.data <- function (yrs,ns,ni,stks.data)

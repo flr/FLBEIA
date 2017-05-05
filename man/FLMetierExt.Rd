@@ -2,31 +2,31 @@
 % Please edit documentation in R/Class_0a_FLlst-beia.R, R/Class_4_FLMetierExt.R
 \docType{class}
 \name{FLMetiersExt-class}
-\alias{FLMetiersExt-class}
-\alias{FLMetiersExt}
-\alias{FLMetiersExt,ANY-method}
-\alias{FLMetiersExt,ANY}
-\alias{FLMetiersExt,missing-method}
-\alias{FLMetiersExt,missing}
-\alias{FLMetiersExt,list-method}
-\alias{FLMetiersExt,list}
-\alias{is.FLMetiersExt}
-\alias{FLMetiersExt,is.FLMetiersExt}
-\alias{is.FLMetiersExt,ANY-method}
-\alias{FLMetiersExt,is.FLMetiersExt,ANY}
-\alias{FLMetierExt}
-\alias{FLMetierExt-class}
-\alias{FLMetierExt-methods}
-\alias{FLMetierExt,FLMetierExt-method,}
-\alias{FLMetiersExt,}
 \alias{FLMEtiersExt-methods}
+\alias{FLMetierExt}
 \alias{FLMetierExt,FLCatchExt-method}
 \alias{FLMetierExt,FLCatchesExt-method}
+\alias{FLMetierExt,FLMetierExt-method,}
 \alias{FLMetierExt,FLQuant-method}
 \alias{FLMetierExt,missing-method}
+\alias{FLMetierExt-class}
+\alias{FLMetierExt-methods}
+\alias{FLMetiersExt}
+\alias{FLMetiersExt,}
+\alias{FLMetiersExt,ANY}
+\alias{FLMetiersExt,ANY-method}
+\alias{FLMetiersExt,is.FLMetiersExt}
+\alias{FLMetiersExt,is.FLMetiersExt,ANY}
+\alias{FLMetiersExt,list}
+\alias{FLMetiersExt,list-method}
+\alias{FLMetiersExt,missing}
+\alias{FLMetiersExt,missing-method}
+\alias{FLMetiersExt-class}
 \alias{[,FLMetierExt,ANY,missing,ANY-method}
 \alias{[,FLMetierExt,ANY,missing-method}
 \alias{[[,FLMetierExt,ANY,missing-method}
+\alias{is.FLMetiersExt}
+\alias{is.FLMetiersExt,ANY-method}
 \title{FLMetierExt and FLMetiersExt classes and the methods to construct it.}
 \usage{
 \S4method{FLMetiersExt}{ANY}(object, ...)
@@ -77,3 +77,4 @@ that the catches slot is a FLCatchesExt object
 The FLMetierExt object contains a representation of the metier of a  fishing fleet as constructed for the purposes of fleet dynamic modelling. 
    This includes information on effortshare and variable costs.
 }
+

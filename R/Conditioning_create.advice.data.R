@@ -4,26 +4,32 @@
 # TITLE:        create.advice.data
 # NOTE #1:      Return a list with advice for each stock
 ###############################################################################
-
 #-------------------------------------------------------------------------
-#  inputs: 
-#
-#   Required:
-#   ni:       Number of iterations (number)
-#   ns:	      Number of seasons (number)
-#   yrs: a vector with the next elements
-#     first.yr: First year of simulation (number)
-#     proj.yr:  First year of projection (number)
-#     last.yr:  Last year of projection (number)
-#
-#   Optional:
-#   fleets: an object called fleets, an FLFleets object, it could be the output of create_fleets_FLBEIA function. (FLFleets) 
-#          Fleets is required when stk_advice.quota.share is not specify.
-#   stk_advice.TAC.flq: TAC of the stock 'stk' (FLQuant)
-#   stk_advice.TAE.flq:	TAE of the stock 'stk' (FLQuant)
-#   stk_advice.quota.share.flq:	Quota share of the stock (FLQuant)
-#   stk_advice.avg.yrs:         Historic years to calculate the average of TAC, TAE or quota share of the stock 'stk'
-#-------------------------------------------------------------------------
+#' 
+#' FLBEIA easy conditioning: advice argument creator
+#' 
+#' create.advice.data function creates a list (elements: TAC, TAE and quota.share)
+#' 
+#' @param   ni Number of iterations (number).
+#' @param   ns Number of seasons (number).
+#' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where
+#'\itemize{
+#'      \item first.yr: First year of simulation (number).
+#'      \item proj.yr: First year of projection (number).
+#'      \item last.yr: Last year of projection (number).}
+#' @param   stks.data A list with the names of the stocks and the following elements:
+#' Optionals:
+#'\itemize{
+#'      \item  stk_advice.TAC.flq: TAC of the stock 'stk' (FLQuant). 
+#'      \item  stk_advice.TAE.flq: TAE of the stock 'stk' (FLQuant).
+#'      \item  stk_advice.quota.share.flq: Quota share of the stock 'stk' (FLQuant).
+#'      \item  stk_advice.avg.yrs: Historic years to calculate the average of TAC, TAE or quota share of the stock 'stk' (FLQuant).}
+#'      
+#' @param fleets Optional argument only required if stk_advice.quota.share is not specified. It could be the output of create_fleets_FLBEIA function (FLFleets). 
+#'      
+#' @return A list with TAC, TAE and quota.share elements.
+#' 
+#------------------------------------------------------------------------------- 
 
 #-------------------------------------------------------------------------------
 #   Section 1:        creating a list 

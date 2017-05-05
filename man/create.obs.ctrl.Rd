@@ -29,3 +29,4 @@ A list of lists with the basic structure of the obs.ctrl object.
 \description{
 It creates the obs.ctrl object to be used in the call to the main function FLBEIA.
 }
+

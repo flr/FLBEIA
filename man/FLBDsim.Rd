@@ -25,13 +25,17 @@ The FLBDsim has the following slots:
 
 \item{\code{range}}{The range of the object.}
 
-\item{\code{biomass}}{An FLQuant with to store the biomass of the stock.}
+\item{\code{biomass}}{An FLQuant to store the biomass of the stock.}
 
-\item{\code{catch}}{An FLQuant with to store the catch of the stock.}
+\item{\code{gB}}{An FLQuant to store the surplus 4production of the stock.}
 
-\item{\code{uncertainty}}{An FLQuant with to store the uncertainty that is multiplied to the biomass in every step of the simulation.}
+\item{\code{catch}}{An FLQuant to store the catch of the stock.}
 
-\item{\code{covar}}{An FLQuants with to store the covariates that are part of the growth model.}
+\item{\code{uncertainty}}{An FLQuant to store the uncertainty that is multiplied to the biomass in every step of the simulation.}
+
+\item{\code{covar}}{An FLQuants to store the covariates that are part of the growth model.}
+
+\item{\code{model}}{A character with the name of the model to simulate the recruitment process.}
 
 \item{\code{params}}{An array with dimension [numb.params, numb.year, numd.season, numb.iteration] with time, year and season and iteration dependent parameters of the growth model.}
 

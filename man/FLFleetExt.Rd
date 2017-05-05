@@ -2,33 +2,32 @@
 % Please edit documentation in R/Class_0a_FLlst-beia.R, R/Class_5_FLFleetExt.R
 \docType{class}
 \name{FLFleetsExt-class}
-\alias{FLFleetsExt-class}
-\alias{FLFleetsExt}
-\alias{FLFleetsExt,ANY-method}
-\alias{FLFleetsExt,ANY}
-\alias{FLFleetsExt,missing-method}
-\alias{FLFleetsExt,FLFleetExt-missing}
-\alias{FLFleetsExt,list-method}
-\alias{FLFleetsExt,list}
-\alias{is.FLFleetsExt}
-\alias{is.FLFleetsExt,ANY-method}
-\alias{is.FLFleetsExt,ANY}
 \alias{FLFleetExt}
+\alias{FLFleetExt,FLCatchExt-method}
+\alias{FLFleetExt,FLCatchesExt-method}
+\alias{FLFleetExt,FLFleetExt-method}
+\alias{FLFleetExt,FLFleetExt-missing}
+\alias{FLFleetExt,FLMetierExt-method}
+\alias{FLFleetExt,FLMetiersExt-method}
+\alias{FLFleetExt,missing-method}
 \alias{FLFleetExt-class}
 \alias{FLFleetExt-methods}
-\alias{FLFleetExt,FLFleetExt-method}
-\alias{FLFleetExt,FLMetiersExt-method}
-\alias{FLFleetExt,FLMetierExt-method}
-\alias{FLFleetExt,FLCatchesExt-method}
-\alias{FLFleetExt,FLCatchExt-method}
-\alias{FLFleetExt,FLFleetExt-method}
-\alias{FLFleetExt,missing-method}
-\alias{FLFleetExt,FLFleetExt-missing}
-\alias{[,FLFleetExt,ANY,missing,ANY-method}
-\alias{[,FLFleetExt,ANY,missing-method}
+\alias{FLFleetsExt}
+\alias{FLFleetsExt,ANY}
+\alias{FLFleetsExt,ANY-method}
+\alias{FLFleetsExt,FLFleetExt-missing}
+\alias{FLFleetsExt,list}
+\alias{FLFleetsExt,list-method}
+\alias{FLFleetsExt,missing-method}
+\alias{FLFleetsExt-class}
 \alias{[,FLFleetExt,ANY,ANY,ANY-method}
 \alias{[,FLFleetExt,ANY,ANY-method}
+\alias{[,FLFleetExt,ANY,missing,ANY-method}
+\alias{[,FLFleetExt,ANY,missing-method}
 \alias{[[,FLFleetExt,ANY,missing-method}
+\alias{is.FLFleetsExt}
+\alias{is.FLFleetsExt,ANY}
+\alias{is.FLFleetsExt,ANY-method}
 \title{FLFleetExt and FLFleetsExt classes and the methods to construct it.}
 \usage{
 \S4method{FLFleetsExt}{ANY}(object, ...)
@@ -87,3 +86,4 @@ that the metiers slot is a FLMetiersExt object
 The FLFleetExt object contains a representation of a  fishing fleet as constructed for the purposes of fleet dynamic modelling. 
    This includes information on effort, fixed-cost, capacity,  crew-share, metiers and variable costs.
 }
+

@@ -22,3 +22,4 @@ A list of lists with the basic structure of the biols.ctrl object.
 \description{
 It creates the biols.ctrl object to be used in the call to the main function FLBEIA.
 }
+

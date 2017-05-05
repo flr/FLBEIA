@@ -6,9 +6,9 @@
 ###############################################################################
 #-------------------------------------------------------------------------------
 #
-#' Run create.biols.data create an FLBiols object
+#' FLBEIA easy conditioning: biols argument creator
 #' 
-#' create.biols.data create an FLBiols object
+#' create.biols.data function creates an FLBiols object.
 #'
 #' @param   ni Number of iterations (number).
 #' @param   ns	      Number of seasons (number).
@@ -17,9 +17,8 @@
 #'      \item first.yr: First year of simulation (number).
 #'      \item proj.yr:  First year of projection (number).
 #'      \item last.yr:  Last year of projection (number).}
-#' @param   stks.data A list with the name of the stks and with the next elements
+#' @param   stks.data A list with the name of the stks and the following elements:
 #'\itemize{
-#'      \item  stks: Name of the stocks (vector).
 #'      \item  stk.unit: Number of units of the stock (number). 
 #'      \item  stk.min.age: Minimum age of the stock (number).
 #'      \item  stk.max.age: Maximum age of the stock (number).
@@ -31,10 +30,14 @@
 #'      \item  stk_spwn.flq: Proportion of time step at which spawning ocurrs	(FLQuant).
 #'      \item  stk_range.min:	Minimum age (number).
 #'      \item  stk_range.max:	Maximum age (number).
+#'      \item  stk.range.plusgroup: Plusgroup age (number).
 #'      \item  stk.range.minyear: Minimum year (number).
-#'      \item  stk_range.minfbar: Minimum year to take into account in the calculation of 'f' (number).
-#'      \item  stk_range.maxfbar: Maximum year to take into account in the calculation of 'f' (number).
+#'      \item  stk.range.maxyear: Maximum year (number).
+#'      \item  stk_range.minfbar: Minimum age to calculate average fishing mortality (number).
+#'      \item  stk_range.maxfbar: Maximum age to calculate average fishing mortality (number).
 #'      \item  stk_biol.proj.avg.yrs:	Historic years to calculate the average of spwn, fec, m and wt for the projection (vector).}
+#'      
+#' @return An FLBiol object
 #
 #   Required functions: Create.list.stks.flqa	function
 #-------------------------------------------------------------------------

@@ -5,28 +5,41 @@
 # NOTE #1:      Return a list with FLSRsim objects
 ###############################################################################
 #-------------------------------------------------------------------------
-#  inputs: 
-#
-#   Required:
-#   ni:       Number of iterations (number)
-#   ns:	      Number of seasons (number)
-#   yrs: a vector with the next elements
-#     first.yr: First year of simulation (number)
-#     proj.yr:  First year of projection (number)
-#     last.yr:  Last year of projection (number)
-#   stks.data: a list with the name of the stks and with the next elements
-#     stk_sr.model: Name of the SR model (character)
-#     stk_params.n:	Number of the parameters in the model (number)
-#     stk_params.name:	Name of the parameters (vector)
-#     stk_params.array:	Parameter values(array)
-#     stk_rec.flq:	Recruitment values (FLQuant)
-#     stk_ssb.flq:	SSB values (FLQuant)
-#     stk_proportion.flq:	Proportion of recruits per season (FLQuant) 
-#     stk_prop.avg.yrs:	Historical years to calculate the average of proportion (vector) 
-#     stk_timelag.matrix: timelag of spawning in years and season (matrix)
-#
-# (optional)
-#   stk_uncertainty.flq: Uncertainty (FLQuant)
+#' 
+#' FLBEIA easy conditioning: SRs argument creator
+#' 
+#' create.BDs.data function creates a list of FLBDsim objects
+#' 
+#' @param   ni Number of iterations (number).
+#' @param   ns Number of seasons (number).
+#' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where:
+#'  \itemize{
+#'      \item first.yr: First year of simulation (number).
+#'      \item proj.yr: First year of projection (number).
+#'      \item last.yr: Last year of projection (number).}
+#' @param   stks.data A list with the name of the stks and the following elements:
+#'  \itemize{
+#'      \item stk.unit: Number of units of the stock (number).
+#'      \item stk.age: Number of age classes of the stock (number).
+#'      \item stk_sr.model: Name of the model to simulate recruitment (character).
+#'      \item stk_params.n: Number of parameters (number).
+#'      \item stk_params.name: Name of the parameters (vector).
+#'      \item stk_params.array:	Parameter values (array).
+#'      \item stk_rec.flq: Recruitment values (FLQuant).
+#'      \item stk_ssb.flq: Spawning stock biomass values (FLQuant).
+#'      \item stk_proportion.flq: Recruitment distribution in each time step as a proportion (FLQuant, values between 0 and 1).
+#'      \item stk_prop.avg.yrs: Historical years to calculate the proportion average (vector).
+#'      \item stk_timelag.matrix: Timelag between the spawning an recruitment (matrix [2, number of seasons]). For details see FLSRsim.
+#'      \item stk_range.min: Minimum age.
+#'      \item stk_range.max: Maximum age.
+#'      \item stk_range.plusgroup: Plusgroup age.
+#'      \item stk_range.minyear: Minimum year.}
+#'  Optionals:
+#'  \itemize{
+#'      \item stk_uncertainty.flq: Uncertainty (FLQuant).} 
+#'   
+#' @return A list of FLSRsim objects.
+#'   
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------

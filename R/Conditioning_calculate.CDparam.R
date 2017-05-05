@@ -18,6 +18,8 @@
 #   effort:	  fleet's effort (FLQuant	[1,ny(hist),nu(stock),ns,1/ni)])
 #   effshare: effort share per metier (FlQuant	[1,ny(hist),nu(stock),ns,1/ni)])
 #   stk.n:    Stock abundance at age
+# Optional:
+#   largs: Other arguments. For stocks in biomass largs$stk.gB: surplus production
 #-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------

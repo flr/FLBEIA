@@ -61,10 +61,12 @@ validFLBDsim <- function(object){
 #' @slot name The name of the stock.
 #' @slot desc A description of the object.
 #' @slot range The range of the object.
-#' @slot biomass An FLQuant with to store the biomass of the stock. 
-#' @slot catch An FLQuant with to store the catch of the stock. 
-#' @slot uncertainty An FLQuant with to store the uncertainty that is multiplied to the biomass in every step of the simulation. 
-#' @slot covar An FLQuants with to store the covariates that are part of the growth model.
+#' @slot biomass An FLQuant to store the biomass of the stock.
+#' @slot gB An FLQuant to store the surplus 4production of the stock. 
+#' @slot catch An FLQuant to store the catch of the stock. 
+#' @slot uncertainty An FLQuant to store the uncertainty that is multiplied to the biomass in every step of the simulation. 
+#' @slot covar An FLQuants to store the covariates that are part of the growth model.
+#' @slot model A character with the name of the model to simulate the recruitment process.
 #' @slot params An array with dimension [numb.params, numb.year, numd.season, numb.iteration] with time, year and season and iteration dependent parameters of the growth model.
 #' @slot alpha A numeric value bigger than one which indicates, in percentage, how big can be the biomass in comparison with the carrying capacity.
 #' @slot name  The name of the object.
@@ -82,7 +84,7 @@ setClass("FLBDsim",
 		covar             = "FLQuants",       # [1,ny,1,ns,1,it]
 		uncertainty       = "FLQuant",        # [1,ny,1,ns,1,it]
 		model             = "character",      # [it] - different model by iteration.
-		params            = "array",           # array[param, year, season, iteration]    # year in order to model regime shifts.
+		params            = "array",          # array[param, year, season, iteration]    # year in order to model regime shifts.
 		alpha             = "numeric"         # [1] 
     ),
 	prototype=prototype(

@@ -5,9 +5,11 @@
 # NOTE #1:      Return FLFleets object called fleets
 ###############################################################################
 #-------------------------------------------------------------------------
-#' Run create.fleets.data create a FLFleetsExt object
 #' 
-#' create.fleets.data create an FLFleetsExt object
+#' FLBEIA easy conditioning: fleets argument creator
+#' 
+#' create.fleets.data function creates an FLFleetsExt object
+#' 
 #' @param   ni Number of iterations (number).
 #' @param   ns Number of seasons (number).
 #' @param   yrs A vector with c(first.yr,proj.yr, last.yr) where
@@ -15,40 +17,45 @@
 #'      \item first.yr: First year of simulation (number).
 #'      \item proj.yr: First year of projection (number).
 #'      \item last.yr: Last year of projection (number).}
-#' @param   stks.data A list with the name of the stks and with the next elements.
+#' @param  fls.data A list with the name of the fleets and the following elements:
 #'\itemize{
-#'      \item  stks: Name of the stocks (vector).
-#'      \item  stk.unit: Number of units of the stock (number). 
-#'      \item  stk.min.age: Minimum age of the stock (number).
-#'      \item  stk.max.age: Maximum age of the stock (number).}
-#' Optionals:
-#'\itemize{
-#'      \item  stk_wt.flq: Weight at age of an individual (FLQuant). Required if fl.met.stk_landings.wt.flq is not defined.
-#'      \item  stk_n.flq: Numbers at age in the population(FLQuant). Required if cobb douglass parameters are not defined.
-#'      \item  stk_gB.flq: Biomass growth for the stock modeled in biomass (FLQuant). Required if Cobb Douglas parameters are not defined.}
-#' @param  fls.data A list with the name of the fleets with the next elements.
-#'\itemize{
-#'      \item fls: Name of the fleets (vector)
+#'      \item fl.met: Name of the metiers in the fleet 'fl' (vector).
 #'      \item fl.met.stks: Name of the stocks in the metier 'met' and fleet 'fl' (vector).
 #'      \item fl_effort.flq: 'fl' fleet's effort (FLQuant).
 #'      \item fl.met_effshare.flq: 'fl' fleet and 'met' metier's effort share (FLQuant).
-#'      \item fl.met.stk_landings.n.flq: 'fl' fleet,'met' metier and 'stk' stocks landings at age.
-#'      \item fl.met.stk_landings.wt.flq: 'fl' fleet,'met' metier and 'stk' stocks weight of landings at age.
-#'      \item fl_proj.avg.yrs: Historic years to calculate the average of effort, fcost, crewshare, capacity in 'fl' fleet (vector).}
+#'      \item fl.met.stk_landings.n.flq: 'fl' fleet,'met' metier and 'stk' stock's landings in numbers at age.
+#'      \item fl_proj.avg.yrs: Historic years to calculate the average of effort, fcost, crewshare, capacity in 'fl' fleet (vector) in the projection years.}
 #' Optionals:
 #'\itemize{
 #'      \item fl_capacity.flq: 'fl' fleet's capacity (FLQuant).
 #'      \item fl_fcost.flq: 'fl' fleet's fixed cost (FLQuant).
 #'      \item fl_crewshare.flq: 'fl' fleet's crewshare (FLQuant).
-#'      \item fl.met_vcost.flq: 'fl' fleet and 'met' metier's variable cost (FLQuant).
-#'      \item fl.met.stk_discards.n.flq: 'fl' fleet,'met' metier and 'stk' stocks discards at age (FLQuant).
-#'      \item fl.met.stk_price.flq: 'fl' fleet,'met' metier and 'stk' stocks price at age (FLQuant).
-#'      \item fl.met.stk_alpha.flq:	'fl' fleet,'met' metier and 'stk' stocks Cobb Douglass alpha parameter (FLQuant).
-#'      \item fl.met.stk_beta.flq: 'fl' fleet,'met' metier and 'stk' stocks Cobb Douglass beta parameter (FLQuant).
-#'      \item fl.met.stk_catch.q.flq: 'fl' fleet,'met' metier and 'stk' stocks Cobb Douglass catch.q parameter (FLQuant).
-#'      \item fl.met_proj.avg.yrs: Historic years to calculate the average of effshare,vcost for 'fl' fleet and 'met' metier(vector).
+#'      \item fl.met_vcost.flq: 'fl' fleet and 'met' metier's variable costs (FLQuant).
+#'      \item fl.met.stk_landings.wt.flq: 'fl' fleet,'met' metier and 'stk' stock's mean weight of landings at age.
+#'      \item fl.met.stk_discards.n.flq: 'fl' fleet,'met' metier and 'stk' stock's discards in numbers at age (FLQuant).
+#'      \item fl.met.stk_discards.wt.flq: 'fl' fleet,'met' metier and 'stk' stock's mean weight of discards at age.
+#'      \item fl.met.stk_price.flq: 'fl' fleet,'met' metier and 'stk' stock's price at age (FLQuant).
+#'      \item fl.met.stk_alpha.flq:	'fl' fleet,'met' metier and 'stk' stock's Cobb Douglass alpha parameter (FLQuant).
+#'      \item fl.met.stk_beta.flq: 'fl' fleet,'met' metier and 'stk' stock's Cobb Douglass beta parameter (FLQuant).
+#'      \item fl.met.stk_catch.q.flq: 'fl' fleet,'met' metier and 'stk' stock's Cobb Douglass catch.q parameter (FLQuant).
+#'      \item fl.met_proj.avg.yrs: Historic years to calculate the average of effshare,vcost for 'fl' fleet and 'met' metier in the projection period (vector).
 #'      \item fl.met.stk_proj.avg.yrs: Historic years to calculate the average of landings.wt, discards.wt, landings.sel, discards.sel 
-#'                                   alpha,beta,catch.q for 'fl' fleet, 'met' metier and 'stk' stock(vector).}
+#'                                   alpha,beta,catch.q for 'fl' fleet, 'met' metier and 'stk' stock in the projection years (vector).}
+#'                                   
+#' @param   stks.data A list with the name of the stocks and with the next elements:
+#'\itemize{
+#'      \item  stk.unit: Number of units of the stock (number). 
+#'      \item  stk.age: Number of age classes of the stock (number).
+#'      \item  stk.min.age: Minimum age of the stock (number).
+#'      \item  stk.max.age: Maximum age of the stock (number).}
+#' Optionals:
+#'\itemize{
+#'      \item  stk_wt.flq: Mean weight at age of an individual (FLQuant). Required if fl.met.stk_landings.wt.flq is not defined.
+#'      \item  stk_n.flq: Numbers at age in the population(FLQuant). Required if Cobb Douglas parameters are not defined.
+#'      \item  stk_gB.flq: Biomass growth for the stock modeled in biomass (FLQuant). Required if Cobb Douglas parameters are not defined.}
+#'      
+#' @return An FLFleetsExt object.
+#' 
 #
 #   Required functions: Create.list.stks.flqa	function, calculate.CDparam
 #-------------------------------------------------------------------------
@@ -254,7 +261,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
         #   3.3     Historic data per fleet/metier
         #-----------------------------------------------------------------------------
        fl.met.effshare    <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'_effshare.flq',sep=''), value = TRUE)) 
-       if(length(fl.met.effshare)==0) fl.met.effshare  <- NA
+       # if(length(fl.met.effshare)==0) fl.met.effshare  <- NA
        fl.met.vcost       <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'_vcost.flq',sep=''), value = TRUE),envir=as.environment(1)) 
        if(length(fl.met.vcost)==0) fl.met.vcost  <- NA
         # Check dimension names in years
@@ -323,7 +330,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           landings.n    <- get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.n.flq',sep=''), value = TRUE)) 
           landings.wt   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE),envir=as.environment(1)) 
           if(length(landings.wt)==0) landings.wt <- NA
-          discards.wt   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_landings.wt.flq',sep=''), value = TRUE),envir=as.environment(1)) 
+          discards.wt   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_discards.wt.flq',sep=''), value = TRUE),envir=as.environment(1)) 
           if(length(discards.wt)==0) discards.wt <- NA
           discards.n   <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_discards.n.flq',sep=''), value = TRUE),envir=as.environment(1)) 
           if(length(discards.n)==0) discards.n <- NA
