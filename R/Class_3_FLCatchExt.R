@@ -53,7 +53,7 @@ validFLCatchExt <- function(object)
 #' @aliases FLCatchExt-class FLCatchExt FLCatchExt-methods
 #' FLQuant,FLCatchExt-method
 #' 
-#' @title  FLcatchExt and FLCatchesExt classes and the methods to construct it.
+#' @title  FLCatchExt and FLCatchesExt classes and the methods to construct it.
 #'
 #' @description They extend the FLCatch and FLCatches classes defined in FLFleets package. the FLCatch class includes two extra slots alpha and beta
 #' used in the Cobb-Douglas production functions.
