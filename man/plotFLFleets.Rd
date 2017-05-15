@@ -22,7 +22,7 @@ For each fleet, the pdf contains plots of:
 \itemize{
      \item Catch, discards, landings, capacity, crewshare, 
      effort, fcost, effshare
-     \item For each metier: landings and discards ar age in numbers 
+     \item For each metier: landings and discards at age in numbers 
      and mean weight, alpha, beta and catch.q 
 }
 }

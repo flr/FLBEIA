@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 #                          HCRs
-#   - MAPHCR a HCR specially designed to fulfill the requirement of Multi-Anual Managemen plans for Woth Western Waters. 
+#   - MAPHCR a HCR specially designed to fulfill the requirement of Multi-Anual Managemen plans for North Western Waters. 
 #
 # Dorleta GarcYYYa LO HEMOS DEJADO EN LA LINEA 104!!!!!!!!!!
 # Created: 20/04/2015 13:26:13

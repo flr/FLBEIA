@@ -14,7 +14,7 @@ plotCatchFl(fleets, advice, pdfnm)
 \item{pdfnm}{The name for the pdf document will be 'Catch-' and pdfnm.}
 }
 \value{
-One pdf for with plots (landings, discards and price by fleet).
+One pdf with plots on landings, discards and price by fleet.
 }
 \description{
 Return a pdf with plots using FLFleets and advice objects.
