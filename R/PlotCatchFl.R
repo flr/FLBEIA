@@ -6,7 +6,7 @@
 #' @param advice  A list with two FLQuant elements, TAC and quota.share.
 #' @param pdfnm The name for the pdf document will be 'Catch-' and pdfnm.
 #
-#' @return One pdf for with plots (landings, discards and price by fleet).
+#' @return One pdf with plots on landings, discards and price by fleet.
 
 #' @examples
 #'\dontrun{

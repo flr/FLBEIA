@@ -3,16 +3,16 @@
 # Biomass Based HCR.
 #  Reference Points: Btrigger, Blim and Btarget.
 #   The proposal in the paper is:
-#           - Btrigger = 1*Bmsy
-#           - Btarget  = 1.3*Bmsy
-#           - Blim     = 0.5*Bmsy
+#           - Btrigger = alpha_0 * Bmsy
+#           - Btarget  = alpha_1 * Bmsy
+#           - Blim     = alpha_2 * Bmsy
 #
 #  - alpha_0 = 1, alpha_1 = 1.3 and alpha_2 = 0.5 are optional in this
 #       implementation of the HCR.
 #  - TAC advice depending on B in relation to BRP is:
-#           - 0.91*MSY
-#           - 0.91*f[beta]*MSY
-#           - 0.
+#           - 0.91*MSY         , if B > Btarget
+#           - 0.91*f[beta]*MSY , if Btrigger < B < Btarget
+#           - 0.0               , if B < Btrigger
 #   - beta = 0.91 is optional in this implementation of the HCR.
 #
 # 06/09/2011 12:11:51
