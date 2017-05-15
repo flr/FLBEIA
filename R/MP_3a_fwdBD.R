@@ -82,6 +82,17 @@ fwdBD <- function(stock, ctrl, growth.years)
         # Apply target function
         res.tg <- eval(call(tg.fun, stock = stock , gr = gr, target = tg.val, year = y))
         
+        if(res.tg$biomass_next < 0){
+          tt <- res.tg$biomass_next 
+          ret <- (res.tg$landings/(res.tg$landings + res.tg$discards))
+          
+          res.tg$biomass_next <- 0.1*res.tg$biomass
+          res.tg$catch        <- res.tg$catch + tt - 0.1*res.tg$biomass
+          res.tg$landings     <- res.tg$catch*ret
+          res.tg$discards     <- res.tg$catch*(1-ret)
+          res.tg$f            <- res.tg$catch/res.tg$biomass
+        }
+          
         # Update Stock.
         stock@stock.n[,y,]      <- res.tg$biomass/stock@stock.wt[,y,]
         stock@stock[,y,]        <- res.tg$biomass
@@ -184,12 +195,15 @@ gmeanHistGrowth <- function(stock, years){   # y0:y1, pueden ser numericos o car
     
     # The growth is calculated in percemtage to avoid the problem with negative values 
     # in the calculation of geometric  mean.
-    growth <- matrix((bio[-1,]+ cw[-ny,])/ bio[-ny,] , ny-1,it)
+    growth <- matrix(bio[-1,]+ cw[-ny,] - bio[-ny,] , ny-1,it)
     
-    res <- apply(growth,2, function(x) prod(x)^(1/(ny-1)))
+    # We use arithmetic mean because growth can be negative and hence geometric mean can not be calculated.
+    res <- apply(growth,2, function(x) mean(x))
     
+    # Before April 2017
     # The percentage is applied to last year biomass.
-    res <- bio[ny]*(res - 1)  # res > 1 => positive growth ** res < 1 => negative growth. 
+    # res <- bio[ny]*(res - 1)  # res > 1 => positive growth ** res < 1 => negative growth. 
+    # April 2017 growth calculated in absolute terms:
     
     return(res)
     
