@@ -85,7 +85,7 @@ setClass("FLBDsim",
 		uncertainty       = "FLQuant",        # [1,ny,1,ns,1,it]
 		model             = "character",      # [it] - different model by iteration.
 		params            = "array",          # array[param, year, season, iteration]    # year in order to model regime shifts.
-		alpha             = "numeric"         # [1] 
+		alpha             = "array"         # array[year, season, iteration] [1] 
     ),
 	prototype=prototype(
 		name     =character(0),
@@ -98,7 +98,7 @@ setClass("FLBDsim",
 		uncertainty       = FLQuant(),        # [1,ny,1,ns,1,it]
 		model             = as.character(NA), # [it] - different model by iteration.
 		params            = array(),          # array[param, year, season, iteration]    # year in order to model regime shifts.
-		alpha             = numeric(),         # [1] 
+		alpha             = array(),         # [1] 
 
     validity=validFLBDsim
 ))
@@ -190,6 +190,9 @@ FLBDsim <- function(...){
                         }
    }
 
+    a@alpha <- array((a@params['p',,,]/a@params['r',,,]+1)^(1/a@params['p',,,]),
+                         dim = c(dim(a@params['p',,,])[-1]))
+    
     validObject(a)
     return(a)
 }
@@ -270,7 +273,7 @@ BDsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
   if(object@model=="PellaTom"){
     
     newB <- ifelse((object@biomass[,yr0,,ss0,]+ res*object@uncertainty[,yr0,,ss0,])> 
-             (object@alpha*object@params["K",yr0,ss0,]),(object@alpha*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,],
+             (object@alpha[yr0,ss0,]*object@params["K",yr0,ss0,]),(object@alpha[yr0,ss0,]*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,],
               newB)   
   }
  
