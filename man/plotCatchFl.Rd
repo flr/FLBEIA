@@ -28,4 +28,3 @@ plotCatchFl(fleets = oneFl,advice = oneAdv,pdfnm = "s0")
 }
 
 }
-

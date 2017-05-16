@@ -33,4 +33,3 @@ A list with TAC, TAE and quota.share elements.
 \description{
 create.advice.data function creates a list (elements: TAC, TAE and quota.share)
 }
-

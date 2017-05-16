@@ -60,4 +60,3 @@ An FLFleetsExt object.
 \description{
 create.fleets.data function creates an FLFleetsExt object
 }
-

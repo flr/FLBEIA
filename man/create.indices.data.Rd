@@ -47,4 +47,3 @@ An FLIndices object.
 \description{
 create.indices.data function creates an FLIndices object
 }
-

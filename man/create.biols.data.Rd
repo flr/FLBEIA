@@ -41,4 +41,3 @@ An FLBiol object
 \description{
 create.biols.data function creates an FLBiols object.
 }
-

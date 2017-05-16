@@ -44,4 +44,3 @@ s0 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for 
 plotFLBiols(s0$biols, 's0')
 }
 }
-

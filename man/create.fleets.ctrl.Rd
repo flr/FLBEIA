@@ -52,4 +52,3 @@ A list of lists with the basic structure of the fleets.ctrl object.
 \description{
 It creates the fleets.ctrl object to be used in the call to the main function FLBEIA.
 }
-

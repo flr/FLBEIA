@@ -25,4 +25,3 @@ data(one)
 plotEco(s0$fleets,'s0')
 }
 }
-

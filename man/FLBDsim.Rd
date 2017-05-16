@@ -37,9 +37,9 @@ The FLBDsim has the following slots:
 
 \item{\code{model}}{A character with the name of the model to simulate the recruitment process.}
 
-\item{\code{params}}{An array with dimension [numb.params, numb.year, numd.season, numb.iteration] with time, year and season and iteration dependent parameters of the growth model.}
+\item{\code{params}}{An array with dimension [numb.params, numb.year, numd.season, numb.iteration] with year and season and iteration dependent parameters of the growth model.}
 
-\item{\code{alpha}}{A numeric value bigger than one which indicates, in percentage, how big can be the biomass in comparison with the carrying capacity.}
+\item{\code{alpha}}{An array with dimension [numb.year, numd.season, numb.iteration] with  year, season and iteration dependent  value bigger than one which indicates, in percentage, how big can be the biomass in comparison with the carrying capacity.}
 
 \item{\code{name}}{The name of the object.}
 

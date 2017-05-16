@@ -44,4 +44,3 @@ A list of FLSRsim objects.
 \description{
 create.BDs.data function creates a list of FLBDsim objects
 }
-

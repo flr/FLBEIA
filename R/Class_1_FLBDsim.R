@@ -67,8 +67,8 @@ validFLBDsim <- function(object){
 #' @slot uncertainty An FLQuant to store the uncertainty that is multiplied to the biomass in every step of the simulation. 
 #' @slot covar An FLQuants to store the covariates that are part of the growth model.
 #' @slot model A character with the name of the model to simulate the recruitment process.
-#' @slot params An array with dimension [numb.params, numb.year, numd.season, numb.iteration] with time, year and season and iteration dependent parameters of the growth model.
-#' @slot alpha A numeric value bigger than one which indicates, in percentage, how big can be the biomass in comparison with the carrying capacity.
+#' @slot params An array with dimension [numb.params, numb.year, numd.season, numb.iteration] with year and season and iteration dependent parameters of the growth model.
+#' @slot alpha An array with dimension [numb.year, numd.season, numb.iteration] with  year, season and iteration dependent  value bigger than one which indicates, in percentage, how big can be the biomass in comparison with the carrying capacity.
 #' @slot name  The name of the object.
 #' @slot desc  Character with the description of the object.
 #' @slot range A numeric vector with the range of the object as in other FLR objects.

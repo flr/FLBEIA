@@ -24,4 +24,3 @@ A list of lists with the basic structure of the advice.ctrl object.
 \description{
 It creates the advice.ctrl object to be used in the call to the main function FLBEIA.
 }
-

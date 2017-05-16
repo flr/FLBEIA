@@ -23,4 +23,3 @@ A list of lists with the basic structure of the assess.ctrl object.
 \description{
 It creates the assess.ctrl object to be used in the call to the main function FLBEIA.
 }
-

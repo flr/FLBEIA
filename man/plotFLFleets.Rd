@@ -48,4 +48,3 @@ s0 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for 
 plotFLFleets(s0$fleets,'s0')
 }
 }
-
