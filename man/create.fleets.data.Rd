@@ -45,9 +45,8 @@ Optionals:
 \item{stks.data}{A list with the name of the stocks and with the next elements:
 \itemize{
      \item  stk.unit: Number of units of the stock (number). 
-     \item  stk.age: Number of age classes of the stock (number).
-     \item  stk.min.age: Minimum age of the stock (number).
-     \item  stk.max.age: Maximum age of the stock (number).}
+     \item  stk.age.min: Minimum age of the stock (number).
+     \item  stk.age.max: Maximum age of the stock (number).}
 Optionals:
 \itemize{
      \item  stk_wt.flq: Mean weight at age of an individual (FLQuant). Required if fl.met.stk_landings.wt.flq is not defined.

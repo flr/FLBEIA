@@ -20,7 +20,8 @@ create.SRs.data(yrs, ns, ni, stks.data)
 \item{stks.data}{A list with the name of the stks and the following elements:
 \itemize{
     \item stk.unit: Number of units of the stock (number).
-    \item stk.age: Number of age classes of the stock (number).
+    \item  stk.age.min: Minimum age class of the stock (number).
+    \item  stk.age.max: Maximum age class of the stock (number).
     \item stk_sr.model: Name of the model to simulate recruitment (character).
     \item stk_params.n: Number of parameters (number).
     \item stk_params.name: Name of the parameters (vector).
@@ -30,10 +31,8 @@ create.SRs.data(yrs, ns, ni, stks.data)
     \item stk_proportion.flq: Recruitment distribution in each time step as a proportion (FLQuant, values between 0 and 1).
     \item stk_prop.avg.yrs: Historical years to calculate the proportion average (vector).
     \item stk_timelag.matrix: Timelag between the spawning an recruitment (matrix [2, number of seasons]). For details see FLSRsim.
-    \item stk_range.min: Minimum age.
-    \item stk_range.max: Maximum age.
-    \item stk_range.plusgroup: Plusgroup age.
-    \item stk_range.minyear: Minimum year.}
+    \item stk_range.plusgroup: Plusgroup age (number).
+    \item stk_range.minyear: Minimum year (number).}
 Optionals:
 \itemize{
     \item stk_uncertainty.flq: Uncertainty (FLQuant).}}

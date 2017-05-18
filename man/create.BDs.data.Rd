@@ -20,15 +20,15 @@ create.BDs.data(yrs, ns, ni, stks.data)
 \item{stks.data}{A list with the name of the stks and the following elements:
 \itemize{
     \item stk.unit: Number of units of the stock (number).
+    \item stk.age.min: Minimum age class of the stock (number).
+    \item stk.age.max: Maximum age class of the stock (number).
     \item stk_bd.model: Name of the model to simulate biomass dinamics of the stock (character).
     \item stk_params.name: Name of the parameters (vector).
     \item stk_params.array:    Parameter values (array).
     \item stk_biomass.flq: Biomass values (FLQuant).
     \item stk_catch.flq: Catch values (FLQuant).
-    \item stk_range.min: Minimum age.
-    \item stk_range.max: Maximum age.
-    \item stk_range.plusgroup: Plusgroup age.
-    \item stk_range.minyear: Minimum year.
+    \item stk_range.plusgroup: Plusgroup age (numeric).
+    \item stk_range.minyear: Minimum year (numeric).
     \item stk_alpha: Maximum variability of carrying capacity.}
 Optionals:
 \itemize{

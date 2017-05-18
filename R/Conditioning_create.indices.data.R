@@ -20,7 +20,8 @@
 #' @param   stks.data A list with the names of the stocks with indices and the following elements:
 #'\itemize{
 #'      \item  stk.unit: Number of units of the stock (number). 
-#'      \item  stk.age: Number of age classes of the stock (number).
+#'      \item  stk.age.min: Minimum age class of the stock (number).
+#'      \item  stk.age.max: Maximum age class of the stock (number).
 #'      \item  stk_indices: Name of indices for the stock 'stk' (vector).
 #'      \item  stk_ind_index.flq: Historical index data for index 'ind' of stock 'stk' (FLQuant).}
 #' Optionals:
