@@ -131,7 +131,7 @@ Obs.stk.wgt <- function(biol, ages.error, stk.wgt.error, yr){
 #Input
 # biol       : an object of class FLBiol
 # ages.error : an array of probabilities of age assignment of dim = c(na, na, ny, iter)
-# mat.error  : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
+# fec.error  : an array of random multiplicative deviates of dim c(na,ny,1,1,1,it)
 # yr         : integer, the year the stock is observed from
 #Details
 #! Observation error of proportions are not additive nor multiplicative. Thus to introduce observation error in proportion
@@ -141,7 +141,7 @@ Obs.stk.wgt <- function(biol, ages.error, stk.wgt.error, yr){
 #!(i.e. age 0) will not be reproducing no matter what, and obviously adult fish will be sexually mature (ceteris paribus).
 #!If bot.age and top.age are equal then maturity will go from 0 at age (bot.age - 1) to 1 at age (top.age)
 #! ACLARAR CON DORLETA
-Obs.mat  <- function(biol, ages.error, mat.error, yr){
+Obs.mat  <- function(biol, ages.error, fec.error, yr){
     
     ny   <- yr -1
     
@@ -154,7 +154,7 @@ Obs.mat  <- function(biol, ages.error, mat.error, yr){
             mat.obs[,y,,,,i] <- mat.real[,y,,,,i]%*%ages.error[,,y,i] 
         }
     }
-    mat.obs  <- mat.obs[drop=T]*mat.error[,1:ny,]
+    mat.obs  <- mat.obs[drop=T]*fec.error[,1:ny,]
     
     return(mat.obs)
 }

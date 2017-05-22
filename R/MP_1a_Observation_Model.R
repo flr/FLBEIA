@@ -176,7 +176,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
                                                                 
     ages.error        <- obs.ctrl$ages.error
     nmort.error       <- obs.ctrl$nmort.error[,1:ny,,drop=F]
-    mat.error         <- obs.ctrl$mat.error[,1:ny,,drop=F]
+    fec.error         <- obs.ctrl$fec.error[,1:ny,,drop=F]
     land.wgt.error    <- obs.ctrl$land.wgt.error[,1:ny,,drop=F]
     disc.wgt.error    <- obs.ctrl$disc.wgt.error[,1:ny,,drop=F]
     land.nage.error   <- obs.ctrl$land.nage.error[,1:ny,,drop=F]
@@ -194,7 +194,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
          stop("Some rows in ages.error array  don't add up to 1")
     
     for (e in c('nmort.error', 'land.wgt.error', 'disc.wgt.error', 
-                 'mat.error', 'land.nage.error', 'disc.nage.error')) {
+                 'fec.error', 'land.nage.error', 'disc.nage.error')) {
       err <- get(e)
       if (is.null(err))
         stop(paste("'",e,"' array not defined for stock '",stknm,"'",sep=""))
@@ -215,7 +215,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     # because it is suppose that the biological sampling is independent.
     
     stck@m[]            <- Obs.nmort(biol, ages.error, nmort.error, yr)
-    stck@mat[]          <- Obs.mat(biol, ages.error, mat.error, yr)
+    stck@mat[]          <- Obs.mat(biol, ages.error, fec.error, yr)
 
     # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
     # reported homogeneously.
