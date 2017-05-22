@@ -466,7 +466,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' s1_fltStk <- fltStkSum(s1, scenario = 'with_iters')
 #' s1_mt     <- mtSum(s1, scenario = 'with_iters')
 #' s1_mtStk  <- mtStkSum(s1, scenario = 'with_iters')
-#' s1_adv    <- advSum(, scenario = 'with_iters')
+#' s1_adv    <- advSum(s1, scenario = 'with_iters')
 #' 
 #' s1_bioQ    <- bioSumQ(s1_bio)
 #' s1_fltQ    <- fltSumQ(s1_flt)
@@ -620,7 +620,8 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
               df[df$stock == st & df$indicator == 'disc.iyv' & df$iter == i,'value'][-1] <- df[df$stock == st & df$indicator == 'discards' & df$iter == i,'value'][-1]/df[df$stock == st & df$indicator == 'discards' & df$iter == i,'value'][-length(years)]
               df[df$stock == st & df$indicator == 'catch.iyv' & df$iter == i,'value'][-1] <- df[df$stock == st & df$indicator == 'catch' & df$iter == i,'value'][-1]/df[df$stock == st & df$indicator == 'catch' & df$iter == i,'value'][-length(years)]
               }
-        }
+      }
+      df <- df[,c('year','stock', 'iter', 'indicator','value')]
     }
     else{ # long = FALSE
       df <- expand.grid(iter = dnms[[3]], year = dnms[[2]],  stock = dnms[[1]])[,3:1]
@@ -643,7 +644,9 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
           df[df$stock == st,'catch.iyv']     <- c(rep(NA, dim(xx)[3]), t(xx[st,-1,,'catch']/xx[st,-dim(xx)[2],,'catch']))
           df[df$stock == st,'land.iyv']      <- c(rep(NA, dim(xx)[3]), t(xx[st,-1,,'landings']/xx[st,-dim(xx)[2],,'landings']))
           df[df$stock == st,'disc.iyv']      <- c(rep(NA, dim(xx)[3]), t(xx[st,-1,,'discards']/xx[st,-dim(xx)[2],,'discards']))
-        }
+          df <- df[,c('year','stock', 'iter', 'biomass', 'catch', 'discards', 
+                          'f', 'landings', 'rec', 'ssb', 'catch.iyv', 'land.iyv', 'disc.iyv')]
+          }
       }
     }
     
@@ -656,7 +659,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
   if(dim(obj)[2] <= 6){ # the object is in long format
     res <- aggregate(value ~ stock + indicator + year + scenario, obj, quantile, prob = prob)
-    res <- cbind(res[,1:4], data.frame(res[,5]))
+    res <- cbind(res[,1:4], data.frame(res[,5],stringsAsFactors = FALSE))
     
     nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
            
@@ -752,7 +755,8 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         profits = numeric(n),
         quotaUpt = numeric(n), 
         salaries = numeric(n), 
-        vcosts   = numeric(n))
+        vcosts   = numeric(n),
+       stringsAsFactors = FALSE)
     
     k <- 1
     for (f in flnms) {
@@ -826,7 +830,8 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                         profits = numeric(n),
                         quotaUpt = numeric(n), 
                         salaries = numeric(n), 
-                        vcosts   = numeric(n))
+                        vcosts   = numeric(n),
+                        stringsAsFactors = FALSE)
       
       k <- 1
       for (f in flnms) {
@@ -1124,7 +1129,8 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                     catch    = numeric(n),
                     price    = numeric(n),
                     quotaUpt = numeric(n),
-                    tacshare = numeric(n))
+                    tacshare = numeric(n),
+                    stringsAsFactors = FALSE)
         
         k <- 1
         
@@ -1161,7 +1167,8 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                           catch    = numeric(n),
                           price    = numeric(n),
                           quotaUpt = numeric(n),
-                          tacshare = numeric(n))
+                          tacshare = numeric(n),
+                          stringsAsFactors = FALSE)
         
         k <- 1
         
@@ -1336,7 +1343,8 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
                         discards  = numeric(n),
                         discRat  = numeric(n),
                         landings = numeric(n), 
-                        price = numeric(n))
+                        price = numeric(n),
+                        stringsAsFactors = FALSE)
             k <- 1
             
             for(ss in sts){
@@ -1372,7 +1380,8 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
                              discards  = numeric(n),
                              discRat  = numeric(n),
                              landings = numeric(n), 
-                             price = numeric(n))
+                             price = numeric(n),
+                            stringsAsFactors = FALSE)
           k <- 1
           
           for(ss in sts){
@@ -1505,7 +1514,8 @@ mtSum <- function(obj, flnms = names(obj$fleets),
                        effshare = numeric(n), 
                        effort = numeric(n),
                        income = numeric(n), 
-                       vcost = numeric(n))
+                       vcost = numeric(n),
+                       stringsAsFactors = FALSE)
     k <- 1
     for(m in mts){
       mt <- fl@metiers[[m]]
@@ -1532,7 +1542,8 @@ mtSum <- function(obj, flnms = names(obj$fleets),
                          effshare = numeric(n), 
                          effort = numeric(n),
                          income = numeric(n), 
-                         vcost = numeric(n))
+                         vcost = numeric(n),
+                         stringsAsFactors = FALSE)
       k <- 1
       for(m in mts){
         mt <- fl@metiers[[m]]
@@ -1662,7 +1673,8 @@ advSum <- function(obj, stknms = catchNames(obj$fleets),
                            discRat  = numeric(n),
                            landings = numeric(n), 
                            quotaUpt = numeric(n), 
-                           tac = numeric(n))
+                           tac = numeric(n),
+                     stringsAsFactors = FALSE)
    k <- 1
         
    for(ss in sts){
@@ -1795,6 +1807,8 @@ npv <- function(obj, discF = 0.05, y0, flnms = names(obj$fleets), years = dimnam
   res <- aggregate(discProf ~ fleet + iter, data = flS, FUN = sum)
   
   names(res)[3] <- 'npv'
+  
+  res <- cbind(scenario = scenario, res)
   
   return(res)
   

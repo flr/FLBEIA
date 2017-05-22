@@ -256,7 +256,7 @@ s1_flt    <- fltSum(s1, scenario = 'with_iters')
 s1_fltStk <- fltStkSum(s1, scenario = 'with_iters')
 s1_mt     <- mtSum(s1, scenario = 'with_iters')
 s1_mtStk  <- mtStkSum(s1, scenario = 'with_iters')
-s1_adv    <- advSum(, scenario = 'with_iters')
+s1_adv    <- advSum(s1, scenario = 'with_iters')
 
 s1_bioQ    <- bioSumQ(s1_bio)
 s1_fltQ    <- fltSumQ(s1_flt)
