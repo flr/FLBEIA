@@ -171,7 +171,7 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
               r <- stk.bd@params["r",,,]
               K <- stk.bd@params["K",,,]
 
-              if(stk.bd@alpha<1 || stk.bd@alpha > min((p/r+1)^(1/p))){
+              if(any(stk.bd@alpha)<1 || any(stk.bd@alpha > min((p/r+1)^(1/p)))){
                 stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
               } 
             } 
