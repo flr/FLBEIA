@@ -86,10 +86,11 @@ create.BDs.data <- function (yrs,ns,ni,stks.data)
                 dimnames = list(param = stk.params.name, year = ac(first.yr:last.yr),
                   season = ac(1:ns), iter = 1:ni))
       stk.bd <- FLBDsim(name = nmstk, model = stk.model,
-                biomass = flq.stk, gB=flq.stk, catch = flq.stk, uncertainty = flq.stk,alpha=stk.alpha,
+                biomass = flq.stk, gB=flq.stk, catch = flq.stk, uncertainty = flq.stk,
                 params = params)
       dimnames(stk.bd@params)$param <- stk.params.name
-           
+      
+      stk.bd@alpha[] <- stk.alpha   
       stk.bd@range[["min"]] <- stk.range.min
       stk.bd@range[["max"]] <- stk.range.max
       stk.bd@range[["plusgroup"]] <- stk.range.plusgroup
