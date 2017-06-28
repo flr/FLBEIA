@@ -191,7 +191,7 @@ FLBDsim <- function(...){
    }
 
     a@alpha <- array((a@params['p',,,]/a@params['r',,,]+1)^(1/a@params['p',,,]),
-                         dim = c(dim(a@params['p',,,])[-1]))
+                     dim = c(ny,ns,ni))
     
     validObject(a)
     return(a)

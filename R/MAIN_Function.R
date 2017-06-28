@@ -240,7 +240,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
           p <- BDs[[stk.bd]]@params["p",,,]
           r <- BDs[[stk.bd]]@params["r",,,]
           K <- BDs[[stk.bd]]@params["K",,,]
-          if(any(BDs[[stk.bd]]@alpha<1) || any(BDs[[stk.bd]]@alpha[,,,drop=T] > ((p/r+1)^(1/p)))){
+          if(any(BDs[[stk.bd]]@alpha<1) || any(as.vector(BDs[[stk.bd]]@alpha) > as.vector(((p/r+1)^(1/p))))){
             stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
           }}}}
     
