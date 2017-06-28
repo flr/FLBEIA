@@ -670,11 +670,11 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                           discards = obj$discards, disc.iyv = obj$disc.iyv,
                           f = obj$f,landings = obj$landings, land.iyv = obj$land.iyv,
                           rec = obj$rec, ssb = obj$ssb), 
-                       list(stock = obj$stock, year = obj$year), quantile, prob = prob, na.rm=T)
-    res <- cbind(res[,1:2], data.frame(res[,3]), data.frame(res[,4]), data.frame(res[,5]),
-                           data.frame(res[,6]), data.frame(res[,7]), data.frame(res[,8]),
-                           data.frame(res[,9]), data.frame(res[,10]), data.frame(res[,11]),
-                           data.frame(res[,12]))
+                       list(stock = obj$stock, year = obj$year, scenario = obj$scenario), quantile, prob = prob, na.rm=T)
+    res <- cbind(res[,1:3], data.frame(res[,4]), data.frame(res[,5]), data.frame(res[,6]),
+                           data.frame(res[,7]), data.frame(res[,8]), data.frame(res[,9]),
+                           data.frame(res[,10]), data.frame(res[,11]), data.frame(res[,12]),
+                           data.frame(res[,13]))
                                                                                  
     nmsp <- ifelse(substr(prob,3, nchar(prob))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""),substr(prob,3, nchar(prob)))
     
@@ -689,7 +689,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     nms_iyvdisc <- paste('disc.iyv_q',nmsp, sep = "")
     nms_iyvland <- paste('land.iyv_q',nmsp, sep = "")
     
-    names(res)[-c(1:2)] <- c(nms_bio, nms_cat, nms_iyvcat, nms_disc, nms_iyvdisc, nms_f, nms_land, nms_iyvland,nms_rec, nms_ssb)
+    names(res)[-c(1:3)] <- c(nms_bio, nms_cat, nms_iyvcat, nms_disc, nms_iyvdisc, nms_f, nms_land, nms_iyvland,nms_rec, nms_ssb)
     
     
   }
@@ -926,15 +926,15 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                           income  = obj$income,         landings  = obj$landings,  netProfit  = obj$netProfit, nVessels  = obj$nVessels,     
                           price  = obj$price,           profits  = obj$profits,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                           vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                          list(fleet = obj$fleet, year = obj$year), 
+                          list(fleet = obj$fleet, year = obj$year, scenario = obj$scenario), 
                           quantile, prob = prob, na.rm=T)
     
-      res <- cbind(res[,1:2], 
-                 data.frame(res[,3]),  data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),
-                 data.frame(res[,7]),  data.frame(res[,8]),  data.frame(res[,9]),  data.frame(res[,10]),
-                 data.frame(res[,11]), data.frame(res[,12]), data.frame(res[,13]), data.frame(res[,14]),
-                 data.frame(res[,15]), data.frame(res[,16]), data.frame(res[,17]), data.frame(res[,18]),
-                 data.frame(res[,19]), data.frame(res[,20]))
+      res <- cbind(res[,1:3], 
+                 data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
+                 data.frame(res[,8]),  data.frame(res[,9]),  data.frame(res[,10]),  data.frame(res[,11]),
+                 data.frame(res[,12]), data.frame(res[,13]), data.frame(res[,14]), data.frame(res[,15]),
+                 data.frame(res[,16]), data.frame(res[,17]), data.frame(res[,18]), data.frame(res[,19]),
+                 data.frame(res[,20]), data.frame(res[,21]))
                  
       nms1  <- paste('capacity_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms2  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -955,7 +955,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       nms17 <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms18 <- paste('profitability_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
    
-      names(res)[-c(1:2)] <- unlist(mget(paste('nms', 1:18, sep="")))
+      names(res)[-c(1:3)] <- unlist(mget(paste('nms', 1:18, sep="")))
     }
     else{
         res <- aggregate(list(capacity = obj$capacity,      catch = obj$catch,         costs = obj$costs,          discards = obj$discards,       
@@ -963,7 +963,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                               income  = obj$income,         landings  = obj$landings,  netProfit  = obj$netProfit, nVessels  = obj$nVessels,     
                               price  = obj$price,           profits  = obj$profits,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                               vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                         list(fleet = obj$fleet, year = obj$year, season = obj$season), quantile, prob = prob, na.rm = TRUE)
+                         list(fleet = obj$fleet, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
         
         res <- cbind(res[,1:3], 
                      data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
@@ -1230,12 +1230,12 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if(!('season' %in% names(obj))){
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price,  quota = obj$quota,       quotaUpt = obj$quotaUpt), 
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year), 
+                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
                        quantile, prob = prob, na.rm=T)
       
-      res <- cbind(res[,1:3], 
-                   data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
-                   data.frame(res[,8]),  data.frame(res[,9]),  data.frame(res[,10]))
+      res <- cbind(res[,1:4], 
+                   data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),
+                   data.frame(res[,9]),  data.frame(res[,10]),  data.frame(res[,11]))
       
       nms1  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms2  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1245,12 +1245,12 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       nms6  <- paste('quota_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms7  <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
      
-      names(res)[-c(1:3)] <- unlist(mget(paste('nms', 1:7, sep="")))
+      names(res)[-c(1:4)] <- unlist(mget(paste('nms', 1:7, sep="")))
     }
     else{
       res <- aggregate(list(catch = obj$catch, discards = obj$catch, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price, quota = obj$quota,    quotaUpt = obj$quotaUpt),                   
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
       
       res <- cbind(res[,1:4], 
                    data.frame(res[,5]),  data.frame(res[,6]),   data.frame(res[,7]),  data.frame(res[,8]),
@@ -1444,7 +1444,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if(!('season' %in% names(obj))){
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price), 
-                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year), 
+                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
                        quantile, prob = prob, na.rm=T)
       
       res <- cbind(res[,1:4], 
@@ -1462,7 +1462,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     else{
       res <- aggregate(list(catch = obj$catch, discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price),                   
-                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, season = obj$season), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
       
       res <- cbind(res[,1:5], 
                    data.frame(res[,6]),  data.frame(res[,7]),   data.frame(res[,8]),  data.frame(res[,9]),
@@ -1605,7 +1605,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if(!('season' %in% names(obj))){
       res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, income = obj$income,       
                             vcost = obj$vcost), 
-                       list(fleet = obj$fleet, metier = obj$metier, year = obj$year), 
+                       list(fleet = obj$fleet, metier = obj$metier, year = obj$year, scenario = obj$scenario), 
                        quantile, prob = prob, na.rm=T)
       
       res <- cbind(res[,1:3], 
@@ -1622,7 +1622,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     else{
       res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, income = obj$income,       
                             vcost = obj$vcost),                    
-                       list(fleet = obj$fleet, metier = obj$metier,  year = obj$year, season = obj$season), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, metier = obj$metier,  year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
       
       res <- cbind(res[,1:4], 
                    data.frame(res[,5]),  data.frame(res[,6]),   data.frame(res[,7]),  data.frame(res[,8]))
@@ -1725,12 +1725,12 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             quotaUpt = obj$quotaUpt, tac = obj$tac), 
-                       list(stock = obj$stock, year = obj$year), 
+                       list(stock = obj$stock, year = obj$year, scenario = obj$scenario), 
                        quantile, prob = prob, na.rm=T)
       
-      res <- cbind(res[,1:2], 
-                   data.frame(res[,3]),  data.frame(res[,4]),  data.frame(res[,5]),  
-                   data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]))
+      res <- cbind(res[,1:3], 
+                   data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  
+                   data.frame(res[,7]),  data.frame(res[,8]),  data.frame(res[,9]))
       
       nms1  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms2  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1739,7 +1739,7 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       nms5  <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms6  <- paste('tac_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       
-      names(res)[-c(1:2)] <- unlist(mget(paste('nms', 1:6, sep="")))
+      names(res)[-c(1:3)] <- unlist(mget(paste('nms', 1:6, sep="")))
     }
   
   return(res)
@@ -1764,14 +1764,14 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   
   if(all(is.na(flS$risk))){ # if economic data not available for exampel
     flS$risk <- 0
-    auxFl      <- aggregate(risk ~  year + fleet, data=flS, FUN=function(x){sum(x)/length(x)})
+    auxFl      <- aggregate(risk ~  year + fleet + scenario, data=flS, FUN=function(x){sum(x)/length(x)})
     auxFl$risk[] <- NA
   }else{
-    auxFl      <- aggregate(risk ~  year + fleet, data=flS, FUN=function(x){sum(x)/length(x)})
+    auxFl      <- aggregate(risk ~  year + fleet+ scenario, data=flS, FUN=function(x){sum(x)/length(x)})
   }
   
-  auxBioPa   <- aggregate(risk.pa ~ year + stock, data=bioS, FUN=function(x){sum(x)/length(x)})
-  auxBiolim  <- aggregate(risk.lim ~ year + stock, data=bioS, FUN=function(x){sum(x)/length(x)})
+  auxBioPa   <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+  auxBiolim  <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
   
   names(auxFl) <- c('year', 'unit', 'value')
   names(auxBioPa) <- c('year', 'unit', 'value')
@@ -1818,7 +1818,7 @@ npv <- function(obj, discF = 0.05, y0, flnms = names(obj$fleets), years = dimnam
 #' @rdname bioSum
 npvQ <- function(obj, prob = c(0.05,0.5,0.95)){
   
-  res <- aggregate(npv ~  fleet, obj, quantile, prob = prob,na.rm=T)
+  res <- aggregate(npv ~  fleet + scenario, obj, quantile, prob = prob,na.rm=T)
   res <- cbind(fleet = res[,1], data.frame(res[,2]))
   
   nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1904,14 +1904,14 @@ else{
                           income  = obj$income,         landings  = obj$landings,  netProfit  = obj$netProfit,    
                           price  = obj$price,           profits  = obj$profits,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                           vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                     list(fleet = obj$fleet, year = obj$year), 
+                     list(fleet = obj$fleet, year = obj$year, scenario = obj$scenario), 
                      quantile, prob = prob, na.rm=T)
     
-    res <- cbind(res[,1:2], 
-                 data.frame(res[,3]),  data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),
-                 data.frame(res[,7]),  data.frame(res[,8]),  data.frame(res[,9]),  data.frame(res[,10]),
-                 data.frame(res[,11]), data.frame(res[,12]), data.frame(res[,13]), data.frame(res[,14]),
-                 data.frame(res[,15]), data.frame(res[,16]), data.frame(res[,17]), data.frame(res[,18]))
+    res <- cbind(res[,1:3], 
+                 data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
+                 data.frame(res[,8]),  data.frame(res[,9]),  data.frame(res[,10]),  data.frame(res[,11]),
+                 data.frame(res[,12]), data.frame(res[,13]), data.frame(res[,14]), data.frame(res[,15]),
+                 data.frame(res[,16]), data.frame(res[,17]), data.frame(res[,18]), data.frame(res[,19]))
     
      nms2  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     nms3  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1930,7 +1930,7 @@ else{
     nms17 <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     nms18 <- paste('profitability_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     
-    names(res)[-c(1:2)] <- unlist(mget(paste('nms', c(2:10,12:18), sep="")))
+    names(res)[-c(1:3)] <- unlist(mget(paste('nms', c(2:10,12:18), sep="")))
   }
   else{
     res <- aggregate(list(    catch = obj$catch,         costs = obj$costs,          discards = obj$discards,       
@@ -1938,7 +1938,7 @@ else{
                           income  = obj$income,         landings  = obj$landings,  netProfit  = obj$netProfit,    
                           price  = obj$price,           profits  = obj$profits,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                           vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                     list(fleet = obj$fleet, year = obj$year, season = obj$season), quantile, prob = prob, na.rm = TRUE)
+                     list(fleet = obj$fleet, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
     
     res <- cbind(res[,1:3], 
                  data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
@@ -2078,12 +2078,12 @@ vesselStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if(!('season' %in% names(obj))){
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price,  quota = obj$quota,       quotaUpt = obj$quotaUpt), 
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year), 
+                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
                        quantile, prob = prob, na.rm=T)
       
-      res <- cbind(res[,1:3], 
-                   data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
-                   data.frame(res[,8]),  data.frame(res[,9]),  data.frame(res[,10]))
+      res <- cbind(res[,1:4], 
+                   data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),
+                   data.frame(res[,9]),  data.frame(res[,10]),  data.frame(res[,11]))
       
       nms1  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms2  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -2093,12 +2093,12 @@ vesselStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       nms6  <- paste('quota_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms7  <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       
-      names(res)[-c(1:3)] <- unlist(mget(paste('nms', 1:7, sep="")))
+      names(res)[-c(1:4)] <- unlist(mget(paste('nms', 1:7, sep="")))
     }
     else{
       res <- aggregate(list(catch = obj$catch, discards = obj$catch, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price, quota = obj$quota,    quotaUpt = obj$quotaUpt),                   
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
       
       res <- cbind(res[,1:4], 
                    data.frame(res[,5]),  data.frame(res[,6]),   data.frame(res[,7]),  data.frame(res[,8]),

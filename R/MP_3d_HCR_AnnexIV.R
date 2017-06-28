@@ -42,22 +42,32 @@ annexIVHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
     Bref <- (yearSums(Id[,(year-3):(year-5)])/3)[drop=T] # [it]
     Brat <- Bnow/Bref  [drop=T] # [it]
     
-    alpha <- advice.ctrl[[stknm]][['ref.pts']]['alpha',]
-    beta  <- advice.ctrl[[stknm]][['ref.pts']]['beta',]
+    alpha <- advice.ctrl[[stknm]][['ref.pts']]['alpha',] #[1]
+    beta  <- advice.ctrl[[stknm]][['ref.pts']]['beta',] #[1]
     type  <- advice.ctrl[[stknm]][['type']]
     
-    if(Brat > rep(1+alpha,ni))
-        gamma <- 1 + beta
-    else{
-        if(Brat < rep(1-alpha,ni))
-            gamma <- 1 - beta
-        else{
-            if(type == 2) gamma <- 1
-            else{ # type == 4
-                gamma <- beta/alpha * (Brat - 1) + 1
-            }
-        }
+    # if(Brat > rep(1+alpha,ni))
+    #     gamma <- 1 + beta
+    # else{
+    #     if(Brat < rep(1-alpha,ni))
+    #         gamma <- 1 - beta
+    #     else{
+    #         if(type == 2) gamma <- 1
+    #         else{ # type == 4
+    #             gamma <- beta/alpha * (Brat - 1) + 1
+    #         }
+    #     }
+    # }
+    
+    if(type == 2){
+      gamma <- ifelse(Brat > rep(1+alpha,ni), 1 + beta, 
+                ifelse(Brat < rep(1-alpha,ni),  1 - beta, 1))
     }
+    if(type == 4){
+      gamma <- ifelse(Brat > rep(1+alpha,ni), 1 + beta, 
+                      ifelse(Brat < rep(1-alpha,ni),  1 - beta, beta/alpha * (Brat - 1) + 1))
+    }
+ 
     
     advice$TAC[stknm,year.or+1,] <- advice$TAC[stknm,year.or,]*gamma
     
