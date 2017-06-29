@@ -42,8 +42,8 @@ annexIVHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
     Bref <- (yearSums(Id[,(year-3):(year-5)])/3)[drop=T] # [it]
     Brat <- Bnow/Bref  [drop=T] # [it]
     
-    alpha <- advice.ctrl[[stknm]][['ref.pts']]['alpha',] #[1]
-    beta  <- advice.ctrl[[stknm]][['ref.pts']]['beta',] #[1]
+    alpha <- advice.ctrl[[stknm]][['ref.pts']]['alpha',] #[it]
+    beta  <- advice.ctrl[[stknm]][['ref.pts']]['beta',] #[it]
     type  <- advice.ctrl[[stknm]][['type']]
     
     # if(Brat > rep(1+alpha,ni))
@@ -60,12 +60,12 @@ annexIVHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
     # }
     
     if(type == 2){
-      gamma <- ifelse(Brat > rep(1+alpha,ni), 1 + beta, 
-                ifelse(Brat < rep(1-alpha,ni),  1 - beta, 1))
+      gamma <- ifelse(Brat > 1+alpha, 1 + beta, 
+                ifelse(Brat < 1-alpha,  1 - beta, 1))
     }
     if(type == 4){
-      gamma <- ifelse(Brat > rep(1+alpha,ni), 1 + beta, 
-                      ifelse(Brat < rep(1-alpha,ni),  1 - beta, beta/alpha * (Brat - 1) + 1))
+      gamma <- ifelse(Brat > 1+alpha, 1 + beta, 
+                      ifelse(Brat < 1-alpha,  1 - beta, beta/alpha * (Brat - 1) + 1))
     }
  
     
