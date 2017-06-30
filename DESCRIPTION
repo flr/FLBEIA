@@ -19,4 +19,6 @@ Import: FLash, FLAssess, nloptr, triangle, mvtnorm
 Recommended: FLXSA, Matrix
 Maintainer: Dorleta Garcia <dgarcia@azti.es>
 License: GPL-2
-RoxygenNote: 6.0.1
+RoxygenNote: 5.0.1
+Suggests: R.rsp
+VignetteBuilder: R.rsp

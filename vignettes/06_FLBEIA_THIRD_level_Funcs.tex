@@ -156,17 +156,18 @@
 \paragraph{\texttt{SMFB}: Simple Mixed Fisheries Behaviour model} \hspace{0pt} \smallskip
 %----------------------------------------------------------------------------------------------------
 
-++++ ITSASO: necesario actualizar esto con los cambios debidos a la Landing Obligation
-
 		This model is a simplified version of the behavior of fleets that work in a 
 	mixed fisheries framework. The function is seasonal and assumes that effort share among metiers is
 	given as input parameter.
 	 
 	In each season, the effort of each fleet, $f$, is restricted by the seasonal landing quotas or catch quotas
-	of the stocks that are caught by the fleet. The following steps are followed in the calculation of effort:
+	of the stocks that are caught by the fleet. Additionaly, the option of Landing Obligation (LO) is included. 
+	The following steps are followed in the calculation of effort:
 	
+
 \begin{enumerate}
-	\item Compare the overall seasonal quota, $\sum_f Q_{f,s,st}\cdot TAC$, with the abundances of the stocks.
+	
+	\item Compare the overall seasonal quotas, $\sum_f Q_{f,s,st}\cdot TAC$, with the abundances of the stocks.
 		 If the ratio between overall quota and abundance exceeds the 
 		seasonal catch threshold, $\gamma_{s,st}$, reduce the quota share in the same degree. Mathematically: 
 		
@@ -178,12 +179,12 @@
 			\end{cases} 
 	\end{equation}
 		
-		
-	\item According to the catch production function calculate the efforts corresponding to the landing or 
+  \item According to the catch production function, calculate the efforts corresponding to the landing or 
 		catch quotas, $Q'_{f,s,st}\cdot TAC$, of the  
 		individual stocks, $\left\{ E_{f,s,st_1},\ldots, E_{f,s,st_n} \right\}$.
+	
 	\item Based on the efforts calculated in the previous step, calculate an unique effort, $E_{f,s}$. 
-		To calculate this effort  there are the following options:
+		To calculate this effort the following options can be used:
 		\begin{description}  
 			\item[\texttt{max}:] The maximum among possible efforts, $\hat{E}_{f,s} = \max_{j=1,\ldots,n} E_{f,s,st_j}$
 			\item[\texttt{min}:] The minimum among possible efforts, $\hat{E}_{f,s} = \min_{j=1,\ldots,n} E_{f,s,st_j}$
@@ -192,12 +193,27 @@
 				that season, 
 				$$\hat{E}_{f,s} = \left\{ E_{f,s,st} :   
 				\left|1 - \frac{E_{f,s,st}}{E_{f,y-1,s}}\right| = \min_{j=1,\ldots,n} \left|1 - \frac{E_{f,s,st_j}}{E_{f,y-1,s}}\right|\right\}$$
-  	 	   \item[\texttt{stock.name}:] The effort corresponding to \texttt{stock.name} is selected:
-					$\hat{E}_{f,s} =  E_{f,s,\texttt{stock.name}}$
+  	 	\item[\texttt{stock.name}:] The effort corresponding to \texttt{stock.name} is selected:
+				$\hat{E}_{f,s} =  E_{f,s,\texttt{stock.name}}$
 		\end{description}
-	\item Compare the effort, $\hat{E}_{f,s}$, with the capacity of the fleet, $\kappa_f$  (capacity must be measured in the same units as effort and 
-		it must be stored in the \texttt{capacity} slot of the \texttt{FLFLeetsExt} object). If the capacity is bigger, then the 
-		final effort is unchanged and if the capacity is smaller, the effort is set qual to the capacity, i.e.:
+		If  there is LO, instead of using the option chosen by the user, the option to calculate the unique effort 
+		will be the minimum among possible efforts.
+	
+	\item When LO is applied, calculate the new effort using the exemptions and flexibilities de Minimis, 
+	  year tranfer and quota swap. 
+	  \begin{itemize}
+  		\item \textit{de Minimis}: The fleet is allowed to discard a percentage of the quota to increase the effort 
+  		  in order to catch other stocks.
+  		\item \textit{year transfer}: The fleet can borrow next year's quota to catch it in the current year.
+  		\item \textit{quota swap}: A percentage of the quota of one stock can be transfered to the effort 
+  		  limiting stock if two stocks are in the same group. These groups are specifiyed by the user.
+	  \end{itemize}		
+		
+  \item Compare the effort, $\hat{E}_{f,s}$, with the capacity of the fleet, $\kappa_f$  
+    (capacity must be measured in the same units as effort and it must be stored in the \texttt{capacity} slot 
+    of the \texttt{FLFLeetsExt} object). 
+		If the capacity is bigger, then the final effort is unchanged and if the capacity is smaller, 
+		the effort is set equal to the capacity, i.e.:
 	
 	\begin{equation}	
 			E_{f,s} =
@@ -206,7 +222,9 @@
    					\hat{E}_{f,s}  & \text{, if } \kappa \geq \hat{E}_{f,s}
   				\end{cases}
 	\end{equation}	 
-	\item The catch corresponding to the effort selected is calculated for each stock and compared with the corresponding quota. 
+	
+	\item The catch corresponding to the effort selected is calculated for each stock and compared with the 
+	  corresponding quota. 
 		If the catch is not equal to the quota and the season is not the last one, 
 		the seasonal quota shares of the rest of the seasons are reduced or increased 
 		proportionally to their weight in the total share. The shares are changed 
@@ -216,15 +234,14 @@
 		canceled.	Mathematically for season $i$ where $s \leq i \leq ns'$: 
 		
 	\begin{equation}
-		Q''_{f,i,st} =  \max\left( 0,Q'_{f,i,st} + (Q'_{f,s,st} - Q''_{f,s,st})\cdot \frac{Q'_{f,i,st}}{\sum_{j>s} Q'_{f,j,st}}\right) 
+		Q''_{f,i,st} =  \max\left( 0,Q'_{f,i,st} + (Q'_{f,s,st} - Q''_{f,s,st}) \cdot 
+		                \frac{Q'_{f,i,st}}{\sum_{j>s} Q'_{f,j,st}}\right) 
 	\end{equation}
 		
 		\noindent where $Q'$ denotes the quota share obtained in the first step and $Q''$ the new quota share. 
 	
 \end{enumerate}
 
-	
-	
 \subparagraph{The \texttt{fleets.ctrl} argument in \texttt{SMFB} function}
 \quad\\	
 
@@ -233,6 +250,7 @@
   \quad\\
 		Global arguments:
 		\begin{description}
+		
 			\item[\texttt{catch.threshold}:] This element is used to store $\gamma_{s,st}$ parameter described in
 				the first step of \texttt{SMFB} function algorithm. The element must be a \texttt{FLQuant} object with dimension 
 		        \texttt{[stock = nstk, year = ny, unit = 1, season = ns, area = 1, iter = ni]}, where the
@@ -247,38 +265,57 @@
 				fleets' TAC share that 'belongs' to each season, so the sum along seasons for each fleet, year and iteration
 				should be equal to 1.	The elements must be \texttt{FLQuant} objects with dimension 
 		        \texttt{[fleet = nf, year = ny, unit = 1, season = ns, area = 1, iter = ni]}, where the
-	            names in the first dimension must match with those used to name \texttt{FLFleetsExt} object. The names of the 
-	            \texttt{FLQuants} must match stock names used in the \texttt{FLBiols} object. 
-		\end{description}	  
+	            names in the first dimension must match with those used to name \texttt{FLFleetsExt} object. 
+	            The names of the \texttt{FLQuants} must match stock names used in the \texttt{FLBiols} object. 
+		\end{description}
 		
 	\quad\\			
 		Fleet level arguments (i.e. \texttt{fleets.ctrl[[fleet.name]]}):
-		
+    		
 		\begin{description}
 			\item[\texttt{effort.model}:] \texttt{'SMFB'}.
-			\item[\texttt{effort.restr}:] alternative values are \texttt{'max'}, \texttt{'min'}, \texttt{'mean'}, \texttt{'previous'} or \texttt{'stock.name'} 
-				(the name of one of the stocks caught by the fleet). 
+			\item[\texttt{effort.restr}:] alternative values are \texttt{'max'}, \texttt{'min'}, \texttt{'mean'}, 
+			  \texttt{'previous'} or \texttt{'stock.name'} (the name of one of the stocks caught by the fleet). 
 				\begin{description}
 					\item[\texttt{max}:] The fleet will continue fishing until the catch quotas of all the stocks are exhausted. 
 					\item[\texttt{min}:] The fleet will stop fishing when the catch quota of any of the stocks is exhausted. 
-					\item[\texttt{previous}:] Among the efforts obtained under each stock restriction the effort most similar to the previous year
-									effort will be selected. 
-					\item[\texttt{stock}:] The fleet will continue fishing until the catch quota of '\texttt{stock}' is exhausted. (This could 
-						correspond, for example, with a situation where the catch of one stock is highly controlled.)					
-				\end{description}
-				These options are explained mathematically above when the \texttt{SMFB} function is described step by step.
-			\item[\texttt{restriction}:] Alternative values are \texttt{'catch'} or \texttt{'landings'}. Assigned value depends on wether the efforts are calculated according to catch or landings restriction \textit{(for the moment only catch restriction is available)}. 
-		\end{description}
-
+					\item[\texttt{previous}:] Among the efforts obtained under each stock restriction the effort most similar 
+					  to the previous year effort will be selected. 
+					\item[\texttt{stock}:] The fleet will continue fishing until the catch quota of '\texttt{stock}' is exhausted. 
+					  (This could correspond, for example, with a situation where the catch of one stock is highly controlled.)								\end{description}
+				These options are explained mathematically above when the \texttt{SMFB} function is described step by step. 
+			  There are two alternatives: one option for all years or one option for each year (vector with the length ny).
+			\item[\texttt{restriction}:] Alternative values are \texttt{'catch'} or \texttt{'landings'}. 
+			  Assigned value depends on wether the efforts are calculated according to catch or landings restriction. 
+			  There are two alternatives: one option for all years or one option for each year (vector with the length ny).
+      \item[\texttt{LandObl}:] Logical or vector with a logic value for each year. 
+        If it is \texttt{TRUE} for that year, LO rule is applied. 
+        The fleet has to stop fishing when they reach the first quota of the stocks. 
+        Therefore, the unique effort will be the minimum among possible efforts. 
+			\item[\texttt{LandObl\_minimis}:] Vector with a logic value for each year. 
+			  If it is \texttt{TRUE} for that year, \textit{de Minimis} exemption is used.
+			\item[\texttt{LandObl\_yearTransfer}:] Vector with a logic value for each year. 
+			  If it is \texttt{TRUE} for that year, \textit{year Transfer} flexibility is used.
+			\item[\texttt{LandObl\_minimis\_p}:] Matrix with values between 0 and 1, the maximum percentage of quota that 
+			  the fleet could increase for each stock in each year. 
+			\item[\texttt{LandObl\_yearTransfer\_p}:] Matrix with values between 0 and 1, the maximum percentage of quota 
+			  of each stock that the fleet could borrow from next year's quota. 
+			\item[\texttt{LandObl\_discount\_yrTranfer}:] Matrix with values between 0 and 1. 
+			  The discount to be applied if in the previous year was used that amount. 
+			  This object is used to store the percentage used from the next year's quota.
+			\item[\texttt{LO\_stk\_grp}:] named vector with length equal to the number of stocks, 
+			  same number for the same group of stocks to swap the quotas.
+    \end{description}
+    
   \quad\\
 		Fleet/stock level arguments (i.e. \texttt{fleets.ctrl[[fleet.name]][[stock.name]]}):
 	
-  \begin{description}
-		\item[\texttt{catch.model}:] The name of the fourth level function which gives the catch production 
-				given effort and biomass (aggregated or at age). The function must be coherent with \texttt{SMFB}
-				and the function used to simulate the population growth. 
-				At the moment, two functions are available	\texttt{CobbDouglasAge} and \texttt{CobbDouglasBio}.
-				For more details see Section~\ref{sec:CprodFun}.
+    \begin{description}
+  		\item[\texttt{catch.model}:] The name of the fourth level function which gives the catch production 
+  				given effort and biomass (aggregated or at age). The function must be coherent with \texttt{SMFB}
+  				and the function used to simulate the population growth. 
+  				At the moment, two functions are available	\texttt{CobbDouglasAge} and \texttt{CobbDouglasBio}.
+  				For more details see Section~\ref{sec:CprodFun}.
     \end{description}
 
 
@@ -950,10 +987,10 @@ whereas others are designed specifically for particular case studies (e.g. \text
 		    whereas if other value set, the catches are set to the TAC adviced for this intermediate year. 
 		    This second approach is used for the cases when the assessment is carried out including also the 
 		    information on this intermediate year, as is the case for the Bay of Biscay anchovy.
-		  \item[\texttt{sr}:] The stock recruitment relationship used to project the observed stock forward, not needed in the case of population aggregated in biomass. \texttt{sr} is a list with 3 elements, \texttt{model, params} and \texttt{years}. For more details see parameter description in \textt{annualTAC} (above).
+		  \item[\texttt{sr}:] The stock recruitment relationship used to project the observed stock forward, not needed in the case of population aggregated in biomass. \texttt{sr} is a list with 3 elements, \texttt{model, params} and \texttt{years}. For more details see parameter description in \texttt{annualTAC} (above).
 		  \item[\texttt{growth.years}:] This argument is used only for stocks aggregated in biomass and it indicates the years
 			to be used in the estimation of annual population growth. This growth is used to project the population forward. 
-			For more details see parameter description in \textt{annualTAC} (above).
+			For more details see parameter description in \texttt{annualTAC} (above).
 	\end{description}
 
 
@@ -1197,7 +1234,7 @@ whereas others are designed specifically for particular case studies (e.g. \text
 		    and \texttt{dimnames(ref.pts)[1] = c(Bpa, Ftarget, Cup, Clo)}.
 		  \item[\texttt{N}:]  Numeric value, corresponding to the number of years to recover SSB.
 		  \item[\texttt{AdvCatch}:] Vector with a logic value for each year. TAC is given in terms of catch, if \texttt{TRUE}, or landings, if \texttt{FALSE}.
-		  \item[\texttt{sr}:] The stock recruitment relationship used to project the observed stock forward, not needed in the case of population aggregated in biomass. \texttt{sr} is a list with 3 elements, \texttt{model, params} and \texttt{years}. For more details see parameter description in \textt{annualTAC} (above).
+		  \item[\texttt{sr}:] The stock recruitment relationship used to project the observed stock forward, not needed in the case of population aggregated in biomass. \texttt{sr} is a list with 3 elements, \texttt{model, params} and \texttt{years}. For more details see parameter description in \texttt{annualTAC} (above).
 	\end{description}
 
 
@@ -1227,7 +1264,7 @@ whereas others are designed specifically for particular case studies (e.g. \text
 		    
 		  \item[\texttt{N}:]  Numeric value, corresponding to the number of years to recover SSB.
 		  \item[\texttt{AdvCatch}:] Vector with a logic value for each year. TAC is given in terms of catch, if \texttt{TRUE}, or landings, if \texttt{FALSE}.
-		  \item[\texttt{sr}:] The stock recruitment relationship used to project the observed stock forward, not needed in the case of population aggregated in biomass. \texttt{sr} is a list with 3 elements, \texttt{model, params} and \texttt{years}. For more details see parameter description in \textt{annualTAC} (above).
+		  \item[\texttt{sr}:] The stock recruitment relationship used to project the observed stock forward, not needed in the case of population aggregated in biomass. \texttt{sr} is a list with 3 elements, \texttt{model, params} and \texttt{years}. For more details see parameter description in \texttt{annualTAC} (above).
 	\end{description}  
   
 
