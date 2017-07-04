@@ -136,9 +136,6 @@ MaxProfitSeq<- function (fleets, biols, covars, advice, fleets.ctrl, flnm, year 
     }
     effort.restr <- fleets.ctrl[[flnm]]$effort.restr
     K <- c(fl@capacity[, yr, , ss, , it, drop = T])
-    Et <- 0.9 * ifelse(effort.restr == "min", min(effs), 
-                       effs[effort.restr])
-    Et <- ifelse(Et < K, Et, K * 0.9)
     catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 
                           "landings", fleets.ctrl[[flnm]]$restriction)
     if (is.null(fleets.ctrl[[flnm]]$opts)) 
@@ -163,6 +160,8 @@ MaxProfitSeq<- function (fleets, biols, covars, advice, fleets.ctrl, flnm, year 
     cat("Effort share: ", efs.res[, i], ", ~~~~~ Effort: ", 
         Et.res[i], ", ~~~~~ Benefit: ", eff_nloptr$objective, 
         "\n")
+    
+    if(Et.res[i]>K) Et.res[i] <- K
 
   }
   fleets[[flnm]]@effort[, yr, , ss] <- Et.res
