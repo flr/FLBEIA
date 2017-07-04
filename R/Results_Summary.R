@@ -342,7 +342,6 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #'  columns as elements in prob are created. The names of the colums are the elements in prob preceded by
 #'  q_name_of_the_indicator. 
 #'
-#' @arguments
 #' @inheritParams FLBEIA
 #' @inheritParams F_flbeia
 #' @param flnms Names of the fleet for which the indicators will be calculated.
@@ -1773,14 +1772,14 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   auxBioPa   <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
   auxBiolim  <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
   
-  names(auxFl) <- c('year', 'unit', 'value')
-  names(auxBioPa) <- c('year', 'unit', 'value')
-  names(auxBiolim) <- c('year', 'unit', 'value')
+  names(auxFl) <- c('year', 'unit', 'scenario', 'value')
+  names(auxBioPa) <- c('year', 'unit', 'scenario', 'value')
+  names(auxBiolim) <- c('year', 'unit', 'scenario', 'value')
   
   res <- cbind(scenario = scenario, rbind(
-               cbind(auxFl[,1:2],     indicator = 'pPrflim', value = auxFl[,3]),
-               cbind(auxBioPa[,1:2],  indicator = 'pBpa',    value = auxBioPa[,3]),
-               cbind(auxBiolim[,1:2], indicator = 'pBlim',   value = auxBiolim[,3])))
+               cbind(auxFl[,1:3],     indicator = 'pPrflim', value = auxFl[,4]),
+               cbind(auxBioPa[,1:3],  indicator = 'pBpa',    value = auxBioPa[,4]),
+               cbind(auxBiolim[,1:3], indicator = 'pBlim',   value = auxBiolim[,4])))
  # No sense in wide format  
 #  if(long == FALSE){
 #    temp <- reshape(res,v.names = 'value', timevar = 'indicator', idvar = c('scenario', 'year', 'unit'), direction = 'wide')  }
