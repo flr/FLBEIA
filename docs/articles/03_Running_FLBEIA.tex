@@ -1,0 +1,59 @@
+
+\section{Running \texttt{FLBEIA}} \label{sec:FLBEIArun}
+
+\subsection{Input objects}
+
+  \texttt{FLBEIA} requires some input arguments to run a simulation. There are two types of arguments: the main arguments, which give information on 
+  the stocks, the fleets and the covariates, and the control arguments, which control the behaviour of the main and the second level functions 
+  (see Section~\ref{sec:2ndlvl}). The main arguments contain biological information on the stocks (\texttt{biols}, \texttt{SRs} and 
+  \texttt{BDs}), information on the fleets (\texttt{fleets}), additional variables (\texttt{covars}) and information on management 
+  (\texttt{indices}, \texttt{advice}). Regarding the control arguments, there is a control object related to the main function 
+  \texttt{FLBEIA} (\texttt{main.ctrl}), whereas the others relate to the main arguments (\texttt{biols.ctrl}, \texttt{fleets.ctrl}, 
+  \texttt{covars.ctrl}, \texttt{obs.ctrl}, \texttt{assess.ctrl}, \texttt{advice.ctrl}).
+  For detailed information on the input objects required see Section~\ref{sec:1stlvl}.
+  
+  In order to easy the creation of the objects with the appropriate object format some additional functions has been implemented to create the inputs 
+  (see Section~\ref{sec:SmartCondFun}). Additionally, several examples has been coded for guidance (see Section~\ref{sec:SmartCondEx}).
+  
+\subsection{Main function: \texttt{FLBEIA}}
+
+  To perform biological and economic simulations it is necessary to invoke the main function, \texttt{FLBEIA}, which calls to different subfunctions 
+  to perform the simulations depending on the control elements set.
+  
+  \noindent \texttt{FLBEIA} function is called as follows:
+  
+  \begin{center}
+    \texttt{FLBEIA(biols, SRs, BDs, fleets, covars, indices, advice, 
+            main.ctrl, biols.ctrl, fleets.ctrl, covars.ctrl, obs.ctrl, assess.ctrl, advice.ctrl) }
+	\end{center}
+  
+  For more details on the \texttt{FLBEIA} function see Section~\ref{sec:1stlvl}.
+
+\subsection{Output object}
+
+  The output of \texttt{FLBEIA} function is a list containing information on the expected evolution of the fish stocks (\texttt{biols}), the fleets 
+  (\texttt{fleets}), the covariates (\texttt{covars}), the provided advice (\texttt{advice}), the assessed stocks and observed indices 
+  (\texttt{stocks} and \texttt{indices}), the control elements for the fleets (\texttt{fleets.ctrl}) and the versions of the different packages
+  used to run the simulations (\texttt{pkgs.versions}). All the elements except \texttt{stocks} and \texttt{pkgs.versions} correspond with the
+  updated versions of the objects used in the call to FLBEIA. 
+  
+  \noindent It has the following structure:
+  \begin{center}
+    \texttt{list(biols='FLBiols', fleets='FLFleetsExt', covars='FLQuants', advice='list(TAC,TAE,quota.share)', 
+            stocks='FLStocks', indices='FLIndices', fleets.ctrl='list', pkg.versions='matrix') }
+  \end{center}
+  
+  \noindent Description of the outputs:
+    \begin{description}
+      \item[\texttt{biols}:] \texttt{FLBiols} object containing historical and future "real" evolution of the stock.     
+      \item[\texttt{fleets}:] \texttt{FLFleetsExt} object containing historical and future "real" evolution of the fleets 
+  regarding effort exerted, distribution among metiers, catches, prices and so on.
+      \item[\texttt{covars}:] Named list containing historical and future evolution of the different covariates.     
+      \item[\texttt{advice}:] List containing information on management advice (e.g. TAC,TAE,quota.share).     
+      \item[\texttt{stocks}:] Named list with one element per stock of class \texttt{FLStock} or \texttt{NULL}, if a \texttt{FLStock} is not needed to run the assessment.
+          Contains the perceived stocks used in the management procedure to produce the management advice.
+          For details on \texttt{FLStock} object see Figure~\ref{fig:FLStock}.
+      \item[\texttt{indices}:] Named list with one element per stock of class \texttt{FLIndices} or \texttt{NULL}, if a \texttt{FLIndices} is not needed to run the assessment. 
+      \item[\texttt{fleets.ctrl}:] Control object used for the \texttt{fleets.om} function.
+      \item[\texttt{pkgs.versions}:] Matrix indicating the packages and package version used along the simulation.
+    \end{description}
