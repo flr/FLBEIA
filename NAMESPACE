@@ -82,6 +82,8 @@ export(
   "pidHCRItarg",
   "plotFLBiols",
   "plotFLFleets",
+  "plotbioSum", 
+  "plotfltSum", 
   "plotCatchFl",
   "plotEco",
   "price_flbeia",
