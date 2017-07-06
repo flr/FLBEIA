@@ -1295,15 +1295,15 @@ whereas others are designed specifically for particular case studies (e.g. \text
     \begin{equation}
     	x_{st} = F_{upp}[stock.name] /  F_{adv0}[stock.name]\lambda_0 \cdot F_{sq} \forall st \in names(biols)
     \end{equation}
-    \begin{equation}
-       \begin{cases}
-  			  \text{If } x_{st} \geq 1  \text{ } \forall st, 
-  			          & \lambda_1 = 1 \\
-  			  \text{If } \exist st \text{ } \& \text{ }  x_{st} < 1,  
-  			          & \lambda_1 = min(F_{upp}[st]/F_{adv0}[st]) \\
-  			          & \text{ } \& F_{adv1}[st] = \lambda_1 \cdot F_{adv0}[st]
-    	\end{cases}
-    \end{equation}
+  %   \begin{equation}
+  %      \begin{cases}
+  % 			  \text{If } x_{st} \geq 1  \text{ } \forall st, 
+  % 			          & \lambda_1 = 1 \\
+  % 			  \text{If } \exist st \text{ } \& \text{ }  x_{st} < 1,  
+  % 			          & \lambda_1 = min(F_{upp}[st]/F_{adv0}[st]) \\
+  % 			          & \text{ } \& F_{adv1}[st] = \lambda_1 \cdot F_{adv0}[st]
+  %   	\end{cases}
+  %   \end{equation}
   Therefore, there is only one stock for which $F_{adv0} = F_{target}$ and for the rest $F_{adv0} > F_{target}$.
   Finally, 
     \begin{equation}
