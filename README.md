@@ -1,6 +1,6 @@
 # FLBEIA
-- Version: 1.0
-- Date: 2016-02-16
+- Version: 1.15
+- Date: 20170704
 - Author: Dorleta GARCIA <dgarcia@azti.es>
 - Maintainer: Dorleta GARCIA, AZTI.
 - Repository: <https://github.com/flr/FLBEIA/>
