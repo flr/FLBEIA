@@ -199,8 +199,8 @@
 		If  there is LO, instead of using the option chosen by the user, the option to calculate the unique effort 
 		will be the minimum among possible efforts.
 	
-	\item When LO is applied, calculate the new effort using the exemptions and flexibilities de Minimis, 
-	  year tranfer and quota swap. 
+	\item When LO is applied, calculate the new effort using the exemptions and flexibilities (de Minimis, 
+	  year tranfer and quota swap). 
 	  \begin{itemize}
   		\item \textit{de Minimis}: The fleet is allowed to discard a percentage of the quota to increase the effort 
   		  in order to catch other stocks.
@@ -508,7 +508,7 @@ Only the function name, \texttt{fixedPrice},  must be specified in  \texttt{pric
 object.
 
 \begin{Sinput}
-	fleets.ctrl[[fleet.name]][[stock.name]]$price.model <- 'FixedPrice'
+	fleets.ctrl[[fleet.name]][[stock.name]]\$price.model <- 'FixedPrice'
 \end{Sinput}
 
 
@@ -532,14 +532,14 @@ $L_{a,0,s}$ instead of $L_{a,0,s,f}$ in the formula above.
 Although price is stored at metier and stock level in \texttt{FLFleetsExt}, this function assumes that 
 price is common to all metiers within a fleet and it is calculated at fleet level. 
 
-\subparagraph{The \texttt{fleets.ctrl} argument in \texttt{fixedPrice} function}
+\subparagraph{The \texttt{fleets.ctrl} argument in \texttt{elasticPrice} function}
 \quad\\	
 
 When \texttt{elasticPrice} is used, 
 the following arguments must be specified, at fleet and stock level (i.e. for \texttt{fleets.ctrl[[fleet.name]][[stock.name]]}):
 
 \begin{description}
-	\item[\texttt{price.model}:] \texttt{'fixedPrice'}.
+	\item[\texttt{price.model}:] \texttt{'elasticPrice'}.
 	\item[\texttt{pd.Pa0}:] An array with dimension \texttt{[age = na, season = ns, iter = ni]} to store base price,
 							$P_{a,0,s,f}$.
 	\item[\texttt{pd.La0}:] An array with dimension \texttt{[age = na, season = ns, iter = ni]} to store base landings, 
@@ -569,7 +569,7 @@ Only the function name, \texttt{fixedCapital},  must be specified in  \texttt{ca
 object.
 
 \begin{Sinput}
-  fleets.ctrl[[fleet.name]]$capital.model <- 'FixedCapital'
+  fleets.ctrl[[fleet.name]]\$capital.model <- 'FixedCapital'
 \end{Sinput}
 
 
@@ -641,7 +641,7 @@ Only the function name, \texttt{fixedCovar}, must be specified in \texttt{proces
 object.
 
 \begin{Sinput}
-  covars.ctrl[[covar.name]]$process.model <- 'fixedCovar'
+  covars.ctrl[[covar.name]]\$process.model <- 'fixedCovar'
 \end{Sinput}
 
 \paragraph{\texttt{ssb.get}: model to get the SSB of one stock} \hspace{0pt} \smallskip
@@ -1297,9 +1297,11 @@ whereas others are designed specifically for particular case studies (e.g. \text
     \end{equation}
     \begin{equation}
        \begin{cases}
-  			  \text{If } x_{st} \geq 1 \forall st, & \lambda_1 = 1 \\
-  			  \text{If } \exist st \& x_{st} < 1,  & \lambda_1 = min(F_{upp}[st]/F_{adv0}[st] \\
-  			                                       & \& F_{adv1}[st] = \lambda_1 \cdot F_{adv0}[st]
+  			  \text{If } x_{st} \geq 1  \text{ } \forall st,
+  			          & \lambda_1 = 1 \\
+  			  \text{If } \exists st \text{ } \& \text{ }  x_{st} < 1,
+  			          & \lambda_1 = min(\frac{F_{upp}[st]}{F_{adv0}[st]}) \\
+  			          & \text{ } \& F_{adv1}[st] = \lambda_1 \cdot F_{adv0}[st]
     	\end{cases}
     \end{equation}
   Therefore, there is only one stock for which $F_{adv0} = F_{target}$ and for the rest $F_{adv0} > F_{target}$.
@@ -1315,7 +1317,7 @@ whereas others are designed specifically for particular case studies (e.g. \text
 		\texttt{MultiStockHCR(stocks, indices, advice, advice.ctrl, year, stknm,...)} 
 	\end{center}
 	
-	  In relation to \texttt[IcesHCR} this new HCR has two additional arguments:
+	  In relation to \texttt{IcesHCR} this new HCR has two additional arguments:
 	\begin{description}
       \item[\texttt{advice.ctrl[['stocksInHCR']]}:] A vector with the name of the stocks that are taken into account in the calculation of advice.
 		  \item[\texttt{advice.ctrl[[stock.name]][['ref.pts']]}:] A new row in the matrix with \texttt{Fupp} value.

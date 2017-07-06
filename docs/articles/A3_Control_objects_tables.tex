@@ -176,7 +176,8 @@
     
     \label{tb:A3.table5}
 
-    +++++ SONIA: no descrito nada de esto en el texto, necesitariamos extender informacion?
+    % +++++ SONIA: no descrito nada de esto en el texto, necesitariamos extender informacion?
+    % --> [ACC Dorleta] pendiente descripciones para las help pages
 
     \begin{threeparttable}
 
@@ -204,8 +205,8 @@
         {[[st]]}\$indObs[[id]]\$indObs.model\textsuperscript{*} & character & 1 & \texttt{'NoObsIndex'},\texttt{'NoObservation'},\texttt{'ageInd'},
           \texttt{'bioInd'} &  \\
         % +++ SONIA pendiente de incluir: ,\texttt{'ssbInd'},\texttt{'cbbmInd'} for ANE
-        % {[[st]]}\$indObs[[id]]$sInd & numeric & 1 & \texttt{season.name} (season in which index is observed) & \texttt{'ssbInd'} \\
-        % {[[st]]}\$indObs[[id]]$wageIni & matrix & [2,ni] & weight at age for each age class (age1,age2plus) & \texttt{'ssbInd'} \\
+        % {[[st]]}\$indObs[[id]]\$sInd & numeric & 1 & \texttt{season.name} (season in which index is observed) & \texttt{'ssbInd'} \\
+        % {[[st]]}\$indObs[[id]]\$wageIni & matrix & [2,ni] & weight at age for each age class (age1,age2plus) & \texttt{'ssbInd'} \\
         \hline
       \end{tabular}
 
@@ -240,7 +241,8 @@
     
     \label{tb:A3.table6}
 
-    +++++ SONIA: no descrito en el texto, necesitariamos extender informacion?
+    % +++++ SONIA: no descrito en el texto, necesitariamos extender informacion?
+    % --> [ACC Dorleta] pendiente descripciones para las help pages
 
     \begin{threeparttable}
 
@@ -300,11 +302,11 @@
          &  &  &  & \texttt{CFPMSYHCR}, \texttt{F2CatchHCR}, \texttt{MultiStockHCR} \\
         {[[st]]}\$disc.nyears & numeric & 1 &  & \texttt{annualTAC}, \texttt{CFPMSYHCR}  \\
         {[[st]]}\$fwd.control & fwdBDcontrol &  &  & \texttt{annualTAC}  \\
-        {[[st]]}\$sr$model & character &  1 & SR model name  & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{MAPHCR}, \\
+        {[[st]]}\$sr\$model & character &  1 & SR model name  & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{MAPHCR}, \\
          &  &  &  & \texttt{F2CatchHCR}, \texttt{MultiStockHCR} \\
-        {[[st]]}\$sr$params\textsuperscript{1} & FLPar & [npar,ni]  &  & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{MAPHCR}, \\
+        {[[st]]}\$sr\$params\textsuperscript{1} & FLPar & [npar,ni]  &  & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{MAPHCR}, \\
          &  &  &  & \texttt{CFPMSYHCR}, \texttt{F2CatchHCR}, \texttt{MultiStockHCR} \\
-         {[[st]]}\$sr$years\textsuperscript{1} & named numeric vector & 2 (y.rm, num.years) &  & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{MAPHCR}, \\
+         {[[st]]}\$sr\$years\textsuperscript{1} & named numeric vector & 2 (y.rm, num.years) &  & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{MAPHCR}, \\
          &  &  &  & \texttt{CFPMSYHCR}, \texttt{F2CatchHCR}, \texttt{MultiStockHCR} \\
         {[[st]]}\$growth.years\textsuperscript{2} & named numeric vector & 2 (y.rm, num.years) &  & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{CFPMSYHCR}, \\
          &  &  &  & \texttt{F2CatchHCR}, \texttt{MultiStockHCR} \\
@@ -327,9 +329,9 @@
         % 
         % {[[st]]}\$TACs1.perc & numeric & 1 & percentage of TAC assumed to be taken in the 1st semester & \texttt{aneHCRs} \\
         % {[[st]]}\$tsurv & numeric & 1 & time period of the survey & \texttt{aneHCRs} \\
-        % {[[st]]}\$cbbm.params$G & FLQuant & [2,ny,1,1,1,ni]  &  & \texttt{aneHCRs} \\
-        % {[[st]]}\$cbbm.params$M & FLQuant & [2,ny,1,1,1,ni]  &  & \texttt{aneHCRs} \\
-        % {[[st]]}\$cbbm.params$S & FLQuant & [2,ny,1,1,1,ni]  &  & \texttt{aneHCRs} \\
+        % {[[st]]}\$cbbm.params\$G & FLQuant & [2,ny,1,1,1,ni]  &  & \texttt{aneHCRs} \\
+        % {[[st]]}\$cbbm.params\$M & FLQuant & [2,ny,1,1,1,ni]  &  & \texttt{aneHCRs} \\
+        % {[[st]]}\$cbbm.params\$S & FLQuant & [2,ny,1,1,1,ni]  &  & \texttt{aneHCRs} \\
         \hline
       \end{tabular}
 
