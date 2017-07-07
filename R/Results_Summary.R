@@ -353,7 +353,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @param scenario a character string with the name of the scenario corresponding with obj. Default bc.
 #' @param Bpa named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.
 #' @param Blim named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.
-#' @param Prflim named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate biological risk yearly.
+#' @param Prflim named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate economic risk yearly.
 
 #' @examples
 #'\dontrun{
@@ -787,6 +787,8 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         res[k:(k + prod(Dim) - 1), "income"] <- c(revenue_flbeia(fl)[,years, ]) 
         
         res[k:(k + prod(Dim) - 1), "profits"] <- c(revenue_flbeia(fl)[,years, ]) - res[k:(k + prod(Dim) - 1), "costs"]
+        
+        res[k:(k + prod(Dim) - 1), "price"] <- res[k:(k + prod(Dim) - 1), "income"] / res[k:(k + prod(Dim) - 1), "landings"]
          
         res[k:(k + prod(Dim) - 1), "salaries"] <- c(fl@crewshare[,years,]*revenue_flbeia(fl)[,years, ] + covars[['Salaries']][f,years])
         
@@ -1748,7 +1750,7 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 # riskSum(obj, stocks, fleets, years, long)
 # Bpa = a named vector with the precautionary biomass per stock.
 # Blim = a named vector with the limit biomass per stock.
-# Blim = a named vector with the limit profit per fleet
+# Prflim = a named vector with the limit profit per fleet.
 #----------------------------------------------------------------------
 #' @rdname bioSum
 riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
@@ -1761,16 +1763,31 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   flS <- cbind(flS, refp = Prflim[flS$fleet])
   flS <- cbind(flS, risk = as.numeric(flS$profits > flS$refp))
   
-  if(all(is.na(flS$risk))){ # if economic data not available for exampel
+  if(all(is.na(flS$risk))){ # if economic data not available for example
     flS$risk <- 0
-    auxFl      <- aggregate(risk ~  year + fleet + scenario, data=flS, FUN=function(x){sum(x)/length(x)})
+    auxFl    <- aggregate(risk ~ year + fleet + scenario, data=flS, FUN=function(x){sum(x)/length(x)})
     auxFl$risk[] <- NA
   }else{
-    auxFl      <- aggregate(risk ~  year + fleet+ scenario, data=flS, FUN=function(x){sum(x)/length(x)})
+    auxFl    <- aggregate(risk ~ year + fleet + scenario, data=flS, FUN=function(x){sum(x)/length(x)})
   }
   
-  auxBioPa   <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
-  auxBiolim  <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+  # auxBioPa   <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+  if(all(is.na(bioS$risk.pa))){ # if Bpa not available
+    bioS$risk.pa <- 0
+    auxBioPa     <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+    auxBioPa$risk.pa[] <- NA
+  }else{
+    auxBioPa     <- aggregate(risk ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+  }
+  
+  # auxBiolim  <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+  if(all(is.na(bioS$risk.lim))){ # if Blim not available
+    bioS$risk.lim <- 0
+    auxBiolim     <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+    auxBiolim$risk.lim[] <- NA
+  }else{
+    auxBiolim     <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+  }
   
   names(auxFl) <- c('year', 'unit', 'scenario', 'value')
   names(auxBioPa) <- c('year', 'unit', 'scenario', 'value')
@@ -1783,7 +1800,6 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
  # No sense in wide format  
 #  if(long == FALSE){
 #    temp <- reshape(res,v.names = 'value', timevar = 'indicator', idvar = c('scenario', 'year', 'unit'), direction = 'wide')  }
-
 
   return(res)
 }
