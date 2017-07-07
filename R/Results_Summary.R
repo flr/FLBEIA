@@ -1777,7 +1777,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
     auxBioPa     <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
     auxBioPa$risk.pa[] <- NA
   }else{
-    auxBioPa     <- aggregate(risk ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
+    auxBioPa     <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
   }
   
   # auxBiolim  <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
