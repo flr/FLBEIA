@@ -1,6 +1,6 @@
 #' Plots with fltStkSum data 
 #' 
-#' Return a pdf with plots using FLFleets and advice objects.
+#' Return a pdf with plots with the outputs fltStkSum, usint the output of FLBEIA.
 #'
 #' @param obj FLBEIA output
 #' @param pdfnm The name for the pdf document will be 'fltStkSum-' and pdfnm.
@@ -11,8 +11,8 @@
 #'\dontrun{
 #' library(FLBEIA)
 #' library(ggplot2)
-#' data(one)
-#' plotCatchFl(fleets = oneFl,advice = oneAdv,pdfnm = "s0")
+#' data(res_flbeia)
+#' plotCatchFl(obj=s0,pdfnm = "s0")
 #' }
 #' 
 #.......................................................
