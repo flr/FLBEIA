@@ -84,7 +84,6 @@ export(
   "plotFLFleets",
   "plotbioSum", 
   "plotfltSum", 
-  "plotCatchFl",
   "plotEco",
   "price_flbeia",
   "R_flbeia",
