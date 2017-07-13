@@ -1755,13 +1755,31 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #' @rdname bioSum
 riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
 
-  bioS <- bioSum(obj, stknms = names(obj$biols), years = dimnames(obj$biols[[1]]@n)[[2]], long = FALSE)
+  if (stknms == 'all') { 
+    stknms <- names(obj$biols)
+  } else if (sum(!stknms %in% names(obj$biols))>0) {
+    stop(paste("'stknms' values should be in the following list: ", paste(names(obj$biols), collapse = ", "), sep=''))
+  }
+  if (sum(!names(Bpa) %in% stknms) + sum(!names(Blim) %in% stknms)>0) {
+    stop(paste("Check names for 'Bpa' and 'Blim'. Values should be in the following list: ", paste(stknms, collapse = ", "), sep=''))
+  }
+  
+  bioS <- bioSum(obj, stknms = stknms, years = dimnames(obj$biols[[1]]@n)[[2]], long = FALSE)
   bioS <- cbind(bioS, Bpa = Bpa[bioS$stock],  Blim = Blim[bioS$stock])
   bioS <- cbind(bioS, risk.pa = as.numeric(bioS$ssb < bioS$Bpa), risk.lim = as.numeric(bioS$ssb < bioS$Blim))
+
+  if (flnms == 'all') { 
+    flnms <- names(obj$fleets)
+  } else if (sum(!flnms %in% names(obj$fleets))>0) {
+    stop(paste("'flnms' values should be in the following list: ", paste(names(obj$fleets), collapse = ", "), sep=''))
+  }
+  if (sum(!names(Prflim) %in% flnms)>0) {
+    stop(paste("Check names for 'Prflim'. Values should be in the following list: ", paste(flnms, collapse = ", "), sep=''))
+  }
   
-  flS <- fltSum(obj, years = dimnames(obj$biols[[1]]@n)[[2]], flnms = names(obj$fleets), long = FALSE)
+  flS <- fltSum(obj, years = dimnames(obj$biols[[1]]@n)[[2]], flnms = flnms, long = FALSE)
   flS <- cbind(flS, refp = Prflim[flS$fleet])
-  flS <- cbind(flS, risk = as.numeric(flS$profits > flS$refp))
+  flS <- cbind(flS, risk = as.numeric(flS$profits < flS$refp))
   
   if(all(is.na(flS$risk))){ # if economic data not available for example
     flS$risk <- 0
