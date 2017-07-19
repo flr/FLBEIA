@@ -83,13 +83,10 @@ export(
   "plotFLBiols",
   "plotFLFleets",
   "plotbioSum", 
-<<<<<<< HEAD
   "plotfltSum", 
   "PlotfltStkSum",
-=======
   "plotfltSum",
   "plotfltStkSum", 
->>>>>>> 987062d69c62b220cea14dad1cf6da7bd1d2e780
   "plotEco",
   "price_flbeia",
   "R_flbeia",
