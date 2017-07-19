@@ -140,7 +140,7 @@ total.discards.stock.df <- function(fleet){
 #'\dontrun{
 #' library(FLBEIA)
 #' library(ggplot2)
-#' data(one)
+#' data(res_flbeia)
 #' plotFLFleets(oneFl,pdfnm='s0')
 #' }
 
