@@ -84,7 +84,7 @@ export(
   "plotFLFleets",
   "plotbioSum", 
   "plotfltSum", 
-  "PlotfltStkSum",
+  "plotfltStkSum",
   "plotfltSum",
   "plotfltStkSum", 
   "plotEco",
