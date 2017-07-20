@@ -58,6 +58,7 @@ export(
 "fltSumQ",
 "fltStkSum",
 "fltStkSumQ",
+  "FLSRsim",
   "FroeseHCR",
   "ghlHCR",
 # "initPop_lifeHist",
