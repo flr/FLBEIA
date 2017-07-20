@@ -140,27 +140,13 @@ total.discards.stock.df <- function(fleet){
 #'\dontrun{
 #' library(FLBEIA)
 #' library(ggplot2)
-#' data(one)
-#' s0 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for stk1.
-#'                SRs = oneSR,        # A list with one FLSRSim object for stk1.
-#'                BDs = NULL,         # No Biomass Dynamic populations in this case.
-#'             fleets = oneFl,        # FLFleets object with on fleet.
-#'             covars = NULL,         # covars not used
-#'            indices = NULL,         # indices not used 
-#'             advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
-#'          main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
-#'         biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
-#'        fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
-#'        covars.ctrl = NULL,         # covars control not used 
-#'           obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
-#'        assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
-#'        advice.ctrl = oneAdvC) 
-#' plotFLFleets(s0$fleets,'s0')
+#' data(res_flbeia)
+#' plotFLFleets(oneFl,pdfnm='s0')
 #' }
 
 
 
-plotFLFleets <- function(fleets,pdfnm){
+plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm){
   
   names.fl <- names(fleets)
   path.pdf <- ''
@@ -183,16 +169,27 @@ plotFLFleets <- function(fleets,pdfnm){
     
     df <- rbind(total.catch.df,total.landings.df,total.discards.df)
     df$fleet <- rep(names.fl[i],dim(df)[1])
-    
-    temp <- aggregate(data ~ age + year+species+indicator+fleet, data = df, mean)
-    temp$indicator <- factor(temp$indicator)
-    temp$species <- factor(temp$species)
-    temp$fleet <- factor(temp$fleet)   
-    p <- ggplot(data=temp, aes(x=year, y=data, fill=species))  + 
-      geom_area(colour="black", size=.2, alpha=.4)+ 
-      facet_grid(indicator~fleet,scales=c("free_y"))
+    df$indicator <- factor(df$indicator)
+    df$species <- factor(df$species)
+    df$fleet <- factor(df$fleet)  
+    res <- aggregate(data ~ age + year+species+indicator+fleet, df, quantile, prob = prob, na.rm=T)
+    res <- cbind(res[,1:5], data.frame(res[,6]))
+    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+    names(res)[6:(6+length(prob)-1)] <- nms
+    res$age <- as.factor(res$age)
+    p <- ggplot( data=res, aes(x=year, y=q50, fill=species)) + 
+      geom_line() + theme_bw() +   
+      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=species), alpha=0.3) + 
+      facet_grid(indicator~fleet,scales=c("free_y"))+
+      ggtitle("")+
+      theme(text=element_text(size=10),
+            title=element_text(size=10,face="bold"),
+            strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 
+
     print(p)
     
+    
+  
     #EFFORT, FCOST,CAPACITY,CREWSHARE
     df <- NULL
     effort.df <- as.data.frame(fleet@effort)
@@ -212,13 +209,22 @@ plotFLFleets <- function(fleets,pdfnm){
     crewshare.df$indicator <- names.fl[i] 
 
     df <- rbind(df,effort.df,fcost.df,capacity.df,crewshare.df) 
- 
-    temp <- aggregate(data ~ age + year+area+variable+indicator, data = df, mean)
+
+    res <- aggregate(data ~ age + year+variable+indicator, df, quantile, prob = prob, na.rm=T)
+    res <- cbind(res[,1:4], data.frame(res[,5]))
+    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+    names(res)[5:(5+length(prob)-1)] <- nms
+    res$age <- as.factor(res$age)
+    p <- ggplot( data=res, aes(x=year, y=q50, fill=indicator)) + 
+      geom_line() + theme_bw() +   
+      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=indicator), alpha=0.3) + 
+      facet_grid(variable~indicator,scales=c("free_y"))+
+      ggtitle("")+
+      theme(text=element_text(size=10),
+            title=element_text(size=10,face="bold"),
+            strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 
     
-    p <- ggplot(data=temp, aes(x=year, y=data, fill=indicator))  + geom_line() +
-      geom_point(size=2, shape=21)+
-      facet_grid(variable~indicator,scales=c("free_y"))
-    print(p)          
+    print(p)
     
     #PER METIER
     nms.metiers <- names(fleet@metiers)
@@ -238,19 +244,29 @@ plotFLFleets <- function(fleets,pdfnm){
       
     }
       df$fleet <- names.fl[i]
-    temp <- aggregate(data ~ age + year+area+fleet+metier+indicator, data = df, mean)
-    
-      p <- ggplot(data=temp, aes(x=year, y=data, fill=metier))  + geom_line() +
-        geom_point(size=2, shape=21)+
-        facet_grid(indicator~fleet,scales=c("free_y"))
-      print(p)          
-
+ 
+      res <- aggregate(data ~ age + year+fleet+metier+indicator, df, quantile, prob = prob, na.rm=T)
+      res <- cbind(res[,1:5], data.frame(res[,6]))
+      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+      names(res)[6:(6+length(prob)-1)] <- nms
+      res$age <- as.factor(res$age)
+      p <- ggplot( data=res, aes(x=year, y=q50, fill=metier)) + 
+        geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
+        geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=metier), alpha=0.3) + 
+        facet_grid(indicator~fleet,scales=c("free_y"))+
+        ggtitle("")+
+        theme(text=element_text(size=10),
+              title=element_text(size=10,face="bold"),
+              strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 
+      
+      print(p)
+      
     nms.stock.metier <- names(fleet@metiers[[k]]@catches)
     
     for(k in 1:length(nms.metiers)){
       nms.stock.metier <- names(fleet@metiers[[k]]@catches)
       
-      for(j in 1:length(nms.stock.metier)){
+      for(j in 1:length(nms.stock.metier)){ 
        
         #LANDINGS.N,LANDINGS.WT,DISCARDS.N,DISCARDS.WT
         landings.n.df <- as.data.frame(fleet@metiers[[k]]@catches[[j]]@landings.n)
@@ -271,13 +287,23 @@ plotFLFleets <- function(fleets,pdfnm){
   
         df <- rbind(landings.n.df,discards.n.df,landings.wt.df,discards.wt.df)
         df$stock <- rep(paste(nms.metiers[[k]],"//",nms.stock.metier[j]),dim(df)[1])
-        temp <- aggregate(data ~ age + year+stock+indicator, data = df, mean)
-        
-        p <- ggplot(data=temp, aes(x=year, y=data, fill=age))  + geom_line() +
-          geom_point(size=2, shape=21)+
-          facet_grid(indicator~stock,scales=c("free_y"))
-        print(p)
 
+        res <- aggregate(data ~ age + year+stock+indicator, df, quantile, prob = prob, na.rm=T)
+        res <- cbind(res[,1:4], data.frame(res[,5]))
+        nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+        names(res)[5:(5+length(prob)-1)] <- nms
+        res$age <- as.factor(res$age)
+        p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+          geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
+          geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+          facet_grid(indicator~stock,scales=c("free_y"))+
+          ggtitle("")+
+          theme(text=element_text(size=10),
+                title=element_text(size=10,face="bold"),
+                strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 
+        
+        print(p)
+        
         alpha.df <- as.data.frame(fleet@metiers[[k]]@catches[[j]]@alpha)
         alpha.df$age <- factor(alpha.df$age)
         alpha.df$indicator <- 'alpha'
@@ -292,11 +318,21 @@ plotFLFleets <- function(fleets,pdfnm){
 
         df <- rbind(alpha.df,beta.df,catch.q.df)
         df$stock <- rep(paste(nms.metiers[[k]],"//",nms.stock.metier[j]),dim(df)[1])
-        temp <- aggregate(data ~ age + year+stock+indicator, data = df, mean)
+
+        res <- aggregate(data ~ age + year+stock+indicator, df, quantile, prob = prob, na.rm=T)
+        res <- cbind(res[,1:4], data.frame(res[,5]))
+        nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+        names(res)[5:(5+length(prob)-1)] <- nms
+        res$age <- as.factor(res$age)
+        p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+          geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
+          geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.05) + 
+          facet_grid(indicator~stock,scales=c("free_y"))+
+          ggtitle("")+
+          theme(text=element_text(size=10),
+                title=element_text(size=10,face="bold"),
+                strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 
         
-        p <- ggplot(data=temp, aes(x=year, y=data, fill=age))  + geom_line() +
-          geom_point(size=2, shape=21)+
-          facet_grid(indicator~stock,scales=c("free_y"))
         print(p)
 
       }
