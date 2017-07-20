@@ -6,7 +6,7 @@
 #..................................................
 
 
-sca.wrapper <- function(stock, indices, control=control,covars=covars){
+sca2flbeia <- function(stock, indices, control=control,covars=covars){
   
   if(control$test==TRUE){
     fit0 <- sca(stock, indices)

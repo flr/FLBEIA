@@ -1,7 +1,7 @@
 
 
 
-spict_assessment <- function(stock, indices, control=NULL,covars=covars){
+spict2flbeia <- function(stock, indices, control=NULL,covars=covars){
   # Hack input
   
   # check if spict results slot already exist
