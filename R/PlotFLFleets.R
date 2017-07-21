@@ -146,14 +146,14 @@ total.discards.stock.df <- function(fleet){
 
 
 
-plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm){
+plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
   
   names.fl <- names(fleets)
   path.pdf <- ''
   
   for(i in 1:length(names.fl)){
     
-    pdf(paste(path.pdf,names.fl[i],'-',pdfnm,'.pdf',sep=''))
+    pdf(paste(pdfnm,'_',path.pdf,names.fl[i],'.pdf',sep=''))
   
     fleet <- fleets[[i]]
     

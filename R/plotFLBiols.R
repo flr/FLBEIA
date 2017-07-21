@@ -32,14 +32,14 @@
 ###############################################################################
 #.......................................................
 #....................FUNCTIONS..........................
-plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm){
+plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     
   names.biols <- names(biols)
   path.pdf <- ''
   
   for(i in 1:length(names.biols)){
     
-    pdf(paste(path.pdf,names.biols[i],'-',pdfnm,'.pdf',sep=''))
+    pdf(paste(pdfnm,'_',path.pdf,names.biols[i],'.pdf',sep=''))
     
     biol <- biols[[i]]
     
