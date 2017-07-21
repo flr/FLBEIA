@@ -24,7 +24,7 @@ plotfltStkSum <- function(obj,pdfnm){
                            byyear = TRUE, long = TRUE, scenario = "bc")
 
   path.pdf <- ''
-  pdf(paste(path.pdf,'fltStkSum','-',pdfnm,'.pdf',sep=''))
+  pdf(paste(pdfnm,'_',path.pdf,'fltStkSum','.pdf',sep=''))
   
   indicator <- unique(fltStkSumQ(fltStkSum.data)$indicator)
   
