@@ -178,7 +178,7 @@ plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     names(res)[6:(6+length(prob)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=species)) + 
-      geom_line() + theme_bw() +   
+      geom_line() + theme_bw() + geom_point(size=2,shape=21) + 
       geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=species), alpha=0.3) + 
       facet_grid(indicator~fleet,scales=c("free_y"))+
       ggtitle("")+
@@ -216,7 +216,7 @@ plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     names(res)[5:(5+length(prob)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=indicator)) + 
-      geom_line() + theme_bw() +   
+      geom_line() + theme_bw() + geom_point(size=2,shape=21)+  
       geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=indicator), alpha=0.3) + 
       facet_grid(variable~indicator,scales=c("free_y"))+
       ggtitle("")+
