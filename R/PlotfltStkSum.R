@@ -12,7 +12,7 @@
 #' library(FLBEIA)
 #' library(ggplot2)
 #' data(res_flbeia)
-#' plotCatchFl(obj=s0,pdfnm = "s0")
+#' plotfltStkSum(obj=oneRes,pdfnm = "oneRes")
 #' }
 #' 
 #.......................................................

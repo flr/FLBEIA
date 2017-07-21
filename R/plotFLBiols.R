@@ -20,7 +20,7 @@
 #' library(FLBEIA)
 #' library(ggplot2)
 #' data(res_flbeia)
-#' plotFLBiols(s0$biols, pdfname='s0')
+#' plotFLBiols(oneRes$biols, pdfname='oneRes')
 #' }
 
 

@@ -141,7 +141,7 @@ total.discards.stock.df <- function(fleet){
 #' library(FLBEIA)
 #' library(ggplot2)
 #' data(res_flbeia)
-#' plotFLFleets(oneFl,pdfnm='s0')
+#' plotFLFleets(oneFl,pdfnm='oneFl')
 #' }
 
 

@@ -95,22 +95,22 @@
 #'  # Load the same data set as before but with 3 iterations.
 #'  # Run FLBEIA and plot the results
 #'  
-#' data(oneIters)
+#' data(oneIt)
 #'  
-#' s1 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for stk1.
-#'                SRs = oneSR,        # A list with one FLSRSim object for stk1.
+#' s1 <- FLBEIA(biols = oneItBio,       # FLBiols object with one FLBiol element for stk1.
+#'                SRs = oneItSR,        # A list with one FLSRSim object for stk1.
 #'                BDs = NULL,         # No Biomass Dynamic populations in this case.
-#'             fleets = oneFl,        # FLFleets object with on fleet.
-#'             covars = oneCv,         # covars not used
+#'             fleets = oneItFl,        # FLFleets object with on fleet.
+#'             covars = oneItCv,         # covars not used
 #'            indices = NULL,         # indices not used 
-#'             advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
-#'          main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
-#'         biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
-#'        fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
-#'        covars.ctrl = oneCvC,         # covars control not used 
-#'           obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
-#'        assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
-#'        advice.ctrl = oneAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
+#'             advice = oneItAdv,       # A list with two elements 'TAC' and 'quota.share'
+#'          main.ctrl = oneItMainC,     # A list with one element to define the start and end of the simulation.
+#'         biols.ctrl = oneItBioC,      # A list with one element to select the model to simulate the stock dynamics.
+#'        fleets.ctrl = oneItFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
+#'        covars.ctrl = oneItCvC,         # covars control not used 
+#'           obs.ctrl = oneItObsC,      # A list with one element to define how the stock observed ("PerfectObs").
+#'        assess.ctrl = oneItAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
+#'        advice.ctrl = oneItAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
 #' 
 #' # Names of the object returned by FLBEIA
 #' names(s1)
