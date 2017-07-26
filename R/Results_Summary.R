@@ -711,25 +711,25 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
 
     if (flnms[1] == "all") flnms <- names(fleets)
     
-    Dim <- dim(fleets[[1]]@effort[, years, ])[c(2, 4, 6)]
-    Dimnm <- dimnames(fleets[[1]]@effort[, years, ])
+    Dim <- dim(fleets[[1]]@effort[,years , ])[c(2, 4, 6)]
+    Dimnm <- dimnames(fleets[[1]]@effort[,years , ])
     n <- prod(Dim) * length(flnms)
     
     if(is.null(covars$Depreciation)){ 
-      covars$Depreciation <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, years, ])[2:6]))
-      dimnames(covars$Depreciation) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, years, ])[2:6])
+      covars$Depreciation <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
+      dimnames(covars$Depreciation) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
     }
     if(is.null(covars$Salaries)){ 
-      covars$Salaries <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, years, ])[2:6]))
-      dimnames(covars$Salaries) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, years, ])[2:6])
+      covars$Salaries <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
+      dimnames(covars$Salaries) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
     }
     if(is.null(covars$MaxDays)){ 
-      covars$MaxDays <- FLQuant(365/dim(fleets[[1]]@effort[, years, ])[4], dim = c(length(fleets),dim(fleets[[1]]@effort[, years, ])[2:6]))
-      dimnames(covars$MaxDays) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, years, ])[2:6])
+      covars$MaxDays <- FLQuant(365/dim(fleets[[1]]@effort[, years, ])[4], dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
+      dimnames(covars$MaxDays) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
     }
     if(is.null(covars$NumbVessels)){ 
-      covars$NumbVessels <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, years, ])[2:6]))
-      dimnames(covars$NumbVessels) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, years, ])[2:6])
+      covars$NumbVessels <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
+      dimnames(covars$NumbVessels) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
     }
     
     if(byyear == F){
@@ -1764,7 +1764,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
     stop(paste("Check names for 'Bpa' and 'Blim'. Values should be in the following list: ", paste(stknms, collapse = ", "), sep=''))
   }
   
-  bioS <- bioSum(obj, stknms = stknms, years = dimnames(obj$biols[[1]]@n)[[2]], long = FALSE)
+  bioS <- bioSum(obj, stknms = stknms, years = years, long = FALSE)
   bioS <- cbind(bioS, Bpa = Bpa[bioS$stock],  Blim = Blim[bioS$stock])
   bioS <- cbind(bioS, risk.pa = as.numeric(bioS$ssb < bioS$Bpa), risk.lim = as.numeric(bioS$ssb < bioS$Blim))
 
@@ -1777,7 +1777,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
     stop(paste("Check names for 'Prflim'. Values should be in the following list: ", paste(flnms, collapse = ", "), sep=''))
   }
   
-  flS <- fltSum(obj, years = dimnames(obj$biols[[1]]@n)[[2]], flnms = flnms, long = FALSE)
+  flS <- fltSum(obj, years = years, flnms = flnms, long = FALSE)
   flS <- cbind(flS, refp = Prflim[flS$fleet])
   flS <- cbind(flS, risk = as.numeric(flS$profits < flS$refp))
   
