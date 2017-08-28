@@ -12,7 +12,7 @@
 #' library(FLBEIA)
 #' library(ggplot2)
 #' data(one)
-#' plotEco(one$fleets,'one')
+#' plotEco(one$fleets, pdfnm='one')
 #' }
 
 

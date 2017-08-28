@@ -10,7 +10,7 @@
 #  obj = FLBEIA output.
 #  
 #   
-# Dorleta GarcYYYa
+# Dorleta Garcia
 # Created: 30/01/2011 20:50:27 
 # Changed: 30/01/2011 20:50:32
 #------------------------------------------------------------------------------#
@@ -38,6 +38,7 @@
 #'       \item{L_flbeia}{ this function computes landings by fleets and stock.}
 #'       \item{D_flbeia}{ ithis function computes the discards by fleets and stock.}
 #'      }     
+
 
 #------------------------------------------------------------------------------#
 # F_flbeia(obj) :: res[stocks, years, it] 
@@ -149,6 +150,7 @@ B_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     return(res)
 }
 
+
 #------------------------------------------------------------------------------#
 # R_flbeia(obj) :: res[stocks, years, it] 
 # If age struc => recruitment.
@@ -192,6 +194,7 @@ R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     return(res)
 }
 
+
 #------------------------------------------------------------------------------#
 # C_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
@@ -206,7 +209,6 @@ C_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 
     stknms <- names(obj$biols)
     
-    
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # B 1st season
@@ -215,9 +217,11 @@ C_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     return(res)
 }
 
+
 #------------------------------------------------------------------------------#
 # L_flbeia(obj) :: res[stocks, years, it] 
 #------------------------------------------------------------------------------#
+
 #' @rdname F_flbeia
 L_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     stknms <- names(obj$biols)
@@ -235,6 +239,7 @@ L_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     }
     return(res)
 }
+
 
 #------------------------------------------------------------------------------#
 # D_flbeia(obj) :: res[stocks, years, it] 
@@ -257,6 +262,11 @@ D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     }
     return(res)
 }
+
+
+#------------------------------------------------------------------------------#
+# summary_flbeia(obj) :: res[stocks, years, it, indicators] 
+#------------------------------------------------------------------------------#
 
 #' @rdname F_flbeia
 summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
@@ -282,10 +292,6 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     
 }
 
-
-#------------------------------------------------------------------------------#
-# BIOsummary(obj) :: DATA.FRAME[stocks, years, it, indicators, value] 
-#------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # summary_flbeia(obj) :: res[stocks, years, it, indicators] 
 #------------------------------------------------------------------------------#
@@ -458,137 +464,142 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' 
 #' 
 #' #------------------------------------------------
-#' # Example OneIters: As one but with iterations.
+#' # Example OneIt: As one but with iterations.
 #' #------------------------------------------------
-#' s1_bio    <- bioSum(s1, scenario = 'with_iters')
-#' s1_flt    <- fltSum(s1, scenario = 'with_iters')
-#' s1_fltStk <- fltStkSum(s1, scenario = 'with_iters')
-#' s1_mt     <- mtSum(s1, scenario = 'with_iters')
-#' s1_mtStk  <- mtStkSum(s1, scenario = 'with_iters')
-#' s1_adv    <- advSum(s1, scenario = 'with_iters')
+#' oneItRes_bio    <- bioSum(oneItRes, scenario = 'with_iters')
+#' oneItRes_flt    <- fltSum(oneItRes, scenario = 'with_iters')
+#' oneItRes_fltStk <- fltStkSum(oneItRes, scenario = 'with_iters')
+#' oneItRes_mt     <- mtSum(oneItRes, scenario = 'with_iters')
+#' oneItRes_mtStk  <- mtStkSum(oneItRes, scenario = 'with_iters')
+#' oneItRes_adv    <- advSum(oneItRes, scenario = 'with_iters')
 #' 
-#' s1_bioQ    <- bioSumQ(s1_bio)
-#' s1_fltQ    <- fltSumQ(s1_flt)
-#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
-#' s1_mtQ     <- mtSumQ(s1_mt)
-#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
-#' s1_advQ    <- advSumQ(s1_adv)
+#' oneItRes_bioQ    <- bioSumQ(oneItRes_bio)
+#' oneItRes_fltQ    <- fltSumQ(oneItRes_flt)
+#' oneItRes_fltStkQ <- fltStkSumQ(oneItRes_fltStk)
+#' oneItRes_mtQ     <- mtSumQ(oneItRes_mt)
+#' oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
+#' oneItRes_advQ    <- advSumQ(oneItRes_adv)
 #' 
-#' s1_bio    <- bioSum(s1, long = FALSE, years = ac(2016:2020))
-#' s1_flt    <- fltSum(s1, long = FALSE, years = ac(2016:2020))
-#' s1_fltStk <- fltStkSum(s1, long = FALSE, years = ac(2016:2020))
-#' s1_mt     <- mtSum(s1, long = FALSE, years = ac(2016:2020))
-#' s1_mtStk  <- mtStkSum(s1, long = FALSE, years = ac(2016:2020))
-#' s1_adv    <- advSum(s1, long = FALSE, years = ac(2016:2020))
-#' 
-#' 
-#' s1_bioQ    <- bioSumQ(s1_bio)
-#' s1_fltQ    <- fltSumQ(s1_flt)
-#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
-#' s1_mtQ     <- mtSumQ(s1_mt)
-#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
-#' s1_advQ    <- advSumQ(s1_adv)
+#' oneItRes_bio    <- bioSum(oneItRes, long = FALSE, years = ac(2016:2020))
+#' oneItRes_flt    <- fltSum(oneItRes, long = FALSE, years = ac(2016:2020))
+#' oneItRes_fltStk <- fltStkSum(oneItRes, long = FALSE, years = ac(2016:2020))
+#' oneItRes_mt     <- mtSum(oneItRes, long = FALSE, years = ac(2016:2020))
+#' oneItRes_mtStk  <- mtStkSum(oneItRes, long = FALSE, years = ac(2016:2020))
+#' oneItRes_adv    <- advSum(oneItRes, long = FALSE, years = ac(2016:2020))
 #' 
 #' 
-#' s1_bio    <- bioSum(s1, long = FALSE) # Biol summary is only by year.
-#' s1_flt    <- fltSum(s1, long = FALSE, byyear = FALSE)
-#' s1_fltStk <- fltStkSum(s1, long = FALSE, byyear = FALSE)
-#' s1_mt     <- mtSum(s1, long = FALSE, byyear = FALSE)
-#' s1_mtStk  <- mtStkSum(s1, long = FALSE, byyear = FALSE)
-#' s1_adv    <- advSum(s1, long = FALSE) # Advice summary is only by year.
-#' 
-#' s1_bioQ    <- bioSumQ(s1_bio)
-#' s1_fltQ    <- fltSumQ(s1_flt)
-#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
-#' s1_mtQ     <- mtSumQ(s1_mt)
-#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
-#' s1_advQ    <- advSumQ(s1_adv)
+#' oneItRes_bioQ    <- bioSumQ(oneItRes_bio)
+#' oneItRes_fltQ    <- fltSumQ(oneItRes_flt)
+#' oneItRes_fltStkQ <- fltStkSumQ(oneItRes_fltStk)
+#' oneItRes_mtQ     <- mtSumQ(oneItRes_mt)
+#' oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
+#' oneItRes_advQ    <- advSumQ(oneItRes_adv)
 #' 
 #' 
-#' s1_bio    <- bioSum(s1, long = TRUE) # Biol summary is only by year.
-#' s1_flt    <- fltSum(s1, long = TRUE, byyear = FALSE)
-#' s1_fltStk <- fltStkSum(s1, long = TRUE, byyear = FALSE)
-#' s1_mt     <- mtSum(s1, long = TRUE, byyear = FALSE)
-#' s1_mtStk  <- mtStkSum(s1, long = TRUE, byyear = FALSE)
-#' s1_adv    <- advSum(s1, long = TRUE) # Advice summary is only by year.
+#' oneItRes_bio    <- bioSum(oneItRes, long = FALSE) # Biol summary is only by year.
+#' oneItRes_flt    <- fltSum(oneItRes, long = FALSE, byyear = FALSE)
+#' oneItRes_fltStk <- fltStkSum(oneItRes, long = FALSE, byyear = FALSE)
+#' oneItRes_mt     <- mtSum(oneItRes, long = FALSE, byyear = FALSE)
+#' oneItRes_mtStk  <- mtStkSum(oneItRes, long = FALSE, byyear = FALSE)
+#' oneItRes_adv    <- advSum(oneItRes, long = FALSE) # Advice summary is only by year.
 #' 
-#' s1_bioQ    <- bioSumQ(s1_bio)
-#' s1_fltQ    <- fltSumQ(s1_flt)
-#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
-#' s1_mtQ     <- mtSumQ(s1_mt)
-#' s1_mtStkQ  <- mtStkSumQ(s1_mtStk)
-#' s1_advQ    <- advSumQ(s1_adv)
+#' oneItRes_bioQ    <- bioSumQ(oneItRes_bio)
+#' oneItRes_fltQ    <- fltSumQ(oneItRes_flt)
+#' oneItRes_fltStkQ <- fltStkSumQ(oneItRes_fltStk)
+#' oneItRes_mtQ     <- mtSumQ(oneItRes_mt)
+#' oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
+#' oneItRes_advQ    <- advSumQ(oneItRes_adv)
 #' 
-#' s1_risk <- riskSum(s1, Bpa = c(stk1= 900), Blim = c(stk1 = 600), Prflim = c(flt1 = 0), scenario = 'alternative')
 #' 
-#' s1_npv  <- npv(s1, y0 = '2014')
+#' oneItRes_bio    <- bioSum(oneItRes, long = TRUE) # Biol summary is only by year.
+#' oneItRes_flt    <- fltSum(oneItRes, long = TRUE, byyear = FALSE)
+#' oneItRes_fltStk <- fltStkSum(oneItRes, long = TRUE, byyear = FALSE)
+#' oneItRes_mt     <- mtSum(oneItRes, long = TRUE, byyear = FALSE)
+#' oneItRes_mtStk  <- mtStkSum(oneItRes, long = TRUE, byyear = FALSE)
+#' oneItRes_adv    <- advSum(oneItRes, long = TRUE) # Advice summary is only by year.
+#' 
+#' oneItRes_bioQ    <- bioSumQ(oneItRes_bio)
+#' oneItRes_fltQ    <- fltSumQ(oneItRes_flt)
+#' oneItRes_fltStkQ <- fltStkSumQ(oneItRes_fltStk)
+#' oneItRes_mtQ     <- mtSumQ(oneItRes_mt)
+#' oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
+#' oneItRes_advQ    <- advSumQ(oneItRes_adv)
+#' 
+#' oneItRes_risk <- riskSum(oneItRes, Bpa = c(stk1= 900), Blim = c(stk1 = 600), Prflim = c(flt1 = 0), scenario = 'alternative')
+#' 
+#' oneItRes_npv  <- npv(oneItRes, y0 = '2014')
 #'
 #' #------------------------------------------------
 #' # Example Multi: Two stock, two fleet, four iters.
 #' #------------------------------------------------
-#' s2_bio    <- bioSum(s2)
-#' s2_flt    <- fltSum(s2)
-#' s2_fltStk <- fltStkSum(s2)
-#' s2_mt     <- mtSum(s2)
-#' s2_mtStk  <- mtStkSum(s2)
-#' s2_adv    <- advSum(s2)
+#' multiRes_bio    <- bioSum(multiRes)
+#' multiRes_flt    <- fltSum(multiRes)
+#' multiRes_fltStk <- fltStkSum(multiRes)
+#' multiRes_mt     <- mtSum(multiRes)
+#' multiRes_mtStk  <- mtStkSum(multiRes)
+#' multiRes_adv    <- advSum(multiRes)
 #' 
-#' s2_bioQ    <- bioSumQ(s2_bio)
-#' s2_fltQ    <- fltSumQ(s2_flt)
-#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
-#' s2_mtQ     <- mtSumQ(s2_mt)
-#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
-#' s2_advQ    <- advSumQ(s2_adv)
+#' multiRes_bioQ    <- bioSumQ(multiRes_bio)
+#' multiRes_fltQ    <- fltSumQ(multiRes_flt)
+#' multiRes_fltStkQ <- fltStkSumQ(multiRes_fltStk)
+#' multiRes_mtQ     <- mtSumQ(multiRes_mt)
+#' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
+#' multiRes_advQ    <- advSumQ(multiRes_adv)
 #' 
-#' s2_bio    <- bioSum(s2, long = FALSE, years = ac(2016:2020))
-#' s2_flt    <- fltSum(s2, long = FALSE, years = ac(2016:2020))
-#' s2_fltStk <- fltStkSum(s2, long = FALSE, years = ac(2016:2020))
-#' s2_mt     <- mtSum(s2, long = FALSE, years = ac(2016:2020))
-#' s2_mtStk  <- mtStkSum(s2, long = FALSE, years = ac(2016:2020))
-#' s2_adv    <- advSum(s2, long = FALSE, years = ac(2016:2020))
-#' 
-#' 
-#' s2_bioQ    <- bioSumQ(s2_bio)
-#' s2_fltQ    <- fltSumQ(s2_flt)
-#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
-#' s2_mtQ     <- mtSumQ(s2_mt)
-#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
-#' s2_advQ    <- advSumQ(s2_adv)
+#' multiRes_bio    <- bioSum(multiRes, long = FALSE, years = ac(2016:2020))
+#' multiRes_flt    <- fltSum(multiRes, long = FALSE, years = ac(2016:2020))
+#' multiRes_fltStk <- fltStkSum(multiRes, long = FALSE, years = ac(2016:2020))
+#' multiRes_mt     <- mtSum(multiRes, long = FALSE, years = ac(2016:2020))
+#' multiRes_mtStk  <- mtStkSum(multiRes, long = FALSE, years = ac(2016:2020))
+#' multiRes_adv    <- advSum(multiRes, long = FALSE, years = ac(2016:2020))
 #' 
 #' 
-#' s2_bio    <- bioSum(s2, long = FALSE) # Biol summary is only by year.
-#' s2_flt    <- fltSum(s2, long = FALSE, byyear = FALSE)
-#' s2_fltStk <- fltStkSum(s2, long = FALSE, byyear = FALSE)
-#' s2_mt     <- mtSum(s2, long = FALSE, byyear = FALSE)
-#' s2_mtStk  <- mtStkSum(s2, long = FALSE, byyear = FALSE)
-#' s2_adv    <- advSum(s2, long = FALSE) # Advice summary is only by year.
-#' 
-#' s2_bioQ    <- bioSumQ(s2_bio)
-#' s2_fltQ    <- fltSumQ(s2_flt)
-#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
-#' s2_mtQ     <- mtSumQ(s2_mt)
-#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
-#' s2_advQ    <- advSumQ(s2_adv)
+#' multiRes_bioQ    <- bioSumQ(multiRes_bio)
+#' multiRes_fltQ    <- fltSumQ(multiRes_flt)
+#' multiRes_fltStkQ <- fltStkSumQ(multiRes_fltStk)
+#' multiRes_mtQ     <- mtSumQ(multiRes_mt)
+#' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
+#' multiRes_advQ    <- advSumQ(multiRes_adv)
 #' 
 #' 
-#' s2_bio    <- bioSum(s2, long = TRUE) # Biol summary is only by year.
-#' s2_flt    <- fltSum(s2, long = TRUE, byyear = FALSE)
-#' s2_fltStk <- fltStkSum(s2, long = TRUE, byyear = FALSE)
-#' s2_mt     <- mtSum(s2, long = TRUE, byyear = FALSE)
-#' s2_mtStk  <- mtStkSum(s2, long = TRUE, byyear = FALSE)
-#' s2_adv    <- advSum(s2, long = TRUE) # Advice summary is only by year.
+#' multiRes_bio    <- bioSum(multiRes, long = FALSE) # Biol summary is only by year.
+#' multiRes_flt    <- fltSum(multiRes, long = FALSE, byyear = FALSE)
+#' multiRes_fltStk <- fltStkSum(multiRes, long = FALSE, byyear = FALSE)
+#' multiRes_mt     <- mtSum(multiRes, long = FALSE, byyear = FALSE)
+#' multiRes_mtStk  <- mtStkSum(multiRes, long = FALSE, byyear = FALSE)
+#' multiRes_adv    <- advSum(multiRes, long = FALSE) # Advice summary is only by year.
 #' 
-#' s2_bioQ    <- bioSumQ(s2_bio)
-#' s2_fltQ    <- fltSumQ(s2_flt)
-#' s2_fltStkQ <- fltStkSumQ(s2_fltStk)
-#' s2_mtQ     <- mtSumQ(s2_mt)
-#' s2_mtStkQ  <- mtStkSumQ(s2_mtStk)
-#' s2_advQ    <- advSumQ(s2_adv)
+#' multiRes_bioQ    <- bioSumQ(multiRes_bio)
+#' multiRes_fltQ    <- fltSumQ(multiRes_flt)
+#' multiRes_fltStkQ <- fltStkSumQ(multiRes_fltStk)
+#' multiRes_mtQ     <- mtSumQ(multiRes_mt)
+#' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
+#' multiRes_advQ    <- advSumQ(multiRes_adv)
 #' 
-#' s2_npv  <- npv(s2, y0 = '2014')
-#' risk_s2 <- riskSum(s2, Bpa = c(stk1= 135000, stk2 = 124000), Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(flt1 = 0, flt2 = 0), scenario = 'alternative')
+#' 
+#' multiRes_bio    <- bioSum(multiRes, long = TRUE) # Biol summary is only by year.
+#' multiRes_flt    <- fltSum(multiRes, long = TRUE, byyear = FALSE)
+#' multiRes_fltStk <- fltStkSum(multiRes, long = TRUE, byyear = FALSE)
+#' multiRes_mt     <- mtSum(multiRes, long = TRUE, byyear = FALSE)
+#' multiRes_mtStk  <- mtStkSum(multiRes, long = TRUE, byyear = FALSE)
+#' multiRes_adv    <- advSum(multiRes, long = TRUE) # Advice summary is only by year.
+#' 
+#' multiRes_bioQ    <- bioSumQ(multiRes_bio)
+#' multiRes_fltQ    <- fltSumQ(multiRes_flt)
+#' multiRes_fltStkQ <- fltStkSumQ(multiRes_fltStk)
+#' multiRes_mtQ     <- mtSumQ(multiRes_mt)
+#' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
+#' multiRes_advQ    <- advSumQ(multiRes_adv)
+#' 
+#' multiRes_npv  <- npv(multiRes, y0 = '2014')
+#' risk_multiRes <- riskSum(multiRes, Bpa = c(stk1= 135000, stk2 = 124000), Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(flt1 = 0, flt2 = 0), scenario = 'alternative')
 #'
 #' }
+
+#------------------------------------------------------------------------------#
+# bioSum :: data.frame[scenario, year, stock, iter, ||,||
+#        rec, ssb, f, biomass, catch, landings, discards, land.iyv, disc.iyv, catch.iyv]
+#------------------------------------------------------------------------------#
 bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year, long = TRUE, scenario = 'bc'){
     xx <- summary_flbeia(obj, years)
      
@@ -695,11 +706,13 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   return(res)
   }
-  
-  
+
+
 #------------------------------------------------------------------------------#
-# fltSum data.frame[year, season, stock, fleet, iter, ||,|| 
-#        profits, capacity, costs, discards, effort, landings] 
+# fltSum :: data.frame[scenario, year, fleet, iter, ||,|| 
+#        capacity, catch, costs, discards, discRat, effort, fcosts, gva, income, 
+#        landings, netProfit, nVessels, price, profits, quotaUpt, salaries, 
+#        vcosts, profitability]
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = TRUE, scenario = 'bc')
@@ -1092,8 +1105,8 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 
 
 #------------------------------------------------------------------------------#
-# catchFlSum data.frame[year, season, stock, fleet, iter, ||,|| 
-#        landings, discards, price, tacshare] 
+# fltStkSum :: data.frame[year, season, stock, fleet, iter, ||,|| 
+#        landings, discards, catch, discRat, price, quota, quotaUpt] 
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
@@ -1128,9 +1141,11 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                     landings = numeric(n), 
                     discards = numeric(n),
                     catch    = numeric(n),
+                    discRat  = numeric(n),
                     price    = numeric(n),
+                    quota    = numeric(n),
                     quotaUpt = numeric(n),
-                    tacshare = numeric(n),
+                    #tacshare = numeric(n),
                     stringsAsFactors = FALSE)
         
         k <- 1
@@ -1166,9 +1181,11 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                           landings = numeric(n), 
                           discards = numeric(n),
                           catch    = numeric(n),
+                          discRat  = numeric(n),
                           price    = numeric(n),
+                          quota = numeric(n),
                           quotaUpt = numeric(n),
-                          tacshare = numeric(n),
+                          #tacshare = numeric(n),
                           stringsAsFactors = FALSE)
         
         k <- 1
@@ -1276,7 +1293,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 
 #-------------------------------------------------------------------------------
-# price_flbeia(fleet, years)(mean price in a fleet)
+# price_flbeia(fleet, years) (mean price in a fleet)
 #-------------------------------------------------------------------------------
 #' @rdname revenue_flbeia
 price_flbeia <- function(fleet, stock){
@@ -1946,7 +1963,7 @@ else{
                  data.frame(res[,12]), data.frame(res[,13]), data.frame(res[,14]), data.frame(res[,15]),
                  data.frame(res[,16]), data.frame(res[,17]), data.frame(res[,18]), data.frame(res[,19]))
     
-     nms2  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+    nms2  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     nms3  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     nms4  <- paste('discRat_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     nms5  <- paste('effort_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -2006,7 +2023,7 @@ return(res)
 
 
 #----------------------------------------------------------------------
-# vesselSum
+# vesselStkSum
 #----------------------------------------------------------------------
 #' @rdname bioSum
 vesselStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){

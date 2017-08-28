@@ -22,5 +22,6 @@ Additional_Repositories: http://flr-project.org/R
 Maintainer: Dorleta Garcia <dgarcia@azti.es>
 License: GPL-2
 RoxygenNote: 6.0.1
-Suggests: R.rsp
+Suggests:
+    R.rsp
 VignetteBuilder: R.rsp
