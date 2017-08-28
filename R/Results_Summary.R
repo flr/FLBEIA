@@ -709,7 +709,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 
 #------------------------------------------------------------------------------#
-# fltSum :: data.frame[scenario, year, fleet, iter, ||,|| 
+# fltSum :: data.frame[scenario, year, season, fleet, iter, ||,|| 
 #        capacity, catch, costs, discards, discRat, effort, fcosts, gva, income, 
 #        landings, netProfit, nVessels, price, profits, quotaUpt, salaries, 
 #        vcosts, profitability]
@@ -1105,7 +1105,7 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 
 
 #------------------------------------------------------------------------------#
-# fltStkSum :: data.frame[year, season, stock, fleet, iter, ||,|| 
+# fltStkSum :: data.frame[scenario, year, season, stock, fleet, iter, ||,|| 
 #        landings, discards, catch, discRat, price, quota, quotaUpt] 
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
@@ -1208,7 +1208,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
     
     if(long == TRUE){ # transform res into long format
       r1 <- ifelse(byyear == TRUE, 5,6)
-      r2 <- ifelse(byyear == TRUE, 12,13)
+      r2 <- ifelse(byyear == TRUE, 11,12)
       
       names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
       res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
@@ -1318,8 +1318,8 @@ price_flbeia <- function(fleet, stock){
 
 
 #------------------------------------------------------------------------------#
-# mtStkSum data.frame[year, season, stock, fleet, metier, iter ||,|| 
-#        landings, discards, price] 
+# mtStkSum data.frame[scenario, year, season, fleet, metier, stock, iter ||,|| 
+#        catch, discards, discRat, landings, price] 
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), 
@@ -1502,8 +1502,8 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 
 #------------------------------------------------------------------------------#
-# mtSum data.frame[year, season, stock, fleet, metier, iter ||,|| 
-#        landings, discards, price] 
+# mtSum data.frame[scenario, year, season, fleet, metier, iter ||,|| 
+#        effshare, effort, income, vcost] 
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 mtSum <- function(obj, flnms = names(obj$fleets),
@@ -1660,8 +1660,8 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 }
 
 #------------------------------------------------------------------------------#
-# advSum data.frame[year, season, fleet, metier, iter ||,|| 
-#        effort, effshare] 
+# advSum :: data.frame[scenario, year, stock, iter ||,|| 
+#        catch, discards, discRat, landings, quotaUpt, tac] 
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 advSum <- function(obj, stknms = catchNames(obj$fleets), 
