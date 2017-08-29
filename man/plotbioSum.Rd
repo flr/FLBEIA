@@ -53,15 +53,15 @@ data(res_flbeia)
 #------------------------------------------------
 
 # Biological indicators.
-plotbioSum( bioSum(oneRes), Blim=800, Bpa=1200, proj.yr=2010) # bioSum output in wide format
-plotbioSum( bioSum(oneRes, long = FALSE))   # bioSum output in long format
-plotbioSum( bioSum(oneRes), stk.nam='stk0') # if incorrect name for the stock
+plotbioSum( bioSum(s0), Blim=800, Bpa=1200, proj.yr=2010) # bioSum output in wide format
+plotbioSum( bioSum(s0, long = FALSE))   # bioSum output in long format
+plotbioSum( bioSum(s0), stk.nam='stk0') # if incorrect name for the stock
 
 # Indicators at fleet level.
-plotfltSum( fltSum(oneRes), proj.yr=2010) # fltSum output in wide format
-plotfltSum( fltSum(oneRes, long = FALSE)) # fltSum output in long format
-plotfltSum( fltSum(oneRes), flt.nam='stk1') # if incorrect name for the fleet
-plotfltSum( fltSum(oneRes, byyear = FALSE)) # although seasonal disagregation, it is summarised by year
+plotfltSum( fltSum(s0), proj.yr=2010) # fltSum output in wide format
+plotfltSum( fltSum(s0, long = FALSE)) # fltSum output in long format
+plotfltSum( fltSum(s0), flt.nam='stk1') # if incorrect name for the fleet
+plotfltSum( fltSum(s0, byyear = FALSE)) # although seasonal disagregation, it is summarised by year
 
 #------------------------------------------------
 # Example OneIters: As one but with iterations.
@@ -96,3 +96,4 @@ for (fl in names(s2$fleets)) # one plot for each fleet
   
 }
 }
+

@@ -4,7 +4,7 @@
 \alias{plotEco}
 \title{Plots with fleets data}
 \usage{
-plotEco(fleets, prob = c(0.95, 0.5, 0.05), pdfnm = "bc")
+plotEco(fleets, pdfnm)
 }
 \arguments{
 \item{fleets}{A FLFleets object.}
@@ -22,6 +22,6 @@ Return a pdf with plots using FLFleets object.
 library(FLBEIA)
 library(ggplot2)
 data(one)
-plotEco(one$fleets, pdfnm='one')
+plotEco(s0$fleets,'s0')
 }
 }
