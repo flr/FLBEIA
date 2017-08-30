@@ -1,8 +1,8 @@
 #' Plots with fleets data 
 #' 
-#' Return a pdf with plots using FLFleets object.
+#' Return a pdf with plots using FLBEIA object (FLFleets and covars).
 #'
-#' @param fleets A FLFleets object. 
+#' @param obj An FLBEIA object. 
 #' @param pdfnm The name for the pdf document will be "Eco" and pdfnm separated by a line.
 #
 #' @return A pdf with capacity, costs, effort, profits by fleet.
@@ -11,8 +11,9 @@
 #'\dontrun{
 #' library(FLBEIA)
 #' library(ggplot2)
-#' data(one)
-#' plotEco(one$fleets,'one')
+#' 
+#' data(res_flbeia)
+#' plotEco(oneRes, pdfnm='one')
 #' }
 
 
@@ -25,10 +26,12 @@
 #.......................................................
 #....................FUNCTIONS..........................
 
-plotEco <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
+plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
 
- names.fl <- names(fleets)
- eco  <- ecoSum_damara(fleets, flnms= names.fl, years=dimnames(fleets[[1]]@effort)$year)
+ names.fl <- names(obj$fleets)
+ # eco  <- ecoSum_damara(obj$fleets, flnms= names.fl, years=dimnames(obj$fleets[[1]]@effort)$year)
+ eco <- fltSum(obj, flnms = names.fl, years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = FALSE)
+   
  
 
   path.pdf <- ''
@@ -36,7 +39,7 @@ plotEco <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
   for(i in 1:length(names.fl)){
     
 
-    fleet <- fleets[[i]]
+    fleet <- obj$fleets[[i]]
     
       #capacity   
 
