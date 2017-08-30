@@ -81,27 +81,27 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     if (ss != ns)
       n[1,1:(year-1),] <- ifelse( is.na(n[1,1:(year-1),]), 0, n[1,1:(year-1),])
          
-    res@stock.n[] <- n[,1:(year-1)]
+    stock.n(res) <- n[,1:(year-1)]
     
-    res@stock[] <- quantSums(res@stock.n*res@stock.wt)
+    stock(res) <- quantSums(res@stock.n*res@stock.wt)
         
     # SUM ALONG SEASONS AND FIRST UNIT: "m"
-    res@m[]      <- seasonSums(biol@m)[,1:(year-1),1,]
-    res@m.spwn[] <- seasonSums(spwn(biol))[,1:(year-1),1,]/ns
+    m(res)      <- seasonSums(biol@m)[,1:(year-1),1,]
+    m.spwn(res) <- seasonSums(spwn(biol))[,1:(year-1),1,]/ns
         
     # SUM ALONG UNITS AND SEASONS, OBTAINED FROM FLFLEETS: 
     # "catch", "catch.n", "discards"     "discards.n" "landings"     "landings.n"
-    res@landings.n[] <- apply(landStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
-    res@discards.n[] <- apply(discStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
-    res@catch.n[]    <- res@discards.n + res@landings.n
-    res@landings[]   <- quantSums(res@landings.n*res@landings.wt)
-    res@discards[]   <- quantSums(res@discards.n*res@discards.wt)
-    res@catch[]      <- quantSums(res@catch.n*res@catch.wt)
+    landings.n(res) <- apply(landStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
+    discards.n(res) <- apply(discStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
+    catch.n(res)    <- res@discards.n + res@landings.n
+    landings(res)   <- quantSums(res@landings.n*res@landings.wt)
+    discards(res)   <- quantSums(res@discards.n*res@discards.wt)
+    catch(res)      <- quantSums(res@catch.n*res@catch.wt)
         
     # harvest: * if age structured calculate it from 'n'.
     #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
     if(na == 1){
-        res@harvest[] <- res@catch/(res@stock.n*res@stock.wt)
+        harvest(res) <- res@catch/(res@stock.n*res@stock.wt)
         units(res@harvest) <- 'hr'
     } else{
         units(res@harvest) <- 'f'
@@ -146,7 +146,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
         c.perc <- ctot.age * NA
         for (s in c(1:ns)) c.perc[, , , s, ] <- ifelse(ctot==0,0, ctot.age[, , , s, ]/ctot)
         biol.spwn <- unitMeans(spwn(biol)[,1:(year-1),,])
-        res@harvest.spwn[] <- seasonSums(c.perc[,1:(year-1),,]*biol.spwn)
+        harvest.spwn(res) <- seasonSums(c.perc[,1:(year-1),,]*biol.spwn)
 
     }
     
@@ -207,34 +207,34 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
          
     stck              <- as(biol, "FLStock")[,1:ny,1,1]    
 
-    stck@landings.wt[]  <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
-    stck@landings.n[] <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
-    stck@landings[]     <- quantSums(seasonSums(stck@landings.n*stck@landings.wt))
+    landings.wt(stck) <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
+    landings.n(stck)  <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
+    landings(stck)    <- quantSums(seasonSums(stck@landings.n*stck@landings.wt))
     
     # In landings.wt the error due to age depends on landings.n, but that on m and mat only depends on error itself
     # because it is suppose that the biological sampling is independent.
     
-    stck@m[]            <- Obs.nmort(biol, ages.error, nmort.error, yr)
-    stck@mat[]          <- Obs.mat(biol, ages.error, fec.error, yr)
+    m(stck)          <- Obs.nmort(biol, ages.error, nmort.error, yr)
+    mat(stck)        <- Obs.mat(biol, ages.error, fec.error, yr)
 
     # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
     # reported homogeneously.
-    stck@landings[]     <- FLQuant(ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings))
+    landings(stck)    <- FLQuant(ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings))
     
     ovrsht.red        <- stck@landings/quantSums(unitSums(seasonSums(stck@landings.n*stck@landings.wt)))  # [1,ny,,,,it]
     
     ovrsht.red[is.na(ovrsht.red)] <- 1
      
-    stck@landings.n[]   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landings in biomass equally over ages
+    landings.n(stck)   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landings in biomass equally over ages
    
-    stck@discards.wt[]  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
+    discards.wt(stck)  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
     stck@discards.wt[is.na(stck@discards.wt)] <- stck@landings.wt[is.na(stck@discards.wt)]
-    stck@discards.n[]   <- Obs.disc.nage(fleets, ages.error, disc.nage.error, stck@discards.wt, yr, stknm)
-    stck@discards[]     <- quantSums(seasonSums(stck@discards.n*stck@discards.wt))
+    discards.n(stck)   <- Obs.disc.nage(fleets, ages.error, disc.nage.error, stck@discards.wt, yr, stknm)
+    discards(stck)     <- quantSums(seasonSums(stck@discards.n*stck@discards.wt))
     
-    stck@catch[]        <- stck@landings + stck@discards
-    stck@catch.n[]      <- stck@landings.n + stck@discards.n
-    stck@catch.wt[]     <- (stck@landings.n*stck@landings.wt + stck@discards.n*stck@discards.wt)/(stck@landings.n + stck@discards.n)
+    catch(stck)        <- stck@landings + stck@discards
+    catch.n(stck)      <- stck@landings.n + stck@discards.n
+    catch.wt(stck)     <- (stck@landings.n*stck@landings.wt + stck@discards.n*stck@discards.wt)/(stck@landings.n + stck@discards.n)
     
  #   stck@harvest      <- FLQuant(NA,dim=c(na,ny,1,1,1,it), dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
 
@@ -286,9 +286,9 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck              <- age2ageDat(biol, fleets, advice, obs.ctrl, year, stknm) 
     
     n <- array(Obs.stk.nage(biol, ages.error, stk.nage.error, yr+1), dim = c(na, ny+1,it)) # yr+1 in order to be able to calculate F using 'n' ratios
-    stck@stock.n[]      <- n[,1:ny,]
-    stck@stock.wt[]     <- Obs.stk.wgt(biol, ages.error, stk.wgt.error, yr)
-    stck@stock[]        <- quantSums(unitSums(seasonSums(stck@stock.n*stck@stock.wt)))
+    stock.n(stck)      <- n[,1:ny,]
+    stock.wt(stck)     <- Obs.stk.wgt(biol, ages.error, stk.wgt.error, yr)
+    stock(stck)        <- quantSums(unitSums(seasonSums(stck@stock.n*stck@stock.wt)))
        
     units(stck@harvest) <- 'f'
    
@@ -312,7 +312,7 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #    }
 
     stck@harvest[c(na-1,na),] <- 0 
-stck@harvest[stck@harvest<0] <- 0
+    stck@harvest[stck@harvest<0] <- 0
 
     return(stck)
  }
@@ -350,10 +350,10 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
    
     stck              <- as(biol, "FLStock")[,1:ny]
 
-    stck@landings[]     <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
-    stck@landings[]     <- FLQuant(ifelse(stck@landings > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
-    stck@discards[]     <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
-    stck@catch[]        <- stck@landings + stck@discards
+    landings(stck)     <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
+    landings(stck)     <- FLQuant(ifelse(stck@landings > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
+    discards(stck)     <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
+    catch(stck)        <- stck@landings + stck@discards
 
     stck@harvest.spwn[] <- 0 
     stck@m.spwn[]       <- 0 
@@ -382,8 +382,8 @@ bio2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     
     stck            <- bio2bioDat(biol, obs.ctrl, yr, stknm)  
-    stck@stock[]      <- Obs.stk.bio(biol, stk.bio.error, yr)
-    stck@harvest[]    <- stck@catch/stck@stock
+    stock(stck)      <- Obs.stk.bio(biol, stk.bio.error, yr)
+    harvest(stck)    <- stck@catch/stck@stock
 
     return(stck)
 }
@@ -421,14 +421,14 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
     
     stck                <- as(biolbio, "FLStock")[,1:ny]
-    stck@landings[]       <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
-    stck@landings[]     <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
-    stck@discards[]       <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
-    stck@catch[]          <- stck@landings + stck@discards
-    stck@catch.n[]      <- stck@catch 
-    stck@landings.n[]   <- stck@landings 
-    stck@discards.n[]   <- stck@discards 
-    stck@catch.wt[]     <- stck@discards.wt[] <- stck@landings.wt[] <- 1 
+    landings(stck)      <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
+    landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
+    discards(stck)      <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
+    catch(stck)         <- stck@landings + stck@discards
+    catch.n(stck)       <- stck@catch 
+    landings.n(stck)    <- stck@landings 
+    discards.n(stck)    <- stck@discards 
+    catch.wt(stck)      <- discards.wt(stck) <- landings.wt(stck) <- 1 
     stck@harvest.spwn[] <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
     stck@m.spwn[]       <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
     stck@mat[]          <- 1
@@ -457,8 +457,8 @@ age2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
          
     stck              <- age2bioDat(biol, fleets, advice, obs.ctrl, yr, stknm)    
-    stck@stock[]        <- Obs.stk.bio(biol, stk.bio.error, yr)
-    stck@harvest[]      <- stck@catch/stck@stock
+    stock(stck)       <- Obs.stk.bio(biol, stk.bio.error, yr)
+    harvest(stck)     <- stck@catch/stck@stock
     
     stck@range[5]     <- yr-1
     return(stck)

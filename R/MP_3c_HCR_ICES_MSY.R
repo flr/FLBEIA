@@ -34,7 +34,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     else
        stk <- stfBD(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3)
     
-   # if(dim(stk@m)[1] == 1)    stk@harvest[] <- stk@catch.n[]/stk@stock.n[] 
+   # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n
     
     ref.pts <- advice.ctrl[[stknm]]$ref.pts # matrix[3,it]  rows = Blim, Btrigger, Fmsy
     Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][year+1] == TRUE, 'catch', 'landings')
