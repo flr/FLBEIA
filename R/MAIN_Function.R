@@ -83,10 +83,10 @@
 #' # 's0' suffix in the name.
 #' 
 #' 
-#' plotFLBiols(s0$biols, 's0')
-#' plotFLFleets(s0$fleets,'s0')
-#' plotCatchFl(s0$fleets,s0$advice,'s0') 
-#' plotEco(s0$fleets,'s0')
+#' plotFLBiols(s0$biols, pdfnm='s0')
+#' plotFLFleets(s0$fleets, pdfnm='s0')
+#' plotEco(s0, pdfnm='s0')
+#' plotfltStkSum(s0, pdfnm='s0')
 #' 
 #' #------------------------------------------------------------ 
 #' # Example with several iterations: oneIters
@@ -120,31 +120,31 @@
 #' 
 #' # Create summary data frames (biological, economic, and catch)
 #' proj.yr     <- 2013 
-#' s1_bio    <- bioSum(s1)
-#' s1_flt    <- fltSum(s1)
+#' s1_bio     <- bioSum(s1)
+#' s1_flt     <- fltSum(s1)
+#' s1_fltStk  <- fltStkSum(s1)
 #' 
-#' s1_bioQ   <- bioSumQ(s1_bio)
-#' s1_fltQ   <- fltSumQ(s1_flt)
+#' s1_bioQ    <- bioSumQ(s1_bio)
+#' s1_fltQ    <- fltSumQ(s1_flt)
+#' s1_fltStkQ <- fltStkSumQ(s1_fltStk)
 #' 
-#' s1_bio    <- bioSum(s1, long = FALSE)
-#' s1_flt    <- fltSum(s1, long = FALSE)
+#' s1b_bio     <- bioSum(s1, long = FALSE)
+#' s1b_flt     <- fltSum(s1, long = FALSE)
+#' s1b_fltStk  <- fltStkSum(s1, long = FALSE)
 #' 
-#' s1_fltQ   <- bioSumQ(s1_bio)
-#' s1_fltQ   <- fltSumQ(s1_flt)
+#' s1b_fltQ    <- bioSumQ(s1b_bio)
+#' s1b_fltQ    <- fltSumQ(s1b_flt)
+#' s1b_fltStkQ <- fltStkSumQ(s1b_fltStk)
 #' 
-#'
-#' s1_catchFl  <- catchFlSum(s1$fleets, s1$advice,flnms= 'all', stknms= 'all', years = ac(2007:2025))
-#'
-#'
 #' # Create several plots and save them in the working directory using 'pdf' format and 
 #' # 's1' suffix in the name.
 #' 
-#' 
-#' plotFLBiols(s1$biols, 's1')
-#' plotFLFleets(s1$fleets,'s1')
-#' plotCatchFl(s1$fleets,s1$advice,'s1') 
-#' plotEco(s1$fleets,'s1')
-#' 
+#' #' plotFLBiols(s1$biols, pdfnm='s1')
+#' plotFLFleets(s1$fleets, pdfnm='s1')
+#' plotEco(s1, pdfnm='s1')
+#' plotfltStkSum(s1, pdfnm='s1') 
+#'
+#'  
 #' #------------------------------------------------------------------ 
 #' # Example with 2 stock, 2 Fleets, 4 seasons and 1 iteration: multi
 #' #------------------------------------------------------------------
@@ -182,19 +182,17 @@
 #' s2_sum      <- bioSum(s2)
 #' s2_flt      <- fltSum(s2)
 #' 
-#' s2_flt      <- fltSum(s2, byyear = FALSE)
+#' s2b_flt     <- fltSum(s2, byyear = FALSE)
 #' 
 #' s2_fltStk   <- fltStkSum(s2)
-#'
 #'
 #' # Create several plots and save them in the working directory using 'pdf' format and 
 #' # 's2' suffix in the name.
 #' 
-#' 
-#' plotFLBiols(s2$biols, 's2')
-#' plotFLFleets(s2$fleets,'s2')
-#' plotCatchFl(s2$fleets,s2$advice,'s2') 
-#' plotEco(s2$fleets,'s2')
+#' plotFLBiols(s2$biols, pdfnm='s2')
+#' plotFLFleets(s2$fleets, pdfnm='s2')
+#' plotEco(s2, pdfnm='s2')
+#' plotfltStkSum(s2, pdfnm='s2')
 
 #' }
 #' 

@@ -106,9 +106,9 @@ s0_fltStk   <- fltStkSum(s0)
 
 
 plotFLBiols(s0$biols, pdfnm='s0')
-plotFLFleets(s0$fleets,pdfnm='s0')
-plotfltStkSum(s0, pdfnm='s0') 
-plotEco(s0$fleets,pdfnm='s0')
+plotFLFleets(s0$fleets, pdfnm='s0')
+plotEco(s0, pdfnm='s0')
+plotfltStkSum(s0, pdfnm='s0')
 
 #------------------------------------------------------------ 
 # Example with several iterations: oneIters
@@ -117,22 +117,22 @@ plotEco(s0$fleets,pdfnm='s0')
  # Load the same data set as before but with 3 iterations.
  # Run FLBEIA and plot the results
  
-data(oneIters)
+data(oneIt)
  
-s1 <- FLBEIA(biols = oneBio,       # FLBiols object with one FLBiol element for stk1.
-               SRs = oneSR,        # A list with one FLSRSim object for stk1.
+s1 <- FLBEIA(biols = oneItBio,       # FLBiols object with one FLBiol element for stk1.
+               SRs = oneItSR,        # A list with one FLSRSim object for stk1.
                BDs = NULL,         # No Biomass Dynamic populations in this case.
-            fleets = oneFl,        # FLFleets object with on fleet.
-            covars = oneCv,         # covars not used
+            fleets = oneItFl,        # FLFleets object with on fleet.
+            covars = oneItCv,         # covars not used
            indices = NULL,         # indices not used 
-            advice = oneAdv,       # A list with two elements 'TAC' and 'quota.share'
-         main.ctrl = oneMainC,     # A list with one element to define the start and end of the simulation.
-        biols.ctrl = oneBioC,      # A list with one element to select the model to simulate the stock dynamics.
-       fleets.ctrl = oneFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
-       covars.ctrl = oneCvC,         # covars control not used 
-          obs.ctrl = oneObsC,      # A list with one element to define how the stock observed ("PerfectObs").
-       assess.ctrl = oneAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
-       advice.ctrl = oneAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
+            advice = oneItAdv,       # A list with two elements 'TAC' and 'quota.share'
+         main.ctrl = oneItMainC,     # A list with one element to define the start and end of the simulation.
+        biols.ctrl = oneItBioC,      # A list with one element to select the model to simulate the stock dynamics.
+       fleets.ctrl = oneItFlC,       # A list with several elements to select fleet dynamic models and store additional parameters.
+       covars.ctrl = oneItCvC,         # covars control not used 
+          obs.ctrl = oneItObsC,      # A list with one element to define how the stock observed ("PerfectObs").
+       assess.ctrl = oneItAssC,      # A list with one element to define how the stock assessment model used ("NoAssessment").
+       advice.ctrl = oneItAdvC)       # A list with one element to define how the TAC advice is obtained ("IcesHCR").
 
 # Names of the object returned by FLBEIA
 names(s1)
@@ -142,31 +142,31 @@ plot(s1$biols[[1]])
 
 # Create summary data frames (biological, economic, and catch)
 proj.yr     <- 2013 
-s1_bio    <- bioSum(s1)
-s1_flt    <- fltSum(s1)
+s1_bio     <- bioSum(s1)
+s1_flt     <- fltSum(s1)
+s1_fltStk  <- fltStkSum(s1)
 
-s1_bioQ   <- bioSumQ(s1_bio)
-s1_fltQ   <- fltSumQ(s1_flt)
+s1_bioQ    <- bioSumQ(s1_bio)
+s1_fltQ    <- fltSumQ(s1_flt)
+s1_fltStkQ <- fltStkSumQ(s1_fltStk)
 
-s1_bio    <- bioSum(s1, long = FALSE)
-s1_flt    <- fltSum(s1, long = FALSE)
+s1b_bio     <- bioSum(s1, long = FALSE)
+s1b_flt     <- fltSum(s1, long = FALSE)
+s1b_fltStk  <- fltStkSum(s1, long = FALSE)
 
-s1_fltQ   <- bioSumQ(s1_bio)
-s1_fltQ   <- fltSumQ(s1_flt)
-
-
-s1_fltStkSum   <- fltStkSum(s1)
-
+s1b_fltQ    <- bioSumQ(s1b_bio)
+s1b_fltQ    <- fltSumQ(s1b_flt)
+s1b_fltStkQ <- fltStkSumQ(s1b_fltStk)
 
 # Create several plots and save them in the working directory using 'pdf' format and 
 # 's1' suffix in the name.
 
+#' plotFLBiols(s1$biols, pdfnm='s1')
+plotFLFleets(s1$fleets, pdfnm='s1')
+plotEco(s1, pdfnm='s1')
+plotfltStkSum(s1, pdfnm='s1') 
 
-plotFLBiols(s1$biols, pdfnm='s1')
-plotFLFleets(s1$fleets,pdfnm='s1')
-plotfltStkSum(s1,pdfnm='s1') 
-plotEco(s1$fleets,pdfnm='s1')
-
+ 
 #------------------------------------------------------------------ 
 # Example with 2 stock, 2 Fleets, 4 seasons and 1 iteration: multi
 #------------------------------------------------------------------
@@ -204,19 +204,17 @@ plot(s2$biols[[1]])
 s2_sum      <- bioSum(s2)
 s2_flt      <- fltSum(s2)
 
-s2_flt      <- fltSum(s2, byyear = FALSE)
+s2b_flt     <- fltSum(s2, byyear = FALSE)
 
 s2_fltStk   <- fltStkSum(s2)
-
 
 # Create several plots and save them in the working directory using 'pdf' format and 
 # 's2' suffix in the name.
 
-
 plotFLBiols(s2$biols, pdfnm='s2')
-plotFLFleets(s2$fleets,pdfnm='s2')
-plotfltStkSum(s2,pdfnm='s2') 
-plotEco(s2$fleets,pdfnm='s2')
+plotFLFleets(s2$fleets, pdfnm='s2')
+plotEco(s2, pdfnm='s2')
+plotfltStkSum(s2, pdfnm='s2')
 }
 
 
