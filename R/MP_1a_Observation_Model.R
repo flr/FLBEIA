@@ -208,15 +208,15 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
          
     stck              <- as(biol, "FLStock")[,1:ny,1,1]    
 
-    landings.wt(stck) <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
-    landings.n(stck)  <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
-    landings(stck)    <- quantSums(seasonSums(stck@landings.n*stck@landings.wt))
+    landings.wt(stck)[] <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
+    landings.n(stck)[]  <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
+    landings(stck)      <- quantSums(seasonSums(stck@landings.n*stck@landings.wt))
     
     # In landings.wt the error due to age depends on landings.n, but that on m and mat only depends on error itself
     # because it is suppose that the biological sampling is independent.
     
-    m(stck)          <- Obs.nmort(biol, ages.error, nmort.error, yr)
-    mat(stck)        <- Obs.mat(biol, ages.error, fec.error, yr)
+    m(stck)[]          <- Obs.nmort(biol, ages.error, nmort.error, yr)
+    mat(stck)[]        <- Obs.mat(biol, ages.error, fec.error, yr)
 
     # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
     # reported homogeneously.
@@ -228,10 +228,10 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
      
     landings.n(stck)   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landings in biomass equally over ages
    
-    discards.wt(stck)  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
+    discards.wt(stck)[]  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
     stck@discards.wt[is.na(stck@discards.wt)] <- stck@landings.wt[is.na(stck@discards.wt)]
-    discards.n(stck)   <- Obs.disc.nage(fleets, ages.error, disc.nage.error, stck@discards.wt, yr, stknm)
-    discards(stck)     <- quantSums(seasonSums(stck@discards.n*stck@discards.wt))
+    discards.n(stck)[]   <- Obs.disc.nage(fleets, ages.error, disc.nage.error, stck@discards.wt, yr, stknm)
+    discards(stck)       <- quantSums(seasonSums(stck@discards.n*stck@discards.wt))
     
     catch(stck)        <- stck@landings + stck@discards
     catch.n(stck)      <- stck@landings.n + stck@discards.n
