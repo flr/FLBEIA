@@ -21,9 +21,7 @@ Return a pdf with plots using FLBEIA object (FLFleets and covars).
 \dontrun{
 library(FLBEIA)
 library(ggplot2)
-#data(one)
-#oneFl, oneCv
-#plotEco(one$fleets, pdfnm='one')
+
 data(res_flbeia)
 plotEco(oneRes, pdfnm='one')
 }
