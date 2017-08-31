@@ -104,6 +104,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
         harvest(res) <- res@catch/(res@stock.n*res@stock.wt)
         units(res@harvest) <- 'hr'
     } else{
+        harvest(res) <- catch.n(res)*NA #! Artefact to avoid crashing (sets correct dim for iters)
         units(res@harvest) <- 'f'
         ai <- ifelse( ss==ns, na-1, na-2)
         res@harvest[-c(ai:na),] <- log(n[-c(ai:na),-year]/n[-c(1,(ai+1):na),-1]) - res@m[-c(ai:na),]
