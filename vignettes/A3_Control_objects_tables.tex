@@ -94,15 +94,16 @@
           \texttt{SMFB}, \texttt{SSFB}  \\
         {[[fl]]}\$effectiveDay.perc & FLQuant & [1,ny,1,ns,1,ni]  & Proportions in [0,1] & \texttt{SSFB} \\
         {[[fl]]}\$effort.realloc & character & 1 & \texttt{NULL},\texttt{'curr.eff'} & \texttt{SSFB} \\
-        {[[fl]]}\$stk.cnst & character & 1 & \texttt{stock.name} & \texttt{MaxProfit} \\
+        {[[fl]]}\$stk.cnst & character & any & names of the stocks & \texttt{MaxProfit}, \texttt{'MaxProfitSeq'} \\
+        {[[fl]]}\$effort.range & matrix & matrix & (nmt,2); colnames=c('min','max') & \texttt{MaxProfit}, \texttt{'MaxProfitSeq'} \\
         {[[fl]]}\$capital.model\textsuperscript{*} & character & 1 & \texttt{'fixedCapital'},\texttt{'SCD'} & \\
         {[[fl]]}[[st]]\$catch.model\textsuperscript{*} & character & 1 & \texttt{'cobbDouglasBio'},\texttt{'cobbDouglasAge'}, &  \\
          &  &  & \texttt{'seasonshare'}  &	\\
         {[[fl]]}[[st]]\$catch.dependence\textsuperscript{1} & character & nfl & \texttt{fleet.name} \ & \texttt{seasonShare} \\
-        {[[fl]]}[[st]]\$TAC.OS.model & character & 1 & \texttt{'TAC.OS.triangCond'} & \texttt{SMFB}, \texttt{MaxProfit} \\
-        {[[fl]]}[[st]]\$TAC.OS.triangCond.params & named numeric vector & 3 (min,max,mode) &  & \texttt{SMFB}, \texttt{MaxProfit} \\
+        {[[fl]]}[[st]]\$TAC.OS.model & character & 1 & \texttt{'TAC.OS.triangCond'} & \texttt{SMFB}, \texttt{MaxProfit}, \texttt{'MaxProfitSeq'} \\
+        {[[fl]]}[[st]]\$TAC.OS.triangCond.params & named numeric vector & 3 (min,max,mode) &  & \texttt{SMFB}, \texttt{MaxProfit}, \texttt{'MaxProfitSeq'} \\
         {[[fl]]}[[st]]\$discard.TAC.OS & logical & 1 & \texttt{'TRUE'} (TAC overshoot is discarded), \\
-         &  &  & \texttt{'FALSE'} (TAC overshoot is included in landings) & \texttt{SMFB}, \texttt{MaxProfit} \\
+         &  &  & \texttt{'FALSE'} (TAC overshoot is included in landings) & \texttt{SMFB}, \texttt{MaxProfit}, \texttt{'MaxProfitSeq'} \\
         {[[fl]]}[[st]]\$price.model\textsuperscript{*} & character & 1 & \texttt{'fixedPrice'}, \texttt{'elasticPrice'} &  \\
         {[[fl]]}[[st]]\$pd.els & numeric array & [na,ns,ni] &  &  \texttt{elasticPrice} \\
         {[[fl]]}[[st]]\$pd.La0 & numeric array & [na,ns,ni] &  &  \texttt{elasticPrice} \\
@@ -116,6 +117,7 @@
         % \small
         \item nst: number of stocks
         \item nfl: number of fleets
+        \item nmt: number of metiers in 'fl'
         \item na: number of age clases
         \item ny: number of years
         \item ns: number of seasons

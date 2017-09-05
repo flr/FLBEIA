@@ -30,7 +30,8 @@ plotfltStkSum <- function(obj,pdfnm){
   
   for(i in 1:length(indicator)){
     
-    sub.data <- subset(fltStkSumQ(fltStkSum.data), indicator %in% indicator[i])  
+    data <- fltStkSumQ(fltStkSum.data)
+    sub.data <- data[data$indicator==indicator[i],]
 
     # temp <- aggregate(value ~ year+ fleet+stock, 
     #                   data = sub.data, mean , na.rm=TRUE,na.action="na.pass") 

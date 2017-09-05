@@ -59,7 +59,7 @@
 				\begin{array}{l l}
 	 			\phi\left( RI_{y = y-a_0, s = s - s_0}	\right) 					& \text{, } a = a_0\\ % RECRUITMENT
 	 			% AGES > REC
-	 			(N_{i_a}\cdot e^{-\frac{M_{i_a}}{2}} - C_{i_a}) \cdot e^{-\frac{M_{i_a}}{2}}	& \text{, } a_0 < a < A\\
+	 			(N_{i_a}\cdot e^{-\frac{M_{i_a}}{2}} - C_{i_a}) \cdot e^{-\frac{M_{i_a}}{2}}	& \text{, } a_0 < a \leq A\\
 	 		\end{array} \right.
 		\end{equation}
 		
@@ -471,7 +471,10 @@ In biomass dynamic populations, landings and prices are given at stock level.
   \quad\\
   \noindent Fleet level arguments (i.e. \texttt{fleets.ctrl[[fleet.name]]}):
   \begin{description}
-    \item[\texttt{stk.cnst}:] A character with the name of the stock that +++++
+    \item[\texttt{stk.cnst}:] A vector with the name of the stocks that constraints the capacity 
+       of the fleet (i.e. maximum effort that fleet can execute in each season) 
+       given the catch quota of these stocks.  
+    
   \end{description}
 
   \quad\\
@@ -490,6 +493,30 @@ In biomass dynamic populations, landings and prices are given at stock level.
 %----------------------------------------------------------------------------------------------------
 
 +++++ MARGA/AGURTZANE: describir las diferencias con respecto a MaxProfit
+
+\texttt{MaxProfitSeq} is similar to the function MaxProfit, but with an additional constraint on the effort.
+As the effort of each metier is limited by a minimum and maximum effort value. That is:
+
+  \begin{equation}\label{eq:MPSeq_consts}
+      E_{min_{f,m}} \leq  E_f \cdot \gamma_{f,m} \leq E_{max_{f,m}}
+  \end{equation}
+
+\noindent where $E$ is the effort, $\gamma$ the effort share by metier and 
+  $E_{max}$ and $E_{min}$ are the maximum and minimum efforts, respectively.
+
+\subparagraph{The \texttt{fleets.ctrl} argument in \texttt{MaxProfitSeq} function}
+\quad\\
+
+  Additionally to the control elements required by texttt{MaxProfitSeq} function, 
+  texttt{MaxProfitSeq} function requires the following arguments at fleet level:
+
+  \quad\\
+  \noindent Fleet level arguments (i.e. \texttt{fleets.ctrl[[fleet.name]]}):
+  \begin{description}
+    \item[\texttt{effort.range}:] A matrix of dimension [nmt,2], where rows contain the (minimum and maximum) 
+        effort values for each metier and \texttt{colnames(effort.range) = c('min','max')}.
+  \end{description}
+
 
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

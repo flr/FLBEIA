@@ -4,10 +4,10 @@
 \alias{plotEco}
 \title{Plots with fleets data}
 \usage{
-plotEco(fleets, pdfnm)
+plotEco(obj, prob = c(0.95, 0.5, 0.05), pdfnm = "bc")
 }
 \arguments{
-\item{fleets}{A FLFleets object.}
+\item{obj}{An FLBEIA object.}
 
 \item{pdfnm}{The name for the pdf document will be "Eco" and pdfnm separated by a line.}
 }
@@ -15,13 +15,14 @@ plotEco(fleets, pdfnm)
 A pdf with capacity, costs, effort, profits by fleet.
 }
 \description{
-Return a pdf with plots using FLFleets object.
+Return a pdf with plots using FLBEIA object (FLFleets and covars).
 }
 \examples{
 \dontrun{
 library(FLBEIA)
 library(ggplot2)
-data(one)
-plotEco(s0$fleets,'s0')
+
+data(res_flbeia)
+plotEco(oneRes, pdfnm='one')
 }
 }

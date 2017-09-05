@@ -4,7 +4,7 @@
 \alias{plotFLFleets}
 \title{Plots with fleets data}
 \usage{
-plotFLFleets(fleets, prob = c(0.95, 0.5, 0.05), pdfnm)
+plotFLFleets(fleets, prob = c(0.95, 0.5, 0.05), pdfnm = "bc")
 }
 \arguments{
 \item{fleets}{A FLFleets object.}
@@ -31,7 +31,6 @@ For each fleet, the pdf contains plots of:
 library(FLBEIA)
 library(ggplot2)
 data(res_flbeia)
-plotFLFleets(oneFl,pdfnm='s0')
+plotFLFleets(oneFl,pdfnm='oneFl')
 }
 }
-
