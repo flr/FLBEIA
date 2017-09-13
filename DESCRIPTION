@@ -8,12 +8,13 @@ Description: A simulation toolbox that describes a fishery system under
     to facilitate the Bio-Economic evaluation of Management strategies. It is
     multistock, multifleet and seasonal. The simulation is divided in 2 main blocks,
     the Operating Model (OM) and the Management Procedure (MP). In turn, these
-    two bloack are divided in 3 components, the biological, the fleets and the
+    two blocks are divided in 3 components, the biological, the fleets and the
     covariables components on the one hand and the observation, the assessment and
     the advice on the other.
 Depends:
     methods,
-    R(>= 3.2.3),FLCore (>= 2.6.0),
+    R(>= 3.2.3),
+    FLCore (>= 2.6.0),
     FLFleet,
     ggplot2
 Import: FLash, FLAssess, nloptr, triangle, mvtnorm
