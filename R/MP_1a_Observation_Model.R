@@ -56,7 +56,8 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     # FIRST SEASON, FIRST UNIT:
     # biol@wt = "stock.wt" = "catch.wt" = "discards.wt" = "landings.wt" = "mat" = "harvest.spwn" = "m.spwn
     res <- as(biol, 'FLStock')[,1:(year-1),1,1]
-        
+    dimnames(res) <- list(unit="unique")
+    
     res@range[c(1:3,6:7)] <- biol@range[c(1:3,6:7)]
     names(res@range[6:7]) <- c('minfbar', 'maxfbar')
         
@@ -86,13 +87,16 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     stock(res) <- quantSums(res@stock.n*res@stock.wt)
         
     # SUM ALONG SEASONS AND FIRST UNIT: "m"
-    m(res)      <- seasonSums(biol@m)[,1:(year-1),1,]
-    m.spwn(res) <- seasonSums(spwn(biol))[,1:(year-1),1,]/ns
+    m(res)[]      <- seasonSums(biol@m)[,1:(year-1),1,]
+    m.spwn(res)[] <- seasonSums(spwn(biol))[,1:(year-1),1,]/ns
         
     # SUM ALONG UNITS AND SEASONS, OBTAINED FROM FLFLEETS: 
     # "catch", "catch.n", "discards"     "discards.n" "landings"     "landings.n"
-    landings.n(res) <- apply(landStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
-    discards.n(res) <- apply(discStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
+    land.n <- apply(landStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
+    disc.n <- apply(discStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]
+    dimnames(land.n)[1:5] <- dimnames(disc.n)[1:5] <- dimnames(landings.n(res))[1:5]
+    landings.n(res) <- land.n
+    discards.n(res) <- disc.n
     catch.n(res)    <- res@discards.n + res@landings.n
     landings(res)   <- quantSums(res@landings.n*res@landings.wt)
     discards(res)   <- quantSums(res@discards.n*res@discards.wt)
@@ -101,7 +105,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     # harvest: * if age structured calculate it from 'n'.
     #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
     if(na == 1){
-        harvest(res) <- res@catch/(res@stock.n*res@stock.wt)
+        harvest(res)[] <- res@catch/(res@stock.n*res@stock.wt)
         units(res@harvest) <- 'hr'
     } else{
         harvest(res) <- catch.n(res)*NA #! Artefact to avoid crashing (sets correct dim for iters)
@@ -147,7 +151,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
         c.perc <- ctot.age * NA
         for (s in c(1:ns)) c.perc[, , , s, ] <- ifelse(ctot==0,0, ctot.age[, , , s, ]/ctot)
         biol.spwn <- unitMeans(spwn(biol)[,1:(year-1),,])
-        harvest.spwn(res) <- seasonSums(c.perc[,1:(year-1),,]*biol.spwn)
+        harvest.spwn(res)[] <- seasonSums(c.perc[,1:(year-1),,]*biol.spwn)
 
     }
     
@@ -206,7 +210,8 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
       
     }
          
-    stck              <- as(biol, "FLStock")[,1:ny,1,1]    
+    stck              <- as(biol, "FLStock")[,1:ny,1,1]  
+    dimnames(res) <- list(unit="unique")
 
     landings.wt(stck)[] <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
     landings.n(stck)[]  <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
@@ -226,7 +231,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     ovrsht.red[is.na(ovrsht.red)] <- 1
      
-    landings.n(stck)   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landings in biomass equally over ages
+    landings.n(stck)[]   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landings in biomass equally over ages
    
     discards.wt(stck)[]  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
     stck@discards.wt[is.na(stck@discards.wt)] <- stck@landings.wt[is.na(stck@discards.wt)]
@@ -383,8 +388,8 @@ bio2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     
     stck            <- bio2bioDat(biol, obs.ctrl, yr, stknm)  
-    stock(stck)      <- Obs.stk.bio(biol, stk.bio.error, yr)
-    harvest(stck)    <- stck@catch/stck@stock
+    stock(stck)[]      <- Obs.stk.bio(biol, stk.bio.error, yr)
+    harvest(stck)[]    <- stck@catch/stck@stock
 
     return(stck)
 }
@@ -458,8 +463,8 @@ age2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
          
     stck              <- age2bioDat(biol, fleets, advice, obs.ctrl, yr, stknm)    
-    stock(stck)       <- Obs.stk.bio(biol, stk.bio.error, yr)
-    harvest(stck)     <- stck@catch/stck@stock
+    stock(stck)[]       <- Obs.stk.bio(biol, stk.bio.error, yr)
+    harvest(stck)[]     <- stck@catch/stck@stock
     
     stck@range[5]     <- yr-1
     return(stck)
