@@ -30,9 +30,9 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 
     if(ageStruct == TRUE)
-        stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+        stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
     else
-       stk <- stfBD(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3)
+       stk <- stfBD(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)
     
    # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n
     
@@ -145,7 +145,10 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             
             stki <- fwdBD(stki, fwd.ctrl, growth.years)
         }
-     
+        if(is.na(slot(stki, Cadv)[, year + 1])) {
+          stop("IcesHCR failed to calculate TAC in the forecasted year.\nCheck advice.ctrl settings for possible issues.")
+        }
+        
         yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
      
         advice[['TAC']][stknm,year+1,,,,i] <- yy # The TAC is given in terms of CATCH.
