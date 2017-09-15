@@ -1,12 +1,12 @@
 import("FLCore")
 import("FLFleet")
 import("methods")
-
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("stats", "aggregate", "anova", "as.formula", "coef", "cor",
-             "formula", "lm", "mad", "optimize", "terms", "uniroot")
+  "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot")
 importFrom("utils", "data", "installed.packages")
-importFrom("ggplot2", "geom_line", "aes", "ggplot", "geom_point", "facet_grid", "geom_area")
+import("ggplot2")
+
 #importFrom("mvtnorm", "rmvnorm")
 #importFrom("nloptr", "nloptr")
 #importFrom("triangle", "rtriangle")

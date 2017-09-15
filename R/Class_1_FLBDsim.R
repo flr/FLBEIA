@@ -115,7 +115,7 @@ FLBDsim <- function(...){
     
     if(all(slots %in% c('name', 'desc', 'range'))){   # => NO DIMENSIONS
         for(sl in slots){
-            slot(a,sl) <- x[sl][[1]]
+            slot(a, sl) <- x[sl][[1]]
         }
         return(a)
     }
