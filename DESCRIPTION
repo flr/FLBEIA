@@ -18,7 +18,7 @@ Depends:
     FLFleet,
     ggplot2
 Import: FLash, FLAssess, nloptr, triangle, mvtnorm
-Recommended: FLXSA, Matrix, R.rsp
+Recommended: FLXSA, FLa4a, Matrix, R.rsp
 Additional_Repositories: http://flr-project.org/R
 Maintainer: Dorleta Garcia <dgarcia@azti.es>
 License: GPL-2
