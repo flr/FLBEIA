@@ -22,16 +22,18 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     # VaC
     VaC <- seasonSums(totvcost_flbeia(fleet)[,year]) # total anual variable costs
     # FxC
-    FxC <- (covars[["NumbVessels"]][flnm, ] * seasonSums(fleet@fcost))[, year]
+    FxC <- seasonSums(covars[["NumbVessels"]][flnm, ] * fleet@fcost)[, year]
     # FuC  # per unit of effort, we asume common cost for all the metiers.
-    FuC <- (covars[['FuelCost']][flnm,]*seasonSums(fleet@effort))[,year]
+    FuC <- seasonSums(covars[['FuelCost']][flnm,]*fleet@effort)[,year]
     # CaC # per unit of capacity
-    CaC <- (covars[['CapitalCost']][flnm,]*covars[["NumbVessels"]][flnm, ])[,year]
+    CaC <- seasonMeans((covars[['CapitalCost']][flnm,]*covars[["NumbVessels"]][flnm, ]))[,year]
     # Revenue
-    Rev <- seasonSums(revenue_flbeia(fleet)[,year])
+    Rev <- revenue_flbeia(fleet)[,year]
     Rev <- ifelse(Rev == 0, 1e-16, Rev)
     # CrC
-    CrC <- (Rev*seasonMeans(fleet@crewshare[,year]))  +  covars[['Salaries']][flnm,year]
+    CrC <- seasonSums((Rev*fleet@crewshare[,year]  +  covars[['Salaries']][flnm,year]))
+    
+    Rev <- seasonSums(Rev)
     
     x1 <- FuC/Rev
     x2 <- VaC/Rev
@@ -42,7 +44,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     BER <- a/b
     
     
-    Inv <- c((Rev - BER)/Rev)*c(covars[['InvestShare']][flnm,year])
+    Inv <- c((Rev - BER)/Rev)*c(covars[['InvestShare']][flnm,year,,ns]) # The share in last season
     
     Ks <- seasonSums(fleet@capacity[,year])[drop=T]    # seasonal capacity [ns,ni]
     K  <- c(seasonSums(fleet@capacity[,year])) # annual capacity. [ni]
@@ -52,8 +54,8 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     else  if(it > 1) pKs <- sweep(Ks,2,K,"/")    # ns > 1 [ns,ni]
           else       pKs <- Ks/K    # [ns]
     
-    w1 <- c(covars[['w1']][flnm,year]) 
-    w2 <- c(covars[['w2']][flnm,year]) 
+    w1 <- c(covars[['w1']][flnm,year,,ns]) # last season value
+    w2 <- c(covars[['w2']][flnm,year,,ns]) # last season value 
     
     
 #    # Translate Inv in number of vessels.

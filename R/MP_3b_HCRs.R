@@ -84,8 +84,24 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
   
-    stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
+    # if(dim(stk@m)[1] == 1){
+    #   for(sl in c("catch.n","catch.wt","discards.n","discards.wt","landings.n",
+    #               "landings.wt","stock.n","stock.wt","m","mat","harvest","harvest.spwn", "m.spwn"))
+    #   {
+    #     dimnames(slot(stk,sl))[[1]] <- 1
+    #   }
+    # stk@range[6:7] <- 1
+    #    } 
+    # 
+    # stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
+    # 
+    ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
     
+    if(ageStruct == TRUE)
+      stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    else
+      stk <- stfBD(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)
+                   
     fwd.ctrl <- advice.ctrl[[stknm]]$fwd.ctrl
     
     iter   <- dim(stk@m)[6]

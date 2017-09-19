@@ -44,8 +44,15 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
    
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
-  
-    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    
+    ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
+    
+    if(ageStruct == TRUE)
+      stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    else
+      stk <- stfBD(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)
+                   
+    
     
     iter   <- dim(stk@m)[6]
     yrsnames <- dimnames(stk@m)[[2]]

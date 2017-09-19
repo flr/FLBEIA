@@ -25,9 +25,15 @@ F2CatchHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk@harvest[stk@harvest < 0] <- 0.00001
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
-
-    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
-
+    
+    
+    ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
+    
+    if(ageStruct == TRUE)
+      stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    else
+      stk <- stfBD(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)
+    
    # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n
     
     ref.pts <- advice.ctrl[[stknm]]$ref.pts # matrix[6,it]  rows = Bmsy, MSY, alpha_0, alpha_1, alpha_2, beta
