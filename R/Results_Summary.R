@@ -877,6 +877,8 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         
         res[k:(k + prod(Dim[-2]) - 1), "income"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) 
         
+        res[k:(k + prod(Dim[-2]) - 1), "price"] <- res[k:(k + prod(Dim[-2]) - 1), "income"] / res[k:(k + prod(Dim[-2]) - 1), "landings"]
+        
         res[k:(k + prod(Dim[-2]) - 1), "profits"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) - res[k:(k + prod(Dim[-2]) - 1), "costs"]
         
         res[k:(k + prod(Dim[-2]) - 1), "salaries"] <- c(seasonSums(fl@crewshare[,years,]*revenue_flbeia(fl)[,years, ] + covars[['Salaries']][f,years]))
