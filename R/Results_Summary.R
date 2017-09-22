@@ -1873,7 +1873,7 @@ npv <- function(obj, discF = 0.05, y0, flnms = names(obj$fleets), years = dimnam
 npvQ <- function(obj, prob = c(0.05,0.5,0.95)){
   
   res <- aggregate(npv ~  fleet + scenario, obj, quantile, prob = prob,na.rm=T)
-  res <- cbind(fleet = res[,1], data.frame(res[,2]))
+  res <- cbind(fleet = res[,1], data.frame(res[,3]))
   
   nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
   
