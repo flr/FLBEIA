@@ -1175,7 +1175,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
         stfl <- catchNames(fl)        
         sts  <- stknms[stknms %in% stfl]
         
-        n <- prod(Dim)[-2]*length(sts)
+        n <- prod(Dim[-2])*length(sts)
         
         dff <- data.frame(year = rep(years, prod(Dim[3])*length(sts)), 
                           fleet = rep(f, n), 
@@ -1555,7 +1555,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
     for(f in flnms){
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      n <- prod(Dim)*length(mts)
+      n <- prod(Dim[-2])*length(mts)
       
       dff <-  data.frame(year = rep(years, prod(Dim[3])*length(mts)), 
                          fleet = rep(f, n), 
@@ -1873,11 +1873,11 @@ npv <- function(obj, discF = 0.05, y0, flnms = names(obj$fleets), years = dimnam
 npvQ <- function(obj, prob = c(0.05,0.5,0.95)){
   
   res <- aggregate(npv ~  fleet + scenario, obj, quantile, prob = prob,na.rm=T)
-  res <- cbind(fleet = res[,1], data.frame(res[,3]))
+  res <- cbind(res[,1:2], data.frame(res[,3]))
   
   nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
   
-  names(res)[2:(2+length(prob)-1)] <- nms
+  names(res)[3:5] <- nms
   
   
   return(res)
