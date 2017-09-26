@@ -43,8 +43,8 @@
   if(all(is.na(effshare)) || all(effshare==0)) {
     stop('Cobb Douglas parameters: Effort share data missing')}
   
-  if(any(is.na(age.min)|| is.na(age.max))) {
-    stop('Cobb Douglas parameters: Cobb Douglas parameters: Wrong min or max age')}
+  # if(any(is.na(age.min)|| is.na(age.max))) {
+  #   stop('Cobb Douglas parameters: Cobb Douglas parameters: Wrong min or max age')}
   
   if(all(is.na(landings.n)) || all(is.na(discards.n))) {
     stop('Cobb Douglas parameters: Na-s in landings.n and discards.n')}
@@ -66,13 +66,17 @@
   #==============================================================================
   # Section 3:        Calculate catch.q
   #==============================================================================
-  if(length(age.min:age.max)==1){
+  if(all(is.na(c(age.max,age.min)))){
     stk.gB <- largs$stk.gB
     catch.q[,hist.yrs]   <- ((landings.n + discards.n)[,hist.yrs])/(met.effort*(stk.n+stk.gB[,hist.yrs]))
   }else{
+    if(length(age.min:age.max)==1 ){
+     stk.gB <- largs$stk.gB
+     catch.q[,hist.yrs]   <- ((landings.n + discards.n)[,hist.yrs])/(met.effort*(stk.n+stk.gB[,hist.yrs]))
+    }else{
     for (aa in 1:length(age.min:age.max)){  
       catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[aa,hist.yrs])/(met.effort*stk.n[aa,])}
-  }       
+    }}       
  
    catch.q[is.infinite(catch.q)] <- 0
    catch.q[is.na(catch.q)] <- 0
