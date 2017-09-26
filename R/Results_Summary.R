@@ -1785,7 +1785,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
     stop(paste("Check names for 'Bpa' and 'Blim'. Values should be in the following list: ", paste(stknms, collapse = ", "), sep=''))
   }
   
-  bioS <- bioSum(obj, stknms = stknms, years = years, long = FALSE)
+  bioS <- bioSum(obj, stknms = stknms, years = years, long = FALSE, scenario = scenario)
   bioS <- cbind(bioS, Bpa = Bpa[bioS$stock],  Blim = Blim[bioS$stock])
   bioS <- cbind(bioS, risk.pa = as.numeric(bioS$ssb < bioS$Bpa), risk.lim = as.numeric(bioS$ssb < bioS$Blim))
 
@@ -1798,7 +1798,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
     stop(paste("Check names for 'Prflim'. Values should be in the following list: ", paste(flnms, collapse = ", "), sep=''))
   }
   
-  flS <- fltSum(obj, years = years, flnms = flnms, long = FALSE)
+  flS <- fltSum(obj, years = years, flnms = flnms, long = FALSE, scenario = scenario)
   flS <- cbind(flS, refp = Prflim[flS$fleet])
   flS <- cbind(flS, risk = as.numeric(flS$profits < flS$refp))
   
@@ -1832,10 +1832,9 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   names(auxBioPa) <- c('year', 'unit', 'scenario', 'value')
   names(auxBiolim) <- c('year', 'unit', 'scenario', 'value')
   
-  res <- cbind(scenario = scenario, rbind(
-               cbind(auxFl[,1:3],     indicator = 'pPrflim', value = auxFl[,4]),
-               cbind(auxBioPa[,1:3],  indicator = 'pBpa',    value = auxBioPa[,4]),
-               cbind(auxBiolim[,1:3], indicator = 'pBlim',   value = auxBiolim[,4])))
+  res <- rbind( cbind(auxFl[,1:3],     indicator = 'pPrflim', value = auxFl[,4]), 
+                cbind(auxBioPa[,1:3],  indicator = 'pBpa',    value = auxBioPa[,4]), 
+                cbind(auxBiolim[,1:3], indicator = 'pBlim',   value = auxBiolim[,4]))
  # No sense in wide format  
 #  if(long == FALSE){
 #    temp <- reshape(res,v.names = 'value', timevar = 'indicator', idvar = c('scenario', 'year', 'unit'), direction = 'wide')  }
