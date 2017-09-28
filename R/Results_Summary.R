@@ -1574,7 +1574,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
         dff[k:(k+prod(Dim[-2])-1),'vcost']    <- c(seasonSums(fl@effort*mt@effshare*mt@vcost)[,years,])
         dff[k:(k+prod(Dim[-2])-1),'income'] <- c(Reduce('+', lapply(mt@catches, function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years])))
         
-        k <- k + prod(Dim)
+        k <- k + prod(Dim[-2])
       }
       
       res <- rbind(res, dff)   
