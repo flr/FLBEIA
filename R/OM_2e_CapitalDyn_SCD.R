@@ -46,6 +46,8 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     Inv <- c((Rev - BER)/Rev)*c(covars[['InvestShare']][flnm,year,,ns]) # The share in last season
     
+    Inv <- ifelse((Rev - BER) < 0 & Rev < 0, -Inv, Inv) # If both are negative, the ratio is positive!! change it!!
+    
     Ks <- seasonSums(fleet@capacity[,year])[drop=T]    # seasonal capacity [ns,ni]
     K  <- c(seasonSums(fleet@capacity[,year])) # annual capacity. [ni]
 
