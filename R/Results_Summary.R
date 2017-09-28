@@ -1557,9 +1557,9 @@ mtSum <- function(obj, flnms = names(obj$fleets),
       mts <- names(fl@metiers)
       n <- prod(Dim[-2])*length(mts)
       
-      dff <-  data.frame(year = rep(years, prod(Dim[3])*length(mts)), 
+      dff <-  data.frame(year = rep(years, Dim[3]*length(mts)), 
                          fleet = rep(f, n), 
-                         metier = rep(mts, each = prod(Dim)),
+                         metier = rep(mts, each = prod(Dim[-2])),
                          iter = rep(rep(1:Dim[3], each = prod(Dim[1])), length(mts)),  
                          effshare = numeric(n), 
                          effort = numeric(n),
