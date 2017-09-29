@@ -42,6 +42,8 @@ setPlusGroupFLBiol<-	function(x, plusgroup, na.rm=FALSE)
   mat(x) <- mat(x)[as.character(x@range["min"]:x@range["plusgroup"])]
   
   x@range["max"]<-x@range["plusgroup"]
+  x@range["minfbar"] <- ifelse( x@range["minfbar"]>x@range["plusgroup"], x@range["plusgroup"], x@range["minfbar"])
+  x@range["maxfbar"] <- ifelse( x@range["maxfbar"]>x@range["plusgroup"], x@range["plusgroup"], x@range["maxfbar"])
   
   return(x)
 }
