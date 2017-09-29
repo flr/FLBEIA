@@ -351,7 +351,7 @@ Obs.FSolver <- function(Fay,May,Nay,Cay)
 #                 for systematic and/or random error in the observation of total biomass
 # yr            : integer, the year of assessment/management
 Obs.stk.bio <- function(biol, stk.bio.error, yr){
-     btot     <- unitSums(biol@n[,,,1,,]*biol@wt[,,,1,,])
+     btot     <- quantSums(unitSums(biol@n[,,,1,,]*biol@wt[,,,1,,]))
      ny       <- yr - 1 
      btot     <- btot[drop=T]*stk.bio.error[,1:ny,drop=T]
      return(btot)
