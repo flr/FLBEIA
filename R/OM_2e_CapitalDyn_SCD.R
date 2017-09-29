@@ -48,7 +48,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     
     Inv <- ifelse((Rev - BER) < 0 & Rev < 0, -Inv, Inv) # If both are negative, the ratio is positive!! change it!!
     
-    Ks <- seasonSums(fleet@capacity[,year])[drop=T]    # seasonal capacity [ns,ni]
+    Ks <- fleet@capacity[,year][drop=T]    # seasonal capacity [ns,ni]
     K  <- c(seasonSums(fleet@capacity[,year])) # annual capacity. [ni]
 
     # pKs How annual capacity is distributed along seasons.
