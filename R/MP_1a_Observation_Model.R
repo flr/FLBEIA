@@ -177,8 +177,6 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     if (is.null(obs.ctrl$TAC.ovrsht))
       stop(paste("'TAC.ovrsht' array not defined for stock '",stknm,"'",sep=""))
-    if (sum(obs.ctrl$TAC.ovrsht<=0)>0 | sum(is.na(obs.ctrl$TAC.ovrsht))>0)
-      stop(paste("check values in 'TAC.ovrsht' array for stock '",stknm,"' (required values > 0)",sep=""))                                            
     # TAC.ovrsht  can be numeric with dimension [1]  or FLQuant with dimension [1,dim(biol@n)[2],1,1,1,it]     
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
@@ -341,8 +339,6 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     if (is.null(obs.ctrl$TAC.ovrsht))
       stop(paste("'TAC.ovrsht' array not defined for stock '",stknm,"'",sep=""))
-    if (sum(obs.ctrl$TAC.ovrsht<=0)>0 | sum(is.na(obs.ctrl$TAC.ovrsht))>0)
-      stop(paste("check values in 'TAC.ovrsht' array for stock '",stknm,"' (required values > 0)",sep=""))
     # TAC.ovrsht  can be numeric with dimension [1]  or FLQuant with dimension [1,dim(biol@n)[2],1,1,1,it]     
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
@@ -416,8 +412,6 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     if (is.null(obs.ctrl$TAC.ovrsht))
       stop(paste("'TAC.ovrsht' array not defined for stock '",stknm,"'",sep=""))
-    if (sum(obs.ctrl$TAC.ovrsht<=0)>0 | sum(is.na(obs.ctrl$TAC.ovrsht))>0)
-      stop(paste("check values in 'TAC.ovrsht' array for stock '",stknm,"' (required values > 0)",sep=""))
     # TAC.ovrsht  can be numeric with dimension [1]  or FLQuant with dimension [1,dim(biol@n)[2],1,1,1,it]     
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
@@ -439,7 +433,7 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
     stck                <- as(biolbio, "FLStock")[,1:ny]
     dimnames(stck)      <- list(age="all")
-    
+
     landings(stck)      <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
     landings(stck)[]    <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
     discards(stck)      <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
