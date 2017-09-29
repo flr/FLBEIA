@@ -113,7 +113,7 @@ export(
   "xtabs2")
 
 exportMethods(
-  "dimnames<-" # to be deleted after next FLCore release
+  "dimnames<-", # to be deleted after next FLCore release
   "addFLCatch",
   "catchNames",
   "catchNames<-",

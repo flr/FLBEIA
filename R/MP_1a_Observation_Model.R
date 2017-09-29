@@ -174,7 +174,11 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     na                <- dim(biol@n)[1]
     ny                <- yr - 1
     it                <- dim(biol@n)[6]
-                                                
+    
+    if (is.null(obs.ctrl$TAC.ovrsht))
+      stop(paste("'TAC.ovrsht' array not defined for stock '",stknm,"'",sep=""))
+    if (sum(obs.ctrl$TAC.ovrsht<=0)>0 | sum(is.na(obs.ctrl$TAC.ovrsht))>0)
+      stop(paste("check values in 'TAC.ovrsht' array for stock '",stknm,"' (required values > 0)",sep=""))                                            
     # TAC.ovrsht  can be numeric with dimension [1]  or FLQuant with dimension [1,dim(biol@n)[2],1,1,1,it]     
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
@@ -335,6 +339,10 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     ny                <- yr-1
     it                <- dim(biol@n)[6]
     
+    if (is.null(obs.ctrl$TAC.ovrsht))
+      stop(paste("'TAC.ovrsht' array not defined for stock '",stknm,"'",sep=""))
+    if (sum(obs.ctrl$TAC.ovrsht<=0)>0 | sum(is.na(obs.ctrl$TAC.ovrsht))>0)
+      stop(paste("check values in 'TAC.ovrsht' array for stock '",stknm,"' (required values > 0)",sep=""))
     # TAC.ovrsht  can be numeric with dimension [1]  or FLQuant with dimension [1,dim(biol@n)[2],1,1,1,it]     
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
@@ -406,6 +414,10 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     ny <- yr - 1
     it <- dim(biol@n)[6]
     
+    if (is.null(obs.ctrl$TAC.ovrsht))
+      stop(paste("'TAC.ovrsht' array not defined for stock '",stknm,"'",sep=""))
+    if (sum(obs.ctrl$TAC.ovrsht<=0)>0 | sum(is.na(obs.ctrl$TAC.ovrsht))>0)
+      stop(paste("check values in 'TAC.ovrsht' array for stock '",stknm,"' (required values > 0)",sep=""))
     # TAC.ovrsht  can be numeric with dimension [1]  or FLQuant with dimension [1,dim(biol@n)[2],1,1,1,it]     
     # If TAC.ovrsht is numeric => convert it into an FLQuant. 
     if(is.null(dim(obs.ctrl$TAC.ovrsht))) obs.ctrl$TAC.ovrsht <- FLQuant(obs.ctrl$TAC.ovrsht, dim = c(1,dim(biol@n)[2],1,1,1,it))
