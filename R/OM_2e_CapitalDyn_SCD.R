@@ -72,7 +72,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     # Investment in new vessels only occur if the operational days of existing vessesl is equal to capacity and investment saving is >0.
     # In iters where effort == capacity?    
     # In iterSel although the money for investment is >0 there is no investment.
-    Ef <- c(fleet@effort[,year])
+    Ef <- c(seasonSums(fleet@effort[,year]))
     iterSel <- which(omega > 0 & Ef < 0.99*K)              
     
     omega[iterSel] <- 0

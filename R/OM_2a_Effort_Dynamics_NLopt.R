@@ -55,15 +55,30 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year
   
   for(i in 1:it){
     # Biomass at age.
-    B    <- sapply(stnms, function(x){   # biomass in the middle of the season  [nst]
+    B    <- matrix(t(sapply(stnms, function(x){   # biomass in the middle of the season  [nst,it]
       if(dim(biols[[x]]@n)[1] > 1)
         return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss,,i, drop=T])
-      else return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss,,i, drop=T])})
+      else{
+        if(biols.ctrl[[x]][['growth.model']] == 'fixedPopulation'){
+          return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss,,i, drop=T])
+        }
+        else{
+          return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss,,i, drop=T])
+        }
+        
+      } })) , nst,1, dimnames = list(stnms, 1:1))
     
-    N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,1]
+    N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
       if(dim(biols[[x]]@n)[1] > 1)
         return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss,,i, drop = FALSE])
-      else return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss,,i, drop = F])})
+      else{
+        if(biols.ctrl[[x]] == 'fixedPopulation'){
+          return((biols[[x]]@n)[,yr,,ss,,i, drop=F])
+        }
+        else{
+          return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss,,i, drop=F])
+        } } })
+    
     names(N) <- stnms
     
     QS.fls   <- sapply(stnms, function(x){           # matrix [nf,nst]
@@ -155,7 +170,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year
         # if the price was dynamically updated inside this function the optimizer could crash.
         pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr-1,,ss,,i, drop = TRUE]
       }
-      Cr.f[st] <- TAC[st]*QS[flnm,st]
+      Cr.f[st] <- TAC[st,i]*QS[flnm,st]
     }
     
     
