@@ -211,7 +211,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     }
          
     stck              <- as(biol, "FLStock")[,1:ny,1,1]  
-    dimnames(res) <- list(unit="unique")
+    dimnames(stck) <- list(unit="unique")
 
     landings.wt(stck)[] <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
     landings.n(stck)[]  <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
@@ -225,7 +225,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 
     # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
     # reported homogeneously.
-    landings(stck)    <- FLQuant(ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings))
+    landings(stck)[]  <- FLQuant(ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings))
     
     ovrsht.red        <- stck@landings/quantSums(unitSums(seasonSums(stck@landings.n*stck@landings.wt)))  # [1,ny,,,,it]
     
@@ -425,10 +425,11 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
       }
              
     biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
-    
     stck                <- as(biolbio, "FLStock")[,1:ny]
+    dimnames(stck)      <- list(age="all")
+    
     landings(stck)      <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
-    landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
+    landings(stck)[]    <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
     discards(stck)      <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
     catch(stck)         <- stck@landings + stck@discards
     catch.n(stck)       <- stck@catch 
