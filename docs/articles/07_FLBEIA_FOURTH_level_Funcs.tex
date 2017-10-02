@@ -1,0 +1,295 @@
+
+\subsection{Fourth level functions}
+
+  These functions are called by the third level functions and, for the time being, are the functions 
+in the lowest level within \texttt{FLBEIA}. 
+
+\subsubsection{Stock-recruitment relationships} \label{sec:SRR}
+	Stock-recruitment relationships are used, for example, within \texttt{ASPG} and \texttt{annualTAC} functions. The stock-recruitment 
+	relationship used in \texttt{ASPG} is defined in the slot \texttt{model} of \texttt{FLSRsim} object and it defines the true
+	recruitment dynamics of the stocks. Within \texttt{annualTAC}, the stock-recruitment relationship used is 
+	defined in: 
+		
+		\begin{center}
+			\texttt{advice.ctrl[[stock.name]][['sr']][['model']]}
+		\end{center}
+
+\noindent	element and it describes the 'observed' stock-recruitment dynamics (used) in the management process.
+
+	In \texttt{FLCore} package there are several stock-recruitment relationships already defined and all can be 
+	used within \texttt{FLBEIA}.
+	Some of the functions available are:
+	
+	\begin{description}
+
+		\item[\texttt{geomean}:] Recruitment is independent of the stock and equal to the geometric mean
+	      of historical period.
+	      		      $$ R = \alpha = \sqrt[n]{R_1\cdot\ldots\cdot R_n}$$
+
+		\item[\texttt{bevholt}:] Beverton and Holt model with the following parameterization:
+						$$ R = \frac{\alpha\cdot SSB}{(\beta + SSB)}$$
+          where $\alpha$ is the maximum recruitment (asymptotically) and $\beta$ is
+          the stock level needed to produce the half of maximum
+          recruitment $\alpha /2$ $(\alpha, \beta >0)$.
+
+		\item[\texttt{ricker}:] Ricker stock-recruitment model fit with the following parameterization:
+
+                                $$R = \alpha\cdot SSB\cdot e^{-\beta\cdot SSB}$$
+
+          where $\alpha$ is related to productivity and $\beta$ to density dependence.
+          $\alpha$  is the recruit per stock unit at small stock levels. ($\alpha, \beta > 0$).
+
+		\item[\texttt{segreg}:] Segmented regression stock-recruitment model fit:
+
+                           \[
+ 							R = \begin{cases}
+   									\alpha\cdot SSB       & \text{, if } SSB < \beta \\
+   									\alpha\cdot \beta     & \text{, if } SSB \geq \beta
+  								\end{cases}
+							\]
+
+          where $\alpha$ is the slope of the recruitment for stock levels below
+          $\beta$ and $\alpha\cdot \beta $ is the mean recruitment for stock levels above
+          $\beta$ ($\alpha, \beta > 0$).
+
+		\item[\texttt{shepherd}:] Shepherd stock-recruitment model fit:
+
+                              $$ R = \alpha \cdot \frac{SSB}{(1 + (S/\beta)^\gamma)}$$
+
+          This model generalizes Beverton and Holt and Ricker models ($\gamma = 1$ corresponds with
+          Beverton and Holt model, $\gamma > 1$ takes a Ricker-like shape and with $\gamma < 1$
+          the curve rises indefinitely).
+
+    \item[\texttt{bevholtAR1, rickerAR1, segregAR1}:] Beverton and Holt, Ricker and Segmented regression
+      stock-recruitment models with autoregressive normal log
+      residuals of first order. In the model fit the corresponding
+      stock-recruitment model is combined with an autoregressive
+      normal log likelihood of first order for the residuals. If
+      $R_t$ is the observed recruitment and $\hat{R}_t$ is the predicted
+      recruitment, an autoregressive model of first order is fitted
+      to the log-residuals, $x_t = log(R_t/\hat{R}_t)$.
+
+                           $$x_t = \rho\cdot x_{t-1} + \varepsilon$$
+
+      where $\varepsilon \sim N(0,\sigma_{ar}^2)$.
+
+    \item[\texttt{cushing}:] Cushing stock recruitment model fit:
+              $$R = \alpha \cdot SSB ^ \beta$$
+      where $\alpha, \beta > 0$.
+
+    \item[\texttt{bevholtSV, rickerSV, segregSV, shepherdSV, cushingSV}:] Beverton and Holt, Ricker,
+      Segemented regression, Shepherd and Cushing
+      stock-recruitment models with $\alpha$ and $\beta$ parameterisation converted into
+      steepness and virgin biomass ($s$ and $v$).
+
+		\item[\texttt{rickerCa}:] Ricker stock-recruitment model with covariates, parameterised as:
+
+          $$R = \alpha\cdot (1-\gamma \cdot covar) \cdot SSB \cdot e^{-\beta\cdot SSB}$$
+
+  \end{description}
+        
+	Additionally, the following stock-recruitment relationships are defined in \texttt{FLBEIA} package:
+
+	\begin{description}
+
+		\item[\texttt{hockstick}:] Hockey stick stock-recruitment model fit:
+
+              \[
+ 							R = \begin{cases}
+   									\alpha\cdot S         & \text{, if } SSB < \beta \\
+   									\alpha\cdot \beta     & \text{, if } SSB \geq \beta
+  								\end{cases}
+							\]
+
+          where $\alpha$ is the slope of the recruitment for stock levels below
+          $\beta$ and $\alpha\cdot \beta $ is the mean recruitment for stock levels above
+          $\beta$ ($\alpha, \beta > 0$).
+
+		\item[\texttt{redfishRecModel}:] Redfish recruitment model developed by Benjamin Planque, with the formula:
+
+          \[
+          R_y = redfishRec(R_{y-1},\sigma, minrec, maxrec) \cdot
+            \begin{cases}
+              \frac {SSB} \alpha  & \text{, if } SSB < \alpha \\
+              1                   & \text{, if } SSB \geq \alpha
+            \end{cases}
+          \]
+          Being:
+            $$redfishRec(R_{y-1},\sigma, minrec, maxrec) = R_{y-1} + rnorm(n=1,mean=0,sd=\sigma)$$
+            $$minrec \leq redfishRec(R_{y-1},\sigma, minrec, maxrec) \geq maxrec$$
+          Where $R_{y-1}$ corresponds to previous year's recruitment, $\gamma$ the standard deviation of
+          the historic recruitment and \texttt{minR}, \texttt{maxR}
+          to the minimun and maximum recruitments historically observed, respectively.
+
+    \item[\texttt{aneRec\_pil, pilRec\_ane}:] Ricker models with a covariate in the exponent, for simulating
+      stk1 recruitment assuming predation on its eggs by stk2, given by the formula:
+
+        $$R_{stk1} = \alpha\cdot SSB_{stk1} \cdot e^{-\beta \cdot SSB_{stk1} + \gamma \cdot SSB_{stk2}}$$
+
+    \item[\texttt{ctRec}:] constant recruiment. There is not recruitment modelling and therefore expected
+        recruitment values for the projection period has to be fixed a priori.
+
+  \end{description}
+
+  There could be more stock-recruitment relationships defined in \texttt{FLCore} or \texttt{FLBEIA}, thus, 
+  if you are interested in using 
+        a model not defined here take a look at \texttt{SRModels} help page in \texttt{FLCore} package. 
+        New stock-recruitment models to be used in \texttt{FLSRsim} class can be defined in two ways:
+               
+		\begin{enumerate}
+			\item Using a formula in slot \texttt{model}:
+					$$ rec \sim \Phi(X)$$
+				where $\Phi$ is a function of \texttt{ssb} and parameters and covariates stored in \texttt{params} and  \texttt{covar} slots
+				respectively.
+			\item Defining a function in \texttt{R}, \texttt{foo <- function(X)}, and using the name of the function, \texttt{foo}, 
+					in slot \texttt{model}. The function arguments must be among \texttt{ssb} and parameters and covariates stored in
+					\texttt{params} and  \texttt{covar} slots respectively.
+					 
+		\end{enumerate}
+        
+
+\subsubsection{Catch production functions} \label{sec:CprodFun}
+
+	The catch production functions can be different for the same third level effort model.
+	Currently, there are three catch production functions available. 
+	The first two correspond with Cobb-Douglas production functions \citep{Clark1990, Cobb1928}
+	but in one case the model operates at stock level and in the second one at age class level.
+	The last one is used when information on effort is lacking and consequently catches are
+	set independently from effort.
+ 	
+ 	\paragraph{\texttt{CobbDouglasBio}: Cobb-Douglas production function at stock level} \hspace{0pt} \smallskip
+ 	
+ 	The total catch of the fleet is calculated according to the Cobb-Douglas production function:
+		
+\begin{equation}  \label{eq:Cobb_Doug}
+	C = q\cdot E^{\alpha} \cdot B^{\beta}
+\end{equation}
+
+  \noindent	where $C$ denotes total catch and $B$ total biomass (both in weight), $q$ the catchability and $E$ the effort. 
+	$\alpha$ and $\beta$ are the elasticity parameters associated to labor and capital 
+	(biomass in this case), respectively. These parameters are associated
+	to the existing technology. 
+
+	As $\alpha$ and $\beta$ parameters depend on the stock and the technology, Cobb-Douglas function is
+	applied at metier level. Thus, the catch of a certain fleet $f$ is given by:
+
+\begin{equation}  \label{eq:Cobb_Doug_fleet}
+	C_f = \sum_{m \in M_f} q_{f,m}\cdot B^{\beta _{f,m}} \cdot (E_f\cdot \delta_{f,m})^{\alpha_{f,m}}
+\end{equation}
+ 
+	\noindent where $M_f$ represents the set of metiers of fleet $f$ and $\delta$ the effort share among metiers.
+
+
+	\subparagraph{Derivation of Catch-at-age.}
+	%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Once the total catch is calculated, it is divided into catch at age using selectivity at age, $s_{a,f,m}$, and
+	biomass at age in the population, $B_{a}$:
+		
+	\begin{equation}  \label{eq:catch_at_age}
+		C_{a,f,m} = \frac{C_{f,m}}{\sum_a s_{a,f,m}\cdot B_a} \cdot s_{a,f,m}\cdot B_a
+	\end{equation}
+	
+	Derivation of Equation~\ref{eq:catch_at_age}:
+			
+	\begin{itemize}
+		\item If the whole population were accessible to the gear, the catch of age $a$ would be:
+			$$s_{a,f,m}\cdot B_a$$
+		\item Thus, if the whole population were accessible to the gear, the total catch we could obtain would be:
+			$$\sum_a s_{a,f,m}\cdot B_a$$ 
+		\item But, the actual total catch is $C_f$, so theoretically the proportion of the population that have been
+		  accessible is\footnote{If all the age classes were not accessible or completely accessible
+		 we would replace $s_{a,f,m}$ by $\acute{s_{a,f,m}} = \gamma_{a,f,m} \cdot s_{a,f,m}$ where $\gamma_{a,f,m}$ 
+		 is the proportion of individuals of age $a$ accessible to metier $m$ in fleet $f$.}:
+			$$\frac{C_{f,m}}{\sum_a s_{a,f,m}\cdot B_a}$$ 
+
+		\item Then, if we assume the population is homogeneously distributed we arrive to Equation~\ref{eq:catch_at_age}.
+	\end{itemize}
+		
+	The catch at age is then further disaggregated in landings- and discards-at-age using landings' and discards' specific selectivity:
+		
+	\begin{equation}  \label{eq:land_disc}
+		L_{a,f,m} = \frac{sl_{a,f,m}}{s_{a,f,m}}\cdot C_{a,f,m} \quad  \text{and} \quad  D_{a,f,m} = \frac{sd_{a,f,m}}{s_{a,f,m}}\cdot C_{a,f,m}
+	\end{equation}
+
+ 	
+ 	\paragraph{\texttt{CobbDouglasAge}: Cobb-Douglas production function at age-class level} \hspace{0pt} \smallskip
+
+ 	 	The  catch of the fleets is calculated according to the Cobb-Douglas production function 
+		applied at age-class level, i.e.:
+		
+\begin{equation}  \label{eq:Cobb_Doug_age}
+	C = \sum_a C_a = q_a\cdot E^{\alpha_a} \cdot B_a^{\beta_a}
+\end{equation}
+
+	\noindent where $C$ denotes catch and $B$  biomass (both in weight), $q$ the catchability, $E$ the effort
+	and $a$ the subscript for age. $\alpha$ and $\beta$ are the elasticity parameters associated to labor and capital 
+	(biomass in this case), respectively. These parameters are associated
+	to the existing technology. 
+
+	As $\alpha$ and $\beta$ parameters dependent on age classes and technology, Cobb-Douglas function is
+	applied at metier level. Thus, the catch of a certain fleet $f$ is given by:
+
+\begin{equation}  \label{eq:Cobb_Doug_fleet_age}
+	C_f = \sum_a C_{a,f} = \sum_{m \in M_f} \sum_a q_{a,f,m}\cdot B_a^{\beta _{a,f,m}} \cdot (E_f\cdot \delta_{f,m})^{\alpha_{a,f,m}}
+\end{equation}
+ 
+	\noindent where $M_f$ represents the set of metiers of fleet $f$, $\delta$ the effort share among metiers and $m$ 
+	is the subscript that indicates the metier.
+
+ 	\paragraph{\texttt{seasonShare}: Catches estimation given season share allocation by metier} \hspace{0pt} \smallskip
+
+ 	 	In case that there is no information on the effort, and therefore effort is not limiting the catches, the catch at age of
+ 	 	each metier can be calculated according to a previously defined season share allocation by metier. 
+ 	 	This function is only valid for metiers which target only one stock.
+ 	 	Alternatively, the seasonal share for one stock can be set equal to the one of a reference fleet (usually one which has 
+ 	 	information on effort).
+ 	 	
+ 	 	Two arguments need to be declared as elements of \texttt{fleets.ctrl} if this function is used:
+ 	 	\begin{description}
+			\item[\texttt{effort.model}:] 'fixedEffort'. 
+			This argument must be declared at fleet level (i.e. \\ \texttt{fleets.ctrl[[fleet.name]]\$effort.model})
+			\item[\texttt{catch.model}:] 
+			Argument is used to specify the catch production function that will be used to generate the catch 
+			and it must be declared at fleet and stock level (i.e. \\ \texttt{fleets.ctrl[[fleet.name]][[stock.name]]\$catch.model}). 
+			That catch production model corresponds with a fourth level function (see Section~\ref{sec:CprodFun}).
+			\item[\texttt{catch.dependence}:] This argument needs to be set only 
+			  when aiming to set the seasonal share of one stock equal to the same stock in other
+			  reference fleet and it must be declared at fleet and stock level 
+			  (i.e. \texttt{fleets.ctrl[[fleet.name]][[stock.name]]\$catch.dependence}).
+			  Value has to be set equal to the name of this reference fleet.
+ 	 	\end{description}
+ 	 	
+% 		Two arguments need to be declared as elements of \texttt{fleets.ctrl} if this function is used, \texttt{effort.model = 'fixedEffort'} 
+% 	and \texttt{catch.model}. The last argument is used to specify the catch production function that will be used to generate the catch. 
+%   Note that first argument must be declared at fleet level (i.e \texttt{fleets.ctrl[[fleet.name]]\$effort.model}), 
+%   second argument at fleet and stock level (i.e. \texttt{fleets.ctrl[[fleet.name]][[stock.name]]\$catch.model})
+% 	and that catch production model corresponds with a fourth level function.
+% 	When aiming to set the seasonal share of one stock equal to the same stock in other reference fleet, 
+% 	then an additional argument, \texttt{catch.dependence}, needs to be set at fleet and stock level 
+% 	(i.e. \texttt{fleets.ctrl[[fleet.name]][[stock.name]]\$catch.dependence}) equal to the name of this reference fleet.
+	
+	
+\subsubsection{Costs functions}
+
+	Cost functions have been developed in order to be used within \texttt{fleets.om}. As cost structure could 
+	differ among fleets it has been defined as fourth level function and it works at fleet level. 
+	In principle, it could be useful in both tactic and strategic dynamics of fleets. 
+	 
+	\paragraph{\texttt{TotalCostsPower}: Total costs power function} \hspace{0pt} \smallskip
+
+	This function sums up the fixed costs ($FxC$) and the power functions of cost per unit of effort ($CostPUE$),
+	crew share per unit of landings ($CSPUL$) and capital cost per unit capital ($CapCostPUC$), mathematically:
+	
+	\begin{align}
+		Cost_f  = & FxC_f + \sum_{m} (CostPUE_{f,m} \cdot E_f \cdot \tau_{f,m})^{\gamma_{1 f,m}} + 
+		 \nonumber \\
+			 & \sum_{st} \sum_{m} CSPUL_{f,m,st} \cdot L_{f,m,st}^{\gamma_{2 f,m,st}} +  CapCostPUC_f\cdot Cap_f^{\gamma_{3 f}}
+	\end{align}
+	
+	The fixed cost are given at fleet level, $f$, cost per unit of effort at metier level, $m$, and crew share at 
+	fleet, metier and stock, $st$, level. $\gamma_{1 f,m}$ is the exponent of effort  at fleet and metier level 
+	in cost of effort addend, $\gamma_{2 f,m,st}$ the exponent of landing at fleet, metier and stock level in crew share  
+	cost addend and $\gamma_{3 f}$ is the exponent of capital at fleet level in capital cost addend.  
+
+
+
