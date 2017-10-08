@@ -197,8 +197,8 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
          stop("ages.error array must have dim[1:2] identical to number of ages in stock")
-     if(any(round(apply(ages.error,c(1,3:4), sum),2) != 1))
-         stop("Some rows in ages.error array  don't add up to 1")
+     if(any(round(apply(ages.error,c(2,3:4), sum),2) != 1))
+         stop("Some cols in ages.error array  don't add up to 1")
     
     for (e in c('nmort.error', 'land.wgt.error', 'disc.wgt.error', 
                  'fec.error', 'land.nage.error', 'disc.nage.error')) {
@@ -278,8 +278,8 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
          stop("ages.error array must have dim[1:2] identical to number of ages in stock")
-    if(any(round(apply(ages.error,c(1,3:4), sum),2) != 1))
-         stop("Some rows in ages.error array  don't add up to 1")
+    if(any(round(apply(ages.error,c(2,3:4), sum),2) != 1))
+         stop("Some cols in ages.error array  don't add up to 1")
     
     for (e in c('stk.nage.error', 'stk.wgt.error')) {
       err <- get(e)
@@ -294,13 +294,13 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck              <- age2ageDat(biol, fleets, advice, obs.ctrl, year, stknm) 
     
     n <- array(Obs.stk.nage(biol, ages.error, stk.nage.error, yr+1), dim = c(na, ny+1,it)) # yr+1 in order to be able to calculate F using 'n' ratios
-    stock.n(stck)      <- n[,1:ny,]
-    stock.wt(stck)     <- Obs.stk.wgt(biol, ages.error, stk.wgt.error, yr)
+    stock.n(stck)      <- FLQuant(n[,1:ny,], dim = c(na, ny,1,1,1,it), dimnames = dimnames(stock.n(stck)))
+    stock.wt(stck)     <- FLQuant(Obs.stk.wgt(biol, ages.error, stk.wgt.error, yr), dim = c(na, ny,1,1,1,it), dimnames = dimnames(stock.n(stck)))
     stock(stck)        <- quantSums(unitSums(seasonSums(stck@stock.n*stck@stock.wt)))
        
     units(stck@harvest) <- 'f'
    
-    stck@harvest[-c(na-1,na),] <- log(n[-c(na-1,na),-year,]/n[-c(1,na),-1,]) - stck@m[-c(na-1,na),drop=T]
+    stck@harvest[-c(na-1,na),] <- log(n[-c(na-1,na),-year,]/n[-c(1,na),-1,]) - stck@m[-c(na-1,na),1:ny,,,,1:it,drop=T]
 
  #   n. <- array(stck@stock.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
  #   m. <- array(stck@m[drop=T], dim = c(na,year-1,it))            # [na,ny,it]

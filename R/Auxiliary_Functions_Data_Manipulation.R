@@ -32,7 +32,8 @@ updateFLBiols <- function(biols){
                     rec = predictModel(model = ~n[1,]),
                     mat = predictModel(mat = mat0, model = ~ mat),
                     fec = predictModel(fec = x@fec, model = ~ fec),
-                    spwn = x@spwn)
+                    spwn = x@spwn) 
+    res@range[4:5] <- c(dims(res@n)$minyear, dims(res@n)$maxyear)
     return(res)
   })
 }

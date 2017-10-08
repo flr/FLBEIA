@@ -94,7 +94,7 @@ Obs.nmort <- function(biol,  ages.error, nmort.error,  yr)
         }
     }
     
-    mort.obs  <- mort.obs[drop=T]*nmort.error[,1:ny,drop=T]
+    mort.obs  <- mort.obs[drop=T]*nmort.error[,1:ny,,drop=T]
     return(mort.obs)
 }
 
@@ -120,7 +120,7 @@ Obs.stk.wgt <- function(biol, ages.error, stk.wgt.error, yr){
             mwgt.obs[,y,,,,i] <- mwgt.real[,y,,,,i]%*%ages.error[,,y,i]
         }
     }
-    mwgt.obs <- mwgt.obs[drop=T]*stk.wgt.error[,1:ny,drop=T]
+    mwgt.obs <- mwgt.obs[drop=T]*stk.wgt.error[,1:ny,,drop=T]
     return(mwgt.obs)
 }
 
@@ -145,16 +145,16 @@ Obs.mat  <- function(biol, ages.error, fec.error, yr){
     
     ny   <- yr -1
     
-    mat.real  <- seasonMeans(unitMeans(mat(biol)))[,1:ny]
+    mat.real  <- seasonMeans(unitMeans(mat(biol)*fec(biol)))[,1:ny]
     mat.obs  <- mat.real
     it <- dim(mat.real)[6]
     
-    for(i in 1:it){
-        for(y in 1:ny){
-            mat.obs[,y,,,,i] <- mat.real[,y,,,,i]%*%ages.error[,,y,i] 
-        }
-    }
-    mat.obs  <- mat.obs[drop=T]*fec.error[,1:ny,drop=T]
+    # for(i in 1:it){
+    #     for(y in 1:ny){
+    #         mat.obs[,y,,,,i] <- mat.real[,y,,,,i]%*%ages.error[,,y,i] 
+    #     }
+    # }
+    mat.obs  <- mat.obs[drop=T]*fec.error[,1:ny,,drop=T]
     
     return(mat.obs)
 }
@@ -204,7 +204,7 @@ Obs.land.nage <- function(fleets, ages.error, land.nage.error, land.wgt.obs, yr,
     ola.num <- sweep(ola.num, 2:6, Lrat, "*")
     
     # Apply the error in the observation of the landings due to misreporting.
-    ola.num          <- ola.num[,,,,,,drop=T]*land.nage.error[,1:ny,drop=T]
+    ola.num          <- ola.num[,,,,,,drop=T]*land.nage.error[,1:ny,,drop=T]
     
     return(ola.num)
 }
@@ -240,7 +240,7 @@ Obs.land.wgt <- function(fleets, ages.error, land.wgt.error, yr, stknm){
         }
      }
     
-     mwgt.obs <- mwgt.obs[drop=T]*land.wgt.error[,1:ny,drop=TRUE]
+     mwgt.obs <- mwgt.obs[drop=T]*land.wgt.error[,1:ny,,drop=TRUE]
      return(mwgt.obs)
 }
 
@@ -287,7 +287,7 @@ Obs.disc.nage <- function(fleets, ages.error, disc.nage.error, disc.wgt.obs, yr,
     oda.num <- sweep(oda.num, 2:6, Drat, "*")
     
     # Apply the error in the observation of the discards due to misreporting.
-    oda.num          <- oda.num[,,,,,,drop=T]*disc.nage.error[,1:ny,drop=T]
+    oda.num          <- oda.num[,,,,,,drop=T]*disc.nage.error[,1:ny,,drop=T]
     
     return(oda.num)
 }
@@ -322,7 +322,7 @@ Obs.disc.wgt <- function(fleets, ages.error, disc.wgt.error,  yr, stknm){
        }
     }
     
-    mwgt.obs <- mwgt.obs[drop=T]*disc.wgt.error[,1:ny,drop=T]
+    mwgt.obs <- mwgt.obs[drop=T]*disc.wgt.error[,1:ny,,drop=T]
     
     return(mwgt.obs)
 }
@@ -374,7 +374,7 @@ Obs.stk.bio <- function(biol, stk.bio.error, yr){
 Obs.land.bio <- function(fleets, land.bio.error,  yr, stknm){                                                                       
     ny        <- yr - 1
     tland     <- unitSums(seasonSums(tlandStock(fleets, stknm)))[,1:ny]
-    tland     <- tland[drop=T]*land.bio.error[,1:ny,drop=T]
+    tland     <- tland[drop=T]*land.bio.error[,1:ny,,drop=T]
 
     return(tland)
 }
@@ -393,7 +393,7 @@ Obs.land.bio <- function(fleets, land.bio.error,  yr, stknm){
 Obs.disc.bio <- function(fleets, disc.bio.error, yr, stknm){
      ny        <- yr -1
      tdisc     <- unitSums(seasonSums(tdiscStock(fleets, stknm)))[,1:ny]
-     tdisc     <- tdisc[drop=T]*disc.bio.error[,1:ny,drop=T]
+     tdisc     <- tdisc[drop=T]*disc.bio.error[,1:ny,,drop=T]
 
      return(tdisc)
 }
