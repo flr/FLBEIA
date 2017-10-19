@@ -197,8 +197,8 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
          stop("ages.error array must have dim[1:2] identical to number of ages in stock")
-     if(any(round(apply(ages.error,c(2,3:4), sum),2) != 1))
-         stop("Some cols in ages.error array  don't add up to 1")
+     if(any(round(apply(ages.error,c(1,3:4), sum),2) != 1))
+         stop("Some rows in ages.error array  don't add up to 1")
     
     for (e in c('nmort.error', 'land.wgt.error', 'disc.wgt.error', 
                  'fec.error', 'land.nage.error', 'disc.nage.error')) {
@@ -278,8 +278,8 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
     if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
          stop("ages.error array must have dim[1:2] identical to number of ages in stock")
-    if(any(round(apply(ages.error,c(2,3:4), sum),2) != 1))
-         stop("Some cols in ages.error array  don't add up to 1")
+    if(any(round(apply(ages.error,c(1,3:4), sum),2) != 1))
+         stop("Some rows in ages.error array  don't add up to 1")
     
     for (e in c('stk.nage.error', 'stk.wgt.error')) {
       err <- get(e)

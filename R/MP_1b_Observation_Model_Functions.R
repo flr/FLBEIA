@@ -88,11 +88,11 @@ Obs.nmort <- function(biol,  ages.error, nmort.error,  yr)
     mort.obs  <- mort.real
     it <- dim(mort.real)[6]
              
-    for(i in 1:it){
-        for(y in 1:ny){
-            mort.obs[,y,,,,i] <- mort.real[,y,,,,i]%*%ages.error[,,y,i] #! Here we should weight by the real age composition of the population??? 
-        }
-    }
+    # for(i in 1:it){
+    #     for(y in 1:ny){
+    #         mort.obs[,y,,,,i] <- mort.real[,y,,,,i]%*%ages.error[,,y,i] #! Here we should weight by the real age composition of the population??? 
+    #     }
+    # }
     
     mort.obs  <- mort.obs[drop=T]*nmort.error[,1:ny,,drop=T]
     return(mort.obs)
@@ -115,11 +115,11 @@ Obs.stk.wgt <- function(biol, ages.error, stk.wgt.error, yr){
     mwgt.obs  <- mwgt.real
     it <- dim(mwgt.real)[6]
              
-    for(i in 1:it){                                               #! Here we should weight by the real age composition of the population??? 
-        for(y in 1:ny){
-            mwgt.obs[,y,,,,i] <- mwgt.real[,y,,,,i]%*%ages.error[,,y,i]
-        }
-    }
+    # for(i in 1:it){                                               #! Here we should weight by the real age composition of the population??? 
+    #     for(y in 1:ny){
+    #         mwgt.obs[,y,,,,i] <- mwgt.real[,y,,,,i]%*%ages.error[,,y,i]
+    #     }
+    # }
     mwgt.obs <- mwgt.obs[drop=T]*stk.wgt.error[,1:ny,,drop=T]
     return(mwgt.obs)
 }
@@ -232,14 +232,14 @@ Obs.land.wgt <- function(fleets, ages.error, land.wgt.error, yr, stknm){
      mwgt.real <- seasonMeans(unitMeans(wtalStock(fleets,stknm)))[,1:ny]
      mwgt.obs  <- mwgt.real
      
-     for(i in 1:it){
-        for(y in 1:ny){
-       # [rr]     mwgt.obs[,y,,,,i] <- ((mwgt.real[,y,,,,i,drop=T]*laa[,y,,,,i,drop=T])%*%ages.error[,,y,i])/land.nage.obs[,y,,,,i, drop=T]
-            mwgt.obs[,y,,,,i] <- mwgt.real[,y,,,,i,drop=T]%*%ages.error[,,y,i]
-
-        }
-     }
-    
+     # for(i in 1:it){
+     #    for(y in 1:ny){
+     #   # [rr]     mwgt.obs[,y,,,,i] <- ((mwgt.real[,y,,,,i,drop=T]*laa[,y,,,,i,drop=T])%*%ages.error[,,y,i])/land.nage.obs[,y,,,,i, drop=T]
+     #        mwgt.obs[,y,,,,i] <- mwgt.real[,y,,,,i,drop=T]%*%ages.error[,,y,i]
+     # 
+     #    }
+     # }
+     # 
      mwgt.obs <- mwgt.obs[drop=T]*land.wgt.error[,1:ny,,drop=TRUE]
      return(mwgt.obs)
 }
@@ -315,13 +315,13 @@ Obs.disc.wgt <- function(fleets, ages.error, disc.wgt.error,  yr, stknm){
     mwgt.real <- seasonMeans(unitMeans(wtadStock(fleets,stknm)))[,1:ny]
     mwgt.obs  <- mwgt.real
     
-    for(i in 1:it){
-       for(y in 1:ny){
-      # [rr]     mwgt.obs[,y,,,,i] <- ((mwgt.real[,y,,,,i]*daa[,y,,,,i])%*%ages.error[,,y,i])/disc.nage.obs[,y,,,,i,drop=T]
-            mwgt.obs[,y,,,,i] <- mwgt.real[,y,,,,i]%*%ages.error[,,y,i]
-       }
-    }
-    
+    # for(i in 1:it){
+    #    for(y in 1:ny){
+    #   # [rr]     mwgt.obs[,y,,,,i] <- ((mwgt.real[,y,,,,i]*daa[,y,,,,i])%*%ages.error[,,y,i])/disc.nage.obs[,y,,,,i,drop=T]
+    #         mwgt.obs[,y,,,,i] <- mwgt.real[,y,,,,i]%*%ages.error[,,y,i]
+    #    }
+    # }
+    # 
     mwgt.obs <- mwgt.obs[drop=T]*disc.wgt.error[,1:ny,,drop=T]
     
     return(mwgt.obs)
