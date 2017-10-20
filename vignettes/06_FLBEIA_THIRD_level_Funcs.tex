@@ -417,7 +417,7 @@
   \noindent Fleet/stock level arguments (i.e. \texttt{fleets.ctrl[[fleet.name]][[stock.name]]}):
   \begin{description}
     \item[\texttt{TAC.OS.model}:] Function to model the TAC overshoot. 
-      Currently the only available function is \texttt{TAC.OS.triangCond}, which simulates a triangular distribution funcion 
+      Currently the only available function is \texttt{TAC.OS.triangCond}, which simulates a triangular distribution function 
       for TAC overshoot, in the range \texttt{(min, max)} and a peak in the \texttt{mode}.
     \item[\texttt{TAC.OS.triangCond.params}:] A named numeric vector of dimension 3. 
       Corresponding to the parameters required by \texttt{TAC.OS.triangCond} function, \texttt{min}, \texttt{max} and \texttt{mode}.
@@ -481,7 +481,7 @@ In biomass dynamic populations, landings and prices are given at stock level.
   \noindent Fleet/stock level arguments (i.e. \texttt{fleets.ctrl[[fleet.name]][[stock.name]]}):
   \begin{description}
     \item[\texttt{TAC.OS.model}:] Function to model the TAC overshoot. 
-      Currently the only available function is \texttt{TAC.OS.triangCond}, which simulates a triangular distribution funcion 
+      Currently the only available function is \texttt{TAC.OS.triangCond}, which simulates a triangular distribution function 
       for TAC overshoot, in the range \texttt{(min, max)} and a peak in the \texttt{mode}.
     \item[\texttt{TAC.OS.triangCond.params}:] A named numeric vector of dimension 3. Corresponding to the parameters required by \texttt{TAC.OS.triangCond} function, \texttt{min}, \texttt{max} and \texttt{mode}.
     \item[\texttt{discard.TAC.OS}:] Logical. If \texttt{TRUE}, the TAC overshoot is discarded, in other case the TAC overshoot
@@ -491,8 +491,6 @@ In biomass dynamic populations, landings and prices are given at stock level.
 
 \paragraph{\texttt{MaxProfitSeq}: Maximization of profit under a TAC constraint model for a sequential fishery} \hspace{0pt} \smallskip
 %----------------------------------------------------------------------------------------------------
-
-+++++ MARGA/AGURTZANE: describir las diferencias con respecto a MaxProfit
 
 \texttt{MaxProfitSeq} is similar to the function MaxProfit, but with an additional constraint on the effort.
 As the effort of each metier is limited by a minimum and maximum effort value. That is:
@@ -1056,7 +1054,7 @@ whereas others are designed specifically for particular case studies (e.g. \text
 \paragraph{\texttt{annexIVHCR}: ICES Annex IV harvest control rule} \hspace{0pt} \smallskip
 %----------------------------------------------------------------------------------------------------
 
-  This funcion emulates the HCR used by the European Comission and ICES to generate the TAC advice for data poor stocks.
+  This function emulates the HCR used by the European Commission and ICES to generate the TAC advice for data poor stocks.
   TAC advice is calculated depending on previous year TAC and the trend of an available index as follows:
 
   \begin{equation}
@@ -1237,7 +1235,7 @@ whereas others are designed specifically for particular case studies (e.g. \text
   \paragraph{\texttt{MAPHRC}: harvest control rule for multi-annual management plans} \hspace{0pt} \smallskip
 %----------------------------------------------------------------------------------------------------
 
-  This function emulates the HCR proposed by the European Comission for the evaluation of multi-annual management plans (MAPs) in 2015. 
+  This function emulates the HCR proposed by the European Commission for the evaluation of multi-annual management plans (MAPs) in 2015. 
   This HCR is specially designed to fulfill the requirements of MAPs for North Western Waters and only works for age-structured stocks.
 
 %   Missing description as an equation.  
