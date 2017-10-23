@@ -76,10 +76,33 @@ pilRec_ane <- function ()
   
 }
 
-# - constant recruitment for ALBACORE
-ctRec_alb <- function (a, rec, ssb) 
+# - constant recruitment
+constRec <- function (a, rec, ssb) 
 {
   logl <- NA
   model <- rec ~ a
-  return(list(logl = logl, model = model, initial = initial))  
+  return(list(logl = logl, model = model))  
 }
+
+
+# Ricker model, whith a cyclic term:
+ricker.cyclic <- function () 
+{
+  
+  logl <- function(a, b, c, d, p, rec, ssb, year) 
+    loglAR1(log(rec), log(a * ssb * exp(-b * ssb + c * sin(2 * pi * year/p) + d * cos(2 * pi * year/p))))
+  
+  model <- rec ~ a * ssb * exp(-b * ssb +  c * sin(2 * pi * year/p) + d * cos(2 * pi * year/p))
+  
+  return(list(logl = logl, model = model))
+  
+}
+
+# Ricker with years (yr.low=T) with low recruitment (rec.low)
+ricker.low <- function(){
+  logl <- NA
+  model <- rec ~ yr.low * rec.low + (1-yr.low) * (a * ssb * exp(-b * ssb)) # i.e. Ricker 
+  initial <- NA
+  return(list(logl = logl, model = model, initial = initial))
+}
+
