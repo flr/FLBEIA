@@ -29,12 +29,17 @@
 #             (aging error + multiplicative error)  (dga)
 #   - bioInd: Update a FLIndex aggregated in biomass from an age structured or 
 #             biomass aggregated FLBiol (multiplicative error)  (dga)
+#   - ssbInd: Update a FLIndex aggregated in biomass from an age structured FLBiol and a FLFleet object
+#             (ssb + multiplicative error)  (ssm)
+#   - cbbmInd: Update a FLIndex aggregated in biomass (age 1, 2+) from an age structured FLBiol and a FLFleets object
+#             (B1 and B2+ + multiplicative error)  (ssm)
 #
 # Dorleta GarcYYYa
 # Created: 09/12/2010 14:37:43
 # Changed: 15/04/2013 10:59:56 (correct a bug in PerfectObs problem with seasons) 
 #(rroa's functions inserted)
 #         2013-06-07 12:20:04 Sonia Sanchez - code revised and names changed for coherence
+#         2014-02-24 17:47:21 Sonia Sanchez - ssbInd and cbbmInd functions added
 #-------------------------------------------------------------------------------
 
 
@@ -561,4 +566,68 @@ bioInd <- function(biol, index, obs.ctrl, year, stknm,...){
     index@index[,yrnm.1] <- B*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
     
     return(index)     
+}
+
+
+#-------------------------------------------------------------------------------    
+# SSB index
+# ssbInd(biol, index, obs.ctrl, year, stknm)
+# index aggregated in biomass.
+#-------------------------------------------------------------------------------   
+ssbInd <- function(biol, fleets, index, obs.ctrl, year, season,...){
+  
+  it <- dim(biol@n)[6]
+  ns <- dim(biol@n)[4]
+  
+  # Year  => Character, because the year dimension in indices does not necessarily coincide with year dimension in biol.
+  yrnm.1 <- dimnames(biol@n)[[2]][year-1]
+  
+  # season?
+  # Spawning season: determined by stk@m.spwn and stk@harvest.spwn
+  sInd <- obs.ctrl$sInd
+  # total catch in year [yr] season [ns].
+  n.s2 <- biol@n[,yrnm.1,,sInd,]*exp(-biol@m[,yrnm.1,,sInd,])-catchStock(fleets,name(biol))[,yrnm.1,,sInd,]*exp(-biol@m[,yrnm.1,,sInd,]/2)
+  fval <- log(biol@n[,yrnm.1,,sInd,]/n.s2) - biol@m[,yrnm.1,,sInd,]
+  ssb.stk <- quantSums( biol@n[,yrnm.1,,sInd,]*exp(-(biol@m[,yrnm.1,,sInd,]+fval)*biol@spwn[,yrnm.1,,sInd,])*
+                          biol@wt[,yrnm.1,,sInd,]*biol@fec[,yrnm.1,,sInd,])
+  
+  index@index[,yrnm.1] <- ssb.stk*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
+  
+  return(index)     
+}
+
+
+#-------------------------------------------------------------------------------    
+# B1,2+ index (in mass)
+# cbbmInd(biol, index, obs.ctrl, year, season, stknm)
+# index aggregated in biomass.
+#-------------------------------------------------------------------------------   
+cbbmInd <- function(biol, index, obs.ctrl, year, season,...){
+  
+  it <- dim(biol@n)[6]
+  ns <- dim(biol@n)[4]
+  na <- dim(biol@n)[1]
+  age1.pos <- 2
+  
+  # Year  => Character, because the year dimension in indices does not necessarily coincide with year dimension in biol.
+  yrnm.1 <- dimnames(biol@n)[[2]][year-1] 
+  
+  if (season==ns) {
+    # season?
+    # sInd: The season from which we are goind to calculate the index. 
+    # By default sInd = ns. To give B1 at the begging of the following year.
+    # IF season = 1 THEN age groups move to the next. 
+    sInd <- ns
+    # total catch in year [yr] season [ns].
+    catch.n <- catchStock(fleets,name(biol))[,yrnm.1,,sInd,]
+    # middle ages      # for unit == ss  and age = 1, it will be equal NA but be updated after with SRsim.
+    biol.n <- (biol@n[,yrnm.1,,sInd,]*exp(-biol@m[,yrnm.1,,sInd,]/2) - catch.n)*exp(-biol@m[,yrnm.1,,sInd,]/2)
+    
+    B <- index@index[,yrnm.1,,,]*NA
+    B[1,] <- biol.n[age1.pos-1,]*obs.ctrl$wage['age1',]
+    B[2,] <- quantSums(biol.n[(age1.pos):na,])*obs.ctrl$wage['age2plus',]
+    index@index[,yrnm.1,] <- B*index@index.q[,yrnm.1,]*index@index.var[,yrnm.1,]
+  }
+  
+  return(index)     
 }
