@@ -894,7 +894,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
         temp <- Reduce('+',temp)[, years, ]
         totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
-        res[k:(k + prod(Dim[-2]) - 1), "quotaUpt"] <- c(totTAC/temp)
+        res[k:(k + prod(Dim[-2]) - 1), "quotaUpt"] <- c(temp/totTAC)
         
         k <- k + prod(Dim[-2])
     }}
