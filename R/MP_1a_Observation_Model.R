@@ -94,7 +94,11 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     # SUM ALONG SEASONS AND FIRST UNIT: "m"
     m(res)[]      <- seasonSums(biol@m)[,1:(year-1),1,]
     m.spwn(res)[] <- seasonSums(spwn(biol))[,1:(year-1),1,]/ns
-        
+    if (ss < ns){ # sum only along s<=ss for last year
+      m(res)[,year-1,]      <- seasonSums(biol@m[,year-1,1,1:ss,])
+      m.spwn(res)[,year-1,] <- seasonSums(spwn(biol)[,year-1,1,1:ss])/length(1:ss)
+    }
+
     # SUM ALONG UNITS AND SEASONS, OBTAINED FROM FLFLEETS: 
     # "catch", "catch.n", "discards"     "discards.n" "landings"     "landings.n"
     land.n <- apply(landStock(fleets, st), c(1:2,6),sum)[,1:(year-1),]

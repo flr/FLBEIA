@@ -38,7 +38,8 @@ observation.mp <- function(biols, fleets, covars, indices, advice, obs.ctrl, yea
         obs.model <- obs.ctrl[[st]][['indObs']][[id]][['indObs.model']]
         obs.model <- ifelse(obs.model == 'NoObservation','NoObsIndex', obs.model)
         indices.upd[[st]][[id]] <- eval(call(obs.model, biol = biols[[st]], index = indices[[st]][[id]],
-                                        fleets = fleets, covars = covars, obs.ctrl = obs.ctrl[[st]][['indObs']][[id]], year = year))
+                                        fleets = fleets, covars = covars, obs.ctrl = obs.ctrl[[st]][['indObs']][[id]], 
+                                        year = year, season = season))
         
     }
     
