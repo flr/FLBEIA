@@ -119,8 +119,9 @@ aneHCR_JD <- function(indices, advice, advice.ctrl, year, season, stknm,...){
         TAC <- stf.TAC(SSB.obj = Btrig3, TACs1.perc = TACs1.perc, B = B, BP = BP, G1 = G1, G2 = G2, M1 = M1, M2 = M2, S1 = S1, S2 = S2, tsurv = tsurv)
       } else TAC <- TACmax                        # Btrig3 < (SSB|TAcmax)
 
-    advice[['TAC']][stknm,year.or+1,,,,] <- TAC
+    }
     
+    advice[['TAC']][stknm,year.or+1,,,,] <- TAC
 
   # } else {
   #   
