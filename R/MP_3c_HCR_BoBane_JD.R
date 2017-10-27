@@ -106,19 +106,19 @@ aneHCR_JD <- function(indices, advice, advice.ctrl, year, season, stknm,...){
       for (i in 1:iter)
         if ( bmin.pos[i]==2 & bmed.pos[i]==3 & bmax.pos[i]==4 ) stop("Not able to find a TAC for '", stknm, "' stock")
 
-      
-      TAC   <- ifelse(bmin.pos == 1, 0,                                               #      0 < (SSB|TACmin) <= Btrig1
-                      ifelse(bmin.pos == 2, TACmin,                                   # Btrig1 < (SSB|TACmin) <= Btrig2
-                             ifelse(bmin.pos >= 3 & bmed.pos <= 2, 
-                                      stf.TAC(SSB.obj=Btrig2,TACs1.perc=TACs1.perc,B=B,BP=BP,G1=G1,G2=G2,M1=M1,M2=M2,S1=S1,S2=S2,tsurv=tsurv), 
-                                                                                        # (SSB|gamma*SSB) <= Btrig2 < (SSB|TACmin)
-                                    ifelse(bmed.pos == 3, alpha+gamma*ssb.med,              # Btrig2 < (SSB|gamma*SSB) <= Btrig3
-                                           ifelse(bmax.pos == 3 & bmed.pos == 4, 
-                                                  stf.TAC(SSB.obj=Btrig3,TACs1.perc=TACs1.perc,B=B,BP=BP,G1=G1,G2=G2,M1=M1,M2=M2,S1=S1,S2=S2,tsurv=tsurv), 
-                                                                                        # (SSB|TACmax) <= Btrig3 < (SSB|gamma*SSB)
-                                                  TACmax)))))                         # Btrig3 < (SSB|TAcmax)
-    }
-    
+      # HCR
+      if( bmin.pos == 1) {                        #      0 < (SSB|TACmin) <= Btrig1
+        TAC <- 0
+      } else if (bmin.pos == 2) {                 # Btrig1 < (SSB|TACmin) <= Btrig2
+        TAC <- TACmin
+      } else if (bmin.pos >= 3 & bmed.pos <= 2) { # (SSB|gamma*SSB) <= Btrig2 < (SSB|TACmin)
+        TAC <- stf.TAC(SSB.obj = Btrig2, TACs1.perc = TACs1.perc, B = B, BP = BP, G1 = G1, G2 = G2, M1 = M1, M2 = M2, S1 = S1, S2 = S2, tsurv = tsurv)
+      } else if (bmed.pos == 3) {                 # Btrig2 < (SSB|gamma*SSB) <= Btrig3
+        TAC <- alpha + gamma * ssb.med
+      } else if (bmax.pos == 3 & bmed.pos == 4) { # (SSB|TACmax) <= Btrig3 < (SSB|gamma*SSB)
+        TAC <- stf.TAC(SSB.obj = Btrig3, TACs1.perc = TACs1.perc, B = B, BP = BP, G1 = G1, G2 = G2, M1 = M1, M2 = M2, S1 = S1, S2 = S2, tsurv = tsurv)
+      } else TAC <- TACmax                        # Btrig3 < (SSB|TAcmax)
+
     advice[['TAC']][stknm,year.or+1,,,,] <- TAC
     
 
