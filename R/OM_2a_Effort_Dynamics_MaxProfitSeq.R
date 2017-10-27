@@ -204,7 +204,8 @@ MaxProfitSeq <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, y
     
     # Apply these restrictions to initial values
     E0 <- Et*efs.m
-    E0 <- ifelse(E0 < efs.min, efs.min, E0)
+    efs.min <- ifelse( E0 < efs.min, E0, efs.min)
+    # E0 <- ifelse(E0 < efs.min, efs.min, E0)
     E0 <- ifelse(E0 > efs.max, efs.max, E0)
 
     eff_nloptr <- nloptr::nloptr(E0,
