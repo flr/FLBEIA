@@ -27,7 +27,7 @@
 
 create.advice.ctrl <- function(stksnames, HCR.models = NULL, ...){
     
-    HCR.models.available <- c('fixedAdvice','annualTAC','IcesHCR','ghlHCR','annexIVHCR', 'froeseHCR', 'F2CatchHCR')
+    HCR.models.available <- c('fixedAdvice','annualTAC','IcesHCR','ghlHCR','annexIVHCR', 'froeseHCR', 'F2CatchHCR', 'neaMAC_ltmp', 'aneHCR_JD')
 
     res        <- vector('list', length(stksnames))
     names(res) <- stksnames
@@ -337,3 +337,70 @@ create.F2CatchHCR.ctrl <- function(resst,stkname, largs){
     resst$AdvCatch <- AdvCatch.stk
    return(resst)
 }
+
+
+#------------------------------------------------------------------------------#
+#                        *** create.neaMAC_ltmp.ctrl  ***
+#-------------------------------------------------------------------------------
+create.neaMAC_ltmp.ctrl <- create.IcesHCR.ctrl
+
+
+#------------------------------------------------------------------------------#
+#                        *** create.aneHCRs.ctrl  ***
+#-------------------------------------------------------------------------------
+create.aneHCR_JD.ctrl <- function(resst,stkname, largs){
+  
+  first.yr <- largs$first.yr  
+  last.yr <- largs$last.yr
+  
+  resst <- c(resst, ref.pts = NULL, AdvCatch=NULL, first.yr=NULL, last.yr=NULL) 
+  
+  ref.pts.stk         <- largs[[paste("ref.pts",stkname, sep = ".")]]
+  TACs1.perc.stk      <- largs[[paste("TACs1.perc",stkname, sep = ".")]]
+  tsurv.stk           <- largs[[paste("tsurv",stkname, sep = ".")]]
+  cbbm.params.flq.ANE <- largs[[paste("cbbm.params.flq",stkname, sep = ".")]]
+  
+  AdvCatch.stk <- largs[[paste("AdvCatch", stkname, sep = ".")]]
+  
+  if(is.null(ref.pts.stk)){
+    it <- ifelse(is.null(largs$iter), 1, largs$iter)
+    warning("Reference points for stock, '", stkname,"' have not been specified in argument: ", paste("ref.pts",stkname,sep = "."), ". \n 
+            -  A ref.pts element with empty reference points has been created. FILL IT BY HAND!!!!", immediate. = TRUE)
+    if(is.null(it))  warning("iter argument is missing, iter = 1 will be used in the creation of ref.pts element, correct it if necessary.")
+    ref.pts.stk <- matrix(NA, 7,it, dimnames = list( c('alpha','gamma','TACmin', 'TACmax', 'Btrig1', 'Btrig2', 'Btrig3'), 1:it))
+    cat("------------------------------------------------------------------------------\n") 
+  }
+  
+  if(!is.matrix(ref.pts.stk) | !all(c('alpha','gamma','TACmin', 'TACmax', 'Btrig1', 'Btrig2', 'Btrig3') %in% rownames(ref.pts.stk)))   
+    stop(paste("ref.pts",stkname,sep = "."), " must be a matrix with dimension 7x(numb. of iterations) and rownames = c('alpha','gamma','TACmin', 'TACmax', 'Btrig1', 'Btrig2', 'Btrig3')")
+  
+  if(!is.null(largs$iter))  if(largs$iter != dim(ref.pts.stk)[2]) stop("Number of iterations in 'ref.pts.", stkname, "' must be equal to the iterations specified in 'iter' argument." )
+  
+  if (is.null(TACs1.perc.stk)) stop("Percentage of TAC captured in 1st season required for ", stkname, "', to be specified in 'TACs1.perc.", stkname,"' argument." )
+  if (is.null(tsurv.stk)) stop("Moment of the survey required for ", stkname, "', to be specified in 'tsurv.", stkname,"' argument." )
+  
+  if (is.null(AdvCatch.stk)) {
+    AdvCatch.stk <- rep(FALSE,length(first.yr:last.yr))
+    names(AdvCatch.stk) <- c(first.yr:last.yr)
+    warning("Advice of ", stkname, " is FALSE by default, so the advice is given in terms of landings 
+            ", immediate. = TRUE)
+    cat("------------------------------------------------------------------------------\n")
+  } 
+  
+  cat("--------------------- NOTE ON ADVICE ------------------------------------------------------------------------------\n")            
+  cat("Remember fill 'cbbm.params' for stock, ", stkname,"\n")
+  
+  resst$ref.pts     <- ref.pts.stk
+  resst$TACs1.perc  <- TACs1.perc.stk
+  resst$tsurv       <- tsurv.stk
+  resst$cbbm.params <- list( G=cbbm.params.flq.ANE, M=cbbm.params.flq.ANE, S=cbbm.params.flq.ANE)
+  
+  index <- largs[[paste("index",stkname, sep = ".")]]
+  if( is.null(index)) stop("Index required for ", stkname, "', to be specified in 'index.", stkname,"' argument." )
+  resst$index <- index
+  
+  resst$AdvCatch <- AdvCatch.stk
+  
+  return(resst)
+}
+

@@ -28,7 +28,7 @@ create.obs.ctrl <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL
     stkObs.models.available <- c("age2ageDat", "age2agePop", "age2bioDat", "age2bioPop",
                                  "bio2bioDat", "bio2bioPop", "NoObsStock", "perfectObs")
   
-    indObs.models.available <- c("bioInd", "ageInd", "NoObsIndex") 
+    indObs.models.available <- c("bioInd", "ageInd", "ssbInd", "cbbmInd", "NoObsIndex") 
     
     res        <- vector('list', length(stksnames))
     names(res) <- stksnames
@@ -158,6 +158,45 @@ return(resstid)
 }
 
 #-------------------------------------------------------------------------------
+#                       ** create.ssbInd.ctrl **
+# No extra arguments needed
+#-------------------------------------------------------------------------------
+create.ssbInd.ctrl <- function(resstid, stkname, indname, largs) {
+  
+  sInd.ind.stk <- largs[[paste("sInd",indname,stkname, sep = ".")]]
+  
+  if(is.null(sInd.ind.stk))
+    stop("season for the observation of stock '", stkname,"' in index '", indname,"' have not been specified in argument: ", paste("sInd",indname,stkname,sep = "."))
+  
+  resstid$sInd <- sInd.ind.stk
+  
+  return(resstid)
+}
+
+#-------------------------------------------------------------------------------
+#                       ** create.cbbmInd.ctrl **
+# wageIni.stk: weight at age 1 at the beggining of the year for stk stname and index indname
+#-------------------------------------------------------------------------------
+create.cbbmInd.ctrl <- function(resstid, stkname, indname, largs) {
+  
+  wageIni.stk <- largs[[paste("wageIni",indname,stkname, sep = ".")]]
+  
+  if(is.null(wageIni.stk)){
+    it <- ifelse(is.null(largs$iter), 1, largs$iter)
+    warning("Weights at age 1, 2+ at the beggining of the year for stock '", stkname,"' and index '", indname,"' have not been specified in argument: ", paste("wageIni",indname,stkname,sep = "."), ". \n -  A wageIni element with empty initial weights at ages 1 and 2+ has been created. FILL IT BY HAND!!!!", immediate. = TRUE)
+    if(is.null(it))  warning("iter argument is missing, iter = 1 will be used in the creation of wageIni element, correct it if necessary.")
+    wageIni.stk  <- matrix(NA, 2,it, dimnames = list( c('age1', 'age2plus'), 1:it))
+    cat("------------------------------------------------------------------------------\n") 
+  }
+  
+  if(!is.matrix(wageIni.stk) | !all(c('age1', 'age2plus') %in% rownames(wageIni.stk)))   stop(paste("wageIni",stkname,sep = "."), " must be a matrix with dimension 2x(numb. of iterations) and rownames = c('age1', 'age2plus')")
+  
+  resstid[['wageIni']] <- wageIni.stk
+  
+  return(resstid)
+}
+
+#-------------------------------------------------------------------------------
 #                       ** create.age2ageDat.ctrl **
 # flq.stkname MUST be provided to give 
 # ages.error => default: identity matrix, no error in aging.
@@ -186,14 +225,14 @@ create.age2ageDat.ctrl <- function(resst,stkname, indname, largs){
     land.wgt.error <- disc.wgt.error  <- nmort.error  <- fec.error <- land.nage.error <- disc.nage.error <- FLQuant(1, dimnames = dimnames(flq.stk))
     TAC.ovrsht <- FLQuant(1, dim = c(1, dim(flq.stk)[2],1,1,1,dim(flq.stk)[6]), dimnames = list(quant = 'all', year = dimnames(flq.stk)[[2]], iter = dimnames(flq.stk)[[6]]))
     
-    resst[['ages.error']]      <- ages.error
-    resst[['land.wgt.error']]  <- land.wgt.error
-    resst[['disc.wgt.error']]  <- disc.wgt.error
-    resst[['fec.error']]       <- fec.error
-    resst[['nmort.error']]     <- nmort.error
-    resst[['land.nage.error']] <- land.nage.error
-    resst[['disc.nage.error']] <- disc.nage.error
-    resst[['TAC.ovrsht']]      <- TAC.ovrsht
+    resst[['stkObs']][['ages.error']]      <- ages.error
+    resst[['stkObs']][['land.wgt.error']]  <- land.wgt.error
+    resst[['stkObs']][['disc.wgt.error']]  <- disc.wgt.error
+    resst[['stkObs']][['fec.error']]       <- fec.error
+    resst[['stkObs']][['nmort.error']]     <- nmort.error
+    resst[['stkObs']][['land.nage.error']] <- land.nage.error
+    resst[['stkObs']][['disc.nage.error']] <- disc.nage.error
+    resst[['stkObs']][['TAC.ovrsht']]      <- TAC.ovrsht
     
     warning("The 'FLQuant' error arguments for stock '", stkname, "' have been created with the specified structure and equal to 1 for all the ages/years/iterations, i.e no error will be introduced in the observation unless you change them.")
     
@@ -230,11 +269,13 @@ create.bio2bioDat.ctrl <- function(resst,stkname, indname, largs){
     if(is.null(flq.stk)) stop("You MUST provide 'flq.",stkname,"' object with '", stkname, "' stock's shape to be able to create 'bio2bioDat' control object structure.")
     
     # No error in any of the variables => FLQ = 1 for all.
-    land.bio.error <- disc.bio.error <- TAC.ovrsht <- FLQuant(1, dimnames = dimnames(flq.stk)) 
+    land.bio.error <- disc.bio.error <- TAC.ovrsht <- FLQuant(1, dimnames = dimnames(flq.stk))
+    quant(TAC.ovrsht) <- 'quant'
+    dimnames(TAC.ovrsht)[1] <- stkname
 
-    resst[['land.bio.error']] <- land.bio.error
-    resst[['disc.bio.error']] <- disc.bio.error
-    resst[['TAC.ovrsht']]     <- TAC.ovrsht
+    resst[['stkObs']][['land.bio.error']] <- land.bio.error
+    resst[['stkObs']][['disc.bio.error']] <- disc.bio.error
+    resst[['stkObs']][['TAC.ovrsht']]     <- TAC.ovrsht
     
     warning("The 'FLQuant' error arguments for stock '", stkname, "' have been created with the specified structure and equal to 1 for all the years/iterations, i.e no error will be introduced in the observation unless you change them.")
     

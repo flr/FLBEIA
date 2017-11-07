@@ -19,6 +19,8 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
     st <- stknm
      
     if(assess.ctrl[[st]][['assess.model']] != "NoAssessment") {
+      
+        if (assess.ctrl[[st]]$ass.curryr & season==dim(biols[[1]]@n)[4]) datayr <- datayr+1
         
         # trim the indices, fron index specific initial year to the assessment year.
         indST <- indices[[st]]

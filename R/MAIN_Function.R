@@ -265,6 +265,53 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     
     stocks         <- vector('list', length(stnms)) 
     names(stocks) <- stnms
+    
+    if(main.ctrl$SimultaneousMngt == FALSE) {
+      
+      # Define assessment conditions:
+      ass.yr <- ass.ss <- vector('list', length(stnms))
+      names(ass.yr) <- names(ass.ss) <- stnms
+      for (st in stnms) {
+        
+        # Assessment years
+        ass.yr[[st]] <- advice.ctrl[[st]][['ass.year']] # assessment years
+        if (is.null(ass.yr[[st]])) { # no value, then assessment yearly
+          ass.yr[[st]] <- sim.years
+        } else if (ass.yr[[st]]=='all' | is.na(ass.yr[[st]])) {
+          ass.yr[[st]] <- sim.years
+        } else { # convert assessment years into positions
+          ass.yr[[st]] <- as.numeric(ass.yr[[st]])
+          if(sum(!(ass.yr[[st]] %in% as.numeric(minyear):as.numeric(maxyear)))>0) # check
+            stop("Assessment years for: '", st, "' outside year range in the objects")
+          # convert ass.yr[[st]] in positon of the FLR objects
+          for (i in 1:length(ass.yr[[st]])) ass.yr[[st]][i] <- which(ass.yr[[st]][i] == as.numeric(minyear):as.numeric(maxyear))
+        }
+        
+        # Assessment seasons
+        ass.ss[[st]] <- advice.ctrl[[st]][['ass.season']]
+        if (is.null(ass.ss[[st]])) { ass.ss[[st]] <- ns } else if (is.na(ass.ss[[st]])) { ass.ss[[st]] <- ns }
+        if (!(ass.ss[[st]] %in% seasons)) stop("Assessment season for: '", st, "' outside season range in the objects")
+        
+        # Assessment year estimates necessary?
+        acy <- advice.ctrl[[st]]$ass.curryr # TRUE if estimates also for assessment year are needed
+        if (is.null(advice.ctrl[[st]]$ass.curryr)) { acy <- F } else if (is.na(advice.ctrl[[st]]$ass.curryr)) { acy <- F }
+        obs.ctrl[[st]]$obs.curryr <- assess.ctrl[[st]]$ass.curryr <- acy
+        
+      }
+      
+    } else { # if main.ctrl$SimultaneousMngt == TRUE:
+      
+      # Assessment years NOT to be defined (are assumed to be all years)
+      if (!is.null(advice.ctrl[[st]][['ass.year']]))
+        stop("Assessment years for: '", st, "' should not be defined if  main.ctrl$SimultaneousMngt == TRUE.
+              See advice.ctrl[['", st, "']][['ass.year']].")
+     
+      # Assessment seasons NOT to be defined (are assumed to be only once, in the last season)
+      if (!is.null(advice.ctrl[[st]][['ass.season']]))
+        stop("Assessment seasons for: '", st, "' should not be defined if main.ctrl$SimultaneousMngt == TRUE. 
+              See advice.ctrl[['", st, "']][['ass.season']].")
+
+    }
      
     for(yr in sim.years){
       for(ss in seasons){
@@ -304,51 +351,34 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         if(main.ctrl$SimultaneousMngt == FALSE){   
           for (st in stnms) {
           
-            ass.yr <- advice.ctrl[[st]][['ass.year']] # assessment years
-            if (is.null(ass.yr)) { # no value, then assessment yearly
-              ass.yr <- sim.years
-            } else if (ass.yr=='all' | is.na(ass.yr)) {
-              ass.yr <- sim.years
-            } else { # convert assessment years into positions
-              ass.yr <- as.numeric(ass.yr)
-              if(sum(!(ass.yr %in% as.numeric(minyear):as.numeric(maxyear)))>0) # check
-                stop("Assessment years for: '", st, "' outside year range in the objects")
-              # convert ass.yr in positon of the FLR objects
-              # ass.yr <- which(ass.yr == as.numeric(minyear):as.numeric(maxyear))
-              for (i in 1:length(ass.yr)) ass.yr[i] <- which(ass.yr[i] == as.numeric(minyear):as.numeric(maxyear))
-          }
-          ass.ss <- advice.ctrl[[st]][['ass.season']]
-          if (is.null(ass.ss)) { ass.ss <- ns } else if (is.na(ass.ss)) { ass.ss <- ns }
-          if (!(ass.ss %in% seasons)) stop("Assessment season for: '", st, "' outside season range in the objects")
-          
-          if (yr %in% ass.yr & ss == ass.ss) {
-            
-            yr.man <- ifelse( ass.ss==ns, yr, yr+1)
-      
-            #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
-            cat('************ MANAGEMENT PROCEDURE ****************************\n')
+            if (yr %in% ass.yr[[st]] & ss == ass.ss[[st]]) {
+              
+              yr.man <- ifelse( ass.ss[[st]]==ns, yr, yr+1)
         
-            # - Observation.
-            cat('----------- OBSERVATION MODEL ------------\n')
-            res          <- observation.mp(biols = biols, fleets = fleets, covars = covars, indices = indices, 
-                                advice = advice, obs.ctrl = obs.ctrl, year = yr.man, season=ss, stknm=st)
-            stocks[[st]] <- res$stock
-            fleets.obs   <- res$fleets.obs
-            indices      <- res$indices
-                
-            # - Assessment.
-            cat('------------ ASSESSMENT MODEL ------------\n')
-            datayr <- dimnames(biols[[1]]@n)[[2]][yr.man-1]
+              #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
+              cat('************ MANAGEMENT PROCEDURE ****************************\n')
           
-            res <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars=covars, 
-                                    assess.ctrl = assess.ctrl, datayr = datayr, stknm=st)  
-            stocks <- res$stocks
-            covars <- res$covars
-
-            # - Advice. 
-            cat('----------------- ADVICE -----------------\n')
-           advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
-                                advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
+              # - Observation.
+              cat('----------- OBSERVATION MODEL ------------\n')
+              res          <- observation.mp(biols = biols, fleets = fleets, covars = covars, indices = indices, 
+                                  advice = advice, obs.ctrl = obs.ctrl, year = yr.man, season=ss, stknm=st)
+              stocks[[st]] <- res$stock
+              fleets.obs   <- res$fleets.obs
+              indices      <- res$indices
+                  
+              # - Assessment.
+              cat('------------ ASSESSMENT MODEL ------------\n')
+              datayr <- dimnames(biols[[1]]@n)[[2]][yr.man-1]
+            
+              res <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars=covars, 
+                                      assess.ctrl = assess.ctrl, datayr = datayr, stknm=st)  
+              stocks <- res$stocks
+              covars <- res$covars
+  
+              # - Advice. 
+              cat('----------------- ADVICE -----------------\n')
+              advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
+                                  advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
       
         }}}}
         if(main.ctrl$SimultaneousMngt == TRUE & yr < sim.years[length(sim.years)]){  # Simultaneous and Yearly management. 
