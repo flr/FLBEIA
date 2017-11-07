@@ -329,10 +329,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               
               # update ret.m to account for the discards due to minimise exemption.
               for(st in sts){
-              #if(st == 'OTH')
+             # if(flnm == 'MON_OT' & yr == 41)
               #  browser()
                 # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
                 # otherwise it is increases so that the total discards equal to min_p*Cr.f  
+                
+                Cr.f[st,i] <- ifelse(Cr.f[st,i] == 0, 1e-6, Cr.f[st,i])
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
                 yrt_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[st,yr] # matrix(st,ny)
                 Ca <- fcube_lo$Ca[[st]] # catch at age in weight

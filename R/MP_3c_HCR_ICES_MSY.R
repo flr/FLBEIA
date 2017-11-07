@@ -24,8 +24,17 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     f.rescale   <- ifelse(is.null(advice.ctrl[[stknm]][['f.rescale']]), TRUE, advice.ctrl[[stknm]][['f.rescale']])
    # disc.nyears  <- ifelse(is.null(advice.ctrl[[stknm]][['disc.nyears']]), wts.nyears, advice.ctrl[[stknm]][['disc.nyears']])
 
+    # Fill the 0-s and NA-s with almost 0 values to avoid problems when the fishery is closed for example, or there is no catch...
     stk <- stocks[[stknm]]
     stk@harvest[stk@harvest < 0] <- 0.00001
+    
+    stk@catch.n[is.na(stk@catch.n)] <- 1e-6
+    stk@landings.n[is.na(stk@landings.n)] <- 0
+    stk@discards.n[is.na(stk@discards.n)] <- 1e-6
+    
+    stk@catch.n[stk@catch.n==0] <- 1e-6
+    stk@landings.n[stk@landings.n==0] <- 1e-6
+    stk@discards.n[stk@discards.n==0] <- 0
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 

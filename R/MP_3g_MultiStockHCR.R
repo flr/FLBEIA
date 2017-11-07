@@ -82,8 +82,8 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
    # Argument!
     # Last SSB (Age structured) OR Biomass (Aggregated) estimate
     
-    Ftg <- Fupp  <- Fsq <- numeric(length(stocksInHCR))
-   names(Ftg) <-names(Fupp) <- names(Fsq) <- stocksInHCR
+    Ftg <- Fupp  <- Fsq <- Cst <- numeric(length(stocksInHCR))
+   names(Ftg) <-names(Fupp) <- names(Fsq) <- names(Cst) <- stocksInHCR
    
    
     for(st in stocksInHCR){
@@ -104,31 +104,31 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
         minfbar <- stocks[[st]]@range['minfbar']
         maxfbar <- stocks[[st]]@range['maxfbar']
         
-        Fsq[st] <- mean(yearMeans(stocks[[st]]@harvest[,(year-3):(year-1)])[ac(minfbar:maxfbar),drop=T])
+        Fsq[st] <- yearMeans(fbar(stocks[[st]])[,(year-3):(year-1)])
     
         Fupp[st] <- ref.pts_st['Fupp',]
       }
       
       if(stocksCat[st] == 3){     
              Brat    <- c(mean(indices[[st]][[1]]@index[,(year-2):(year-1)])/mean(indices[[st]][[1]]@index[,(year-3):(year-5)])) # [it]
-             C       <- yearMeans(stocks[[st]]@catch[,(year-3):(year-1)])[drop=T]   # [it]
+             Cst[st]    <- yearMeans(stocks[[st]]@catch[,(year-3):(year-1)])[drop=T]   # [it]
              tac     <- advice[['TAC']][st, year-1,drop=T]
              alpha   <- advice.ctrl[[st]][["ref.pts"]]["alpha", ]
              beta    <- advice.ctrl[[st]][["ref.pts"]]["beta", ]
              betaUp  <- advice.ctrl[[st]][["ref.pts"]]["betaUp", ]
              
-             tacUpMult <- ifelse(Brat < 1-alpha, 1,      ifelse(Brat < 1+alpha, 1 + beta, 1 + betaUp))
+             tacUpMult <- ifelse(Brat < 1-alpha, 1 - beta*0.5,      ifelse(Brat < 1+alpha, 1 + beta, 1 + betaUp))
              tacMult   <- ifelse(Brat < 1-alpha, 1-beta, ifelse(Brat < 1+alpha, 1, 1 + beta))
              
              # translate the TAC multiplier to C multiplier.
-             CupMult <- tacUpMult*tac/C
-             CMult   <- tacMult*tac/C
+             CupMult <- tacUpMult*tac/Cst[st]
+             CMult   <- tacMult*tac/Cst[st]
              
              # For this stocks we fill the Fsq, Fupp and Ftg in terms of catch, the linearity is assumed in
              # effort catch becasue we don't have any other information.
              Ftg[st]  <- CMult 
              Fupp[st] <- CupMult 
-             Fsq[st]  <- C     
+             Fsq[st]  <- 1     
       }
     }
    
@@ -140,7 +140,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     Fadv0 <- Fadv <- Fsq*lambda0
    
     if(any(Fadv0 > Fupp)){
-      lambda1 <- min(Ftg/Fadv0) # The F multiplier.
+      lambda1 <- min(Fupp/Fadv0) # The F multiplier.
       Fadv <- Fadv0*lambda1
     }
      
@@ -243,7 +243,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
    #     save(stki, file = 'stki.RData')
       }
       if(stocksCat[stknm] == 3){
-        advice[['TAC']][stknm,year+1,,,,i] <- Fsq[st]*Fadv_st
+        advice[['TAC']][stknm,year+1,,,,i] <- Cst[st]*Fadv_st
       }
 
 

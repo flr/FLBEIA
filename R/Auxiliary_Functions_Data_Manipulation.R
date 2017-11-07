@@ -23,13 +23,14 @@ updateFLBiols <- function(biols){
   lapply(biols, function(x){
     mat0   <- x@fec
     mat0[] <- 1
+    n0 <- x@n
     res   <- FLBiol(name = x@name,
                     desc = x@desc,
                     range = x@range,
                     n = x@n,
                     m = x@m,
                     wt = x@wt,
-                    rec = predictModel(model = ~n[1,]),
+                    rec = predictModel(n0 = n0, model = ~n0[1,]),
                     mat = predictModel(mat = mat0, model = ~ mat),
                     fec = predictModel(fec = x@fec, model = ~ fec),
                     spwn = x@spwn) 

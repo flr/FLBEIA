@@ -351,7 +351,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
                                 advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
       
         }}}}
-        if(main.ctrl$SimultaneousMngt == TRUE){  # Simultaneous and Yearly management. 
+        if(main.ctrl$SimultaneousMngt == TRUE & yr < sim.years[length(sim.years)]){  # Simultaneous and Yearly management. 
         
         #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
         cat('************ MANAGEMENT PROCEDURE ****************************\n')
@@ -376,7 +376,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         cat('------------ ASSESSMENT MODEL ------------\n')
         for(st in stnms){
         
-          res <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
+          res <- assessment.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, assess.ctrl = assess.ctrl, datayr = yr-1, stknm=st)    
           stocks[[st]] <- res$stocks[[st]]
           covars <- res$covars
           }
