@@ -311,7 +311,15 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         stop("Assessment seasons for: '", st, "' should not be defined if main.ctrl$SimultaneousMngt == TRUE. 
               See advice.ctrl[['", st, "']][['ass.season']].")
 
-    }
+      # No possibility of doing the assessment in current year
+      obs.ctrl <- lapply(obs.ctrl, function(x){
+                                        x[['obs.curryr']] <- FALSE
+                                        return(x)})
+      assess.ctrl <- lapply(assess.ctrl, function(x){
+        x[['ass.curryr']] <- FALSE
+        return(x)})
+      
+      }
      
     for(yr in sim.years){
       for(ss in seasons){
