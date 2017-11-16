@@ -100,7 +100,7 @@ CFPMSYHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
           ssb <- ssb[, 1:(dim(ssb)[2] - rec.age),]
       }
 
-      if(sr.model != 'geomean') sr.pars <- try(params(sr(FLSR(rec = rec, ssb = ssb, model = sr.model))), silent = TRUE) 
+      if(sr.model != 'geomean') sr.pars <- try(params(fmle(FLSR(rec = rec, ssb = ssb, model = sr.model))), silent = TRUE) 
                 
       if(class(sr.pars) == 'try-error' | sr.model == 'geomean'){
           sr.model <- 'geomean'
