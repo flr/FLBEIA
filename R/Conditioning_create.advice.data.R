@@ -84,19 +84,29 @@ create.advice.data<- function(yrs,ns,ni,stks.data,fleets){
   stk.advice.quota.share     <- mget(grep(stks.data[[stk]],pattern="_advice.quota.share.flq", value = TRUE),envir=as.environment(1))
   if(length(stk.advice.quota.share)==0) stk.advice.quota.share  <- NA    
 
+  k.TAC <- 1
   if(!all(is.na(stk.advice.TAC))){
     stk.advice.TAC <- stk.advice.TAC[[1]]
     log.dim <- equal.flq.Dimnames(lflq=list(stk.advice.TAC,advice$TAC[stk,]),2)
     if(!log.dim)stop('in TAC years dimension names \n')
     if(!(any(dim(stk.advice.TAC)[4]==c(1,ns))))stop('in TAC number of seasons 1 or ns')
-    if(!(any(dim(stk.advice.TAC)[6]==c(1,ni))))stop('in TAC number of iterations 1 or ni')}
+    if(!(any(dim(stk.advice.TAC)[6]==c(1,ni))))stop('in TAC number of iterations 1 or ni')
+    if (k.TAC == 1) { units(advice$TAC) <- units(stk.advice.TAC) 
+    } else { if (units(advice$TAC) != units(stk.advice.TAC)) stop('all TAC units should be equal')}
+    k.TAC <- k.TAC + 1
+  }
   
+  k.TAE <- 1
   if(!all(is.na(stk.advice.TAE))){
     stk.advice.TAE <- stk.advice.TAE[[1]]
     log.dim <- equal.flq.Dimnames(lflq=list(stk.advice.TAE,advice$TAE[stk,]),2)
     if(!log.dim)stop('in TAE years dimension names \n')
     if(!(any(dim(stk.advice.TAE)[4]==c(1,ns))))stop('in TAE number of seasons 1 or ns')
-    if(!(any(dim(stk.advice.TAE)[6]==c(1,ni))))stop('in TAE number of iterations 1 or ni')}
+    if(!(any(dim(stk.advice.TAE)[6]==c(1,ni))))stop('in TAE number of iterations 1 or ni')
+    if (k.TAE==1) { units(advice$TAE) <- units(stk.advice.TAE) 
+    } else { if (units(advice$TAE) != units(stk.advice.TAE)) stop('all TAE units should be equal')}
+    k.TAE <- k.TAE + 1
+  }
   
   if(!all(is.na(stk.advice.quota.share))){
     stk.advice.quota.share <- stk.advice.quota.share[[1]]
@@ -127,13 +137,14 @@ create.advice.data<- function(yrs,ns,ni,stks.data,fleets){
     totC <- apply(catchWStock(fleets, stk), c(2,6), sum)[,hist.yrs,]
     stk.proj.avg.yrs <- as.character(get(paste(stk,'_advice.avg.yrs',sep='')))
       for(f in flnms){
-          if(sum(flinfo[stk,which(sapply(strsplit(colnames(flinfo), "&&"), function(x) x[1]) == f)]) == 0)   next
+          if(sum(flinfo[stk,which(sapply(strsplit(colnames(flinfo), "&&"), function(x) x[1]) == f)]) == 0)  next
             # Historic period
             advice$quota.share[[stk]][f,hist.yrs,] <-  apply(catchWStock.f(fleets[[f]], stk), c(2,6), sum)[,hist.yrs,]/totC
             # Projection period
             advice$quota.share[[stk]][f,proj.yrs,] <- yearMeans(advice$quota.share[[stk]][f,stk.proj.avg.yrs,])
       }
     }
+    advice$quota.share[[stk]][is.na(advice$quota.share[[stk]])] <- 0
   }
   #==============================================================================
   #   Section 3:        Return advice

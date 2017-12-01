@@ -177,8 +177,8 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
                            capacity = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(age='all',year=nmy)),
                            crewshare= FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(age='all',year=nmy)))
                        
-     names(fleet@metiers) <- nmfl.mets  
-        
+     names(fleet@metiers) <- nmfl.mets
+
      #-----------------------------------------------------------------------------
      #   Section 3.1:      Historical data per fleet 
      #-----------------------------------------------------------------------------
@@ -190,12 +190,14 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
       if(length(fl.crewshare)==0) fl.crewshare  <- NA
       fl.capacity  <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_capacity.flq',sep=''), value = TRUE),envir=as.environment(1)) 
       if(length(fl.capacity)==0) fl.capacity  <- NA
-      # Check dimension names
-      if(!is.na(fl.effort)){
+      
+      # Check dimension names and set units to the fleet object
+      if(is.FLQuant(fl.effort)){
         log.dim <- equal.flq.Dimnames(lflq=list(fl.effort,fleet@effort[,hist.yrs]),2)
         if(!log.dim)stop('in effort dimension names \n')
         if(!(any(dim(fl.effort)[4]==c(1,ns))))stop('in effort number of seasons 1 or ns')
-        if(!(any(dim(fl.effort)[6]==c(1,ni))))stop('in effort number of iterations 1 or ni')}
+        if(!(any(dim(fl.effort)[6]==c(1,ni))))stop('in effort number of iterations 1 or ni')
+        units(fleet)$effort <- units(fl.effort)}
       
         
       if(!is.na(fl.fcost)){
@@ -203,7 +205,8 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
         log.dim <- equal.flq.Dimnames(lflq=list(fl.fcost,fleet@fcost[,hist.yrs]),2)
         if(!log.dim)stop('in fcost dimension names  \n')
         if(!(any(dim(fl.fcost)[4]==c(1,ns))))stop('in fcost number of seasons 1 or ns')
-        if(!(any(dim(fl.fcost)[6]==c(1,ni))))stop('in fcost number of iterations 1 or ni')}
+        if(!(any(dim(fl.fcost)[6]==c(1,ni))))stop('in fcost number of iterations 1 or ni')
+        units(fleet)$fcost <- units(fl.fcost)}
       
         
       if(!is.na(fl.capacity)){
@@ -211,7 +214,8 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
         log.dim <- equal.flq.Dimnames(lflq=list(fl.capacity,fleet@capacity[,hist.yrs]),2)
         if(!log.dim)stop('in capacity dimension names  \n')
         if(!(any(dim(fl.capacity)[4]==c(1,ns))))stop('in capacity number of seasons 1 or ns')
-        if(!(any(dim(fl.capacity)[6]==c(1,ni))))stop('in capacity number of iterations 1 or ni')}
+        if(!(any(dim(fl.capacity)[6]==c(1,ni))))stop('in capacity number of iterations 1 or ni')
+        units(fleet)$capacity <- units(fl.capacity)}
     
         
       if(!is.na(fl.crewshare)){
@@ -219,8 +223,9 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
         log.dim <- equal.flq.Dimnames(lflq=list(fl.crewshare,fleet@crewshare[,hist.yrs]),2)
         if(!log.dim)stop('in crewshare dimension names \n')
         if(!(any(dim(fl.crewshare)[4]==c(1,ns))))stop('in crewshare number of seasons 1 or ns')
-        if(!(any(dim(fl.crewshare)[6]==c(1,ni))))stop('in crewshare number of iterations 1 or ni')}
-    
+        if(!(any(dim(fl.crewshare)[6]==c(1,ni))))stop('in crewshare number of iterations 1 or ni')
+        units(fleet)$crewshare <- units(fl.crewshare)}
+
   
     effort(fleet)[,hist.yrs]      <-  fl.effort 
     fleet@fcost[,hist.yrs]        <-  fl.fcost
@@ -263,20 +268,22 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
        # if(length(fl.met.effshare)==0) fl.met.effshare  <- NA
        fl.met.vcost       <- mget(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'_vcost.flq',sep=''), value = TRUE),envir=as.environment(1)) 
        if(length(fl.met.vcost)==0) fl.met.vcost  <- NA
-        # Check dimension names in years
-        
-        if(!is.na(fl.met.effshare)){
+       
+        # Check dimension names in years and set the units
+        if(is.FLQuant(fl.met.effshare)){
           log.dim <- equal.flq.Dimnames(lflq=list(fl.met.effshare, fleet@metiers[[nmfl.met]]@effshare[,hist.yrs]),2)
           if(!log.dim)stop('in effshare dimensions  \n')
           if(!(any(dim(fl.met.effshare)[4]==c(1,ns))))stop('in effshare number of seasons 1 or ns')
-          if(!(any(dim(fl.met.effshare)[6]==c(1,ni))))stop('in effshare number of iterations 1 or ni')}
+          if(!(any(dim(fl.met.effshare)[6]==c(1,ni))))stop('in effshare number of iterations 1 or ni')
+          units(fleet@metiers[[nmfl.met]])$effshare <- units(fl.met.effshare)}
         
         if(!is.na(fl.met.vcost)){
           fl.met.vcost <- fl.met.vcost[[1]]
           log.dim <- equal.flq.Dimnames(lflq=list(fl.met.vcost,fleet@metiers[[nmfl.met]]@vcost[,hist.yrs]),2)
           if(!log.dim)stop('in vcost dimensions  \n')
           if(!(any(dim(fl.met.vcost)[4]==c(1,ns))))stop('in vcost number of seasons 1 or ns')
-          if(!(any(dim(fl.met.vcost)[6]==c(1,ni))))stop('in vcost number of iterations 1 or ni')}
+          if(!(any(dim(fl.met.vcost)[6]==c(1,ni))))stop('in vcost number of iterations 1 or ni')
+          units(fleet@metiers[[nmfl.met]])$vcost <- units(fl.met.vcost)}
         
         fleet@metiers[[nmfl.met]]@effshare[,hist.yrs] <- fl.met.effshare
         fleet@metiers[[nmfl.met]]@vcost[,hist.yrs]    <- fl.met.vcost
@@ -359,6 +366,8 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           if(!(any(dim(landings.n)[3]==c(1,stk.unit))))stop('in landings.n number of stock units 1 or stk.unit')
           if(!(any(dim(landings.n)[4]==c(1,ns))))stop('in landings.n number of seasons 1 or ns')
           if(!(any(dim(landings.n)[6]==c(1,ni))))stop('in landings.n number of iterations 1 or ni')
+          # units(fleet@metiers[[nmfl.met]]@catches[[nmfl.met.stk]])$landings.n <- units(landings.n)
+          units(fl.met.stk.landings.n) <- units(landings.n)
           
           if(!all(is.na(landings.wt))){
             landings.wt <- landings.wt[[1]] 
@@ -370,6 +379,8 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           }else{    
             landings.wt <- get(grep(stks.data[[nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_wt.flq',sep=''), value = TRUE)) 
           } 
+          # units(fleet@metiers[[nmfl.met]]@catches[[nmfl.met.stk]])$landings.wt <- units(landings.wt)
+          units(fl.met.stk.landings.wt) <- units(landings.wt)
           
           if(!all(is.na(discards.n))){
             discards.n <- discards.n[[1]]
@@ -382,6 +393,8 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           }else{    
             cat('warning: all NA-s in discards.n \n')   
           } 
+          # units(fleet@metiers[[nmfl.met]]@catches[[nmfl.met.stk]])$discards.n <- units(discards.n)
+          units(fl.met.stk.discards.n) <- units(discards.n)
           
           if(!all(is.na(discards.wt))){
             discards.wt <- discards.wt[[1]]
@@ -393,7 +406,9 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             if(!(any(dim(discards.wt)[6]==c(1,ni))))stop('in discards.wt number of iterations 1 or ni')
           }else{    
             discards.wt <- get(grep(stks.data[[nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_wt.flq',sep=''), value = TRUE))  
-          }  
+          } 
+          # units(fleet@metiers[[nmfl.met]]@catches[[nmfl.met.stk]])$discards.wt <- units(discards.wt)
+          units(fl.met.stk.discards.wt) <- units(discards.wt)
           
           
           if(!all(is.na(price))){
@@ -403,7 +418,9 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             fl.met.stk.price [,hist.yrs] <- price
             if(!(any(dim(price)[3]==c(1,stk.unit))))stop('in price number of stock units 1 or stk.unit')
             if(!(any(dim(price)[4]==c(1,ns))))stop('in price number of seasons 1 or ns')
-            if(!(any(dim(price)[6]==c(1,ni))))stop('in price number of iterations 1 or ni')}
+            if(!(any(dim(price)[6]==c(1,ni))))stop('in price number of iterations 1 or ni')
+            # units(fleet@metiers[[nmfl.met]]@catches[[nmfl.met.stk]])$price <- units(price)
+            units(fl.met.stk.price) <- units(price)}
 
                   
           fl.met.stk.landings.n[,hist.yrs]   <- landings.n
