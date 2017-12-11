@@ -33,6 +33,13 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
         
         dyn.model <- fleets.ctrl[[fl]]$effort.model
         
+        # For selective fisheries:
+        if (dyn.model=='MaxProfitSeq' & is.null(fleets.ctrl[[fl]]$q2zero)) 
+          stop(paste("fleets.ctrl[['",fl,"']]$q2zero is missing.",sep=""))
+        
+        if (!is.null(fleets.ctrl[[fl]]$q2zero)) 
+          fleets <- catchability2zero(fleets = fleets, flnm = fl, advice = advice, fleets.ctrl = fleets.ctrl, year = year)
+             
         res <- eval(call(dyn.model, biols = biols, fleets = fleets, BDs = BDs, flnm = fl, advice = advice,
                     year = year, season = season, biols.ctrl=biols.ctrl, fleets.ctrl = fleets.ctrl, covars = covars, advice.ctrl = advice.ctrl)) 
          

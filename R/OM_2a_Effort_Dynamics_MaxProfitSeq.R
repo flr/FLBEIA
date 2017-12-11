@@ -10,6 +10,7 @@
 # MaxProfitSeq(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1)
 # Same as MaxProfit +
 #  + min and max effort thresholds by fleet
+#  + info on discrimination capability of the metiers (fleets.ctrl[[fl]]$q2zero[st,mt])
 #-------------------------------------------------------------------------------
 MaxProfitSeq <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
   
@@ -171,6 +172,13 @@ MaxProfitSeq <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, y
       Cr.f[st] <- TAC[st,]*QS[flnm,st]
     }
     
+    # Correction of efs.m when no TAC for main target species
+    fl.sel <- fleets.ctrl[[flnm]]$q2zero
+    for (mt in mtnms)
+      if (sum(Cr.f[rownames(fl.sel)[fl.sel[,mt]==0 & !is.na(fl.sel[,mt])]])==0) { 
+        efs.m[mtnms!=mt] <- efs.m[mtnms!=mt] + efs.m[mtnms!=mt] * efs.m[mt]/sum(efs.m[mtnms!=mt])
+        efs.m[mt] <- 0
+      }
     
     # Calculate the starting point based on the effort that correspond with the TAC quotas.
     effs <- numeric(length(q.m))
@@ -188,7 +196,9 @@ MaxProfitSeq <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, y
     effort.restr <- fleets.ctrl[[flnm]]$effort.restr
     K <- c(fl@capacity[,yr,,ss,,it,drop=T])
     
-    Et  <- 0.9*ifelse(effort.restr == 'min', min(effs), effs[effort.restr])
+    qsum.stk <- sapply(names(q.m), function(x) sum(q.m[[x]]))
+
+    Et  <- 0.9*ifelse(effort.restr == 'min', min(effs[qsum.stk>0]), effs[effort.restr])
     Et <- ifelse(Et < K, Et, K*0.9)
 
     
@@ -205,7 +215,6 @@ MaxProfitSeq <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, y
     # Apply these restrictions to initial values
     E0 <- Et*efs.m
     efs.min <- ifelse( E0 < efs.min, E0, efs.min)
-    # E0 <- ifelse(E0 < efs.min, efs.min, E0)
     E0 <- ifelse(E0 > efs.max, efs.max, E0)
 
     eff_nloptr <- nloptr::nloptr(E0,
