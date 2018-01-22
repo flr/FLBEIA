@@ -90,11 +90,11 @@
         {[[fl]]}\$effort.model\textsuperscript{*} & character & 1 & \texttt{'fixedEffort'},\texttt{'SMFB'},\texttt{'SSFB'},  &	\\
          &  &  & \texttt{'MaxProfit'}, \texttt{MaxProfitSeq}  &	\\
         {[[fl]]}\$restriction & character & 1 & \texttt{'catch'},\texttt{'landings'} & \texttt{SMFB}, \texttt{SSFB}  \\
-        {[[fl]]}\$effort.restr & character & 1 & \texttt{'max'},\texttt{'min'},\texttt{'mean'},\texttt{stock.name} & 
+        {[[fl]]}\$effort.restr & character & 1 & \texttt{'max'},\texttt{'min'},\texttt{'mean'},\texttt{stock.name},\texttt{'prev'} & 
+          \texttt{SMFB}  \\
+         &  &  & \texttt{'max'},\texttt{'min'},\texttt{'mean'},\texttt{stock.name} & 
           \texttt{SSFB}  \\
-         &  & \texttt{'max'},\texttt{'min'},\texttt{'mean'},\texttt{stock.name},\texttt{'prev'} & 
-          \texttt{SSFB}  \\
-         &  & \texttt{'min'},\texttt{stock.name} & 
+         &  &  & \texttt{'min'},\texttt{stock.name} & 
           \texttt{MaxProfit}, \texttt{MaxProfitSeq}  \\
         {[[fl]]}\$effectiveDay.perc & FLQuant & [1,ny,1,ns,1,ni]  & Proportions in [0,1] & \texttt{SSFB} \\
         {[[fl]]}\$effort.realloc & character & 1 & \texttt{NULL},\texttt{'curr.eff'} & \texttt{SSFB} \\

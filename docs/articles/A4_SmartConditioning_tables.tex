@@ -324,8 +324,8 @@
           & stk\_ind\_range.plusgroup\textsuperscript{*} &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	Plusgroup age in 'ind' index of stock 'stk'\\
           & stk\_ind\_range.minyear\textsuperscript{*} &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	First year with 'ind' index data of stock 'stk'\\
           & stk\_ind\_range.maxyear\textsuperscript{*} &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	Last year with 'ind' index data of stock 'stk'\\
-          & stk\_ind\_range.startf\textsuperscript{*} &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	Minimum age for calculating average fishing mortality for 'ind' index of stock 'stk'\\
-          & stk\_ind\_range.endf\textsuperscript{*}   &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	Maximum age for calculating average fishing mortality for 'ind' index of stock 'stk'\\          
+          & stk\_ind\_range.startf\textsuperscript{*} &	numeric &	1 &	Start date of the tuning series \\
+          & stk\_ind\_range.endf\textsuperscript{*}   &	numeric &	1 &	End date of the tuning series \\          
         \hline
       \end{tabular}
       
@@ -374,9 +374,9 @@
         ns & & numeric &	1 &	Number of seasons\\
         stks.data & &	list & number of stocks &	List with the name of the stocks with indices and the following elements:\\
 
-          & stk\_advice.TAC.flq\textsuperscript{*} &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	TAC of the stock 'stk'\\
-          & stk\_advice.TAE.flq\textsuperscript{*} &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	TAE of the stock 'stk'\\
-          & stk\_advice.quota.share.flq\textsuperscript{*} &	FLQuant &	[na,ny,1/nu(stock),1/ns,1/ni] &	Quota share of the stock 'stk'\\
+          & stk\_advice.TAC.flq\textsuperscript{*} &	FLQuant &	[1,ny,1/nu(stock),1/ns,1/ni] &	TAC of the stock 'stk'\\
+          & stk\_advice.TAE.flq\textsuperscript{*} &	FLQuant &	[1,ny,1/nu(stock),1/ns,1/ni] &	TAE of the stock 'stk'\\
+          & stk\_advice.quota.share.flq\textsuperscript{*} &	FLQuant &	[nfl,ny,1/nu(stock),1/ns,1/ni] &	Quota share of the stock 'stk' for each of the fleets \\
           & stk\_advice.avg.yrs\textsuperscript{*} &	FLQuant &	any &	Mean weight at age in the catch for 'ind' index of stock 'stk'\\
         fleets\textsuperscript{*} & & FLQuant &	 &	Only required if \texttt{stk\_advice.quota.share} is not specified.\\
          & & & & Can be the output of \texttt{create\_fleets\_FLBEIA} function\\
@@ -391,6 +391,7 @@
         \item 1/nu(stock): 1 or number of units of the stock
         \item 1/ns: 1 or number of seasons
         \item 1/ni:  1 or number of iterations
+        \item nfl: number of fleets
       \end{tablenotes}
       
     \end{threeparttable}
