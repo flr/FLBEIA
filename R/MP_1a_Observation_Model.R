@@ -442,13 +442,26 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck                <- as(biolbio, "FLStock")[,1:ny]
     dimnames(stck)      <- list(age="all")
 
-    landings(stck)      <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
-    landings(stck)[]    <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
-    discards(stck)      <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
+    landings(stck)      <-  FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
+    landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
+    discards(stck)      <- FLQuant(Obs.disc.bio(fleets, disc.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
     catch(stck)         <- stck@landings + stck@discards
-    catch.n(stck)       <- stck@catch 
-    landings.n(stck)    <- stck@landings 
-    discards.n(stck)    <- stck@discards 
+    
+    cn <- stck@catch 
+    ln <- stck@landings
+    dn <- stck@discards
+    
+    names(dimnames(cn))[1] <- names(dimnames(ln))[1] <- names(dimnames(dn))[1] <- 'age'
+
+    catch.n(stck)       <- cn
+    landings.n(stck)    <- ln 
+    discards.n(stck)    <- dn 
+    
+    stck@stock <- cn
+    stck@harvest <- cn
+    stck@stock[] <- NA
+    stck@harvest[] <- NA
+    
     catch.wt(stck)      <- discards.wt(stck) <- landings.wt(stck) <- 1 
     stck@harvest.spwn[] <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
     stck@m.spwn[]       <- 0 #FLQuant(NA,dim=c(1,ny,1,1,1,it),dimnames=list(age=1, year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))

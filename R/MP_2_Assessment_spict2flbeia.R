@@ -38,6 +38,7 @@ spict2flbeia <- function(stock, indices, control=NULL,covars=covars){
   # Iterations
   
   for (i in 1:dim(catch(stock))[6]){
+    print(i)
     ip_list <- vector("list")
     ip_list$obsC <- c(iter(catch(stock),i))
     ip_list$timeC <- as.numeric(dimnames(catch(stock))$year)

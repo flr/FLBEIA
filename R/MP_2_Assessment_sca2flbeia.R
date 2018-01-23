@@ -8,6 +8,17 @@
 
 sca2flbeia <- function(stock, indices, control=control,covars=covars){
   
+  # Remove the variability, otherwise sca takes de 'uncertainty' as a weight.
+  indices <- FLIndices(lapply(indices, function(x) {
+                                    x@index.var[] <- NA
+                                    x <- trim(x, age = 0:8)
+                                    return(x)}))
+  
+  stock@landings.n[stock@landings.n == 0] <- 0.1
+  stock@catch.n <- stock@landings.n + stock@discards.n
+    
+  stock <- setPlusGroup(stock, 9)
+  
   if(control$test==TRUE){
     fit0 <- sca(stock, indices)
     }else{

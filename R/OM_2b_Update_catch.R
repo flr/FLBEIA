@@ -152,6 +152,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, adv
     Ctotal <-  ifelse(rep(catch.restr == 'landings',it), apply(Cm*matrix(ret.m, dim(ret.m)[1], dim(ret.m)[4]),2,sum), apply(Cm,2,sum))
 
     tac.disc <- ifelse(Ctotal < tac, rep(1,it), tac/Ctotal)
+    tac.disc <- ifelse(Ctotal == 0, 0, tac.disc) # In case Ctotal= 0 to avoid NaN in tac.disc
 
     for(mt in 1:length(mtnms)){
 
@@ -164,7 +165,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, adv
         sa  <- (dsa + lsa)
 
         # Recalculate dsa and lsa according to 'tac.disc'     # [na,nu,it]
-        lsa <- lsa*tac.disc
+        lsa <- sweep(lsa,6,tac.disc, "*")
         dsa <- sa - lsa
 
         cobj@discards[,yr,,ss]   <- Cm[mt,]*dsa # /(sa*tac.disc)
@@ -296,6 +297,8 @@ CobbDouglasAge.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advi
     Ctotal <- ifelse(rep(catch.restr == 'landings', it), apply(Cam*ret.m,4,sum), apply(Cam,4,sum)) 
 
     tac.disc <- ifelse(Ctotal < tac, rep(1,it), tac/Ctotal)
+    tac.disc <- ifelse(Ctotal == 0, 0, tac.disc) # In case Ctotal= 0 to avoid NaN in tac.disc
+    
  
  # cat('Lrat: ', tac.disc, '\n')
  # cat('C: ', Ctotal, '\n')
@@ -321,7 +324,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advi
         sa  <- (dsa + lsa)  
             
         # Recalculate dsa and lsa according to 'tac.disc'     # [na,nu,it]
-        lsa <- lsa*tac.disc
+        lsa <- sweep(lsa,6,tac.disc, "*")
         dsa <- sa - lsa             # [na,nu,it]
 
         cobj@discards.n[,yr,,ss] <- Ca*dsa/sa/cobj@discards.wt[,yr,,ss]

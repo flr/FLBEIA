@@ -36,6 +36,10 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk@landings.n[stk@landings.n==0] <- 1e-6
     stk@discards.n[stk@discards.n==0] <- 0
     
+    stk@catch <- computeCatch(stk)
+    stk@landings <- computeLandings(stk)
+    stk@discards <- computeDiscards(stk)
+    
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 
     if(ageStruct == TRUE)
