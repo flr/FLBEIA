@@ -63,8 +63,8 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     res <- as(biol, 'FLStock')[,1:(year-1),1,1]
     dimnames(res) <- list(unit="unique")
     
-    res@range[c(1:3,6:7)] <- biol@range[c(1:3,6:7)]
-    names(res@range[6:7]) <- c('minfbar', 'maxfbar')
+    #res@range[c(1:3,6:7)] <- biol@range[c(1:3,6:7)]
+    #names(res@range[6:7]) <- c('minfbar', 'maxfbar')
         
     res@discards.wt <- res@landings.wt <- res@catch.wt <- res@stock.wt
         
@@ -114,7 +114,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     # harvest: * if age structured calculate it from 'n'.
     #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
     if(na == 1){
-        harvest(res) <- res@catch/(res@stock.n*res@stock.wt)
+        harvest(res) <- (res@stock.n*res@stock.wt) * (1 / res@catch)
         units(res@harvest) <- 'hr'
     } else{
         harvest(res) <- catch.n(res)*NA #! Artefact to avoid crashing (sets correct dim for iters)
@@ -165,7 +165,6 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     }
     
     # If catc
-
     return(res)
 }
  
