@@ -404,7 +404,7 @@ if(LO == TRUE){ # IF LandObl == TRUE => restr == 'catch
         fleets.ctrl$seasonal.share[[st]][flnm,yr,,,,i] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
       }
     }
-  }
+  
   
   #  update effort
   fleets[[flnm]]@effort[,yr,,ss] <- Et.res
