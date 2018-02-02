@@ -36,7 +36,7 @@ Summarize the results in a plot.
         With one plot for each of the following indicators: "catch", "rec", "f" and "ssb".
         Input object should have the same format as the output of bioSum function.
      \item{plotfltSum}: Plot summarising information on fleet's economic indicators. 
-        With one plot for each of the following indicators: "catch", "effort", "income" and "profits".
+        With one plot for each of the following indicators: "catch", "effort", "grossValue" and "grossSurplus".
         Input object should have the same format as the output of fltSum function.
 }
 }

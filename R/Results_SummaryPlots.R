@@ -15,7 +15,7 @@
 #'         With one plot for each of the following indicators: "catch", "rec", "f" and "ssb".
 #'         Input object should have the same format as the output of bioSum function.
 #'      \item{plotfltSum}: Plot summarising information on fleet's economic indicators. 
-#'         With one plot for each of the following indicators: "catch", "effort", "income" and "profits".
+#'         With one plot for each of the following indicators: "catch", "effort", "grossValue" and "grossSurplus".
 #'         Input object should have the same format as the output of fltSum function.
 #'}
 #'
@@ -167,7 +167,7 @@ plotbioSum <- function( obj, stk.nam, Blim=NA, Bpa=NA, proj.yr=NA) {
 plotfltSum <- function( obj, flt.nam, proj.yr=NA) {
   
   # Required indicators
-  inds <- c('catch','effort','income','profits')
+  inds <- c('catch','effort','grossValue','grossSurplus')
   
   # Subset data for the selected fleet
   if (missing(flt.nam)) {
@@ -196,7 +196,7 @@ plotfltSum <- function( obj, flt.nam, proj.yr=NA) {
   } else if (!"value" %in% colnames(obj)) {
     stop("Column 'value' is missing")
   } else if (sum(!inds %in% unique(obj$indicator))>0) {
-    stop('Information on any of the required indicators (catch, effort, income, profits) is missing')
+    stop('Information on any of the required indicators (catch, effort, grossValue, grossSurplus) is missing')
   }
   
   # plotting
