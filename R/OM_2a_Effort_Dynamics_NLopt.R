@@ -1,17 +1,19 @@
 #-------------------------------------------------------------------------------
-# Functions to be used within Rdonlp2 to obtain effort and effortshare according
+# Functions to be used within nloptr to obtain effort and effortshare according
 # to maximization of profits, restringed to Fcube like approach in 
 # TAC constraints.
+# restrictions on effort by fleet:
 #
-# Dorleta Garcia - Azti Tecnalia
-# Created: 22/11/2011 19:02:56
-# Changed: 23/11/2011 10:16:01
+# Dorleta Garcia and Agurtzane Urtizberea - Azti Tecnalia
+# Created: 03/06/2016
+# Changed: 23/11/2011 10:16:01 - Sonia Sanchez
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# MaxProfit.stkCnst(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1)
-# Catch production function based on Cobb-Doug at age level.
-# OVER-QUOTA LANDINGS ARE DISCARDED => NOT BENEFIT FROM THEM.
+# MaxProfit(fleets, biols, covars, advice, fleets.ctrl, flnm, year = 1, season = 1)
+# Same as original MaxProfit +
+#  + min and max effort thresholds by fleet
+#  + info on discrimination capability of the metiers (fleets.ctrl[[fl]]$q2zero[st,mt])
 #-------------------------------------------------------------------------------
 MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year = 1, season = 1,...){
   
@@ -92,7 +94,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year
     
     # If TAC >= B*alpha => TAC = B*alpha.
     TAC.yr   <- advice$TAC[,yr,,,,i,drop=T]    # nst
-    rho       <- fleets.ctrl$catch.threshold[,yr,,ss,,i, drop=T]  # [ns]
+    rho      <- fleets.ctrl$catch.threshold[,yr,,ss,,i, drop=T]  # [ns]
     QS.ss    <- colSums(QS.fls)  # [nst] Total seasonal quota share
     
     TAC <- ifelse(B*rho < TAC.yr*QS.ss, B*rho, TAC.yr*QS.ss)
@@ -173,6 +175,13 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year
       Cr.f[st] <- TAC[st,i]*QS[flnm,st]
     }
     
+    # Correction of efs.m when no TAC for main target species
+    fl.sel <- fleets.ctrl[[flnm]]$q2zero
+    for (mt in mtnms)
+      if (sum(Cr.f[rownames(fl.sel)[fl.sel[,mt]==0 & !is.na(fl.sel[,mt])]])==0) { 
+        efs.m[mtnms!=mt] <- efs.m[mtnms!=mt] + efs.m[mtnms!=mt] * efs.m[mt]/sum(efs.m[mtnms!=mt])
+        efs.m[mt] <- 0
+      }
     
     # Calculate the starting point based on the effort that correspond with the TAC quotas.
     effs <- numeric(length(q.m))
@@ -190,28 +199,186 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, flnm, year
     effort.restr <- fleets.ctrl[[flnm]]$effort.restr
     K <- c(fl@capacity[,yr,,ss,,it,drop=T])
     
-    Et  <- 0.9*ifelse(effort.restr == 'min', min(effs), effs[effort.restr]) 
+    qsum.stk <- sapply(names(q.m), function(x) sum(q.m[[x]]))
+
+    Et  <- 0.9*ifelse(effort.restr == 'min', min(effs[qsum.stk>0]), effs[effort.restr])
     Et <- ifelse(Et < K, Et, K*0.9)
-    
+
     
     catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings', fleets.ctrl[[flnm]]$restriction)
     
     if(is.null(fleets.ctrl[[flnm]]$opts)) opts <- list("algorithm" = "NLOPT_LN_COBYLA", maxeval = 1e9, xtol_abs = rep(1e-4,nmt), xtol_rel = 1e-4, maxtime = 300)
     else  opts <- fleets.ctrl[[flnm]]$opts
     
-    eff_nloptr <- nloptr::nloptr(Et*efs.m,
+    # Effort restrictions (by metier)
+    effort.range <- fleets.ctrl[[flnm]]$effort.range
+    efs.max <- as.numeric(effort.range[,"max"])
+    efs.min <- as.numeric(effort.range[,"min"])
+    
+    # Apply these restrictions to initial values
+    E0 <- Et*efs.m
+    efs.min <- ifelse( E0 < efs.min, E0, efs.min)
+    E0 <- ifelse(E0 > efs.max, efs.max, E0)
+
+    eff_nloptr <- nloptr::nloptr(E0,
                                  eval_f= f_MP_nloptr,
-                                 lb = rep(0, nmt),
-                                 ub = rep(K, nmt),
+                                 lb = efs.min,
+                                 ub = efs.max,
                                  eval_g_ineq = g_ineq_MP_nloptr ,
                                  opts = opts,
                                  q.m = q.m, alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
                                  ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
                                  effort.restr = effort.restr, crewS = crewS, catch.restr = catch.restr, tacos = tacos)
     Et.res[i]   <- sum(eff_nloptr$solution)
+    #! if(Et.res[i]>K) Et.res[i] <- K
     efs.res[,i] <- eff_nloptr$solution/sum(eff_nloptr$solution)
     cat('Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], ', ~~~~~ Benefit: ', eff_nloptr$objective, '\n')
     
+if(LO == TRUE){ # IF LandObl == TRUE => restr == 'catch
+      
+      eff <- numeric(it)
+      discount_yrtransfer <- matrix(0,nst,it, dimnames = list(sts,1:it))
+      ret.m.new <- ret.m # retention may change derived from minimis exemption.
+      min_ctrl <- rep(FALSE, length(sts))
+      names(min_ctrl) <- sts
+      
+      # Identify the stocks that are unable to 'donate' due to overfishing.
+      stks_OF <- overfishing(biols, fleets, advice.ctrl, yr) # matrix[nst,it]
+      
+      
+      if(Et.res[i] > c(fl@capacity[,yr,,ss,,i,drop=T])){ 
+        fl@effort[,yr,,ss,,i] <- fl@capacity[,yr,,ss,,i,drop=T] 
+        next
+      }
+      else{ # Minimis, Quota transfer btw years and QuotaSwap.
+        
+        minimis <- fleets.ctrl[[flnm]]$LandObl_minimis # logical(ny)
+        yrtrans <- fleets.ctrl[[flnm]]$LandObl_yearTransfer # logical(ny)
+        
+        Cr.f_min_qt <- Cr.f
+        Et1.res[i]   <- Et.res[i]
+        efs1.res[,i] <- efs.res[,i]
+        
+        if(minimis[yr] == TRUE | yrtrans[yr]  == TRUE){
+          
+          
+          # Add the minimis and quota.transfer 'extra' quota.
+          min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr]      # nst
+          yrt_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr] # nst
+          
+          if(length(min_p)==1) names(min_p) <- sts
+          if(length(yrt_p)==1) names(yrt_p) <- sts
+          
+          Cr.f_min_qt[sts] <- Cr.f[sts]*(1+min_p[sts]+yrt_p[sts]) # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
+          
+          
+          eff_nloptr <- nloptr::nloptr(Et*efs.m,
+                                       eval_f= f_MP_nloptr,
+                                       lb = rep(0, nmt),
+                                       ub = rep(K, nmt),
+                                       eval_g_ineq = g_ineq_MP_nloptr,
+                                       opts = opts,
+                                       q.m = q.m, alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f_min_qt, fc = fc,
+                                       ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
+                                       effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, tacos = tacos)
+          Et1.res[i]   <- sum(eff_nloptr$solution)
+          efs1.res[,i] <- eff_nloptr$solution/sum(eff_nloptr$solution)
+          
+          # Et1.res The effort resulting from minimis and year quota transfer examptions.
+          # We will use this effort later to divide the extra catch, in discards (from minimis), year quota transfer 
+          # to discount in the following year and quota swap (in this order)
+        }
+        
+        # Quota Swap
+        if(!is.null(dim(rho))) rhoi <- rho[,i]
+        else rhoi <- rho
+        
+        # Convert N to the rigth dimension
+        #   browser()
+        Nqs <- lapply(N,function(x) return(array(x[,1,,1,1,], dim = dim(x)[c(1,3,6)])))
+        MP_LO <- QuotaSwap(stknms = stnms, E0 = sum(Et1.res[i]), Cr.f = Cr.f, Cr.f_exemp = Cr.f_min_qt, N = Nqs, B = B, efs.m = matrix(efs1.res[,i], nmt), q.m = q.m, 
+                           alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, 
+                           fc = fc, vc.m = vc.m, crewS = crewS, K = K, rho = rho, stks_OF = stks_OF[,i],
+                           flnm = flnm, fleets.ctrl = fleets.ctrl, approach = 'maxprof')
+        
+        efs.res[,i] <- MP_LO$efs.m
+        Et.res[i]   <- sum(MP_LO$E)
+        cat('LO SWAP: Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], '\n')
+        
+        # Divide the extra catch, in discards (from minimis), year quota transfer 
+        # to discount in the following year and quota swap (in this order)
+        # discount_yrtransfer must be discounted from the quota next year.
+        
+        catch_Elo <- MP_LO$catch
+        diff      <- catch_Elo[sts]/Cr.f[sts] #[nst]
+        discount_yrtransfer[sts,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr], 0, 
+                                             ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr], 
+                                                    (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1),
+                                                    fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr]))*Cr.f
+        
+        # update ret.m to account for the discards due to minimise exemption.
+        for(st in sts){
+          
+          #        if(st == 'OTH')
+          #          browser()
+          # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
+          # otherwise is increase so that the total discards equal to min_p*Cr.f  
+          Ca <- MP_LO$Ca[[st]]
+          Ds <- sum((1-ret.m[[st]])*Ca*wd.m[[st]])                
+          ret.m.new[[st]] <- ret.m[[st]] - ifelse(Ds/Cr.f[st] > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], 0, fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] - Ds/Cr.f[st])
+          min_ctrl[st] <- ifelse(Ds/Cr.f[st]  > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], FALSE, TRUE)
+        }
+        
+      }
+      
+      
+      if(any(min_ctrl)){
+        sts_min <- names(which(min_ctrl))
+        
+        for(mt in names(fl@metiers)){
+          if(any(sts_min %in% catchNames(fl@metiers[[mt]]))){
+            for(st in sts_min[which(sts_min %in% catchNames(fl@metiers[[mt]]))]){
+              fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,,,i] <- ret.m.new[[st]][mt,,,]
+              fl@metiers[[mt]]@catches[[st]]@discards.sel[,yr,,,,i] <- 1-ret.m.new[[st]][mt,,,]
+            }
+          }    
+        }
+        
+        fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[,yr,] <- discount_yrtransfer
+      }
+      
+    } # END OF LANDING OBLIGATION MODULE
+  } # END OF ITERATIONS LOOP
+  # Update the retention curve according to minimis.
+  
+  
+  # Update the quota share of this step and the next one if the
+  # quota share does not coincide with the actual catch. (update next one only if s < ns).
+  
+  if(dim(biols[[1]]@n)[4] > 1){ # only for seasonal models
+    for(st in sts){
+      
+      
+      yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
+      ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
+      quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
+      # The catch.
+      catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
+      
+      Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+      catchD <- eval(call(catchFun, N = Nst, B = B[st], E = Et.res, efs.m = efs.res, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st]))
+      itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
+      catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
+      
+      quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st], catch = catch, season = ss)        # [ns,it]
+      
+      fleets.ctrl$seasonal.share[[st]][flnm,yr,,,,i] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
+    }
+  }
+
+
+
+
     # Update the quota share of this step and the next one if the
     # quota share does not coincide with the actual catch. (update next one only if s < ns).
     
@@ -397,13 +564,157 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
   # constraint on capacity.
   resK <- sum(E)-K
   
-  #    cat(round(Cr.f[[stk.cnst]]), " - ", round(sum(Cm)), "\n")
-  #    cat(sum(E), sum(Nst), sum(wl.m[[stk.cnst]]), sum(wd.m[[stk.cnst]]),
-  #        sum(q.m[[stk.cnst]]), sum(matrix(E/sum(E),ncol = 1)), sum(alpha.m[[stk.cnst]]), sum(beta.m[[stk.cnst]]),  sum(ret.m[[stk.cnst]]), sum(rho[stk.cnst]))
-  #  resTAC[] <- -1Q
-  #  resK <- -1
-  # print(resTAC)
-  
   return(c(resTAC, resK))
 }
 
+
+#******************************************************************************************
+#-------------------------------------------------------------------------------
+#  FUNCTION FOR OPTIMIZATION IN LANDING OBLIGATION SCENARIOS
+#
+#-------------------------------------------------------------------------------
+#******************************************************************************************
+
+
+#-------------------------------------------------------------------------------
+# f_MP_LO_nloptr(X) :: Objective function, X = v(E,tau)
+#                       (function to be maximized in a fleet by fleet case)
+#    - E: numeric(nmt)     sum(E) = Total Effort  across metiers.
+#    - tau: the percentage of quota swaped to restrictive stock.
+#    - qa.mt ~ alpha.a.mt ~ beta.a.mt ~ pra.mt.i :: lists with one element per
+#                   stock, each element with the form: array(na_st,nmt,it)
+#    - Ba ~ list with one element per stock, each element with the form: array(na_st,it)
+#
+# q.m,...,vc.m must correspond with one iteration of the variable at metier level
+# and must have dimension  [nmt,na,nu,1]
+# N: alist with one element per stock and each element with dimension [nmt,na,nu]
+# Cr.f:[nst,1] quota share
+# rho: [nst]
+# 
+#  Effort restriction is always 'min', i.e all the Quotas must be fulfiled.
+#-------------------------------------------------------------------------------
+
+f_MP_LO_nloptr <- function(X, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
+                           wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K, rho,STRs,STDs, Cr.f.new, tau.old, lambda.lim){
+  
+  
+  E <- X[-(1:length(STRs))]
+  
+  tau     <- X[1:length(STRs)]
+  
+  nmt <- length(E)
+  
+  res <- 0
+  
+  Cst <- Lst <-  numeric(length(q.m))
+  names(Cst) <- names(Lst) <-names(q.m)
+  
+  #   cat( '**************************************************************************\n')
+  
+  for(st in names(q.m)){
+    
+    #     E1  <- array(E,dim = dim(q.m[[st]]))   # [nmt,na,nu]
+    Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+    
+    if(dim(Nst)[1] > 1){
+      Cam <- CobbDouglasAge(E = sum(E), N = Nst, wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]],
+                            q.m = q.m[[st]], efs.m = matrix(E/sum(E),ncol = 1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], rho = rho[st]) # only 1 iter, MaxProf is applied by iter.
+    }
+    else{
+      Cam <- CobbDouglasBio(E = sum(E), N = Nst, wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]],
+                            q.m = q.m[[st]], efs.m = matrix(E/sum(E),ncol = 1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], rho = rho[st]) # only 1 iter, MaxProf is applied by iter.
+      Cam <- array(Cam, dim = dim(q.m[[st]]))
+    }
+    
+    Cst[st] <- sum(Cam) # IN LO 'CATCH' IS **ALWAYS** THE RESTRICTOR
+    #    Lst[st] <- sum(ret.m[[st]]*Cam)  # multiply the retention vector if landing is the restriction.
+    
+    # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE).
+    #   if(catch.restr  != 'catch') Cst[st] <- Lst[st]# The restriction is landings.
+    
+    # TAC overshot can be landed or discarded. In the case of landing obligation it is 'discarded' because it does not
+    # contribute to the revenue but it goes against the TAC => TACOS == TRUE
+    # IN LO **EVERYTHING** IS LANDED.
+    #   if(tacos[st] == FALSE) # TAC Overshot is not discarded.
+    Lrat <- 1
+    #   else Lrat <- ifelse(Cr.f[st]/Cst[st] > 1, 1, Cr.f[st]/Cst[st])  # TAC Overshot is  discarded.
+    # The overquota discards are proportional to the catch in all the metiers.
+    res <- res + sum(ret.m[[st]]*Cam*pr.m[[st]])*Lrat
+    
+    
+  }
+  
+  resF <- (1-crewS)*res - sum(vc.m*E) - fc
+  
+  # cat('prof: ', resF, ', rev: ',res, ', creWS:', crewS, ', TCS: ', crewS*res, ', Vc: ', sum(vc.m*E), ', FC: ', fc, '\n' )
+  
+  return(-resF/1e6)
+}
+
+#-------------------------------------------------------------------------------
+# Constraints in the swap of quotas in MP.
+#   o Total effort in each metier is bigger than the a certain level. (previous effort in the algorithm)
+#   o The catch of the stocks != 'str' and 'std' is lower than the 'new catch quota (catch in Cr.f.new).
+#   o tau_old < tau_new < 0.9 and:
+#       - Cstr < Qstr + (tau_old + tau_new)*Qstd
+#       - Cstd < QNEWstd - tau_new*Qstd  
+#  Effort restriction is always 'min', i.e all the Quotas must be fulfiled.
+#-------------------------------------------------------------------------------
+g_ineq_MP_LO_nloptr <- function(X, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m, wl.m, N, B, fc, vc.m,
+                                Cr.f, crewS, K, rho, STRs,STDs, Cr.f.new, tau.old, lambda.lim){
+  E <- X[-(1:length(STRs))]
+  
+  tau <- X[1:length(STRs)]
+  names(tau) <- STRs
+  
+  # browser()
+  
+  nmt <- length(E)
+  
+  stnms <- names(N)
+  
+  res <- 0
+  
+  Cst <- Lst <-  NULL
+  #   cat( '**************************************************************************\n')
+  # constraint on catches, comply with all the TACS ('min') or only with one.
+  
+  resTAC <- rep(0, length(q.m))  # One resctriction per stock.
+  names(resTAC) <- names(q.m)
+  
+  # NEW quotas for str and std
+  for(str in STRs){
+    Cr.f.new[str] <- Cr.f[str] + tau[str]*Cr.f[STDs[,str]]
+    Cr.f.new[STDs[,str]] <- Cr.f.new[STDs[,str]] - (tau[str] - tau.old[str])*Cr.f[STDs[,str]]
+  }  
+  
+  for(st in names(q.m)){
+    Nst <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+    if(dim(Nst)[1] > 1){
+      Cam <- CobbDouglasAge(sum(E),Nst, wl.m[[st]], wd.m[[st]],
+                            ret.m[[st]],q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]],rho[st])
+      
+      resTAC[st] <- sum(Cam)  - Cr.f.new[st]
+      #   cat(st, ' - ', sum(Cam), '\n')
+    }
+    else{
+      Cm <- CobbDouglasBio(sum(E),Nst, wl.m[[st]], wd.m[[st]],
+                           q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]], ret.m[[st]],rho[st])
+      resTAC[st] <- sum(Cm)  - Cr.f.new[st]
+      #       cat(st, ' - ', sum(Cm), '\n')
+    }
+    
+  }
+  #  browser()
+  lambda <- -lambda.lim
+  
+  for(st in unique(STDs[1,])){
+    strs_std       <- names(STDs[1,which(STDs[1,] == st)])
+    lambda[st] <- lambda[st] + sum(tau[strs_std] - tau.old[strs_std])
+  }
+  
+  resK <- sum(E)-K
+  # print(c(resTAC, resK, lambda))
+  # return(c(lambda))
+  return(c(resTAC, resK, lambda))
+}

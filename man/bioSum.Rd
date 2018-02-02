@@ -28,7 +28,7 @@ bioSum(obj, stknms = "all", years = dimnames(obj$biols[[1]]@n)$year,
 bioSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
 fltSum(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
-  byyear = TRUE, long = TRUE, scenario = "bc")
+  byyear = TRUE, long = TRUE, InterestRate = 0.03, scenario = "bc")
 
 fltSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
@@ -122,13 +122,13 @@ Summarize the results of the simulation in data frames.
              "biomass", "catch", "catch.iyv", "discards",  "disc.iyv",  "f", "landings",  "land.iyv",  "rec" and      "ssb".
      \item{fltSum, fltSumQ:} Data frame with the indicators at fleet level. The indicators are:
              "capacity", "catch", "costs", "discards", "discRat", "effort",       
-             "fcosts", "gva", "income", "landings", "netProfit", "nVessels", "price", "profits",
+             "fcosts", "gva", "grossValue", "landings", "fep", "nVessels", "price", "grossSurplus",
              "quotaUpt", "salaries", "vcosts" and "profitability".
      \item{fltStkSum, fltStkSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
      \item{npv:} A data frame with the net present value per fleet over the selected range of years.
      \item{mtSum, mtSumQ:} Data frame with the indicators at fleet. The indicators are:
-             "effshare", "effort", "income" and "vcost".   
+             "effshare", "effort", "grossValue" and "vcost".   
      \item{mtStkSum, mtStkSumQ:} Data frame with the indicators at fleet and metier level. The indicators are:
              "catch",  "discards", "discRat", "landings" and "price".
      \item{riskSum:} A data frame with the risk indicators. The indicators are:
@@ -138,7 +138,7 @@ Summarize the results of the simulation in data frames.
      
      \item{vesselSum, vesselSumQ:} Data frame with the indicators at vessel level. The indicators are:
               "catch", "costs", "discards", "discRat", "effort",       
-             "fcosts", "gva", "income", "landings", "netProfit",  "price", "profits",
+             "fcosts", "gva", "grossValue", "landings", "fep",  "price", "grossSurplus",
              "quotaUpt", "salaries", "vcosts" and "profitability".
      \item{vesselStkSum, vesselStkSumQ:} Data frame with the indicators at vessel and stock level. The indicators are:
              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
@@ -310,7 +310,7 @@ oneItRes_mtQ     <- mtSumQ(oneItRes_mt)
 oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
 oneItRes_advQ    <- advSumQ(oneItRes_adv)
 
-oneItRes_risk <- riskSum(oneItRes, Bpa = c(stk1= 900), Blim = c(stk1 = 600), Prflim = c(flt1 = 0), scenario = 'alternative')
+oneItRes_risk <- riskSum(oneItRes, Bpa = c(stk1= 900), Blim = c(stk1 = 600), Prflim = c(fl1 = 0), scenario = 'alternative')
 
 oneItRes_npv  <- npv(oneItRes, y0 = '2014')
 
@@ -377,7 +377,7 @@ multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
 multiRes_advQ    <- advSumQ(multiRes_adv)
 
 multiRes_npv  <- npv(multiRes, y0 = '2014')
-risk_multiRes <- riskSum(multiRes, Bpa = c(stk1= 135000, stk2 = 124000), Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(flt1 = 0, flt2 = 0), scenario = 'alternative')
+risk_multiRes <- riskSum(multiRes, Bpa = c(stk1= 135000, stk2 = 124000), Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(fl1 = 0, fl2 = 0), scenario = 'alternative')
 
 }
 }
