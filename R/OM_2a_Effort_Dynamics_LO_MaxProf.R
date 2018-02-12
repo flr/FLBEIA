@@ -1,7 +1,8 @@
 MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.res, efs.res,  efs.min, efs.max, 
                                yr,ss, flnm, it, i, sts, q.m, alpha.m, beta.m, pr.m,  Cr.f, fc, ret.m, wd.m, wl.m, vc.m, N, B, K, rho,
-                               effort.restr, crewS, catch.restr, tacos){
+                               effort.restr, crewS, catch.restr, efs.abs, tacos){
   
+#if(flnm == 'DTS_SP' & yr == 39) browser()
  
   eff <- numeric(it)
   discount_yrtransfer <- matrix(0,length(sts),it, dimnames = list(sts,1:it))
@@ -27,8 +28,6 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
       Et1.res   <- Et.res[i]
       efs1.res <- efs.res[,i]
       
-      cat("*ÇÇÇÇÇÇÇÇÇÇÇÇÇÇÇÇÇÇ", Et1.res, "^^^^^^^^^^^^^^^\n")
-  
       if(minimis[yr] == TRUE | yrtrans[yr]  == TRUE){
     
         # Add the minimis and quota.transfer 'extra' quota.
@@ -43,12 +42,17 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
         
         Cr.f_min_qt[sts]   <- ifelse(Cr.f_min_qt[sts] == 0, 1e-8, Cr.f_min_qt[sts])
         
+        efs1.res <- ifelse(efs1.res < efs.min, efs1.res, efs.min*1.01)
+        efs1.res <- ifelse(efs1.res > efs.max, efs.max*0.99, efs1.res)
+        
+        Et1.res <- Et1.res*efs1.res
+        
         X <- log((Et1.res*efs1.res)/(K - (Et1.res*efs1.res)))
         
         eff_opt <- optim(X,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
                          beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
                          wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f_min_qt,  crewS = crewS, K = K , 
-                         effort.restr = 'min', catch.restr = 'catch', tacos = tacos, rho = rho)
+                         effort.restr = 'min', catch.restr = 'catch', efs.abs = efs.abs, tacos = tacos, rho = rho)
         
         
         res <- K/(1+exp(-eff_opt[[1]]))

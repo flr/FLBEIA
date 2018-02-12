@@ -81,7 +81,8 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
         if (sum(Cr.f[rownames(fl.sel)[fl.sel[,mt]==0 & !is.na(fl.sel[,mt])]])==0) { 
           efs.m[mtnms!=mt] <- efs.m[mtnms!=mt] + efs.m[mtnms!=mt] * efs.m[mt]/sum(efs.m[mtnms!=mt])
           efs.m[mt] <- 0
-       }
+        }
+      if(fleets.ctrl[[flnm]]$efs.abs == FALSE) efs.m <- efs.m/sum(efs.m)
     }
     
     # Calculate the initial point based on the effort that correspond with the TAC quotas.
@@ -115,35 +116,46 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
       efs.min <- as.numeric(effort.range[,"min"])
     }
     else{
-      efs.min <- rep(0, length(fleets[[flnm]]@metiers))
-      efs.max <- rep(1, length(fleets[[flnm]]@metiers))
-      names(efs.min) <- names(efs.max) <- names(fleets[[flnm]]@metiers)
+      if(fleets.ctrl[[flnm]]$efs.abs == FALSE){
+        efs.min <- rep(0, length(fleets[[flnm]]@metiers))
+        efs.max <- rep(1, length(fleets[[flnm]]@metiers))
+        names(efs.min) <- names(efs.max) <- names(fleets[[flnm]]@metiers)
+      }else{
+        efs.min <- rep(0, length(fleets[[flnm]]@metiers))
+        efs.max <- rep(K, length(fleets[[flnm]]@metiers))
+        names(efs.min) <- names(efs.max) <- names(fleets[[flnm]]@metiers)
+      }
     }
     
 
+  #  if(fleets.ctrl[[flnm]]$efs.abs == FALSE){
+      # If efs.min == 0 or Cr.f == 0 or E0 == 0 set them equal to 1e-8 to avoid having indeterminations in the penalties
+      E0 <- Et*efs.m
     
-    # If efs.min == 0 or Cr.f == 0 or E0 == 0 set them equal to 1e-8 to avoid having indeterminations in the penalties
-    E0 <- Et*efs.m
+      efs.min <- ifelse(efs.min == 0, 1e-8, efs.min)
+      E0      <- ifelse(E0 == 0, 1e-8, E0)
+      Cr.f    <- ifelse(Cr.f == 0, 1e-8, Cr.f)
     
-    efs.min <- ifelse(efs.min == 0, 1e-8, efs.min)
-    E0      <- ifelse(E0 == 0, 1e-8, E0)
-    Cr.f    <- ifelse(Cr.f == 0, 1e-8, Cr.f)
+      # recalculate efs.m in case E0 has changed.
+      efs.m <- E0/sum(E0)
     
-    # recalculate efs.m in case E0 has changed.
-    efs.m <- E0/sum(E0)
+      # Apply these restrictions to initial values
+      efs.m <- ifelse(efs.m < efs.min, efs.m, efs.min*1.01)
+      efs.m <- ifelse(efs.m > efs.max, efs.max*0.99, efs.m)
     
-    # Apply these restrictions to initial values
-    efs.m <- ifelse(efs.m < efs.min, efs.m, efs.min*1.01)
-    efs.m <- ifelse(efs.m > efs.max, efs.max*0.99, efs.m)
-    
-    E0 <- Et*efs.m
+      E0 <- Et*efs.m
+   # }
+  #  else{
+  #    E0 <- sum(efs.m
+  #  }
     
     X <- log(E0/(K - E0))
     
     eff_opt <- optim(X,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
                      beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
                      wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
-                     effort.restr = effort.restr, catch.restr = catch.restr, tacos = tacos, rho = rho)
+                     effort.restr = effort.restr, catch.restr = catch.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
+                     tacos = tacos, rho = rho)
     
     # eff_nloptr <- nloptr::nloptr(E0,
     #                              eval_f= f_MP_nloptr,
@@ -171,7 +183,8 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
                                      flnm = flnm, it = it, i = i,  sts = sts, q.m = q.m, alpha.m = alpha.m, 
                                      beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
                                      ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
-                                     effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, tacos = tacos)
+                                     effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
+                                     tacos = tacos)
        list2env(lo_res, globalenv())
     } 
   } # END OF ITERATIONS LOOP
@@ -333,7 +346,7 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
 #-------------------------------------------------------------------------------
 
 f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
-                        wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, tacos, rho){
+                        wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, efs.abs, tacos, rho){
   
   E <- K/(1+exp(-X))
   
@@ -391,18 +404,26 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   resF <- (1-crewS)*res - sum(vc.m*E) - fc
   
   #---------------------------------------------------------------------------
-  # constraint on effort-share
+  # constraint on effort-share: absolute or relative values.
   #---------------------------------------------------------------------------
-  efs <- E/sum(E)
-  pen_efsMax <- pen_efsMin <- 0
-  #efs <- efs#to allow 0 values in efs
   
-  if(length(efs) > 1){ # If there is onlly one metier we don't want any penalty on this.
-    # This penalty ensures that efs < efs.max because otherwise  log(efs/(efs.max - efs)) = NaN
-    pen_efsMax <- sum(log(efs/(efs.max - efs)))
+  if(efs.abs == TRUE){
+    pen_efsMax <- sum(log(E/(efs.max - E)))
     # Using the inverse 1/efs and using efs.min, we bound the minimum
-    pen_efsMin <- sum(log((1/efs)/((1/efs.min) - (1/efs))))
+    pen_efsMin <- sum(log((1/E)/((1/efs.min) - (1/E))))
   }
+  else{
+    efs <- E/sum(E)
+    pen_efsMax <- pen_efsMin <- 0
+    #efs <- efs#to allow 0 values in efs
+    if(length(efs) > 1){ # If there is onlly one metier we don't want any penalty on this.
+    # This penalty ensures that efs < efs.max because otherwise  log(efs/(efs.max - efs)) = NaN
+      pen_efsMax <- sum(log(efs/(efs.max - efs)))
+    # Using the inverse 1/efs and using efs.min, we bound the minimum
+      pen_efsMin <- sum(log((1/efs)/((1/efs.min) - (1/efs))))
+  }}
+  
+  
   # print(efs)
   # print(efs.min)
     

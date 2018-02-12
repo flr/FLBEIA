@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------------------
 
 
-FLObjs2S3_fleetSTD <- function(biols, fleets, advice, covars, biols.ctrl, fleets.ctrl,  flnm, yr, ss,iters){
+FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, fleets.ctrl,  flnm, yr, ss,iters){
   
   # Fleet's info
   fl    <- fleets[[flnm]]
