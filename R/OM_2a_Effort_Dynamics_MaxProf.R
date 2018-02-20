@@ -64,13 +64,13 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
   restriction <- ifelse(length(fleets.ctrl[[flnm]]$restriction) > 1,   fleets.ctrl[[flnm]]$restriction[yr], fleets.ctrl[[flnm]]$restriction)
   if(!(restriction %in% c('catch', 'landings') )) stop("fleets.ctrl$restriction for fleet, ', flnm, ', must be equal to 'catch' or 'landings'")
   
-  LO <- ifelse(is.null(fleets.ctrl[[flnm]]$LandObl[yr]),FALSE, fleets.ctrl[[flnm]]$LandObl[yr]) 
+  LO <- ifelse(length(fleets.ctrl[[flnm]]$LandObl)>1, fleets.ctrl[[flnm]]$LandObl[yr], fleets.ctrl[[flnm]]$LandObl) 
   
   for(i in 1:it){
     
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
     list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
-                                biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, 
+                                biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
                                 flnm = flnm, yr = yr, ss = ss, iters = i), environment())
     
        
@@ -140,10 +140,20 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
       efs.m <- E0/sum(E0)
     
       # Apply these restrictions to initial values
-      efs.m <- ifelse(efs.m < efs.min, efs.m, efs.min*1.01)
-      efs.m <- ifelse(efs.m > efs.max, efs.max*0.99, efs.m)
-    
-      E0 <- Et*efs.m
+      if (fleets.ctrl[[flnm]]$efs.abs == FALSE) {
+        
+        efs.min <- ifelse(efs.m <= efs.min, efs.m, efs.min)
+        efs.m <- ifelse(efs.m >= efs.max, efs.max*0.99, efs.m)
+        
+        E0 <- Et*efs.m
+      
+      } else {
+        
+        efs.min <- ifelse(E0 <= efs.min, E0*0.99, efs.min)
+        E0 <- ifelse(E0 >= efs.max, efs.max*0.99, E0)
+      
+      }
+      
    # }
   #  else{
   #    E0 <- sum(efs.m
