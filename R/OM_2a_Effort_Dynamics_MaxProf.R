@@ -126,7 +126,6 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
         names(efs.min) <- names(efs.max) <- names(fleets[[flnm]]@metiers)
       }
     }
-    
 
   #  if(fleets.ctrl[[flnm]]$efs.abs == FALSE){
       # If efs.min == 0 or Cr.f == 0 or E0 == 0 set them equal to 1e-8 to avoid having indeterminations in the penalties
@@ -142,7 +141,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
       # Apply these restrictions to initial values
       if (fleets.ctrl[[flnm]]$efs.abs == FALSE) {
         
-        efs.min <- ifelse(efs.m <= efs.min, efs.m, efs.min)
+        efs.min <- ifelse(efs.m <= efs.min, efs.m*0.99, efs.min)
         efs.m <- ifelse(efs.m >= efs.max, efs.max*0.99, efs.m)
         
         E0 <- Et*efs.m
@@ -467,7 +466,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
         if(catch.restr == 'landings') Cam <- Cam*ret.m[[st]]
         
  #       resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cam))/0.00005)) this constraint does not work for all the stocks simultaneously
-        resTAC[st] <- log(sum(Cam)/(Cr.f[st]-sum(Cam)))
+        Ctot <- ifelse( sum(Cam)==0, 1e-08*0.99,sum(Cam))
+        resTAC[st] <- log(Ctot/(Cr.f[st]-Ctot))
         #   cat(st, ' - ', sum(Cam), '\n')
       }
       else{
