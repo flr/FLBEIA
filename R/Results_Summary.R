@@ -913,12 +913,12 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
     
     if(long == TRUE){ # transform res into long format
       r1 <- ifelse(byyear == TRUE, 4,5)
-      r2 <- ifelse(byyear == TRUE, 21,22)
+      r2 <- ifelse(byyear == TRUE, 22,23)
       
       names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
       res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
       rownames(res) <- 1:dim(res)[1]
-      res[, r1:(r1+1)] <-  res[, (r1+1):r1]
+      # res[, r1:(r1+1)] <-  res[, (r1+1):r1]
       names(res)[r1:(r1+1)] <- c( 'indicator', 'value') 
     }
   
