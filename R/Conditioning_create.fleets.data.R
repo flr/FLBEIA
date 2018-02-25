@@ -394,7 +394,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             cat('warning: all NA-s in discards.n \n')   
           } 
           # units(fleet@metiers[[nmfl.met]]@catches[[nmfl.met.stk]])$discards.n <- units(discards.n)
-          units(fl.met.stk.discards.n) <- units(discards.n)
+          units(fl.met.stk.discards.n) <- 't'# units(discards.n) # dor: there was a bug and I've put 't' just to make it running but it should be corrected
           
           if(!all(is.na(discards.wt))){
             discards.wt <- discards.wt[[1]]
@@ -408,7 +408,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             discards.wt <- get(grep(stks.data[[nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_wt.flq',sep=''), value = TRUE))  
           } 
           # units(fleet@metiers[[nmfl.met]]@catches[[nmfl.met.stk]])$discards.wt <- units(discards.wt)
-          units(fl.met.stk.discards.wt) <- units(discards.wt)
+          units(fl.met.stk.discards.wt) <- 'kg'#units(discards.wt)
           
           
           if(!all(is.na(price))){
