@@ -74,8 +74,9 @@
      stk.gB <- largs$stk.gB
      catch.q[,hist.yrs]   <- ((landings.n + discards.n)[,hist.yrs])/(met.effort*(stk.n+stk.gB[,hist.yrs]))
     }else{
-    for (aa in 1:length(age.min:age.max)){  
-      catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[aa,hist.yrs])/(met.effort*stk.n[aa,])}
+    for (aa in 1:length(age.min:age.max)){ 
+      stk.m <- largs$stk.m
+      catch.q[aa,hist.yrs]   <- ((landings.n + discards.n)[aa,hist.yrs])/(met.effort*stk.n[aa,]*exp(-stk.m[aa,]/2))}
     }}       
  
    catch.q[is.infinite(catch.q)] <- 0
