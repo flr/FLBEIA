@@ -465,9 +465,9 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           if(length(catch.q)==0) {catch.q <- NA
           }else{catch.q <- catch.q[[1]]}
        
-          fl.met.stk.alpha[]     <- alpha
-          fl.met.stk.beta[]        <- beta
-          fl.met.stk.catch.q[]     <- catch.q
+          fl.met.stk.alpha[, hist.yrs]     <- alpha
+          fl.met.stk.beta[, hist.yrs]        <- beta
+          fl.met.stk.catch.q[, hist.yrs]     <- catch.q
           
           if(all(is.na(alpha)) || all(is.na(beta)) || all(is.na(catch.q))){
             stk.n       <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_n.flq',sep=''), value = TRUE)) 
