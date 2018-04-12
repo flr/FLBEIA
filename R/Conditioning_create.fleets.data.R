@@ -483,7 +483,9 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             }else{
               if(length(stk.age.min:stk.age.max)==1 ){
               largs$stk.gB <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_gB.flq',sep=''), value = TRUE)) 
-            }else{ largs <- NULL}}
+              }else{ 
+              largs$stk.m <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_m.flq',sep=''), value = TRUE))
+              }}
             
             CD_param <- calculate.CDparam(stk.n, fl.met.stk.landings.n,fl.met.stk.discards.n,
                                          fl.effort,fl.met.effshare,stk.age.min,stk.age.max,
