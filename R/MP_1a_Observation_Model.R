@@ -60,7 +60,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     
     # FIRST SEASON, FIRST UNIT:
     # biol@wt = "stock.wt" = "catch.wt" = "discards.wt" = "landings.wt" = "mat" = "harvest.spwn" = "m.spwn
-    res <- as(biol, 'FLStock')[,1:(year-1),1,1]
+    res <- propagate(as(biol, 'FLStock')[,1:(year-1),1,1], it, fill.iter = TRUE)
     dimnames(res) <- list(unit="unique")
     
     #res@range[c(1:3,6:7)] <- biol@range[c(1:3,6:7)]
@@ -220,7 +220,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
       
     }
          
-    stck              <- as(biol, "FLStock")[,1:ny,1,1]  
+    stck              <- propagate(as(biol, "FLStock")[,1:ny,1,1],it, fill.iter = TRUE)  
     dimnames(stck) <- list(unit="unique")
 
     landings.wt(stck)[] <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
@@ -366,7 +366,7 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
         stop(paste("check values in '",e,"' array for stock '",stknm,"' (required values > 0)",sep=""))
     }
    
-    stck              <- as(biol, "FLStock")[,1:ny]
+    stck              <- propagate(as(biol, "FLStock")[,1:ny], it, fill.iter = TRUE)
 
     landings(stck)     <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
     landings(stck)     <- FLQuant(ifelse(stck@landings > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
@@ -439,7 +439,7 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
       }
              
     biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
-    stck                <- as(biolbio, "FLStock")[,1:ny]
+    stck                <- propagate(as(biolbio, "FLStock")[,1:ny], it, fill.iter = TRUE) 
     dimnames(stck)      <- list(age="all")
 
     landings(stck)      <-  FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
