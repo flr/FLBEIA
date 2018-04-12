@@ -82,8 +82,8 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
    # Argument!
     # Last SSB (Age structured) OR Biomass (Aggregated) estimate
     
-    Ftg <- Fupp  <- Fsq <- Cst <- numeric(length(stocksInHCR))
-   names(Ftg) <-names(Fupp) <- names(Fsq) <- names(Cst) <- stocksInHCR
+    Ftg <- Fupp  <- Fsq <- Cst <- matrix(NA, length(stocksInHCR), iter)
+   rownames(Ftg) <-rownames(Fupp) <- rownames(Fsq) <- rownames(Cst) <- stocksInHCR
    
    
     for(st in stocksInHCR){
@@ -99,19 +99,19 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
       
         b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts_st[c('Blim', 'Btrigger'),i]))  # [it]
 
-        Ftg[st] <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts_st['Fmsy',]*b.datyr/ref.pts_st[ 'Btrigger',], ref.pts_st['Fmsy',]))
+        Ftg[st,] <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts_st['Fmsy',]*b.datyr/ref.pts_st[ 'Btrigger',], ref.pts_st['Fmsy',]))
         
         minfbar <- stocks[[st]]@range['minfbar']
         maxfbar <- stocks[[st]]@range['maxfbar']
         
-        Fsq[st] <- yearMeans(fbar(stocks[[st]])[,(year-3):(year-1)])
+        Fsq[st,] <- yearMeans(fbar(stocks[[st]])[,(year-3):(year-1)])
     
-        Fupp[st] <- ref.pts_st['Fupp',]
+        Fupp[st,] <- ref.pts_st['Fupp',]
       }
       
       if(stocksCat[st] == 3){     
              Brat    <- c(mean(indices[[st]][[1]]@index[,(year-2):(year-1)])/mean(indices[[st]][[1]]@index[,(year-3):(year-5)])) # [it]
-             Cst[st]    <- yearMeans(stocks[[st]]@catch[,(year-3):(year-1)])[drop=T]   # [it]
+             Cst[st,]    <- yearMeans(stocks[[st]]@catch[,(year-3):(year-1)])[drop=T]   # [it]
              tac     <- advice[['TAC']][st, year-1,drop=T]
              alpha   <- advice.ctrl[[st]][["ref.pts"]]["alpha", ]
              beta    <- advice.ctrl[[st]][["ref.pts"]]["beta", ]
@@ -121,48 +121,53 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
              tacMult   <- ifelse(Brat < 1-alpha, 1-beta, ifelse(Brat < 1+alpha, 1, 1 + beta))
              
              # translate the TAC multiplier to C multiplier.
-             CupMult <- tacUpMult*tac/Cst[st]
-             CMult   <- tacMult*tac/Cst[st]
+             CupMult <- tacUpMult*tac/Cst[st,]
+             CMult   <- tacMult*tac/Cst[st,]
              
              # For this stocks we fill the Fsq, Fupp and Ftg in terms of catch, the linearity is assumed in
              # effort catch becasue we don't have any other information.
-             Ftg[st]  <- CMult 
-             Fupp[st] <- CupMult 
-             Fsq[st]  <- 1     
+             Ftg[st,]  <- CMult 
+             Fupp[st,] <- CupMult 
+             Fsq[st,]  <- 1     
       }
     }
    
    
    
+    Fsq[Fsq == 0] <- 1e-6
     
-    lambda0 <- max(Ftg/Fsq)
+    lambda0 <- apply(Ftg/Fsq,2,max)
    
-    Fadv0 <- Fadv <- Fsq*lambda0
+    Fadv0 <- Fadv <- sweep(Fsq,2,lambda0, "*") # [nst,it]
    
     if(any(Fadv0 > Fupp)){
-      lambda1 <- min(Fupp/Fadv0) # The F multiplier.
-      Fadv <- Fadv0*lambda1
+      lambda1 <- apply(Fupp/Fadv0,2,min) # The F multiplier.
+      Fadv <- sweep(Fadv0,2,lambda1,"*")
     }
      
-    Fadv_st <- Fadv[stknm]
+    Fadv_st <- Fadv[stknm,]
    
     int.yr <- advice.ctrl[[stknm]]$intermediate.year
+    
+    Fadv_st[is.na(Fadv_st)] <- 1e-6
+    
+    print(Fadv_st)
 
     for(i in 1:iter){
       
       if(stocksCat[stknm] == 1){
       
-        if(is.na(Fadv_st) | Fadv_st == 0){
-            advice[['TAC']][stknm,year+1,,,,i] <- 0
+        if(is.na(Fadv_st[i]) | Fadv_st[i] == 0){
+            advice[['TAC']][stknm,year+1,,,,i] <- 0.1
             next
         }
 
         int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
         
         if(int.yr == 'Fsq')
-            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Fadv_st), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Fadv_st[i]), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
         else
-            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Fadv_st), quantity = c( 'catch', 'f')))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Fadv_st[i]), quantity = c( 'catch', 'f')))
 
         # Refresh the years in fwd!!
         fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
@@ -234,6 +239,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
         }
      
         yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
+        yy <- ifelse(is.na(yy), 0.1, yy)
      
         advice[['TAC']][stknm,year+1,,,,i] <- yy # The TAC is given in terms of CATCH.
 

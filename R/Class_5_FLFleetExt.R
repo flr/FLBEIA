@@ -410,6 +410,7 @@ setMethod("window", signature(x="FLFleetExt"),
 
     # window metiers
     metiers <- x@metiers
+    metiers <- FLMetiersExt(lapply(metiers, window, start, end))
 
     # window catches
     catches <- list()
@@ -419,8 +420,7 @@ setMethod("window", signature(x="FLFleetExt"),
 
 
     }
-    metiers <- FLMetiersExt(lapply(metiers, window, start, end))
-    
+   
     x@metiers <- metiers
 
 		x@range["minyear"] <- start
