@@ -495,7 +495,16 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             fl.met.stk.beta     <- CD_param[['beta']]
             fl.met.stk.catch.q  <- CD_param[['catch.q']]
             
-          }else{
+            fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
+            
+            for(ss in 1:ns){
+              for(unit in 1:stk.unit){
+                fl.met.stk.alpha[,proj.yrs,unit,ss]   <- yearMeans(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs,unit,ss])
+                fl.met.stk.beta[,proj.yrs,unit,ss]    <- yearMeans(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs,unit,ss])
+                fl.met.stk.catch.q[,proj.yrs,unit,ss] <- yearMeans(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs,unit,ss])
+              }
+            }
+            }else{
             # Check dimension names
             log.dim <- equal.flq.Dimnames(lflq=list(alpha,beta,catch.q,flqa.stk),1:2)
             if(!log.dim)stop('in alpha,beta or catch.q dimensions \n')
@@ -552,9 +561,6 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
               fl.met.stk.landings.wt[,proj.yrs,unit,ss]  <- yearMeans(fl.met.stk.landings.wt[, fl.met.stk.proj.avg.yrs,unit,ss])
               fl.met.stk.discards.wt[,proj.yrs,unit,ss]  <- yearMeans(fl.met.stk.discards.wt[, fl.met.stk.proj.avg.yrs,unit,ss])
               fl.met.stk.price[,proj.yrs,unit,ss]   <- yearMeans(fl.met.stk.price[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.alpha[,proj.yrs,unit,ss]   <- yearMeans(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.beta[,proj.yrs,unit,ss]    <- yearMeans(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.catch.q[,proj.yrs,unit,ss] <- yearMeans(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs,unit,ss])
               }
             }
  
