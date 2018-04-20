@@ -112,16 +112,17 @@ SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # SSB in spawning season
-      # Before 2017: spawning season: first season with fraction of natural mortality before spawning < 1
-      # Since 2017: SSB 1st January
+      # spawning season: first season with fraction of natural mortality before spawning < 1
       spwn.sson <- 1
-      # si <- 0
-      # while( (si-spwn.sson)!=0) { 
-      #   si <- spwn.sson
-      #   spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
-      #   d  <- si-spwn.sson 
-      # }
-        res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]]))[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
+      si <- 0
+      while( (si-spwn.sson)!=0) {
+        si <- spwn.sson
+        spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
+        d  <- si-spwn.sson
+      }
+      
+      res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]])*
+                                     exp(-spwn(obj$biols[[stk]])*m(obj$biols[[stk]])))[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
     }
     return(res)
 }
