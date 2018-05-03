@@ -488,6 +488,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           fl.met.stk.catch.q[]     <- catch.q
           
           if(all(is.na(alpha)) || all(is.na(beta)) || all(is.na(catch.q))){
+            CDpar.calc <- TRUE
             stk.n       <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_n.flq',sep=''), value = TRUE)) 
             stk.n[,hist.yrs][is.na(stk.n[,hist.yrs])] <- 0
             fl.effort[,hist.yrs][is.na(fl.effort[,hist.yrs])] <- 0
@@ -520,6 +521,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             fl.met.stk.catch.q[,proj.yrs,] <- yearMeans(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs,])
             
             }else{
+              CDpar.calc <- FALSE
               # Check dimension names
               log.dim <- equal.flq.Dimnames(lflq=list(alpha,beta,catch.q,flqa.stk),1:2)
               if(!log.dim)stop('in alpha,beta or catch.q dimensions \n')
@@ -535,7 +537,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
               
               # if catch.q historical values are set --> values are required also for projection years
               if (any(is.na(fl.met.stk.catch.q[, proj.yrs]))) {
-                cat('All NA-s in catch.q projection. As historical values were set, 
+                cat('NA-s in catch.q projection. As historical values were set, 
                     then projection values must also be set as they are not estimated. \n')
               }
             }
@@ -546,23 +548,22 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           
           fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
 
-          fl.met.stk.landings.sel[,proj.yrs,] <- yearMeans(fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs,])
           if(any(is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs]))) {
-            cat('warning: NA-s in landings.sel for average years \n') 
-            if (any(is.na(fl.met.stk.landings.sel[, proj.yrs]))) {
-              cat('warning: all NA-s in landings.sel projection and will be replaced by 1. \n')
-              fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs])] <- 1
-            }
+            cat('warning: NA-s in landings.sel for average years and will be replaced by 1. \n')
+            fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs])] <- 1
+            # if (any(is.na(fl.met.stk.landings.sel[, proj.yrs])))
+            #   cat('warning: all NA-s in landings.sel projection. \n')
           }
+          fl.met.stk.landings.sel[,proj.yrs,] <- yearMeans(fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs,])
           
-          fl.met.stk.discards.sel[,proj.yrs,] <- yearMeans(fl.met.stk.discards.sel[,fl.met.stk.proj.avg.yrs,])
+          
           if(any(is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs]))) {
-            cat('warning: NA-s in discards.sel for average years \n') 
-            if (any(is.na(fl.met.stk.discards.sel[, proj.yrs]))) {
-              cat('warning: all NA-s in discards.sel projection and will be replaced by 0. \n')
-              fl.met.stk.discards.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs])] <- 0
-            }
+            cat('warning: NA-s in discards.sel for average years and will be replaced by 0. n')
+            fl.met.stk.discards.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs])] <- 0
+            # if (any(is.na(fl.met.stk.discards.sel[, proj.yrs])))
+            #   cat('warning: all NA-s in discards.sel projection\n')
           }
+          fl.met.stk.discards.sel[,proj.yrs,] <- yearMeans(fl.met.stk.discards.sel[,fl.met.stk.proj.avg.yrs,])
           
           fl.met.stk.landings.wt[,proj.yrs,] <- yearMeans(fl.met.stk.landings.wt[, fl.met.stk.proj.avg.yrs,])
           
@@ -571,27 +572,27 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           fl.met.stk.price[,proj.yrs,]       <- yearMeans(fl.met.stk.price[, fl.met.stk.proj.avg.yrs,])
           
           if (any(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs]<0, na.rm = TRUE)) { 
-            stop('Negative values in alpha projection and will be replaced by 1. \n')
+            stop('Negative values in alpha projection. \n')
           } else if (any(is.na(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs]))) {
-            cat('warning: NA-s in alpha for average years \n') 
-            if (any(is.na(fl.met.stk.alpha[, proj.yrs]))) {
-              cat('warning: all NA-s in alpha projection and will be replaced by 1. \n')
-              fl.met.stk.alpha[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs])] <- 1
-            }
+            cat('warning: NA-s in alpha for average years and will be replaced by 1. \n')
+            fl.met.stk.alpha[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs])] <- 1
+            if (CDpar.calc == TRUE) fl.met.stk.alpha[,proj.yrs,] <- yearMeans(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs,])
+            # if (any(is.na(fl.met.stk.alpha[, proj.yrs])))
+            #   cat('warning: all NA-s in alpha projection \n')
           }
           
           if (any(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs]<0, na.rm = TRUE)) { 
-            stop('Negative values in beta projection and will be replaced by 1. \n')
+            stop('Negative values in beta projection. \n')
           } else if (any(is.na(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs]))) {
-            cat('warning: NA-s in beta for average years \n') 
-            if (any(is.na(fl.met.stk.beta[, proj.yrs]))) {
-              cat('warning: all NA-s in beta projection and will be replaced by 1. \n')
-              fl.met.stk.beta[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs])] <- 1
-            }
+            cat('warning: NA-s in beta for average years and will be replaced by 1. \n')
+            fl.met.stk.beta[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs])] <- 1
+            if (CDpar.calc == TRUE) fl.met.stk.beta[,proj.yrs,] <- yearMeans(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs,])
+            # if (any(is.na(fl.met.stk.beta[, proj.yrs])))
+            #   cat('warning: all NA-s in beta projection \n')
           }
           
           if (any(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs]<0, na.rm = TRUE)) { 
-            stop('Negative values in catch.q projection and will be replaced by 1. \n')
+            stop('Negative values in catch.q projection. \n')
           } else if (any(is.na(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs]))) {
             cat('warning: NA-s in catch.q for average years \n') 
             if (any(is.na(fl.met.stk.catch.q[, proj.yrs]))) {
