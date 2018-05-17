@@ -687,7 +687,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                            data.frame(res[,10]), data.frame(res[,11]), data.frame(res[,12]),
                            data.frame(res[,13]))
                                                                                  
-    nmsp <- ifelse(substr(prob,3, nchar(prob))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""),substr(prob,3, nchar(prob)))
+    nmsp <- ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""),substr(prob,3, nchar(prob)))
     
     nms_bio  <- paste('biomass_q',nmsp, sep = "")
     nms_cat  <- paste('catch_q',nmsp, sep = "")
