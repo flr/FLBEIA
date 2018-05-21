@@ -112,16 +112,17 @@ SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # SSB in spawning season
-      # Before 2017: spawning season: first season with fraction of natural mortality before spawning < 1
-      # Since 2017: SSB 1st January
+      # spawning season: first season with fraction of natural mortality before spawning < 1
       spwn.sson <- 1
-      # si <- 0
-      # while( (si-spwn.sson)!=0) { 
-      #   si <- spwn.sson
-      #   spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
-      #   d  <- si-spwn.sson 
-      # }
-        res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]]))[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
+      si <- 0
+      while( (si-spwn.sson)!=0) {
+        si <- spwn.sson
+        spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
+        d  <- si-spwn.sson
+      }
+      
+      res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]])*
+                                     exp(-spwn(obj$biols[[stk]])*m(obj$biols[[stk]])))[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
     }
     return(res)
 }
@@ -686,7 +687,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                            data.frame(res[,10]), data.frame(res[,11]), data.frame(res[,12]),
                            data.frame(res[,13]))
                                                                                  
-    nmsp <- ifelse(substr(prob,3, nchar(prob))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""),substr(prob,3, nchar(prob)))
+    nmsp <- ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""),substr(prob,3, nchar(prob)))
     
     nms_bio  <- paste('biomass_q',nmsp, sep = "")
     nms_cat  <- paste('catch_q',nmsp, sep = "")

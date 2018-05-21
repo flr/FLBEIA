@@ -237,21 +237,34 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
      #-----------------------------------------------------------------------------
     fl.proj.avg.yrs    <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_proj.avg.yrs',sep=''), value = TRUE)))
 
-    for(ss in 1:ns){
-      effort(fleet)[,proj.yrs,,ss]   <-  yearMeans(effort(fleet)[,fl.proj.avg.yrs,,ss])
-      fleet@fcost[,proj.yrs,,ss]     <-  yearMeans(fleet@fcost[,fl.proj.avg.yrs,,ss])
-      fleet@capacity[,proj.yrs,,ss]  <-  yearMeans(fleet@capacity[,fl.proj.avg.yrs,,ss])
-      fleet@crewshare[,proj.yrs,,ss] <-  yearMeans(fleet@crewshare[,fl.proj.avg.yrs,,ss])
-    }
+    effort(fleet)[,proj.yrs,]   <-  yearMeans(effort(fleet)[,fl.proj.avg.yrs,])
+    fleet@fcost[,proj.yrs,]     <-  yearMeans(fleet@fcost[,fl.proj.avg.yrs,])
+    fleet@capacity[,proj.yrs,]  <-  yearMeans(fleet@capacity[,fl.proj.avg.yrs,])
+    fleet@crewshare[,proj.yrs,] <-  yearMeans(fleet@crewshare[,fl.proj.avg.yrs,])
     
     if(any(is.na(effort(fleet)[,fl.proj.avg.yrs]))) { 
-      cat('warning: all NA-s in effort projection \n')}
+      cat('warning: NA-s in effort for average years \n')
+      if(any(is.na(effort(fleet)[,proj.yrs])))
+        cat('warning: all NA-s in effort for projection years \n')
+    }
+    
     if(any(is.na(fleet@fcost[,fl.proj.avg.yrs]))) { 
-      cat('warning: all NA-s in fcost projection \n')}
+      cat('warning: NA-s in fcost for average years \n')
+      if(any(is.na(fleet@fcost[,proj.yrs])))
+        cat('warning: all NA-s in fcost for projection years \n')
+    }
+    
     if(any(is.na(fleet@capacity[,fl.proj.avg.yrs]))) {
-      cat('warning: all NA-s in capacity projection \n')}
+      cat('warning: NA-s in capacity for average years \n')
+      if(any(is.na(fleet@capacity[,proj.yrs])))
+        cat('warning: all NA-s in capacity for projection years \n')
+    }
+    
     if(any(is.na(fleet@crewshare[,fl.proj.avg.yrs]))) { 
-      cat('warning: all NA-s in crewshare projection \n')}
+      cat('warning: NA-s in crewshare for average years \n')
+      if (any(is.na(fleet@crewshare[,proj.yrs])))
+        cat('warning: all NA-s in crewshare for projection years \n')
+    }
 
     all.efs <- numeric(ns) # counter for adding all the effortshares by metier of one fleet for each season
     all.efs[] <- 0
@@ -308,15 +321,20 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
         }
         
         if(any(is.na(fl.met.effshare[,fl.met.proj.avg.yrs]))){
-          stop('warning: NA in effshare projection')}
+          cat('warning: NA-s in effshare for average years \n')
+          if(any(is.na(fl.met.effshare[,proj.yrs])))
+            cat('warning: all NA-s in effshare for projection years \n')
+        }
         
         #   projection vcost
         
-        if(all(is.na(fl.met.vcost))){
-          cat('warning: NA in vcost projection \n')}
-        for(ss in 1:ns){
-          fleet@metiers[[nmfl.met]]@vcost[,proj.yrs,,ss]  <- yearMeans(fleet@metiers[[nmfl.met]]@vcost[,fl.met.proj.avg.yrs,,ss])
+        fleet@metiers[[nmfl.met]]@vcost[,proj.yrs,]  <- yearMeans(fleet@metiers[[nmfl.met]]@vcost[,fl.met.proj.avg.yrs,])
+        if(any(is.na(fleet@metiers[[nmfl.met]]@vcost[,fl.met.proj.avg.yrs]))) {
+          cat('warning: NA-s in vcost for average years \n')
+          if(any(is.na(fleet@metiers[[nmfl.met]]@vcost[,proj.yrs])))
+            cat('warning: all NA-s in vcost for projection years \n')
         }
+        
         
         nmfl.met.stks <- get(paste(nmfl,'.',nmfl.met,'.stks',sep=''))
         n.fl.met.stks <- length(nmfl.met.stks)
@@ -432,7 +450,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           #Transformation of NA in landings.n and discards.n in 0
           
           if(all(is.na(fl.met.stk.landings.wt[,hist.yrs]))){
-            stop('warning: all NA-s in landings.wt \n')
+            cat('warning: all NA-s in landings.wt for historic years and will be replaced by 0. \n')
             if(!(any(dim(fl.met.stk.landings.wt)[3]==c(1,stk.unit))))stop('in stk.wt number of stock units 1 or stk.unit')
             if(!(any(dim(fl.met.stk.landings.wt)[4]==c(1,ns))))stop('in stk.wt number of seasons 1 or ns')
             if(!(any(dim(fl.met.stk.landings.wt)[6]==c(1,ni))))stop('in stk.wt number of iterations 1 or ni')}
@@ -470,6 +488,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           fl.met.stk.catch.q[]     <- catch.q
           
           if(all(is.na(alpha)) || all(is.na(beta)) || all(is.na(catch.q))){
+            CDpar.calc <- TRUE
             stk.n       <- get(grep(stks.data[[ nmfl.met.stk]],pattern=paste(nmfl.met.stk,'_n.flq',sep=''), value = TRUE)) 
             stk.n[,hist.yrs][is.na(stk.n[,hist.yrs])] <- 0
             fl.effort[,hist.yrs][is.na(fl.effort[,hist.yrs])] <- 0
@@ -495,69 +514,92 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             fl.met.stk.beta     <- CD_param[['beta']]
             fl.met.stk.catch.q  <- CD_param[['catch.q']]
             
-          }else{
-            # Check dimension names
-            log.dim <- equal.flq.Dimnames(lflq=list(alpha,beta,catch.q,flqa.stk),1:2)
-            if(!log.dim)stop('in alpha,beta or catch.q dimensions \n')
-            if(!(any(dim(fl.met.stk.alpha)[3]==c(1,stk.unit))))stop('in alpha number of stock units 1 or stk.unit')
-            if(!(any(dim(fl.met.stk.alpha)[4]==c(1,ns))))stop('in alpha number of seasons 1 or ns')
-            if(!(any(dim(fl.met.stk.alpha)[6]==c(1,ni))))stop('in alpha number of iterations 1 or ni')
-            if(!(any(dim(fl.met.stk.beta)[3]==c(1,stk.unit))))stop('in beta number of stock units 1 or stk.unit')
-            if(!(any(dim(fl.met.stk.beta)[4]==c(1,ns))))stop('in beta number of seasons 1 or ns')
-            if(!(any(dim(fl.met.stk.beta)[6]==c(1,ni))))stop('in beta number of iterations 1 or ni')       
-            if(!(any(dim(fl.met.stk.catch.q)[3]==c(1,stk.unit))))stop('in catch.q number of stock units 1 or stk.unit')
-            if(!(any(dim(fl.met.stk.catch.q)[4]==c(1,ns))))stop('in catch.q number of seasons 1 or ns')
-            if(!(any(dim(fl.met.stk.catch.q)[6]==c(1,ni))))stop('in catch.q number of iterations 1 or ni')             
+            fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
+            
+            fl.met.stk.alpha[,proj.yrs,]   <- yearMeans(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs,])
+            fl.met.stk.beta[,proj.yrs,]    <- yearMeans(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs,])
+            fl.met.stk.catch.q[,proj.yrs,] <- yearMeans(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs,])
+            
+            }else{
+              CDpar.calc <- FALSE
+              # Check dimension names
+              log.dim <- equal.flq.Dimnames(lflq=list(alpha,beta,catch.q,flqa.stk),1:2)
+              if(!log.dim)stop('in alpha,beta or catch.q dimensions \n')
+              if(!(any(dim(fl.met.stk.alpha)[3]==c(1,stk.unit))))stop('in alpha number of stock units 1 or stk.unit')
+              if(!(any(dim(fl.met.stk.alpha)[4]==c(1,ns))))stop('in alpha number of seasons 1 or ns')
+              if(!(any(dim(fl.met.stk.alpha)[6]==c(1,ni))))stop('in alpha number of iterations 1 or ni')
+              if(!(any(dim(fl.met.stk.beta)[3]==c(1,stk.unit))))stop('in beta number of stock units 1 or stk.unit')
+              if(!(any(dim(fl.met.stk.beta)[4]==c(1,ns))))stop('in beta number of seasons 1 or ns')
+              if(!(any(dim(fl.met.stk.beta)[6]==c(1,ni))))stop('in beta number of iterations 1 or ni')       
+              if(!(any(dim(fl.met.stk.catch.q)[3]==c(1,stk.unit))))stop('in catch.q number of stock units 1 or stk.unit')
+              if(!(any(dim(fl.met.stk.catch.q)[4]==c(1,ns))))stop('in catch.q number of seasons 1 or ns')
+              if(!(any(dim(fl.met.stk.catch.q)[6]==c(1,ni))))stop('in catch.q number of iterations 1 or ni') 
+              
+              # if catch.q historical values are set --> values are required also for projection years
+              if (any(is.na(fl.met.stk.catch.q[, proj.yrs]))) {
+                cat('NA-s in catch.q projection. As historical values were set, 
+                    then projection values must also be set as they are not estimated. \n')
+              }
             }
           
           #-----------------------------------------------------------------------------
           #   3.6     Projection per fleet/metier/stock
           #-----------------------------------------------------------------------------
+          
           fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
 
-          if(any(is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs]))){
-            cat('warning: all NA-s in landings.sel projection \n')
-            fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs])] <- 0}
-            
-          if(any(is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs]))){
-            cat('warning: all NA-s in discards.sel projection \n')
-            fl.met.stk.discards.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs])] <- 0}
-            
-          if(any(is.na(fl.met.stk.price[, fl.met.stk.proj.avg.yrs]))){
-            cat('warning: all NA-s in price projection \n')
-            fl.met.stk.price[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.price[, fl.met.stk.proj.avg.yrs])] <- 0}
-
-          if(any(is.na(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs]))){
-            cat('warning: all NA-s in alpha projection \n')
-            fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs])] <- 0
-            }else{if(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs]<0)
-            stop('<0 values in alpha projection \n')}
-             
-          if(any(is.na(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs]))){
-            cat('warning: all NA-s in beta projection \n')
-            fl.met.stk.beta[, fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs])] <- 0
-            }else{ if(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs][, fl.met.stk.proj.avg.yrs]<0)
-            stop('<0 values in beta projection \n')}
-                                
-          if(any(is.na(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs]))){
-            cat('warning: all NA-s in catch.q projection \n')
-            fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs])] <- 0
-            }else{ if(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs]<0)
-            stop('<0 values in catch.q projection \n')}
+          if(any(is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs]))) {
+            cat('warning: NA-s in landings.sel for average years and will be replaced by 1. \n')
+            fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs])] <- 1
+            # if (any(is.na(fl.met.stk.landings.sel[, proj.yrs])))
+            #   cat('warning: all NA-s in landings.sel projection. \n')
+          }
+          fl.met.stk.landings.sel[,proj.yrs,] <- yearMeans(fl.met.stk.landings.sel[,fl.met.stk.proj.avg.yrs,])
           
-          for(ss in 1:ns){
-            for(unit in 1:stk.unit){
-              fl.met.stk.landings.sel[,proj.yrs,unit,ss] <- yearMeans(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.discards.sel[,proj.yrs,unit,ss] <- yearMeans(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.landings.wt[,proj.yrs,unit,ss]  <- yearMeans(fl.met.stk.landings.wt[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.discards.wt[,proj.yrs,unit,ss]  <- yearMeans(fl.met.stk.discards.wt[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.price[,proj.yrs,unit,ss]   <- yearMeans(fl.met.stk.price[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.alpha[,proj.yrs,unit,ss]   <- yearMeans(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.beta[,proj.yrs,unit,ss]    <- yearMeans(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs,unit,ss])
-              fl.met.stk.catch.q[,proj.yrs,unit,ss] <- yearMeans(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs,unit,ss])
-              }
+          
+          if(any(is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs]))) {
+            cat('warning: NA-s in discards.sel for average years and will be replaced by 0. n')
+            fl.met.stk.discards.sel[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.discards.sel[, fl.met.stk.proj.avg.yrs])] <- 0
+            # if (any(is.na(fl.met.stk.discards.sel[, proj.yrs])))
+            #   cat('warning: all NA-s in discards.sel projection\n')
+          }
+          fl.met.stk.discards.sel[,proj.yrs,] <- yearMeans(fl.met.stk.discards.sel[,fl.met.stk.proj.avg.yrs,])
+          
+          fl.met.stk.landings.wt[,proj.yrs,] <- yearMeans(fl.met.stk.landings.wt[, fl.met.stk.proj.avg.yrs,])
+          
+          fl.met.stk.discards.wt[,proj.yrs,] <- yearMeans(fl.met.stk.discards.wt[, fl.met.stk.proj.avg.yrs,])
+          
+          fl.met.stk.price[,proj.yrs,]       <- yearMeans(fl.met.stk.price[, fl.met.stk.proj.avg.yrs,])
+          
+          if (any(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs]<0, na.rm = TRUE)) { 
+            stop('Negative values in alpha projection. \n')
+          } else if (any(is.na(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs]))) {
+            cat('warning: NA-s in alpha for average years and will be replaced by 1. \n')
+            fl.met.stk.alpha[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs])] <- 1
+            if (CDpar.calc == TRUE) fl.met.stk.alpha[,proj.yrs,] <- yearMeans(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs,])
+            # if (any(is.na(fl.met.stk.alpha[, proj.yrs])))
+            #   cat('warning: all NA-s in alpha projection \n')
+          }
+          
+          if (any(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs]<0, na.rm = TRUE)) { 
+            stop('Negative values in beta projection. \n')
+          } else if (any(is.na(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs]))) {
+            cat('warning: NA-s in beta for average years and will be replaced by 1. \n')
+            fl.met.stk.beta[,fl.met.stk.proj.avg.yrs][is.na(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs])] <- 1
+            if (CDpar.calc == TRUE) fl.met.stk.beta[,proj.yrs,] <- yearMeans(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs,])
+            # if (any(is.na(fl.met.stk.beta[, proj.yrs])))
+            #   cat('warning: all NA-s in beta projection \n')
+          }
+          
+          if (any(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs]<0, na.rm = TRUE)) { 
+            stop('Negative values in catch.q projection. \n')
+          } else if (any(is.na(fl.met.stk.catch.q[, fl.met.stk.proj.avg.yrs]))) {
+            cat('warning: NA-s in catch.q for average years \n') 
+            if (any(is.na(fl.met.stk.catch.q[, proj.yrs]))) {
+              cat('warning: all NA-s in catch.q projection. \n')
             }
- 
+          }
+          
           landings.n(fleet, metier = nmfl.met, catch = nmfl.met.stk)   <-  fl.met.stk.landings.n
           discards.n(fleet, metier = nmfl.met, catch = nmfl.met.stk)   <-  fl.met.stk.discards.n
           landings(fleet, metier = nmfl.met, catch = nmfl.met.stk)     <-  fl.met.stk.landings
@@ -573,25 +615,25 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
 
         }  # loop stock
         
-      } #loop metier
+      } # loop metier
     
-   # assign(paste(nmfl,'.fleet',sep=''), fleet)
+    # assign(paste(nmfl,'.fleet',sep=''), fleet)
     list.FLFleet[[i]]<- fleet
-
-  # #Checking that the sum is close to 1.
-  # sum.efsh <- 0
-  # sum.yr <- length(proj.yrs)
-  # for (ss in 1:ns) {
-  #   for (j in 1:n.fl.met) {
-  #     nmfl.met <- nmfl.mets[j]
-  #     sum.efsh<- sum.efsh+ fleet@metiers[[nmfl.met]]@effshare[, proj.yrs[sum.yr], , ss]  #/all.efs
-  #   }
-  #   if(abs(sum.efsh-1)>=10^(-3)){ 
-  #     stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", fls[i],sep=""))
-  #   }
-  # }
- }        #loop fleet
-
+    
+    # #Checking that the sum is close to 1.
+    # sum.efsh <- 0
+    # sum.yr <- length(proj.yrs)
+    # for (ss in 1:ns) {
+    #   for (j in 1:n.fl.met) {
+    #     nmfl.met <- nmfl.mets[j]
+    #     sum.efsh<- sum.efsh+ fleet@metiers[[nmfl.met]]@effshare[, proj.yrs[sum.yr], , ss]  #/all.efs
+    #   }
+    #   if(abs(sum.efsh-1)>=10^(-3)){ 
+    #     stop(paste("The total sum of effshare is not one in season ",ss," and fleet ", fls[i],sep=""))
+    #   }
+    # }
+  } # loop fleet
+  
   #==============================================================================
   #   Section 4:     FLFleetsExt: create fleets
   #==============================================================================
@@ -599,11 +641,11 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
   fleets <- FLFleetsExt(list.FLFleet)
   #fleets        <- FLFleetsExt(sapply(paste(fls,'.fleet',sep=''),FUN=get, envir=sys.frame(which=-1)))
   #names(fleets) <- fls
-
+  
   #==============================================================================
   #   Section 5:           Return
   #==============================================================================
   
   return(fleets)
-
+  
 }
