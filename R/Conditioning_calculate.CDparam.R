@@ -101,5 +101,56 @@
   return(CD_param)
 }
   
-  
+
+ 
+ #==============================================================================
+ # Section 6:       
+ #==============================================================================
+ 
+ 
+ calculate.q.sel.flrObjs <- function(biols, fleets, BDs){
+   
+    for(st in names(biols)){
+    
+      na <- dim(biols[[st]]@n)[1]
+    
+     if(na == 1){  # 'Biomass' in numbers because the catch is in numbers, in the middle of the season.
+        B <- biols[[st]]@n*exp(-biols[[st]]@m/2)  
+     }else{ # 'Biomass' in weight because the growth is in weight => later we use the catch in weight.
+        
+        if(is.null(BDs[[st]])) gB <- 0
+        else gB <- BDs[[st]]@gB
+        
+        B <- biols[[st]]@n*biols[[st]]@wt + gB
+     }
+     
+     for(fl in names(fleets)){
+        for(mt in names(fleets[[fl]]@metiers)){
+            
+          cat(fl, ' - ', mt, ' - ', st, '\n')
+            if(!(st %in% catchNames(fleets[[fl]]@metiers[[mt]]))) next  
+          
+            C     <- (fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n + fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n)
+            alpha <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@alpha
+            beta  <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@beta
+            E     <- fleets[[fl]]@effort*fleets[[fl]]@metiers[[mt]]@effshare
+         
+            if(na == 1 ) C <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt + 
+                              fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt
+            
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q <- C/(E%^%alpha)*(B%^%beta)
+            
+            # fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
+            #                                                                                                                 fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n)
+            # fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
+            
+        }
+     }
+   }
+   return(fleets)
+}
+   
+   
+   
+   
   
