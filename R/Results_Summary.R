@@ -1908,31 +1908,34 @@ vesselSum <- function(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$yea
   
   flS <- fltSum(obj, flnms = flnms, years = years, byyear = byyear, long = long, scenario = scenario)
   
+  ids <- c("catch", "costs", "discards","discRat","effort",  "fcosts","gva","grossValue", "landings",     
+           "fep",  "netProfit", "price", "grossSurplus", "quotaUpt", "salaries", "vcosts")
+  
   if(byyear == TRUE){
   if(long == FALSE){
-    for(col in 5:21){ 
+    for(col in ids){ #5:22
       flS[,col] <- flS[,col]/flS[,'nVessels']
     }
-    res <- flS[,c(1:4,6:15,17:22)]
+    res <- flS[,c(names(flS)[1:4], ids, 'profitability')] # res <- flS[,c(1:4,6:15,17:23)]
   }
   else{
-   ids <- c("catch", "costs", "discards","discRat","effort",  "fcosts","gva","grossValue", "landings",     
-      "fep",  "netProfit", "price", "grossSurplus", "quotaUpt", "salaries", "vcosts")
+   # ids <- c("catch", "costs", "discards","discRat","effort",  "fcosts","gva","grossValue", "landings",     
+   #    "fep",  "netProfit", "price", "grossSurplus", "quotaUpt", "salaries", "vcosts")
    for(id in ids){
      flS[flS$indicator == id, 'value'] <- flS[flS$indicator == id, 'value']/flS[flS$indicator == 'nVessels', 'value']
    }
-   res <- flS
+   res <- subset(flS, indicator %in% c(ids, 'profitability'))
   }}
    else{
      if(long == FALSE){
-       for(col in 6:22){ 
+       for(col in ids){ #6:23
          flS[,col] <- flS[,col]/flS[,'nVessels']
        }
-       res <- flS[,c(1:5,7:16,18:23)]
+       res <- flS[,c(names(flS)[1:5], ids, 'profitability')] # res <- flS[,c(1:5,7:16,18:24)]
      }
      else{
-       ids <- c("catch", "costs", "discards","discRat","effort",  "fcosts","gva","grossValue", "landings",     
-                "fep", "netProfit",  "price", "grossSurplus", "quotaUpt", "salaries", "vcosts")
+       # ids <- c("catch", "costs", "discards","discRat","effort",  "fcosts","gva","grossValue", "landings",     
+       #          "fep", "netProfit",  "price", "grossSurplus", "quotaUpt", "salaries", "vcosts")
        for(id in ids){
          flS[flS$indicator == id, 'value'] <- flS[flS$indicator == id, 'value']/flS[flS$indicator == 'nVessels', 'value']
        }
