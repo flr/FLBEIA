@@ -821,7 +821,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
           
         res[k:(k + prod(Dim) - 1), "fep"] <-  res[k:(k + prod(Dim) - 1), "grossSurplus"] - c(covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years])
         
-        res[k:(k + prod(Dim) - 1), "netProfit"] <-  res[k:(k + prod(Dim) - 1), "fep"] - c(covars[['CapitalCost']][f,years]*InterestRate)
+        res[k:(k + prod(Dim) - 1), "netProfit"] <-  res[k:(k + prod(Dim) - 1), "fep"] - c(covars[['CapitalCost']][f,years]*InterestRate*covars[['NumbVessels']][f,years])
         
         temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
         temp <- Reduce('+',temp)[,years]
@@ -902,7 +902,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         
         res[k:(k + prod(Dim[-2]) - 1), "fep"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years]))
         
-        res[k:(k + prod(Dim[-2]) - 1), "netProfit"] <- - c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years] - covars[['CapitalCost']][f,years]*InterestRate))
+        res[k:(k + prod(Dim[-2]) - 1), "netProfit"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years] - covars[['CapitalCost']][f,years]*InterestRate*covars[['NumbVessels']][f,years]))
         
         temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
         temp <- Reduce('+',temp)[, years, ]
