@@ -186,6 +186,9 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
   # add new column to the data.frame 'prop_mt' and 'prop_flmt' with the proportion by metier and by fleet and metier, respectively
   catch <- ddply(catch, c("stock", "category", "year", "fleet"), transform, prop_mt = catch/sum(catch))
   catch <- ddply(catch, c("stock", "category", "year"), transform, prop_flmt = catch/sum(catch))
+  # when catches==0, prop=NaN  --> set to 0
+  catch$prop_mt[is.nan(catch$prop_mt)]     <- 0
+  catch$prop_flmt[is.nan(catch$prop_flmt)] <- 0
   # add a column to the data.frame 'prop' with the proportion by metier
   effort <- ddply(effort, c("year", "fleet"), transform, prop = effort/sum(effort))
   
@@ -823,6 +826,10 @@ if(update_price == TRUE){
             cat(paste("warning: NAs in landings.wt for 'sim.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
         }
         
+        # landings
+        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings <- quantSums( flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n*
+                                                                            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt)
+        
         # landings.sel
         if (any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel)[,mean.yrs,,,,])) {
           cat(paste("warning: NAs in landings.sel for fleet '", fl, "', metier '", mt, "' and stock '", st,".\n", sep = ''))
@@ -840,6 +847,10 @@ if(update_price == TRUE){
           if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt)[,sim.yrs,,,,]))
             cat(paste("warning: NAs in discards.wt for 'sim.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
         }
+        
+        # discards
+        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards <- quantSums( flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n*
+                                                                            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt)
         
         # discards.sel
         if (any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel)[,mean.yrs,,,,])) {
