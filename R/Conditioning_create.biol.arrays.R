@@ -147,14 +147,14 @@ create.biol.arrays <- function(filename, name = NA, ages, hist.yrs , sim.yrs, fb
     res <- FLBiol(name = name, 
                   desc = paste('data imported from', filename), 
                   range = c(min = NA, max = NA, plusgroup = NA,  
-                            minyear = as.numeric(hist.yrs[1]), maxyear = as.numeric(hist.yrs[length(hist.yrs)]), 
+                            minyear = as.numeric(hist.yrs[1]), maxyear = as.numeric(sim.yrs[length(sim.yrs)]), 
                             minfbar = 1, maxfbar = 1),
                   spwn = flq)
   } else {
     res <- FLBiol(name = name, 
                   desc = paste('data imported from', filename), 
                   range = c(min = as.numeric(ages[1]), max = as.numeric(ages[length(ages)]), plusgroup = as.numeric(ages[length(ages)]),  
-                            minyear = as.numeric(hist.yrs[1]), maxyear = as.numeric(hist.yrs[length(hist.yrs)]), 
+                            minyear = as.numeric(hist.yrs[1]), maxyear = as.numeric(sim.yrs[length(sim.yrs)]), 
                             minfbar = fbar[1], maxfbar = fbar[2]),
                   spwn = flq)
   }
