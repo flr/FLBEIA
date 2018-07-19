@@ -20,5 +20,5 @@ Depends:
 Suggests: R.rsp, FLXSA, FLa4a, Matrix, spict, FLash, FLAssess, nloptr, triangle, mvtnorm
 Additional_repositories: http://flr-project.org/R
 License: GPL-2
-RoxygenNote: 6.0.1
 VignetteBuilder: R.rsp
+RoxygenNote: 6.0.1
