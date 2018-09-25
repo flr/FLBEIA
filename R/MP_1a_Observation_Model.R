@@ -586,6 +586,38 @@ bioInd <- function(biol, index, obs.ctrl, year, stknm,...){
 
 
 #-------------------------------------------------------------------------------    
+# bio1plusInd(biol, index, obs.ctrl, year, stknm)
+# index aggregated in biomass (ages 1+).
+#-------------------------------------------------------------------------------   
+bio1plusInd <- function(biol, index, obs.ctrl, year, stknm,...){
+  
+  it <- dim(biol@n)[6]
+  ns <- dim(biol@n)[4]
+  a1plus <- which(dimnames(biol@n)$age=='1'):dim(biols$PIL@n)[1]
+  
+  # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
+  yrnm   <- dimnames(biol@n)[[2]][year]   
+  yrnm.1 <- dimnames(biol@n)[[2]][year-1] 
+  
+  # season?
+  # if the model is seasonal the abundance is taken from the start of the season
+  # that corresponds with startf. 
+  # sInd: The season from which we are goind to calculate the index. by default sInd = 1.
+  sInd <- 1
+  if(ns > 1){
+    st       <- index@range['startf']
+    seasInt  <- seq(0,1,length = ns+1)
+    sInd     <- findInterval(st,seasInt)    
+  }
+  
+  B1plus <- apply(biol@n[a1plus,yrnm.1,,sInd,,]*biol@wt[a1plus,yrnm.1,,sInd,,],c(2,6),sum)
+  index@index[,yrnm.1] <- B1plus*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
+  
+  return(index)     
+}
+
+
+#-------------------------------------------------------------------------------    
 # SSB index
 # ssbInd(biol, index, obs.ctrl, year, stknm)
 # index aggregated in biomass.
