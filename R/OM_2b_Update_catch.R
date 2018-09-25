@@ -369,7 +369,7 @@ seasonshare.CAA  <- function(fleets, biols, fleets.ctrl, advice, advice.ctrl, ye
   f  <- flnm
   st <- stknm
   
-  ass.ss <- advice.ctrl[[st]][['ass.season']]
+  ass.ss <- assess.ctrl[[st]][['ass.season']]
   if (is.null(ass.ss)) { ass.ss <- ns } else if (is.na(ass.ss)) { ass.ss <- ns }
   
   fleets <- unclass(fleets)
