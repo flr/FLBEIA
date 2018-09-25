@@ -245,7 +245,7 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
       flcs[[st]] <- FLCatchExt(name = st, 
                 desc = paste('data imported from', stk_nms[st]), 
                 range = c(min = as.numeric(ages[[st]][1]), max = as.numeric(ages[[st]][length(ages[[st]])]), plusgroup =  as.numeric(ages[[st]][length(ages[[st]])]),  
-                          minyear = as.numeric(hist.yrs[1]), maxyear = as.numeric(hist.yrs[length(hist.yrs)])),
+                          minyear = as.numeric(yrs[1]), maxyear = as.numeric(yrs[length(yrs)])),
                 beta = stka1_flq,  
                 alpha = stka1_flq,
                 discards.n = stka0_flq, discards.sel = stka0_flq, discards = stk0_flq,
