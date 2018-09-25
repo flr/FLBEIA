@@ -217,49 +217,24 @@ create.SMFB.ctrl <- function(resf, fltname,largs){
 # extra args:  restriction.fltname, effort.restr.fltname
 #-------------------------------------------------------------------------------
 create.MaxProfit.ctrl <- function(resf,fltname,largs){
-    
-    # if NULL set default values, the 3rd stock in resf list, it can happen that is not an stock name.
+  
+  # if NULL set default values, the 3rd stock in resf list, it can happen that is not an stock name.
   effort.restr   <- ifelse(is.null(largs[[paste('effort.restr', fltname,sep='.')]]),  NA, largs[[paste('effort.restr', fltname,sep='.')]])
-    rest      <- ifelse(is.null(largs[[paste('restriction', fltname,sep='.')]]), NA, largs[[paste('restriction', fltname,sep='.')]])
-
-    if(is.na( effort.restr )) warning("Effort constraint in (effort.restr argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit will not work.")
-    if(is.na( rest )) warning("Catch/landing restriction in (srestriction argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit will not work.")
-
-    resf[['effort.restr']] <- effort.restr
-    resf[['restriction']]  <- rest 
-    
-    return(resf)
-}
-
-#-------------------------------------------------------------------------------
-#                       ** create.MaxProfitSeq.ctrl **
-# extra args:  restriction.fltname, effort.restr.fltname, effort.range.fltname
-#-------------------------------------------------------------------------------
-create.MaxProfitSeq.ctrl <- function (resf, fltname, largs) {
   
-  effort.restr <- ifelse(is.null(largs[[paste("effort.restr", 
-                                              fltname, sep = ".")]]), NA, largs[[paste("effort.restr", 
-                                                                                       fltname, sep = ".")]])
-  rest <- ifelse(is.null(largs[[paste("restriction", fltname, 
-                                      sep = ".")]]), NA, largs[[paste("restriction", fltname, 
-                                                                      sep = ".")]])
+  rest      <- ifelse(is.null(largs[[paste('restriction', fltname,sep='.')]]), NA, largs[[paste('restriction', fltname,sep='.')]])
   
+  effort.range <- largs[[paste("effort.range", fltname, sep = ".")]]
   
-  effort.range <- largs[[paste("effort.range", fltname, 
-                               sep = ".")]]
+  if(is.na( effort.restr )) warning("Effort constraint in (effort.restr argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit will not work.")
+  if(is.na( rest )) warning("Catch/landing restriction in (srestriction argument) is missing for fleet, ",  fltname, ", NA used, you MUST fill it otherwise MaxProfit will not work.")
   
-  if (is.na(effort.restr)) 
-    warning("Effort constraint in (effort.restr argument) is missing for fleet, ", 
-            fltname, ", NA used, you MUST fill it otherwise MaxProfitSeq will not work.")
-  if (is.na(rest)) 
-    warning("Catch/landing restriction in (srestriction argument) is missing for fleet, ", 
-            fltname, ", NA used, you MUST fill it otherwise MaxProfitSeq will not work.")
-  
-  resf[["effort.restr"]] <- effort.restr
-  resf[["restriction"]]  <- rest
+  resf[['effort.restr']] <- effort.restr
+  resf[['restriction']]  <- rest 
   resf[["effort.range"]] <- effort.range
+  
   return(resf)
 }
+
 
 #-------------------------------------------------------------------------------
 #                       ** create.fixedCapital.ctrl **
