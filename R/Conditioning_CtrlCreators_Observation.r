@@ -253,7 +253,8 @@ create.age2agePop.ctrl <- function(resst,stkname, indname, largs){
     # No error in any of the variables => FLQ = 1 for all.
     stk.nage.error <- FLQuant(1, dimnames = dimnames(flq.stk))
   
-    resst[['stk.nage.error']] <- stk.nage.error
+    resst[['stkObs']][['stk.nage.error']] <- stk.nage.error
+    resst[['stkObs']][['stk.wgt.error']]  <- stk.nage.error
     
     return(resst)
 }
