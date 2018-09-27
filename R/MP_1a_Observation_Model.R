@@ -442,8 +442,10 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck                <- propagate(as(biolbio, "FLStock")[,1:ny], it, fill.iter = TRUE) 
     dimnames(stck)      <- list(age="all")
 
-    landings(stck)      <-  FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
-    landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
+    landings(stck)      <- FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
+    landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], 
+                                  FLQuant(c(TAC.ovrsht[1,]*advice$TAC[stknm,1:ny]), dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m)), 
+                                  stck@landings)
     discards(stck)      <- FLQuant(Obs.disc.bio(fleets, disc.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
     catch(stck)         <- stck@landings + stck@discards
     
@@ -582,6 +584,38 @@ bioInd <- function(biol, index, obs.ctrl, year, stknm,...){
     index@index[,yrnm.1] <- B*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
     
     return(index)     
+}
+
+
+#-------------------------------------------------------------------------------    
+# bio1plusInd(biol, index, obs.ctrl, year, stknm)
+# index aggregated in biomass (ages 1+).
+#-------------------------------------------------------------------------------   
+bio1plusInd <- function(biol, index, obs.ctrl, year, stknm,...){
+  
+  it <- dim(biol@n)[6]
+  ns <- dim(biol@n)[4]
+  a1plus <- which(dimnames(biol@n)$age=='1'):dim(biols$PIL@n)[1]
+  
+  # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
+  yrnm   <- dimnames(biol@n)[[2]][year]   
+  yrnm.1 <- dimnames(biol@n)[[2]][year-1] 
+  
+  # season?
+  # if the model is seasonal the abundance is taken from the start of the season
+  # that corresponds with startf. 
+  # sInd: The season from which we are goind to calculate the index. by default sInd = 1.
+  sInd <- 1
+  if(ns > 1){
+    st       <- index@range['startf']
+    seasInt  <- seq(0,1,length = ns+1)
+    sInd     <- findInterval(st,seasInt)    
+  }
+  
+  B1plus <- apply(biol@n[a1plus,yrnm.1,,sInd,,]*biol@wt[a1plus,yrnm.1,,sInd,,],c(2,6),sum)
+  index@index[,yrnm.1] <- B1plus*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
+  
+  return(index)     
 }
 
 
