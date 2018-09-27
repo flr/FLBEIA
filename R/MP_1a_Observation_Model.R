@@ -442,8 +442,10 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck                <- propagate(as(biolbio, "FLStock")[,1:ny], it, fill.iter = TRUE) 
     dimnames(stck)      <- list(age="all")
 
-    landings(stck)      <-  FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
-    landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings)
+    landings(stck)      <- FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
+    landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], 
+                                  FLQuant(c(TAC.ovrsht[1,]*advice$TAC[stknm,1:ny]), dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m)), 
+                                  stck@landings)
     discards(stck)      <- FLQuant(Obs.disc.bio(fleets, disc.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
     catch(stck)         <- stck@landings + stck@discards
     
