@@ -314,7 +314,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #'      \item{fltStkSum, fltStkSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
 #'              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
 #'      \item{npv:} A data frame with the net present value per fleet over the selected range of years.
-#'      \item{mtSum, mtSumQ:} Data frame with the indicators at fleet. The indicators are:
+#'      \item{mtSum, mtSumQ:} Data frame with the indicators at metier level. The indicators are:
 #'              "effshare", "effort", "grossValue" and "vcost".   
 #'      \item{mtStkSum, mtStkSumQ:} Data frame with the indicators at fleet and metier level. The indicators are:
 #'              "catch",  "discards", "discRat", "landings" and "price".
