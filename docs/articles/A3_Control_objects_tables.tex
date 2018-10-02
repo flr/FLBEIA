@@ -268,6 +268,7 @@
         \hline
         {[[st]]}\$assess.model\textsuperscript{*} & character & 1 & \texttt{'NoAssessment'},\texttt{'FLXSA2flbeia'}, 
             \texttt{'spict2flbeia'}, \texttt{'sca2flbeia'} &  \\
+        {[[st]]}\$work\_w\_Iter\textsuperscript{*} & logical & 1 & \texttt{'TRUE'} (if assessment model deals with iterations) &  \texttt{assess.ctrl[[st]]\$assess.model != 'NoAssessment'}\\
         % changes in assessment periods (e.g. in the middle of the year
         {[[st]]}\$ass.year & character & any & NULL (then assessment every year),  &  \\
          &  &  & year.names (for which assessment is required) &  \\
@@ -275,7 +276,7 @@
          &  &  & \texttt{'FALSE'} (default) &  \\
         {[[st]]}\$ass.season & character & 1 & NULL (assessment in the last season is assumed),  &  \\
          &  &  & season.name &  \\
-        {[[st]]}\$harvest.units\textsuperscript{*} & character & 1 & \texttt{'f'},\texttt{'hr'} &  \\
+        {[[st]]}\$harvest.units & character & 1 & \texttt{'f'},\texttt{'hr'} & \texttt{assess.ctrl[[st]]\$assess.model != 'NoAssessment'} \\
         {[[st]]}\$control & control object &  & Depends on the selected assessment model & \texttt{assess.ctrl[[st]]\$assess.model} \\
          &  &  & (e.g. \texttt{FLXSA.control()} for XSA assessment) & (i.e. \texttt{FLXSA2flbeia}, \texttt{spict2flbeia}, \texttt{sca2flbeia}) \\
         \hline
