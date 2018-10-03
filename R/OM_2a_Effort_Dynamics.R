@@ -287,7 +287,7 @@ SSFB <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, flnm, 
   
   for (st in stnms) {
     for (fl in flnms)
-      TAC.fl[fl,] <- remQ.SSFB( fleets=fleets, TAC=TAC.yr, QS=QS, ass.ss=advice.ctrl[[st]][['ass.season']], year=yr, season=ss, flnm=fl, stknm=st, ns=ns)
+      TAC.fl[fl,] <- remQ.SSFB( fleets=fleets, TAC=TAC.yr, QS=QS, ass.ss=assess.ctrl[[st]][['ass.season']], year=yr, season=ss, flnm=fl, stknm=st, ns=ns)
     TAC.ss[st,] <- colSums(TAC.fl)  # total remaining TAC [nst,it]
   }
   
@@ -365,7 +365,7 @@ SSFB <- function(fleets, biols, covars, advice, fleets.ctrl, advice.ctrl, flnm, 
       }    
       
       # Catch restriction
-      Cr.f[st,] <- remQ.SSFB( fleets=fleets, TAC=TAC, QS=QS, ass.ss=advice.ctrl[[st]][['ass.season']], year=yr, season=ss, flnm=flnm, stknm=st, ns)
+      Cr.f[st,] <- remQ.SSFB( fleets=fleets, TAC=TAC, QS=QS, ass.ss=assess.ctrl[[st]][['ass.season']], year=yr, season=ss, flnm=flnm, stknm=st, ns)
       # Effort max refering to catch restriction (per metier) - total effort (NOT effort share)
       effort.fun <- paste(fl.ctrl[[st]][['catch.model']], 'effort', sep = '.')
       for ( i in 1:it) 

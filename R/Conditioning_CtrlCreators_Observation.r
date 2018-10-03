@@ -129,6 +129,12 @@ create.NoObsIndex.ctrl <- function(resstid,stkname, indname, largs) return(resst
 create.bioInd.ctrl <- function(resstid, stkname, indname, largs) return(resstid)
 
 #-------------------------------------------------------------------------------
+#                       ** create.bio1plusInd.ctrl **
+# No extra arguments needed
+#-------------------------------------------------------------------------------
+create.bio1plusInd.ctrl <- function(resstid, stkname, indname, largs) return(resstid)
+
+#-------------------------------------------------------------------------------
 #                       ** create.ageInd.ctrl **
 # ages.error - NULL or arra(na,na,ny, it)
 #              o if is null => identity matrix, no error in aging.
