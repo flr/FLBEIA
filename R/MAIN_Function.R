@@ -274,7 +274,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
       for (st in stnms) {
         
         # Assessment years
-        ass.yr[[st]] <- advice.ctrl[[st]][['ass.year']] # assessment years
+        ass.yr[[st]] <- assess.ctrl[[st]][['ass.year']] # assessment years
         if (is.null(ass.yr[[st]])) { # no value, then assessment yearly
           ass.yr[[st]] <- sim.years
         } else if (ass.yr[[st]]=='all' | is.na(ass.yr[[st]])) {
@@ -288,69 +288,70 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         }
         
         # Assessment seasons
-        ass.ss[[st]] <- advice.ctrl[[st]][['ass.season']]
+        ass.ss[[st]] <- assess.ctrl[[st]][['ass.season']]
         if (is.null(ass.ss[[st]])) { ass.ss[[st]] <- ns } else if (is.na(ass.ss[[st]])) { ass.ss[[st]] <- ns }
         if (!(ass.ss[[st]] %in% seasons)) stop("Assessment season for: '", st, "' outside season range in the objects")
         
         # Assessment year estimates necessary?
-        acy <- advice.ctrl[[st]]$ass.curryr # TRUE if estimates also for assessment year are needed
-        if (is.null(advice.ctrl[[st]]$ass.curryr)) { acy <- F } else if (is.na(advice.ctrl[[st]]$ass.curryr)) { acy <- F }
-        obs.ctrl[[st]]$obs.curryr <- assess.ctrl[[st]]$ass.curryr <- acy
+        acy <- assess.ctrl[[st]]$ass.curryr # TRUE if estimates also for assessment year are needed
+        if (is.null(assess.ctrl[[st]]$ass.curryr)) { acy <- F } else if (is.na(assess.ctrl[[st]]$ass.curryr)) { acy <- F }
+        if (acy==TRUE) obs.ctrl[[st]]$obs.curryr <- T
+        if (is.null(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F } else if (is.na(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F }
         
       }
       
     } else { # if main.ctrl$SimultaneousMngt == TRUE:
       
       # Assessment years NOT to be defined (are assumed to be all years)
-      if (!is.null(advice.ctrl[[st]][['ass.year']]))
+      if (!is.null(assess.ctrl[[st]][['ass.year']]))
         stop("Assessment years for: '", st, "' should not be defined if  main.ctrl$SimultaneousMngt == TRUE.
-              See advice.ctrl[['", st, "']][['ass.year']].")
-     
+              See assess.ctrl[['", st, "']][['ass.year']].")
+      
       # Assessment seasons NOT to be defined (are assumed to be only once, in the last season)
-      if (!is.null(advice.ctrl[[st]][['ass.season']]))
+      if (!is.null(assess.ctrl[[st]][['ass.season']]))
         stop("Assessment seasons for: '", st, "' should not be defined if main.ctrl$SimultaneousMngt == TRUE. 
-              See advice.ctrl[['", st, "']][['ass.season']].")
-
+              See assess.ctrl[['", st, "']][['ass.season']].")
+      
       # No possibility of doing the assessment in current year
       obs.ctrl <- lapply(obs.ctrl, function(x){
-                                        x[['obs.curryr']] <- FALSE
-                                        return(x)})
+        x[['obs.curryr']] <- FALSE
+        return(x)})
       assess.ctrl <- lapply(assess.ctrl, function(x){
         x[['ass.curryr']] <- FALSE
         return(x)})
       
-      }
-     
+    }
+    
     for(yr in sim.years){
       for(ss in seasons){
-            cat('############################################################\n')
-            cat('-                   Year: ', yr, ', Season: ',ss, '\n')
-            cat('############################################################\n')
-            #~~~~~~~~~~~~~~~~ OPERATING MODELS (seasonal) ~~~~~~~~~~~~~~~~~~~~~#
-
+        cat('############################################################\n')
+        cat('-                   Year: ', yr, ', Season: ',ss, '\n')
+        cat('############################################################\n')
+        #~~~~~~~~~~~~~~~~ OPERATING MODELS (seasonal) ~~~~~~~~~~~~~~~~~~~~~#
+        
         cat('************ OPERATING MODEL***************************\n')
         
         cat('------------ BIOLOGICAL OM ------------\n')
-            # - Biologic OM.
-            res   <- biols.om (biols = biols, fleets = fleets, SRs = SRs, BDs = BDs, covars = covars, biols.ctrl = biols.ctrl, year = yr, season = ss)
-            biols <- res$biols
-            SRs   <- res$SRs
-            BDs   <- res$BDs
-
+        # - Biologic OM.
+        res   <- biols.om (biols = biols, fleets = fleets, SRs = SRs, BDs = BDs, covars = covars, biols.ctrl = biols.ctrl, year = yr, season = ss)
+        biols <- res$biols
+        SRs   <- res$SRs
+        BDs   <- res$BDs
+        
         cat('------------ FLEETS OM ------------\n')
-            # - Fleets OM.
-            res        <- fleets.om(fleets = fleets, biols = biols, BDs = BDs, covars = covars, advice = advice, biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, year = yr, season = ss)
-            fleets     <- res$fleets
-            fleets.ctrl <- res$fleets.ctrl
-            covars     <- res$covars
-
+        # - Fleets OM.
+        res        <- fleets.om(fleets = fleets, biols = biols, BDs = BDs, covars = covars, advice = advice, biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, year = yr, season = ss)
+        fleets     <- res$fleets
+        fleets.ctrl <- res$fleets.ctrl
+        covars     <- res$covars
+        
         cat('------------ COVARS OM ------------\n')
-            # - Covariables OM. (the covariables can affect the covariables themselfs but also the biols and fleets, biols.ctrl and fleets.ctrl)
-            res    <- covars.om(fleets = fleets, biols = biols, SRs = SRs, covars = covars, advice = advice, covars.ctrl = covars.ctrl, year = yr, season = ss)
-            covars <- res$covars
-            biols  <- res$biols
-            fleets <- res$fleets
-            SRs    <- res$SRs
+        # - Covariables OM. (the covariables can affect the covariables themselfs but also the biols and fleets, biols.ctrl and fleets.ctrl)
+        res    <- covars.om(fleets = fleets, biols = biols, SRs = SRs, covars = covars, advice = advice, covars.ctrl = covars.ctrl, year = yr, season = ss)
+        covars <- res$covars
+        biols  <- res$biols
+        fleets <- res$fleets
+        SRs    <- res$SRs
         
         
         # In last year of the simulation, if last season, there is no assessment => go to the end.
