@@ -28,7 +28,6 @@
 %%
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
 \input{FLBEIA_manual-concordance}
 
 \title{Technical manual for \texttt{FLBEIA} a \texttt{R} package to conduct Bio-Economic Impact assessments using \texttt{FLR} (version 1.15)}
