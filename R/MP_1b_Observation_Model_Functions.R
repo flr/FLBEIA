@@ -66,7 +66,7 @@ Obs.stk.nage <- function(biol, ages.error, stk.nage.error, yr)
                 }
             }
 
-            obs.num            <- obs.num[drop=T]*stk.nage.error[,1:ny,]
+            obs.num            <- obs.num*stk.nage.error[,1:ny,]
              return(obs.num)
             }
 

@@ -129,6 +129,12 @@ create.NoObsIndex.ctrl <- function(resstid,stkname, indname, largs) return(resst
 create.bioInd.ctrl <- function(resstid, stkname, indname, largs) return(resstid)
 
 #-------------------------------------------------------------------------------
+#                       ** create.bio1plusInd.ctrl **
+# No extra arguments needed
+#-------------------------------------------------------------------------------
+create.bio1plusInd.ctrl <- function(resstid, stkname, indname, largs) return(resstid)
+
+#-------------------------------------------------------------------------------
 #                       ** create.ageInd.ctrl **
 # ages.error - NULL or arra(na,na,ny, it)
 #              o if is null => identity matrix, no error in aging.
@@ -253,7 +259,8 @@ create.age2agePop.ctrl <- function(resst,stkname, indname, largs){
     # No error in any of the variables => FLQ = 1 for all.
     stk.nage.error <- FLQuant(1, dimnames = dimnames(flq.stk))
   
-    resst[['stk.nage.error']] <- stk.nage.error
+    resst[['stkObs']][['stk.nage.error']] <- stk.nage.error
+    resst[['stkObs']][['stk.wgt.error']]  <- stk.nage.error
     
     return(resst)
 }

@@ -25,7 +25,7 @@ stf_correctSel<-  function(object, nyears=3, wts.nyears=3, fbar.nyears=wts.nyear
     fbar.years.iters <- matrix(0,nrow=3,ncol=nit)
     
     for(ii in 1:nit){
-      years.catch_G0<- which(iter(object@catch,ii)> 1e-2)
+      years.catch_G0<- which(iter(object@catch,ii)> 1e-5)
       fbar.years.iters[,ii] <- tail(years.catch_G0,3)
     }
     
