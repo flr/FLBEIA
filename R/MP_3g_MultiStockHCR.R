@@ -59,6 +59,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     
     stocksInHCR    <- advice.ctrl[['stocksInHCR']]
     stocksCat      <- advice.ctrl[['stocksCategory']]
+    approach       <- ifelse(is.null(advice.ctrl[['approach']]), 'max', advice.ctrl[['approach']])
     
     if(stocksCat[stknm] == 1) stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
@@ -88,13 +89,15 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
    
     for(st in stocksInHCR){
       
+      stk0 <- stocks[[st]]
+      
       ref.pts_st <- advice.ctrl[[st]][['ref.pts']]
       
       if(stocksCat[st] == 1){     
         if(ageStruct)
-            b.datyr <- ssb(stk)[,year-1,drop = TRUE] # [it]
+            b.datyr <- ssb(stk0)[,year-1,drop = TRUE] # [it]
         else
-            b.datyr <- (stk@stock.n*stk@stock.wt)[,year-1,drop = TRUE] # [it]
+            b.datyr <- (stk0@stock.n*stk0@stock.wt)[,year-1,drop = TRUE] # [it]
 
       
         b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts_st[c('Blim', 'Btrigger'),i]))  # [it]
@@ -132,11 +135,13 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
       }
     }
    
-   
+#----------------------------------------------------------------------------
+# Apply the conditions of the HCR
+#----------------------------------------------------------------------------
    
     Fsq[Fsq == 0] <- 1e-6
     
-    lambda0 <- apply(Ftg/Fsq,2,max)
+    lambda0 <- apply(Ftg/Fsq,2,approach)
    
     Fadv0 <- Fadv <- sweep(Fsq,2,lambda0, "*") # [nst,it]
    
@@ -152,7 +157,11 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     Fadv_st[is.na(Fadv_st)] <- 1e-6
     
     print(Fadv_st)
-
+    
+    
+#--------------------------------------------------------------------------------------
+# For 'stknm' calculate the corresponding TAC advice as done in the rest of the HCRs 
+#--------------------------------------------------------------------------------------
     for(i in 1:iter){
       
       if(stocksCat[stknm] == 1){

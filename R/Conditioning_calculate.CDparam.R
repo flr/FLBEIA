@@ -114,8 +114,8 @@
     
       na <- dim(biols[[st]]@n)[1]
     
-     if(na == 1){  # 'Biomass' in numbers because the catch is in numbers, in the middle of the season.
-        B <- biols[[st]]@n*exp(-biols[[st]]@m/2)  
+     if(na != 1){  # 'Biomass' in numbers because the catch is in numbers, in the middle of the season.
+        B <- biols[[st]]@n*exp(-biols[[st]]@m/2)#*biols[[st]]@wt  
      }else{ # 'Biomass' in weight because the growth is in weight => later we use the catch in weight.
         
         if(is.null(BDs[[st]])) gB <- 0
@@ -138,11 +138,11 @@
             if(na == 1 ) C <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt + 
                               fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt
             
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q <- C/(E%^%alpha)*(B%^%beta)
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q <- C/((E%^%alpha)*(B%^%beta))
             
-            # fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
-            #                                                                                                                 fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n)
-            # fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
+             fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
+                                                                                                                             fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n)
+             fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
             
         }
      }
