@@ -97,7 +97,7 @@ setClass("FLBDsim",
 		gB                = FLQuant(), 
 		catch             = FLQuant(),        # [1,ny,1,ns,1,it]
 		covar             = FLQuants(),       # [1,ny,1,ns,1,it]
-		sdb               = FLQuants(),       # [1,ny,1,ns,1,it]
+		sdb               = FLQuant(),       # [1,ny,1,ns,1,it]
 		uncertainty       = FLQuant(),        # [1,ny,1,ns,1,it]
 		model             = as.character(NA), # [it] - different model by iteration.
 		params            = array(),          # array[param, year, season, iteration]    # year in order to model regime shifts.
