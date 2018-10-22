@@ -62,7 +62,8 @@ validFLBDsim <- function(object){
 #' @slot desc A description of the object.
 #' @slot range The range of the object.
 #' @slot biomass An FLQuant to store the biomass of the stock.
-#' @slot gB An FLQuant to store the surplus 4production of the stock. 
+#' @slot gB An FLQuant to store the surplus production of the stock.
+#' @sdb  sdb standard deviation of the process error in a continuos prodyction model (SPiCT). It adds the term -0.5*sdb*Delta_t to the stock dynamics equation.   
 #' @slot catch An FLQuant to store the catch of the stock. 
 #' @slot uncertainty An FLQuant to store the uncertainty that is multiplied to the biomass in every step of the simulation. 
 #' @slot covar An FLQuants to store the covariates that are part of the growth model.
@@ -82,6 +83,7 @@ setClass("FLBDsim",
 		gB                = "FLQuant",        # [1,ny,1,ns,1,it]
     catch             = "FLQuant",        # [1,ny,1,ns,1,it]
 		covar             = "FLQuants",       # [1,ny,1,ns,1,it]
+		sdb               = "FLQuant",        # [1,ny,1,ns,1,it]
 		uncertainty       = "FLQuant",        # [1,ny,1,ns,1,it]
 		model             = "character",      # [it] - different model by iteration.
 		params            = "array",          # array[param, year, season, iteration]    # year in order to model regime shifts.
@@ -95,6 +97,7 @@ setClass("FLBDsim",
 		gB                = FLQuant(), 
 		catch             = FLQuant(),        # [1,ny,1,ns,1,it]
 		covar             = FLQuants(),       # [1,ny,1,ns,1,it]
+		sdb               = FLQuants(),       # [1,ny,1,ns,1,it]
 		uncertainty       = FLQuant(),        # [1,ny,1,ns,1,it]
 		model             = as.character(NA), # [it] - different model by iteration.
 		params            = array(),          # array[param, year, season, iteration]    # year in order to model regime shifts.
@@ -126,7 +129,7 @@ FLBDsim <- function(...){
     nms <- 'all'
     nmparams <- 'a'
      
-    quants <- c('biomass', 'catch', 'uncertainty')
+    quants <- c('biomass', 'catch', 'uncertainty', 'sdb')
     
     if(any(slots %in% quants)){  
         Dim    <- dim(get(slots[which(slots  %in% quants)[1]], pos = 2))
@@ -176,7 +179,7 @@ FLBDsim <- function(...){
    
     for(sl in noin){
         if(sl %in% quants){
-             y <- ifelse(sl %in% c('uncertainty'), 1, NA) 
+             y <- ifelse(sl == 'uncertainty', 1, ifelse(sl == 'sdb', 0, NA)) 
             xx <- ifelse(sl == 'biomass', 0, 'all')
             slot(a,sl) <- FLQuant(y,dim = c(1,ny,1,ns,1,ni), dimnames = list(age = 'all', year = nmy, season = nms, iter = nmi))  
         }   
@@ -266,18 +269,19 @@ BDsim <- function(object, year = 1, season = 1, iter = 'all')  # year and season
     
   #  for(i in 1:Dim[6])
   
-  res <- eval(model, datam)
+  res <- eval(model, datam) # growth
 
-  newB <- object@biomass[,yr0,,ss0,] - object@catch[,yr0,,ss0,] + res*object@uncertainty[,yr0,,ss0,]
+  newB <- object@biomass[,yr0,,ss0,] - object@catch[,yr0,,ss0,] + res*object@uncertainty[,yr0,,ss0,] - 0.5*object@sdb[,yr0,,ss0,]^2*object@biomass[,yr0,,ss0,]
 
   if(object@model=="PellaTom"){
     
     newB <- ifelse((object@biomass[,yr0,,ss0,]+ res*object@uncertainty[,yr0,,ss0,])> 
-             (object@alpha[yr0,ss0,]*object@params["K",yr0,ss0,]),(object@alpha[yr0,ss0,]*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,],
+             (object@alpha[yr0,ss0,]*object@params["K",yr0,ss0,]),
+             (object@alpha[yr0,ss0,]*object@params["K",yr0,ss0,]) - object@catch[,yr0,,ss0,] - 0.5*object@sdb[,yr0,,ss0,]^2*object@biomass[,yr0,,ss0,],
               newB)   
   }
  
-  object@gB[,yr0,,ss0,]      <- newB + object@catch[,yr0,,ss0,] - object@biomass[,yr0,,ss0,]
+  object@gB[,yr0,,ss0,]      <- newB + object@catch[,yr0,,ss0,] - object@biomass[,yr0,,ss0,] + 0.5*object@sdb[,yr0,,ss0,]^2*object@biomass[,yr0,,ss0,]
   
   object@biomass[,yr,,ss,] <- newB
   

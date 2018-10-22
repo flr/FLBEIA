@@ -108,7 +108,7 @@
  #==============================================================================
  
  
- calculate.q.sel.flrObjs <- function(biols, fleets, BDs){
+ calculate.q.sel.flrObjs <- function(biols, fleets, BDs, mean.yrs, sim.yrs){
    
     for(st in names(biols)){
     
@@ -142,9 +142,18 @@
             
              fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
                                                                                                                              fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n)
-             fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
             
-        }
+            # Fill in the values in the projection.
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[,ac(sim.yrs)] <- yearMeans(fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[,ac(mean.yrs)])
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,ac(sim.yrs)] <- apply(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,ac(mean.yrs)],1,mean,na.rm = TRUE)
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[,ac(sim.yrs)] <- 1-yearMeans(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,ac(mean.yrs)])
+
+            # If there are NA-s replace them by 0 in the case of catch.q & discards.sel and by 1 in the case of landings
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[is.na(fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q)] <- 0
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[is.na(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel)] <- 1
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[is.na(fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel)] <- 0
+            }
      }
    }
    return(fleets)

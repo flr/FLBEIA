@@ -509,6 +509,9 @@ age2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------    
 # ageInd(biol, index, obs.ctrl, year, stknm)
 # Age structured index
+# 2018/10/22 Due to incompatibility with the use of .@index.var in stock assessment models (sca) 
+#   index.var is no longer used to store the uncertainty of the index. The uncertainty can be incorporate in 
+#   the slot index.q, ie., @index.q = q*err
 #-------------------------------------------------------------------------------   
 # The index is already updated up to year [y-2], we have to update year [y-1].
 ageInd <- function(biol, index, obs.ctrl, year, stknm,...){
@@ -552,8 +555,7 @@ ageInd <- function(biol, index, obs.ctrl, year, stknm,...){
     for(i in 1:it){
         N <- unitSums(biol@n[ages.sel,yrnm.1,,sInd,,i])
         index@index[,yrnm.1,,,,i] <- (N%*%ages.error[ages.sel,ages.sel,yrnm.1,i])*
-                                       index@index.q[,yrnm.1,,,,i, drop=T]*
-                                       index@index.var[,yrnm.1,,,,i, drop=T]
+                                       index@index.q[,yrnm.1,,,,i, drop=T]# *index@index.var[,yrnm.1,,,,i, drop=T]
     }
     
     return(index)     
@@ -564,6 +566,9 @@ ageInd <- function(biol, index, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------    
 # bioInd(biol, index, obs.ctrl, year, stknm)
 # index aggregated in biomass.
+# 2018/10/22 Due to incompatibility with the use of .@index.var in stock assessment models (sca) 
+#   index.var is no longer used to store the uncertainty of the index. The uncertainty can be incorporate in 
+#   the slot index.q, ie., @index.q = q*err
 #-------------------------------------------------------------------------------   
 bioInd <- function(biol, index, obs.ctrl, year, stknm,...){
     
@@ -586,7 +591,7 @@ bioInd <- function(biol, index, obs.ctrl, year, stknm,...){
     }
 
     B <- apply(biol@n[,yrnm.1,,sInd,,]*biol@wt[,yrnm.1,,sInd,,],c(2,6),sum)
-    index@index[,yrnm.1] <- B*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
+    index@index[,yrnm.1] <- B*index@index.q[,yrnm.1]#*index@index.var[,yrnm.1]
     
     return(index)     
 }

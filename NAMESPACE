@@ -21,6 +21,7 @@ export(
   "bioSum",
 "bioSumQ",
   "C_flbeia",
+"calculate.q.sel.flrObjs",
   "catchStock",
   "catchStock.f",
   "catchWStock",
