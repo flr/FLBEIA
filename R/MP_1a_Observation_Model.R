@@ -68,7 +68,9 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     #res@range[c(1:3,6:7)] <- biol@range[c(1:3,6:7)]
     #names(res@range[6:7]) <- c('minfbar', 'maxfbar')
         
-    res@discards.wt <- res@landings.wt <- res@catch.wt <- res@stock.wt
+    res@discards.wt[] <- wtadStock(fleets,st)[,1:(year-1),1,1]
+    res@landings.wt[] <- wtalStock(fleets,st)[,1:(year-1),1,1]
+    res@catch.wt[] <-  (res@landings.wt*landStock(fleets,st)[,1:(year-1),1,1] + res@discards.wt*discStock(fleets,st)[,1:(year-1),1,1])/catchStock(fleets,st)[,1:(year-1),1,1]
         
     # "stock.n":  FIRST SEASON and SUM ALONG UNITS except recruitment
     # rec = n[1,,1,1] + n[1,,2,2] + n[1,,3,3] + n[1,,4,4]

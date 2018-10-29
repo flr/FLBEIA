@@ -434,6 +434,6 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     
     if(!exists('stocks'))  stocks <- NULL
     
-    return(list(biols = biols, fleets = fleets, covars = covars,  advice = advice, stocks = stocks, indices = indices,  fleets.ctrl = fleets.ctrl,
+    return(list(biols = biols, fleets = fleets, covars = covars,  advice = advice, stocks = stocks, indices = indices, BDs = BDs, SRs = SRs, fleets.ctrl = fleets.ctrl,
                       pkgs.versions = installed.packages(fields = 'Packaged')[,c('Built', 'Version', 'Packaged')]))
 }

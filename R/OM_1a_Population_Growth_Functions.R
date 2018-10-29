@@ -202,7 +202,102 @@ correct.biomass.ASPG <- function(biol, year, season){
         
 }
         
-        
+
+
+#-------------------------------------------------------------------------------
+# The same as ASPG but the catch is produced using Baranov catch equation, i.e, 
+#  the catch is done all along the year using an instantaneous constant 
+#  fishing mortality rate. 
+#-------------------------------------------------------------------------------
+
+ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
+  
+  cat('-----------------ASPG-----------\n')
+  
+  if(length(year) > 1 | length(season) > 1)
+    stop('Only one year and season is allowed' )
+  
+  biol <- biols[[stknm]]     
+  SR   <- SRs[[stknm]]
+  
+  dimnms <- dimnames(biol@n)
+  
+  # If year/season/iter numerics => indicate position 
+  # else names => get positions.
+  
+  if(length(year) > 1 | length(season) > 1)
+    stop('Only one year and season is allowed' )
+  
+  # 'year' dimension.
+  yr <- year
+  if(is.character(year)) yr <- which(dimnms[[2]] %in% year)
+  if(length(yr) == 0) stop('The year is outside object time range')  
+  
+  # 'season' dimension.
+  ss <- season
+  if(is.character(season)) ss <- which(dimnms[[4]] %in% season)
+  if(length(ss) == 0) stop('The season is outside object season range')  
+  
+  na <- dim(biol@n)[1]
+  ns <- dim(biol@n)[4]
+  stock <- biol@name
+  
+  findF <- function(E, qa, Ca, Ma, Na){
+    Ca. <- (Fa/(Fa+Ma))*(1-exp(-Ma-Fa))*Na
+    res <- sum((Ca.-Ca)^2)
+    return(res)
+  }
+  
+  # IF season = 1 THEN age groups move to the next. 
+  if(ss == 1){
+    # total catch in year [y-1] season [ns].
+    catch.n <- catchStock(fleets,stock)[,yr-1,,ns]
+    
+    
+    # middle ages
+    biol@n[-c(1,na),yr,,ss] <- (biol@n[-c(na-1,na),yr-1,,ns]*exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) - catch.n[-c(na-1,na),])*
+      exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) 
+    # plusgroup
+    biol@n[na,yr,,ss]       <- (biol@n[na-1,yr-1,,ns]*exp(-biol@m[na-1,yr-1,,ns]/2) - catch.n[na-1,])*exp(-biol@m[na-1,yr-1,,ns]/2) + 
+      (biol@n[na,yr-1,,ns]*exp(-biol@m[na,yr-1,,ns]/2) - catch.n[na,])*exp(-biol@m[na,yr-1,,ns]/2)
+    
+  }
+  else{
+    # total catch in year [yr] season [ss-1].
+    catch.n <- catchStock(fleets,stock)[,yr,,ss-1]
+    # middle ages      # for unit == ss  and age = 1, it will be equal NA but be updated after with SRsim.
+    biol@n[,yr,,ss] <- (biol@n[,yr,,ss-1]*exp(-biol@m[,yr,,ss-1]/2) - catch.n)*exp(-biol@m[,yr,,ss-1]/2) 
+  }
+  
+  # Update SSB.
+  SR@ssb[,yr,,ss] <- unitSums(quantSums(n(biol) * wt(biol) * fec(biol)*mat(biol) * 
+                                          exp(-biol@m*spwn(biol)), na.rm=TRUE))[,yr,,ss]
+  
+  # RECRUITMENT
+  if(dim(biol@n)[3] > 1 & dim(biol@n)[3] == dim(biol@n)[4]){
+    # 'number_of_units > 1' => Recruitment occurs in all seasons, the 'unit' correspond with the recruitment 'season'.
+    SR <- SRsim(SR, year = yr, season = ss, iter = 'all') 
+    biol@n[1,yr,ss,ss] <- SR@rec[,yr,,ss]
+    biol@n[1,yr,-(1:ss),ss] <- 0  # The recruitment is 0 in [units > ss].
+  }
+  else{  # dim(biol@n)[3] = 1, The recruitment only occurs in 1 season every year. 
+    if(SR@proportion[,yr,,ss,,1] == 1){ # If the recruitment season is 'ss' generate it otherwise
+      SR <- SRsim(SR, year = yr, season = ss, iter = 'all') 
+      biol@n[1,yr,,ss] <- SR@rec[,yr,,ss]
+    }# else { # If the recruitment season is NOT 'ss', do nothing, the population in first age grupo is just the survivors of previous season, if recuritmen occurred in a previous season..
+    #   biol@n[1,yr,,ss] <- 0
+    # }
+    
+  }
+  
+  if(any(biol@n[,yr,,ss]<0)){
+    biol <- correct.biomass.ASPG(biol, yr, ss)
+  }
+  
+  return(list(biol = biol, SR = SR))
+  
+} 
+
     
 
 
