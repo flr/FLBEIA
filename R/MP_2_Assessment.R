@@ -39,7 +39,7 @@ assessment.mp <- function(stocks, fleets.obs, indices, covars=covars, assess.ctr
             
             for(i in 1:it){ 
                 res <- eval(call(assess.ctrl[[st]][['assess.model']], stock = iter(stocks[[st]],i), 
-                            indices = iter(indST,i), control = assess.ctrl[[st]]$control))
+                            indices = iter(indST,i), control = assess.ctrl[[st]]$control, covars=covars))
                 iter(stock.n(stocks[[st]]),i) <- res$stock@stock.n
                 iter(harvest(stocks[[st]]),i) <- res$stock@harvest
                 covars <- res$covars
