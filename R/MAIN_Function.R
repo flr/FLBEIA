@@ -223,7 +223,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     stnms <- names(biols)
     
     # If SimultaneousMngt argument missing in main.ctrl => set it to FALSE, the original FLBEIA configuration.
-    main.ctrl$SimultaneousMngt <- ifelse(is.null(main.ctrl$SimultaneousMngt), FALSE, TRUE)
+    main.ctrl$SimultaneousMngt <- ifelse(is.null(main.ctrl$SimultaneousMngt), FALSE, ifelse(is.na(main.ctrl$SimultaneousMngt), FALSE, main.ctrl$SimultaneousMngt))
    
     # Check that all FLQuants have the rigth [ny,ns,it] dimensions. 
     chckdim0 <- checkDims(biols,  minyear, maxyear, ns, it)
@@ -293,9 +293,9 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         if (!(ass.ss[[st]] %in% seasons)) stop("Assessment season for: '", st, "' outside season range in the objects")
         
         # Assessment year estimates necessary?
-        acy <- assess.ctrl[[st]]$ass.curryr # TRUE if estimates also for assessment year are needed
-        if (is.null(assess.ctrl[[st]]$ass.curryr)) { acy <- F } else if (is.na(assess.ctrl[[st]]$ass.curryr)) { acy <- F }
-        if (acy==TRUE) obs.ctrl[[st]]$obs.curryr <- T
+        # assess.ctrl[[st]]$ass.curryr=TRUE if estimates also for assessment year are needed
+        if (is.null(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- F } else if (is.na(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- F }
+        if (assess.ctrl[[st]]$ass.curryr==TRUE) obs.ctrl[[st]]$obs.curryr <- T
         if (is.null(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F } else if (is.na(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F }
         
       }
@@ -434,6 +434,6 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     
     if(!exists('stocks'))  stocks <- NULL
     
-    return(list(biols = biols, fleets = fleets, covars = covars,  advice = advice, stocks = stocks, indices = indices, BDs = BDs, SRs = SRs, fleets.ctrl = fleets.ctrl,
+    return(list(biols = biols, fleets = fleets, covars = covars,  advice = advice, stocks = stocks, indices = indices,  fleets.ctrl = fleets.ctrl,
                       pkgs.versions = installed.packages(fields = 'Packaged')[,c('Built', 'Version', 'Packaged')]))
 }

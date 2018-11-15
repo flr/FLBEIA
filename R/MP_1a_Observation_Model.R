@@ -602,6 +602,9 @@ bioInd <- function(biol, index, obs.ctrl, year, stknm,...){
 #-------------------------------------------------------------------------------    
 # bio1plusInd(biol, index, obs.ctrl, year, stknm)
 # index aggregated in biomass (ages 1+).
+# 2018/10/22 Due to incompatibility with the use of .@index.var in stock assessment models (sca) 
+#   index.var is no longer used to store the uncertainty of the index. The uncertainty can be incorporate in 
+#   the slot index.q, ie., @index.q = q*err
 #-------------------------------------------------------------------------------   
 bio1plusInd <- function(biol, index, obs.ctrl, year, stknm,...){
   
@@ -625,7 +628,7 @@ bio1plusInd <- function(biol, index, obs.ctrl, year, stknm,...){
   }
   
   B1plus <- apply(biol@n[a1plus,yrnm.1,,sInd,,]*biol@wt[a1plus,yrnm.1,,sInd,,],c(2,6),sum)
-  index@index[,yrnm.1] <- B1plus*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
+  index@index[,yrnm.1] <- B1plus*index@index.q[,yrnm.1]#*index@index.var[,yrnm.1]
   
   return(index)     
 }
@@ -651,9 +654,9 @@ ssbInd <- function(biol, fleets, index, obs.ctrl, year, season,...){
   n.s2 <- biol@n[,yrnm.1,,sInd,]*exp(-biol@m[,yrnm.1,,sInd,])-catchStock(fleets,name(biol))[,yrnm.1,,sInd,]*exp(-biol@m[,yrnm.1,,sInd,]/2)
   fval <- log(biol@n[,yrnm.1,,sInd,]/n.s2) - biol@m[,yrnm.1,,sInd,]
   ssb.stk <- quantSums( biol@n[,yrnm.1,,sInd,]*exp(-(biol@m[,yrnm.1,,sInd,]+fval)*biol@spwn[,yrnm.1,,sInd,])*
-                          biol@wt[,yrnm.1,,sInd,]*biol@fec[,yrnm.1,,sInd,])
+                          biol@wt[,yrnm.1,,sInd,]*fec(biol)[,yrnm.1,,sInd,])
   
-  index@index[,yrnm.1] <- ssb.stk*index@index.q[,yrnm.1]*index@index.var[,yrnm.1]
+  index@index[,yrnm.1] <- ssb.stk*index@index.q[,yrnm.1]#*index@index.var[,yrnm.1]
   
   return(index)     
 }
@@ -663,6 +666,9 @@ ssbInd <- function(biol, fleets, index, obs.ctrl, year, season,...){
 # B1,2+ index (in mass)
 # cbbmInd(biol, index, obs.ctrl, year, season, stknm)
 # index aggregated in biomass.
+# 2018/10/22 Due to incompatibility with the use of .@index.var in stock assessment models (sca) 
+#   index.var is no longer used to store the uncertainty of the index. The uncertainty can be incorporate in 
+#   the slot index.q, ie., @index.q = q*err
 #-------------------------------------------------------------------------------   
 cbbmInd <- function(biol, index, obs.ctrl, year, season,...){
   
@@ -688,7 +694,7 @@ cbbmInd <- function(biol, index, obs.ctrl, year, season,...){
     B <- index@index[,yrnm.1,,,]*NA
     B[1,] <- biol.n[age1.pos-1,]*obs.ctrl$wage['age1',]
     B[2,] <- quantSums(biol.n[(age1.pos):na,])*obs.ctrl$wage['age2plus',]
-    index@index[,yrnm.1,] <- B*index@index.q[,yrnm.1,]*index@index.var[,yrnm.1,]
+    index@index[,yrnm.1,] <- B*index@index.q[,yrnm.1,]#*index@index.var[,yrnm.1,]
   }
   
   return(index)     
