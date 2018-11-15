@@ -2,7 +2,7 @@
 #
 #' Run the FLBEIA bio-economic simulation model
 #' 
-#' FLBEIA is a simulation model that describes a fishery system under a Management Strategy Estrategy framework.The objective of the model is to facilitate the Bio-Economic evaluation of Management strategies. The model is multistock, multifleet and seasonal. The simulation is divided in 2 main blocks, the Operating Model (OM) and the Management Procedure  (MP). In turn, the OM is divided in 3 components, the biological, the fleets and the covariables component. The MP is also divided in 3 components, the observation, the assessment and the advice.
+#' FLBEIA is a simulation model that describes a fishery system under a Management Strategy Evaluation framework.The objective of the model is to facilitate the Bio-Economic evaluation of Management strategies. The model is multistock, multifleet and seasonal. The simulation is divided in 2 main blocks, the Operating Model (OM) and the Management Procedure  (MP). In turn, the OM is divided in 3 components, the biological, the fleets and the covariables component. The MP is also divided in 3 components, the observation, the assessment and the advice.
 #'
 #' @param biols An FLBiols object.
 #' @param fleets An FLFleetsExt object. An extended version of the FLFleet object defined in FLCore. 

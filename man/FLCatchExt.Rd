@@ -8,15 +8,11 @@
 \alias{FLCatchesExt,}
 \alias{ANY}
 \alias{FLCatchesExt,missing-method}
-\alias{FLCatchesExt,}
 \alias{missing}
 \alias{FLCatchesExt,list-method}
-\alias{FLCatchesExt,}
 \alias{list}
 \alias{is.FLCatchesExt}
-\alias{FLCatchesExt,}
 \alias{is.FLCatchesExt,ANY-method}
-\alias{FLCatchesExt,}
 \alias{is.FLCatchesExt,ANY}
 \alias{FLCatchExt}
 \alias{FLCatchExt-class}
@@ -32,13 +28,10 @@
 \alias{addFLCatch,}
 \alias{FLCatchExt-methods,}
 \alias{FLCatchExt,}
-\alias{FLCatchExt}
 \alias{catchNames,FLCatchExt-method}
 \alias{catchNames,}
-\alias{FLCatchExt}
 \alias{catchNames<-,FLCatchExt,character-method}
 \alias{catchNames<-,}
-\alias{FLCatchExt,}
 \alias{character}
 \title{FLCatchExt and FLCatchesExt classes and the methods to construct it.}
 \usage{
@@ -57,9 +50,11 @@ is.FLCatchesExt(object, ...)
 
 \S4method{FLCatchExt}{missing}(object, ...)
 
-\S4method{[}{FLCatchExt,ANY,ANY,ANY}(x, i, j, k, l, m, n, ..., drop = FALSE)
+\S4method{[}{FLCatchExt,ANY,ANY,ANY}(x, i, j, k, l, m, n, ...,
+  drop = FALSE)
 
-\S4method{[}{FLCatchExt,ANY,ANY,FLCatchExt}(x, i, j, k, l, m, n, ...) <- value
+\S4method{[}{FLCatchExt,ANY,ANY,FLCatchExt}(x, i, j, k, l, m, n,
+  ...) <- value
 
 \S4method{addFLCatch}{FLCatchExt,FLCatchExt}(e1, e2)
 

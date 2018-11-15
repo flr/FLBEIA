@@ -721,7 +721,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
   fleets <- obj$fleets
   covars <- obj$covars
   
-
+  fleets <- lapply(fleets, setUnitsNA)
 
     if (flnms[1] == "all") flnms <- names(fleets)
     
@@ -1349,6 +1349,9 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
   fleets <- obj$fleets
   advice <- obj$advice
   
+  fleets <- lapply(fleets, setUnitsNA)
+  
+  
   if(flnms[1] == 'all') flnms <- names(fleets)
   if(stknms[1] == 'all') stknms <- catchNames(fleets)
   
@@ -1532,6 +1535,8 @@ mtSum <- function(obj, flnms = names(obj$fleets),
   if(flnms[1] == 'all') flnms <- names(obj$fleets)
   
   fleets <- obj$fleets
+  
+  fleets <- lapply(fleets, setUnitsNA)
   
   Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
   Dimnm <- dimnames(fleets[[1]]@effort[,years,])

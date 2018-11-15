@@ -4,8 +4,8 @@
 \alias{create.assess.ctrl}
 \title{assess.ctrl object creator}
 \usage{
-create.assess.ctrl(stksnames, assess.models = NULL, assess.ctrls = NULL,
-  ...)
+create.assess.ctrl(stksnames, assess.models = NULL,
+  assess.ctrls = NULL, ...)
 }
 \arguments{
 \item{stksnames}{A vector with the name of the stocks in the OM.}

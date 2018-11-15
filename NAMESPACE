@@ -97,6 +97,7 @@ export(
   "riskSum",
   "revenue_flbeia",
   "SelAtAge",
+  "setUnitsNA",
   "SSB_flbeia",
   "stock.fleetInfo",
   "summary_flbeia",

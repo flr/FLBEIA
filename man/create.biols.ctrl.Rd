@@ -4,7 +4,8 @@
 \alias{create.biols.ctrl}
 \title{biols.ctrl object creator}
 \usage{
-create.biols.ctrl(stksnames, growth.models = NULL, immediate = FALSE, ...)
+create.biols.ctrl(stksnames, growth.models = NULL, immediate = FALSE,
+  ...)
 }
 \arguments{
 \item{stksnames}{A vector with the name of the stocks in the OM.}

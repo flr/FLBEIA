@@ -21,7 +21,6 @@
 \alias{FLFleetExt,FLMetierExt-method}
 \alias{FLFleetExt,FLCatchesExt-method}
 \alias{FLFleetExt,FLCatchExt-method}
-\alias{FLFleetExt,FLFleetExt-method}
 \alias{FLFleetExt,missing-method}
 \alias{FLFleetExt,FLFleetExt-missing}
 \alias{[,FLFleetExt,ANY,missing,ANY-method}
