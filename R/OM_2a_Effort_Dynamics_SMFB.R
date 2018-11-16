@@ -140,7 +140,13 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     names(QS) <- stnms
 
     fl    <- fleets[[flnm]]
+    
     sts   <- catchNames(fl)
+    
+    # The effort is restricted only by the stocks in 'stocks.restr'                      
+    if(!is.null(fleets.ctrl[[flnm]][['stocks.restr']])) sts <- fleets.ctrl[[flnm]][['stocks.restr']]
+    
+    
     mtnms <- names(fl@metiers)
     
     # flinfo: matrix with information on which metier catch which stock.

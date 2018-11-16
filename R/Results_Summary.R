@@ -1132,6 +1132,8 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
   fleets <- obj$fleets
   advice <- obj$advice
   
+  fleets <- lapply(fleets, setUnitsNA)
+  
     if(flnms[1] == 'all') flnms <- names(fleets)
     if(stknms[1] == 'all') stknms <- catchNames(fleets)
      

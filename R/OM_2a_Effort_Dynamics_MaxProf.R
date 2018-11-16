@@ -66,6 +66,10 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
   
   LO <- ifelse(length(fleets.ctrl[[flnm]]$LandObl)>1, fleets.ctrl[[flnm]]$LandObl[yr], fleets.ctrl[[flnm]]$LandObl) 
   
+  # The effort is restricted only by the stocks in 'stocks.restr'                      
+  if(!is.null(fleets.ctrl[[flnm]][['stocks.restr']])) stocks.restr <- fleets.ctrl[[flnm]][['stocks.restr']]
+  
+
   for(i in 1:it){
     
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
@@ -163,7 +167,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
     eff_opt <- optim(X,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
                      beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
                      wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
-                     effort.restr = effort.restr, catch.restr = catch.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
+                     effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
                      tacos = tacos, rho = rho)
     
     # eff_nloptr <- nloptr::nloptr(E0,
@@ -355,7 +359,7 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
 #-------------------------------------------------------------------------------
 
 f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
-                        wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, efs.abs, tacos, rho){
+                        wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, stocks.restr, efs.abs, tacos, rho){
   
   E <- K/(1+exp(-X))
   
@@ -485,7 +489,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
       }
       
     }
-    pen_OverShoot <- sum(resTAC)
+    pen_OverShoot <- sum(resTAC[stocks.restr], na.rm = TRUE) # only the overshoot of the TAC of some stocks penalizes the function.
   }
   
    if(!(effort.restr %in% c('none', 'min'))){
