@@ -29,7 +29,7 @@
 plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
 
  names.fl <- names(obj$fleets)
- # eco  <- ecoSum_damara(obj$fleets, flnms= names.fl, years=dimnames(obj$fleets[[1]]@effort)$year)
+
  eco <- fltSum(obj, flnms = names.fl, years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = FALSE)
    
  
@@ -56,7 +56,7 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
-      ggtitle("capacity")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle("Capacity")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     
@@ -73,7 +73,7 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
-      ggtitle("costs")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle("Costs")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
 
@@ -89,13 +89,13 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
-      ggtitle("effort")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle("Effort")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     
     
-    #profits
-    res <- aggregate(profits ~ year+ fleet, eco, quantile, prob = prob, na.rm=T)
+    #grossSurplus
+    res <- aggregate(grossSurplus ~ year+ fleet, eco, quantile, prob = prob, na.rm=T)
     res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     names(res)[3:(3+length(prob)-1)] <- nms
@@ -106,7 +106,7 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
-      ggtitle("profits")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle("Gross-Surplus")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     

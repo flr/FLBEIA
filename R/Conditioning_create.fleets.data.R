@@ -150,8 +150,8 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
         
         fl.met  <- FLMetierExt(name = nmfl.met, 
                           catches = get(paste(nmfl,'.',nmfl.met,'.catch',sep='')), 
-                          effshare = FLQuant(dim=c(1,length(nmy),1,ns),iter=ni, dimnames=list(age='all',year=nmy)),
-                          vcost = FLQuant(dim=c(1,length(nmy),1,ns),iter=ni, dimnames=list(age='all',year=nmy)))
+                          effshare = FLQuant(dim=c(1,length(nmy),1,ns),iter=ni, dimnames=list(quant='all',year=nmy)),
+                          vcost = FLQuant(dim=c(1,length(nmy),1,ns),iter=ni, dimnames=list(quant='all',year=nmy)))
         
         list.FLMetierExt [[j]]<- fl.met  
         #assign(paste('fl.',nmfl.met,sep=''), fl.met)
@@ -172,10 +172,10 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
   #                                                       FUN=get, envir=sys.frame(which=-1)))    
     fleet <- FLFleetExt(name = nmfl, 
                            metiers = met.s,
-                           effort   = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(age='all',year=nmy)),
-                           fcost    = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(age='all',year=nmy)),
-                           capacity = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(age='all',year=nmy)),
-                           crewshare= FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(age='all',year=nmy)))
+                           effort   = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(quant='all',year=nmy)),
+                           fcost    = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(quant='all',year=nmy)),
+                           capacity = FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(quant='all',year=nmy)),
+                           crewshare= FLQuant(dim=c(1,length(nmy),1,ns),iter= ni, dimnames=list(quant='all',year=nmy)))
                        
      names(fleet@metiers) <- nmfl.mets
 
