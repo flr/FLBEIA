@@ -164,7 +164,6 @@
   library(FLAssess)
   library(FLash)
   library(FLFleet)
-  library(FLXSA)
   library(FLBEIA) 
 
 
