@@ -370,7 +370,7 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
     else{
       if(fmt_stk == 'RData'){
         
-        loadToEnv(stk_objs[[st]])
+        load(stk_objs[[st]])
         
         wl <- ifelse('wl' %in% names(data), 'wl', 'wt')
         wd <- ifelse('wd' %in% names(data), 'wd', wl)
