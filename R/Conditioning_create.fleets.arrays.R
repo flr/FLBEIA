@@ -459,7 +459,7 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
             
             colnames(la) <- la.yrs
             colnames(da) <- da.yrs
-
+            
             flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,land_prop_mt_yrs] <- sweep(la[,land_prop_mt_yrs, drop=FALSE],2,land_prop_mt,"*")
             flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,disc_prop_mt_yrs] <- sweep(da[,disc_prop_mt_yrs, drop=FALSE],2,disc_prop_mt,"*")
 
@@ -583,7 +583,9 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
           flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,new_hist.yrs] <- quantSums(pdaa%*%FLQuant(disc_flmt, dim = c(1,length(new_hist.yrs))))
           
         }
-
+        
+        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,new_hist.yrs][is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,new_hist.yrs])] <- 0
+        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,new_hist.yrs][is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,new_hist.yrs])] <- 0
       }
     }
   }
