@@ -567,11 +567,11 @@
 #  Section 17:       covars
 #==============================================================================
 
-  cv_mean_value <- c( FuelCost = 46, CapitalCost = 4519.06, Salaries = 0, InvestShare = 0.2, NumbVessels = 228.33, 
+  cv_mean_value <- c( FuelCost = 46, CapitalValue = 4519.06, Salaries = 0, InvestShare = 0.2, NumbVessels = 228.33, 
                       MaxDays = 228, w1 = 0.03, w2 = 0.03, EmploymentPerVessel = 2)
 
   covars <- vector("list",9)
-  names(covars) <- c("FuelCost","CapitalCost","Salaries", "InvestShare","NumbVessels","MaxDays",
+  names(covars) <- c("FuelCost","CapitalValue","Salaries", "InvestShare","NumbVessels","MaxDays",
                      "w1","w2","EmploymentPerVessel")
   
   flq <- FLQuant( rnorm(length(fls)*length(first.yr:last.yr)*ns*ni, 1000,100), 
@@ -590,7 +590,7 @@
 #==============================================================================
   
   covars.ctrl <- vector("list",9)
-  names(covars.ctrl) <- c("FuelCost","CapitalCost","Salaries", "InvestShare","NumbVessels","MaxDays", 
+  names(covars.ctrl) <- c("FuelCost","CapitalValue","Salaries", "InvestShare","NumbVessels","MaxDays", 
                           "w1","w2","EmploymentPerVessel")
   
   for(cv in names(covars)){ 
