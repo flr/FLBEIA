@@ -31,6 +31,7 @@ export(
   "create.advice.ctrl",
   "create.assess.ctrl",
   "create.biols.ctrl",
+  "create.ecoData",
   "create.fleets.ctrl",
   "create.covars.ctrl", 
   "create.obs.ctrl",
