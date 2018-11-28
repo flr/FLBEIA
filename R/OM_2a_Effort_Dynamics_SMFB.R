@@ -144,8 +144,13 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     sts   <- catchNames(fl)
     
     # The effort is restricted only by the stocks in 'stocks.restr'                      
-    if(!is.null(fleets.ctrl[[flnm]][['stocks.restr']])) sts <- fleets.ctrl[[flnm]][['stocks.restr']]
+    if(!is.null(fleets.ctrl[[flnm]][['stocks.restr']])) {
+      sts <- fleets.ctrl[[flnm]][['stocks.restr']]
+    } else 
+      sts <- fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
     
+    if(is.na(fleets.ctrl[[flnm]][['stocks.restr']]))
+      cat(paste("warning: fleets.ctrl[['",flnm,"']][['stocks.restr']]==NA, then effort is restricted by capacity and not by any of the stocks.\n", sep=""))
     
     mtnms <- names(fl@metiers)
     
