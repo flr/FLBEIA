@@ -4,7 +4,7 @@
 #
 # Developed by Ibrahim Umar (IMR Norway) 20/11/2018
 # NOTE: Install FLSAM (v2):
-# > devtools::install_github("flr/FLSAM", ref="develop_V2")
+# > devtools::install_github("flr/FLSAM")
 #..........................................................
 
 
