@@ -934,15 +934,26 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 10){ # the object is in long format
     
     if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+      # This way of aggregating is not working well, it removes most of the indicators, maybe a problem with dimension?¿
+      # we use the data frame version of aggregate instead.
+      # res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+      res <- aggregate(obj$value, 
+                       by = list(fleet = obj$fleet, indicator = obj$indicator, year = obj$year, scenario = obj$scenario), 
+                       FUN = quantile, prob = prob, na.rm = T)
+      
       res <- cbind(res[,1:4], data.frame(res[,5]))
-    
+      
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     
       names(res)[5:(5+length(prob)-1)] <- nms
     }
     else{
-      res <- aggregate(value ~ fleet + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+     # res <- aggregate(value ~ fleet + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+      
+      res <- aggregate(obj$value, 
+                       by = list(fleet = obj$fleet, indicator = obj$indicator, year = obj$year, scenario = obj$scenario, season = obj$season), 
+                       FUN = quantile, prob = prob, na.rm = T)
+      
       res <- cbind(res[,1:5], data.frame(res[,6]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
