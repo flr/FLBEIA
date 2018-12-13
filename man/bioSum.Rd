@@ -96,6 +96,8 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
 \item{byyear}{logical. The indicators should be provided at season or year level? Default TRUE.}
 
+\item{InterestRate}{Capital oportunity cost rate}
+
 \item{Bpa}{named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 
 \item{Blim}{named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.}

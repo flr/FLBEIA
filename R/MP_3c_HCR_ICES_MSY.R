@@ -37,6 +37,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk@discards.n[stk@discards.n==0] <- 0
     
     stk@catch <- computeCatch(stk)
+    stk@catch[is.na(stk@catch)] <- 0
     stk@landings <- computeLandings(stk)
     stk@discards <- computeDiscards(stk)
     

@@ -67,7 +67,13 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
   LO <- ifelse(length(fleets.ctrl[[flnm]]$LandObl)>1, fleets.ctrl[[flnm]]$LandObl[yr], fleets.ctrl[[flnm]]$LandObl) 
   
   # The effort is restricted only by the stocks in 'stocks.restr'                      
-  if(!is.null(fleets.ctrl[[flnm]][['stocks.restr']])) stocks.restr <- fleets.ctrl[[flnm]][['stocks.restr']]
+  if(!is.null(fleets.ctrl[[flnm]][['stocks.restr']])) {
+    stocks.restr <- fleets.ctrl[[flnm]][['stocks.restr']]
+  } else
+    stocks.restr <- fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
+  
+  if(is.na(fleets.ctrl[[flnm]][['stocks.restr']]))
+    cat(paste("warning: fleets.ctrl[['",flnm,"']][['stocks.restr']]==NA, then effort is restricted by capacity and not by any of the stocks.\n", sep=""))
   
 
   for(i in 1:it){

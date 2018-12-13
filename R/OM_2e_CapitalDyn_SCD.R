@@ -26,7 +26,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
     # FuC  # per unit of effort, we asume common cost for all the metiers.
     FuC <- seasonSums(covars[['FuelCost']][flnm,]*fleet@effort)[,year]
     # CaC # per unit of capacity
-    CaC <- seasonMeans((covars[['CapitalCost']][flnm,]*covars[["NumbVessels"]][flnm, ]))[,year]
+    CaC <- seasonMeans((covars[['CapitalValue']][flnm,]*covars[["NumbVessels"]][flnm, ]))[,year]
     # Revenue
     Rev <- revenue_flbeia(fleet)[,year]
     Rev <- ifelse(Rev == 0, 1e-16, Rev)
