@@ -83,7 +83,7 @@ F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
                     for(i in 1:it){
                         if(n.[a,y,i] == 0) aux[a,y,i] <- 0
                         else{
-                           xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root, silent = TRUE)
+                           xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i],  tol = 1e-12)$root, silent = TRUE)
                            aux[a,y,i] <- ifelse(class(xx) == 'try-error', NA, xx)
                         }      
             }}}

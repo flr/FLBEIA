@@ -148,7 +148,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
                     
                     else{
                         zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
-                                                uniroot(fobj, lower = 1e-300, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root), silent = TRUE)  
+                                                uniroot(fobj, lower = 1e-300, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i], tol = 1e-12)$root), silent = TRUE)  
                         res@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, res@harvest[ai-1,y,,,,i] )
                     }
                 }
