@@ -15,7 +15,7 @@ sudo: false
 
 cache: packages
 
-r_github_packages: mawp/spict
+r_github_packages: mawp/spict/spict
 
 notifications:
   email:
