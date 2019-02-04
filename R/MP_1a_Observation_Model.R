@@ -113,7 +113,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     catch.n(res)    <- res@discards.n + res@landings.n
     landings(res)   <- quantSums(res@landings.n*res@landings.wt)
     discards(res)   <- quantSums(res@discards.n*res@discards.wt)
-    catch(res)      <- quantSums(res@catch.n*res@catch.wt)
+    catch(res)      <- res@landings + res@discards
         
     # harvest: * if age structured calculate it from 'n'.
     #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
