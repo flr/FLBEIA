@@ -320,9 +320,6 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #'              "catch",  "discards", "discRat", "landings" and "price".
 #'      \item{riskSum:} A data frame with the risk indicators. The indicators are:
 #'              "pBlim", "pBpa" and "pPrflim".
-#'          
-#'      
-#'      
 #'      \item{vesselSum, vesselSumQ:} Data frame with the indicators at vessel level. The indicators are:
 #'               "catch", "costs", "discards", "discRat", "effort",       
 #'              "fcosts", "gva", "grossValue", "landings", "fep",  "price", "grossSurplus",
@@ -361,6 +358,8 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @param Bpa named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.
 #' @param Blim named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.
 #' @param Prflim named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate economic risk yearly.
+#' @param discF Discount rate.
+#' @param y0 character. Reference year.
 
 #' @examples
 #'\dontrun{
@@ -934,7 +933,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 10){ # the object is in long format
     
     if(!('season' %in% names(obj))){
-      # This way of aggregating is not working well, it removes most of the indicators, maybe a problem with dimension?¿
+      # This way of aggregating is not working well, it removes most of the indicators, maybe a problem with dimension?
       # we use the data frame version of aggregate instead.
       # res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
       res <- aggregate(obj$value, 
@@ -1118,6 +1117,8 @@ totvcost_flbeia <- function(fleet){
         res <- res + fleet@metiers[[mt]]@vcost*fleet@effort*fleet@metiers[[mt]]@effshare
     }
     Rev <- revenue_flbeia(fleet)*fleet@crewshare
+    
+    units(res) <- units(Rev)
     
     res <- res + Rev
     
