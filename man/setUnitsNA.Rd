@@ -7,7 +7,7 @@
 setUnitsNA(obj)
 }
 \arguments{
-\item{FLBiol}{or FLFleetExt object}
+\item{obj}{FLBiol or FLFleetExt object}
 }
 \value{
 The same object with the units equal to NA in all the FLQuant slots.

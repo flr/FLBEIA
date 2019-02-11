@@ -103,6 +103,10 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 \item{Blim}{named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 
 \item{Prflim}{named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate economic risk yearly.}
+
+\item{discF}{XXXX}
+
+\item{y0}{XXXX}
 }
 \value{
 The data frames can be of wide or long format. In long format all the indicators are in the same column.
@@ -139,9 +143,6 @@ Summarize the results of the simulation in data frames.
              "catch",  "discards", "discRat", "landings" and "price".
      \item{riskSum:} A data frame with the risk indicators. The indicators are:
              "pBlim", "pBpa" and "pPrflim".
-         
-     
-     
      \item{vesselSum, vesselSumQ:} Data frame with the indicators at vessel level. The indicators are:
               "catch", "costs", "discards", "discRat", "effort",       
              "fcosts", "gva", "grossValue", "landings", "fep",  "price", "grossSurplus",

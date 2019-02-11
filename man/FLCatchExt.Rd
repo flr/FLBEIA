@@ -76,6 +76,12 @@ is.FLCatchesExt(object, ...)
 \item{i, j, k, l, m, n}{subindices}
 
 \item{drop}{logical. Should the dimesions be dropped?}
+
+\item{value}{Value or values to be assigned to the particular FLQuant or FLCatchExt slot.}
+
+\item{e1}{XXXX}
+
+\item{e2}{XXXX}
 }
 \value{
 The constructors return an object of class FLCatchExt.

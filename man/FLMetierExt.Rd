@@ -52,13 +52,17 @@ is.FLMetiersExt(object, ...)
 \S4method{[[}{FLMetierExt,ANY,missing}(x, i, drop = FALSE)
 }
 \arguments{
-\item{object}{An object of class FLQuant, missing or FLCatchExt.}
+\item{object, x}{An object of class FLQuant, missing or FLCatchExt.}
 
 \item{...}{Other objects to be assigned by name to the class slots}
 
 \item{catches}{An object of class FLCatchesExt.}
 
 \item{gear}{A character vector with the name of the gear used in the metier.}
+
+\item{i}{subindices.}
+
+\item{drop}{If TRUE, deletes the dimensions of an array which have only one level.}
 
 \item{range}{Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.}
 

@@ -69,26 +69,29 @@
 #' @param mean.yrs        A vector with the years used to compute the mean to condition the parameters in the projection period.
 #' @param new_hist.yrs    A vector with the years from input files that will be used to condition the parameters in the historic years.
 #'                        If a value is not provided, the it is set equal to \code{hist.yrs}.
+#' @param update_catch_effort Logical. If \code{TRUE} (default), catch and effort must be provided and \code{catch_obj}, \code{effort_obj} arguments are required.
+#' @param update_weight   Logical. If \code{TRUE} (default), weights at age for landings and discards must be provided, 
+#'                        so wl and wd sheets are required in files listed in \code{stk_objs} argument.
 #' @param caa_flt_mt_correspondences An Excel file name. This file must contain one sheet per stock, with the correspondences between the fleet segments used in \code{caaa_obj} data 
 #'                                   and the fleet metier segmentation used in the analysis. If the file does not exist, it is supposed that the caa data is given by fleet and metier. 
 #' @param paa_flt_mt_correspondences An Excel file name. This file must contain information on prices correspondences, with same format and requirements as \code{caa_flt_mt_correspondences} argument.
 #' @param caaOpt          A code number to determine the way in wich catch at age data are provided.
 #'                        The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 #'                        \itemize{ 
-#'                           \item{1}{If catch at age data is available at m?tier level for all the m?tiers.}
+#'                           \item{1}{If catch at age data is available at metier level for all the metiers.}
 #'                           \item{2}{If catch at age data is only available at fleet level.}
-#'                           \item{3}{If catch at age data is disaggregated but the segments do not correspond exactly with the m?tiers/fleets considered in the case study.}
+#'                           \item{3}{If catch at age data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
 #'                           \item{4}{If catch at age data is only available at stock level.}
 #'                           \item{5}{If we want to use the data available previously in the \code{FLCatch} objects from \code{flt_obj} to derive catch profiles at age 
-#'                                    and then apply \code{caaOpt==3} using only one fleet segment, fseg, which represents all the fleets and m?tiers.
+#'                                    and then apply \code{caaOpt==3} using only one fleet segment, fseg, which represents all the fleets and metiers.
 #'                                    Note: This approach could lead to a different total catch at age profile derived from the fleets to those in the stocks.}
 #'                        }
 #' @param priceOpt        A code number to determine the way in wich price at age data are provided.
 #'                        The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 #'                        \itemize{ 
-#'                           \item{1}{If price data is available at m?tier level for all the m?tiers.}
+#'                           \item{1}{If price data is available at metier level for all the metiers.}
 #'                           \item{2}{If price data is only available at fleet level.}
-#'                           \item{3}{If price data is disaggregated but the segments do not correspond exactly with the m?tiers/fleets considered in the case study.}
+#'                           \item{3}{If price data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
 #'                           \item{4}{If price data is only available at stock level.}
 #'                        }
 #' @param excel           Logical. If \code{TRUE} (default), the data in the Excel file is used to create the stucture of the FLFleets object; whereas 

@@ -53,13 +53,15 @@ validFLMetierExt <- function(object) {
 #'    This includes information on effortshare and variable costs.
 #
 #' 
-#' @param object An object of class FLQuant, missing or FLCatchExt.
+#' @param object,x An object of class FLQuant, missing or FLCatchExt.
 #' @param range Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.
 #' @param name The name of the metier.
 #' @param desc The description of the object.
 #' @param catches An object of class FLCatchesExt.
 #' @param gear A character vector with the name of the gear used in the metier.
 #' @param ... Other objects to be assigned by name to the class slots 
+#' @param i subindices.
+#' @param drop If TRUE, deletes the dimensions of an array which have only one level.
 #' 
 #' @return The constructors return an object of class FLMetierExt.
 #'  

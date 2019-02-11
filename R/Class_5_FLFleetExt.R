@@ -60,7 +60,7 @@ validFLFleetExt <- function(object) {
 #'    This includes information on effort, fixed-cost, capacity,  crew-share, metiers and variable costs.
 #
 #' 
-#' @param object An object of class FLQuant, missing or FLMetierExt.
+#' @param object,x An object of class FLQuant, missing or FLMetierExt.
 #' @param range Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.
 #' @param name The name of the fleet.
 #' @param desc The description of the object.
@@ -68,6 +68,8 @@ validFLFleetExt <- function(object) {
 #' @param catch A name of one of the elements in FLCatches object.
 #' @param metier A name of one of the elements in FLMetiers object.
 #' @param ... Other objects to be assigned by name to the class slots 
+#' @param i,j subindices.
+#' @param drop If TRUE, deletes the dimensions of an array which have only one level.
 #' 
 #' @return The constructors return an object of class FLFleetExt.
 #'  

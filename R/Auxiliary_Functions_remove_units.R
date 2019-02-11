@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 #'  Function to remove the units from the FLQuants of FLBiol or FLFleetExt objects 
 #'
-#' @param FLBiol or FLFleetExt object
+#' @param obj FLBiol or FLFleetExt object
 #' 
 #' @return The same object with the units equal to NA in all the FLQuant slots.
 #' 

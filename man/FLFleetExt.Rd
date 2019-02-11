@@ -59,13 +59,17 @@ is.FLFleetsExt(object, ...)
 \S4method{[[}{FLFleetExt,ANY,missing}(x, i, drop = FALSE)
 }
 \arguments{
-\item{object}{An object of class FLQuant, missing or FLMetierExt.}
+\item{object, x}{An object of class FLQuant, missing or FLMetierExt.}
 
 \item{...}{Other objects to be assigned by name to the class slots}
 
 \item{metier}{A name of one of the elements in FLMetiers object.}
 
 \item{catch}{A name of one of the elements in FLCatches object.}
+
+\item{i, j}{subindices.}
+
+\item{drop}{If TRUE, deletes the dimensions of an array which have only one level.}
 
 \item{range}{Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.}
 

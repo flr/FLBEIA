@@ -68,6 +68,8 @@ validFLCatchExt <- function(object)
 #' @param i,j,k,l,m,n subindices
 #' @param drop logical. Should the dimesions be dropped?
 #' @param ... Other objects to be assigned by name to the class slots 
+#' @param e1,e2 FLCatchExt objects, where e2 is incorporated into e1 (see addFLCatch).
+#' @param value Value or values to be assigned to the particular FLQuant or FLCatchExt slot.
 #' 
 #' @slot landings An FLQuant of dimension [1,num. years, num. units, numb.season, 1, numb. iters] with the total landings in weight of the stock.
 #' @slot landings.n An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the  landings in numbers at age of the stock.

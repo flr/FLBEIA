@@ -16,8 +16,8 @@
 #
 #' @param stksnames A vector with the name of the stocks in the OM.
 #' @param HCR.models A character vector of the same length as stksnames with the name of the HCR used to generate the management advice.
-#' @param first.year The first year in which advice is calculated.
-#' @param last.year The last year in which advice is calculated.
+# @param first.year The first year in which advice is calculated.
+# @param last.year The last year in which advice is calculated.
 # @param immediate logical, indicating if the warnings should be output immediately.
 #' @param ... any extra arguments necessary in the HCR specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
 #'        To assure the correct functioning the extra arguments must have a name.
