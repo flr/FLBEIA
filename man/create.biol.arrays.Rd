@@ -46,7 +46,7 @@ This function generates an FLBiol object, given the data inputs as arrays.
              Supported formats are Excel (xls and xlsx) and R format (RData).
 }
 \seealso{
-\link{FLBiol}, \link{create.fleets.arrays}
+\code{\link{FLBiol}}, \code{\link{create.fleets.arrays}}
 }
 \author{
 Dorleta Garcia & Sonia Sanchez.

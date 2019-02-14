@@ -33,8 +33,8 @@
 #' @param price.models  characted vector with the same length as sum(n.fls.stks) with the price model followed by each of the fleet for each stock. 
 #'         the first element correspond with the price model of the first fleet in fls and the first stock in fls.stksnames, the second with the second and so on.
 #'         The default is NULL in which case 'fixedPrice' is used for **all** the fleets. 
-#' @param flq An flquant to give structure to the FLQuants to be used within the function, 
-#'         the dimensioan and dimnames in 'year', 'season' and 'iter' will be used to create the necessary FLQuants. 
+#' @param flq An FLQuant to give structure to the FLQuants to be used within the function, 
+#'         the dimension and dimnames in 'year', 'season' and 'iter' will be used to create the necessary FLQuants. 
 #' @param ... Any extra arguments necessary in the model specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
 #'        To assure the correct functioning the extra arguments must have a name, for example, elas = FLQuant(1,dimnames = DimsNms).
 # 

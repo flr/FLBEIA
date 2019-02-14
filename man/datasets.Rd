@@ -7,6 +7,56 @@
 \alias{multi}
 \alias{res_flbeia}
 \alias{mur}
+\alias{oneBio}
+\alias{oneSR}
+\alias{oneFl}
+\alias{oneCv}
+\alias{oneIndAge}
+\alias{oneIndBio}
+\alias{oneAdv}
+\alias{oneMainC}
+\alias{oneBioC}
+\alias{oneFlC}
+\alias{oneCvC}
+\alias{oneObsC}
+\alias{oneObsCIndAge}
+\alias{oneObsCIndBio}
+\alias{oneAssC}
+\alias{oneAdvC}
+\alias{oneItBio}
+\alias{oneItSR}
+\alias{oneItFl}
+\alias{oneItCv}
+\alias{oneItIndAge}
+\alias{oneItIndBio}
+\alias{oneItAdv}
+\alias{oneItMainC}
+\alias{oneItBioC}
+\alias{oneItFlC}
+\alias{oneItCvC}
+\alias{oneItObsC}
+\alias{oneItObsCIndAge}
+\alias{oneItObsCIndBio}
+\alias{oneItAssC}
+\alias{oneItAdvC}
+\alias{multiBio}
+\alias{multiSR}
+\alias{multiBD}
+\alias{multiFl}
+\alias{multiCv}
+\alias{multiAdv}
+\alias{multiMainC}
+\alias{multiBioC}
+\alias{multiFlC}
+\alias{multiCvC}
+\alias{multiObsC}
+\alias{multiAssC}
+\alias{multiAdvC}
+\alias{oneRes}
+\alias{oneItRes}
+\alias{multiRes}
+\alias{catch}
+\alias{evhoe}
 \title{FLBEIA datasets}
 \description{
 Example datasets for the classes defined in FLBEIA.
@@ -129,7 +179,7 @@ data(res_flbeia)
 ICES, 2017
 }
 \seealso{
-\link{FLBEIA}, \linkS4class{FLBiols}, \linkS4class{FLFleetsExt}, \linkS4class{FLSRSim},
-\linkS4class{FLIndices}, \linkS4class{FLQuant}
+\code{\link{FLBEIA}}, \code{\linkS4class{FLBiols}}, \code{\linkS4class{FLFleetsExt}}, 
+\code{\linkS4class{FLSRsim}}, \code{\linkS4class{FLIndices}}, \code{\linkS4class{FLQuant}}
 }
 \keyword{datasets}

@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------------- 
 
 # oneIt.r - code to generate data in oneIt.RData
-# FLBEIA/data-row/oneIt/oneIt.r
+# FLBEIA/data-raw/oneIt/oneIt.r
 
 # Copyright: AZTI, 2018
 # Author: Agurtzane Urtizberea, Dorleta Garcia and Sonia Sanchez (AZTI) (<flbeia@azti.es>)
@@ -627,7 +627,7 @@
   save( oneItAdv, oneItAdvC, oneItAssC, oneItBio, oneItBioC, oneItCv, oneItCvC, 
         oneItFl, oneItFlC, oneItIndAge, oneItIndBio,
         oneItMainC, oneItObsC, oneItObsCIndAge, oneItObsCIndBio, oneItSR, 
-        file ="../../data/oneIt.RData")
+        file ="../../data/oneIt.RData", compress="xz")
 
 
 # #==============================================================================
@@ -650,7 +650,7 @@
 #                advice.ctrl = oneItAdvC) # A list with oneIt element to define how the TAC advice is obtained ("IcesHCR").
 # 
 #   oneItRes <- s1
-#   save(oneItRes,file='../../data/oneItRes.RData')
+#   save(oneItRes,file='../../data/oneItRes.RData',compress="xz")
 #     
 # 
 # #==============================================================================

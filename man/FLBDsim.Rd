@@ -3,6 +3,7 @@
 \docType{class}
 \name{FLBDsim}
 \alias{FLBDsim}
+\alias{FLBDsim-class}
 \title{FLBDsim class and methods}
 \arguments{
 \item{...}{Empty or FLQuants for 'biomass', 'catch' and 'uncertainty' slots and optionally the values for the rest of the slots.}

@@ -33,7 +33,7 @@
 #'
 #' 
 #' @author Dorleta Garcia & Sonia Sanchez.
-#' @seealso /link{FLFleetsExt}, /link{create.biols.arrays}
+#' @seealso \code{\link{FLFleetsExt}}, \code{\link{create.biol.arrays}}
 #' @keywords create.fleets.arrays
 #'
 #'  

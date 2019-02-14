@@ -42,7 +42,7 @@
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-#   Section 1:        FLSRSim for each stock
+#   Section 1:        FLSRsim for each stock
 #         1.1         Historic and projection data(params,uncertainty*)
 #         1.2              Check dimensions
 #         1.3              Projection
@@ -71,7 +71,7 @@ create.SRs.data <- function(yrs,ns,ni,stks.data){
     list.stks.flq  <- create.list.stks.flq(nmstks,yrs,ni,ns,list.stks.unit)  
         
     #==============================================================================
-    #   Section 1:         Create FLSRSim for each stock
+    #   Section 1:         Create FLSRsim for each stock
     #==============================================================================
     
     list.SRs <- list()

@@ -1,8 +1,10 @@
 
 #' 
 #' @name FLSRsim
+#' @rdname FLSRsim
+#' @aliases FLSRsim FLSRsim-class
 #' 
-#' @title  FLSRsim class
+#' @title  FLSRsim class and methods
 #'
 #' @description This class is used to store the necessary information to simulate the recruitment process within FLBEIA.
 #' 
@@ -101,7 +103,7 @@ setClass("FLSRsim",
 
 setValidity("FLSRsim", validFLSRsim)
 remove(validFLSRsim)	# We do not need this function any more
-#invisible(createFLAccesors("FLSRSim", exclude=c('name', 'desc', 'range'))) # }}}
+#invisible(createFLAccesors("FLSRsim", exclude=c('name', 'desc', 'range'))) # }}}
 
 FLSRsim <- function(...){
     a <- new('FLSRsim')

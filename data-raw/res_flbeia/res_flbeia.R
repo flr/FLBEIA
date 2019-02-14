@@ -93,5 +93,5 @@
 # Save the data
 #==============================================================================
 
-  save( oneRes, oneItRes, multiRes, file='../../data/res_flbeia.RData')
+  save( oneRes, oneItRes, multiRes, file='../../data/res_flbeia.RData', compress="xz")
   

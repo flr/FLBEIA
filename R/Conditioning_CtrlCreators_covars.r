@@ -5,12 +5,26 @@
 # 29/05/2013 10:43:04
 #-------------------------------------------------------------------------------
 #
+#' covars.ctrl object creator
+#' 
+#' It creates the covars.ctrl object to be used in the call to the main function FLBEIA.
+#' 
+#
 #   :: ARGUMENTS ::
 #
-# - ** cvrsnames ** : character vector with covariables names
-# - ** process.models ** : characted vector with the same length as cvrsnames with the process model followed by each of the covariables. 
-#         the first element correspond with the process model of the first covariable in cvrsnames, the second with the second and so on.
-#         The default is NULL in which case 'fixedCovar' is used for **all** the fleets.    
+#' @param cvrsnames A vector with the name of the covariates in the OM.
+#' @param process.models A character vector of the same length as cvrsnames with the name of the process model
+#'                       followed by each of the covariates.
+#'                       The first element corresponds with the process model of the first covariable in cvrsnames, 
+#'                       the second with the second and so on. 
+#'                       The default is NULL in which case 'fixedCovar' is used for **all** the covariates.
+#' @param flq An FLQuant to give structure to the FLQuants to be used within the function, 
+#'            the dimension and dimnames in 'year', 'season' and 'iter' will be used to create the necessary FLQuants. 
+#' @param immediate logical, indicating if the warnings should be output immediately.
+#' @param ... any extra arguments necessary in the HCR specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+#'        To assure the correct functioning the extra arguments must have a name.
+#' 
+#' @return A list of lists with the basic structure of the covars.ctrl object.
 
 create.covars.ctrl <- function(cvrsnames, process.models = NULL, flq, immediate = FALSE,...){
 

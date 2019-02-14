@@ -12,8 +12,20 @@
 
 
 #-------------------------------------------------------------------------------
-# updateBiols(biols): Update the FLBiols object to the FLCore 2.6 
+# updateFLBiols(biols): Update the FLBiols object to the FLCore 2.6 
 #-------------------------------------------------------------------------------
+
+#' Update the FLBiols object to the FLCore 2.6
+#' 
+#' Updates an old FLBiols (where slots fec and mat from each FLBiol are FLQuants), into the new version of the class,
+#' where slots fec and mat are of class \code{predictModel}.
+#'
+#' @param biols A FLBiols object.
+#' 
+#' @return A new FLBEIA output object with all the iterations joined. 
+#' 
+#' @seealso \code{\link{predictModel}}
+#' 
 
 updateFLBiols <- function(biols){
   
@@ -42,6 +54,21 @@ updateFLBiols <- function(biols){
 #-------------------------------------------------------------------------------
 # unit2age(FLQuant[na,ny,nu,ns,1,it]) => array[na*nu,ny,ns,it]
 #-------------------------------------------------------------------------------
+
+#' Translates unit dimension in an FQuant into age dimension
+#' 
+#' This function transforms a FQuant with several 'unit' dimension into 
+#' an array an unique 'unit' dimension and no 'area' dimension. Moving 'unit' to 'age' dimension.
+#' This is usefull when we use the 'unit' dimension to store the different seasonal cohorts.
+#'
+#' @param Q A FLQuant.
+#'               The object must be the output of FLBEIA function.
+#'               
+#' @return A 4-dimensional array with length c(d[1]*d[3], d[2], d[4], d[6]), 
+#'         where d is the dimension of the FLQuant. 
+#' 
+#' @note The files must contain a single object (named as \code{objnam} value).
+#' 
 
 unit2age <- function(Q){
 

@@ -108,6 +108,24 @@
  #==============================================================================
  
  
+ #' Calculates selectivity-related parameters
+ #' 
+ #' Given stock abundances and catches (i.e. landings and discards), this function estimates values for
+ #' \code{fleets[[fl]]@@metiers[[mt]]@@catches[[st]]@@catch.q}, 
+ #' \code{fleets[[fl]]@@metiers[[mt]]@@catches[[st]]@@landings.sel}, and 
+ #' \code{fleets[[fl]]@@metiers[[mt]]@@catches[[st]]@@discards.sel} 
+ #' for all years except the simulation years. For the simulation years, 
+ #' the parameter values are set as the mean of the parameters along \code{mean.yrs}. 
+ #'
+ #' @param biols An FLBiols object.
+ #' @param fleets An FLFleetsExt object. An extended version of the FLFleet object defined in FLCore. 
+ #' @param BDs A list of FLSRsim objects. One per biomass dynamic stock in biols object.
+ #' @param mean.yrs A character vector with the name of the years used to calculate mean selectivity.
+ #' @param sim.yrs A character vector with the name of the years in the projection period.
+ #' 
+ #' @return A FLFleetsExt object. 
+ #' 
+ 
  calculate.q.sel.flrObjs <- function(biols, fleets, BDs, mean.yrs, sim.yrs){
    
     for(st in names(biols)){
@@ -134,13 +152,13 @@
             alpha <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@alpha
             beta  <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@beta
             E     <- fleets[[fl]]@effort*fleets[[fl]]@metiers[[mt]]@effshare
-         
+            
             if(na == 1 ) C <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt + 
                               fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt
             
             fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q <- C/((E%^%alpha)*(B%^%beta))
             
-             fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
                                                                                                                              fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n)
             fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
             

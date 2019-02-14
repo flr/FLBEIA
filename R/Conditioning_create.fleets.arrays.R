@@ -26,7 +26,7 @@
 #' @rdname create.fleets.arrays
 #' @aliases create.fleets.arrays
 #'
-#' @param stk_objs        A character vector with the names of the files containing the stocks data. See \link{create.biols.arrays} for more detail.
+#' @param stk_objs        A character vector with the names of the files containing the stocks data. See \link{create.biol.arrays} for more detail.
 #'                        Supported format is only Excel (xls and xlsx), each stock can be in different format.
 #' @param caa_objs        A character vector with the names of the files containing the catch at age data (in numbers), both for landings and discards.
 #'                        Supported formats are Excel (xls and xlsx) and R format (RData), each file can be in different format.
@@ -101,7 +101,7 @@
 #'
 #' 
 #' @author Dorleta Garcia & Sonia Sanchez.
-#' @seealso \link{FLFleetsExt}, \link{create.biols.arrays}
+#' @seealso \code{\link{FLFleetsExt}}, \code{\link{create.biol.arrays}}
 #' @keywords create.fleets.arrays
 #'
 #'  
