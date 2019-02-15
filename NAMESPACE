@@ -115,7 +115,7 @@ export(
    "unit2age",
   "wtadStock",
   "wtalStock",
-  "XSAboot",
+  #"XSAboot",
   "xtabs2")
 
 exportMethods(

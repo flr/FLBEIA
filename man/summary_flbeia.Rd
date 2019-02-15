@@ -34,6 +34,12 @@ ecoSum_damara(fleets, flnms = "all", years, covars = NULL)
 \item{obj}{The output of the FLBEIA function.}
 
 \item{years}{The  years for which the indicators are extracted.}
+
+\item{fleets}{A FLFleetsExt object.}
+
+\item{flnms}{Names of the fleet for which the indicators will be calculated.}
+
+\item{covars}{List of FLQuants with information on covariates.}
 }
 \value{
 B_flbeia, F_flbeia... return an array with three dimensions (stock, year and iter).

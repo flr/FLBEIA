@@ -12,6 +12,7 @@
 \alias{[,FLCatchExt,ANY,ANY,ANY-method}
 \alias{[<-,FLCatchExt,ANY,ANY,FLCatchExt-method}
 \alias{[<-,FLCatchExt,ANY,ANY,ANY-method}
+\alias{catchNames<-}
 \alias{addFLCatch,FLCatchExt,FLCatchExt-method}
 \alias{addFLCatch,FLCatchExt,FLCatchExt}
 \alias{catchNames,FLCatchExt-method}
@@ -30,6 +31,8 @@
 
 \S4method{[}{FLCatchExt,ANY,ANY,FLCatchExt}(x, i, j, k, l, m, n,
   ...) <- value
+
+catchNames(object, ...) <- value
 
 \S4method{addFLCatch}{FLCatchExt,FLCatchExt}(e1, e2)
 

@@ -287,6 +287,8 @@ setGeneric('addFLCatch', function(e1, e2, ...)
 # catchNames
 setGeneric('catchNames', function(object, ...)
 		standardGeneric('catchNames'))
+#' @aliases catchNames<-
+#' @rdname FLCatchExt 
 setGeneric('catchNames<-', function(object, ..., value)
 		standardGeneric('catchNames<-'))
 		

@@ -1114,7 +1114,7 @@ revenue_flbeia <- function(fleet){
 
 #' @rdname revenue_flbeia
 #' @aliases costs_flbeia
-#' @param covars List of covariates
+#' @param covars List of FLQuants with information on covariates.
 costs_flbeia <- function(fleet, covars, flnm = NULL){
     
     res <- totvcost_flbeia(fleet) + totfcost_flbeia(fleet, covars, flnm)

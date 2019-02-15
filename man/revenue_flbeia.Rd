@@ -21,7 +21,7 @@ price_flbeia(fleet, stock)
 \arguments{
 \item{fleet}{An element of FLfleets object.}
 
-\item{covars}{List of covariates}
+\item{covars}{List of FLQuants with information on covariates.}
 
 \item{flnm}{Names of the fleets.}
 
