@@ -131,9 +131,9 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
      ages_stk[[st]] <- dimnames(flt_obj[[flmt[1]]][[flmt[2]]][[st]]@landings.n)[[1]]
      
    }
-   nages_stk  <- sapply(ages_stk, function(x) length(x))
-   
  }
+  
+  nages_stk  <- sapply(ages_stk, function(x) length(x))
   
   hist.yrs <- ac(hist.yrs)
   sim.yrs  <- ac(sim.yrs)
