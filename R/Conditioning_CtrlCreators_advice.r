@@ -186,6 +186,9 @@ create.annexIVHCR.ctrl <- function(resst,stkname, largs){
     cat("A default control for 'annexIVHCR' HCR has been created for stock, ", stkname,"\n")
     cat("The first index will be used to apply the HCR using type = 2. \n")
 
+    index.stk <- largs[[paste("index",stkname, sep = ".")]]
+    
+    if(!is.null(index.stk)) resst$index <- index.stk
     
     ref.pts.stk <- largs[[paste("ref.pts",stkname, sep = ".")]]
     
