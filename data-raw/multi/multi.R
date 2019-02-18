@@ -1,13 +1,13 @@
 #-------------------------------------------------------------------------------  
-# one dataset: 
-# code to generate data in one.RData
+# multi dataset: 
+# code to generate data in multi.RData
 # 
 # Created: Agurtzane Urtizberea -  2016-02-09
 # Changed: 2018-07-04 10:58:14 (ssanchez)
 #------------------------------------------------------------------------------- 
 
-# one.r - code to generate data in one.RData
-# FLBEIA/data-row/one/one.r
+# multi.r - code to generate data in multi.RData
+# FLBEIA/data-raw/multi/multi.r
 
 # Copyright: AZTI, 2018
 # Author: Agurtzane Urtizberea, Dorleta Garcia and Sonia Sanchez (AZTI) (<flbeia@azti.es>)
@@ -639,7 +639,7 @@ rm(list=ls())
   
   save( multiAdv, multiAdvC, multiAssC, multiBD, multiBio, multiBioC, multiCv, multiCvC, 
         multiFl, multiFlC, multiMainC, multiObsC, multiSR, 
-        file = '../../data/multi.RData')
+        file = '../../data/multi.RData', compress="xz")
     
   
 # #==============================================================================
@@ -662,7 +662,7 @@ rm(list=ls())
 #                advice.ctrl = multiAdvC) # A list with one element to define how the TAC advice is obtained ("IcesHCR").
 #   
 #   multiRes <- s2
-#   save(multiRes,file='../../data/multiRes.RData')
+#   save(multiRes,file='../../data/multiRes.RData',compress="xz")
 #   
 #   
 # #==============================================================================

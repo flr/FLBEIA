@@ -33,6 +33,17 @@ tlandStock <- function(obj, stknm){
 #Mean weight at age in landings for a stock across fleets and metiers
 #obj : an object of class FlFleetsExt
 #stknm : character, the name of the stock
+
+#' Mean weight at age in landings for a stock across fleets and metiers
+#' 
+#' @param obj An object of class FlFleetsExt.
+#' @param stknm Character. The name of the stock for which we want to calculate mean weight-at-age.
+#
+#' @return A FLQuant with mean weight-at-age values. 
+#' 
+#' @seealso \code{\link{wtadStock}} 
+#' 
+
 wtalStock <- function(obj, stknm)
     {
     aux <- 0
@@ -110,6 +121,17 @@ discnStock <- function(obj, stknm){
 #Mean weight at age in landings for a stock across fleets and metiers
 #obj : an object of class FlFleetsExt
 #stknm : character, the name of the stock
+
+#' Mean weight at age in discards for a stock across fleets and metiers
+#' 
+#' @param obj An object of class FlFleetsExt.
+#' @param stknm Character. The name of the stock for which we want to calculate mean weight-at-age.
+#
+#' @return A FLQuant with mean weight-at-age values.
+#' 
+#' @seealso \code{\link{wtalStock}} 
+#' 
+
 wtadStock <- function(obj, stknm)
     {
     aux <- 0

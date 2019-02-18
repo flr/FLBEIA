@@ -51,29 +51,35 @@ validFLFleetExt <- function(object) {
 #' @aliases FLFleetExt-class FLFleetExt FLFleetExt-methods
 #' FLFleetExt,FLFleetExt-method
 #' 
-#' @title  FLFleetExt and FLFleetsExt classes and the methods to construct it.
+#' @title  FLFleetExt class and the methods to construct it.
 #'
-#' @description They extend the FLFleetExt and FLFleetsExt classes defined in FLFleets package. The only different is that 
-#' that the metiers slot is a FLMetiersExt object
+#' @description It extends the FLFleetExt class defined in FLFleet package. 
+#' The only difference is that that the metiers slot is a FLMetiersExt object.
 #' 
-#' @details The FLFleetExt object contains a representation of a  fishing fleet as constructed for the purposes of fleet dynamic modelling. 
-#'    This includes information on effort, fixed-cost, capacity,  crew-share, metiers and variable costs.
-#
+#' @details The FLFleetExt object contains a representation of a fishing fleet as constructed for the purposes of fleet dynamic modelling. 
+#'    This includes information on effort, fixed-cost, capacity, crew-share, metiers and variable costs.
 #' 
-#' @param object An object of class FLQuant, missing or FLMetierExt.
-#' @param range Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.
-#' @param name The name of the fleet.
-#' @param desc The description of the object.
-#' @param metiers An object of class FLMetierExt or FLMetiersExt.
-#' @param catch A name of one of the elements in FLCatches object.
-#' @param metier A name of one of the elements in FLMetiers object.
+#' @param object,x An object of class FLQuant, missing, FLFleetExt, 
+#'                 FLCatchExt, FLCatchesExt or FLMetierExt.
+#' @param metier A name of one of the elements in FLMetiersExt object.
+#' @param catch A name of one of the elements in FLCatchesExt object.
 #' @param ... Other objects to be assigned by name to the class slots 
+#' @param i,j subindices.
+#' @param drop If TRUE, deletes the dimensions of an array which have only one level.
+#' 
 #' 
 #' @return The constructors return an object of class FLFleetExt.
-#'  
 #' 
-#' 
-#' 
+#' @slot effort An FLQuant with the effort of the fleet.
+#' @slot fcost An FLQuant with the fixed costs of the fleet.
+#' @slot capacity An FLQuant with the capacity of the fleet.
+#' @slot crewshare An FLQuant with the crewshare of the fleet.
+#' @slot metiers A FLMetiersExt with information on the fleet's metiers.
+#' @slot name The name of the stock.
+#' @slot desc A description of the object.
+#' @slot range The range as in other FLR objects: c("min","max","plusgroup","minyear","maxyear").
+#'    
+
 setClass('FLFleetExt',
 	representation('FLComp',
 		effort='FLQuant',
@@ -449,7 +455,7 @@ setReplaceMethod("effort", signature(object="FLFleetExt", value="FLQuant"),
 
 # catchNames {{{
 #' @rdname FLCatchesExt
-#' @aliases catchNames, FLCatchesExt
+#' @aliases catchNames,FLCatchesExt
 setMethod('catchNames', signature(object='FLCatchesExt'),
   function(object)
   {
@@ -458,7 +464,7 @@ setMethod('catchNames', signature(object='FLCatchesExt'),
 )
 
 #' @rdname FLCatchesExt
-#' @aliases catchNames, FLMetierExt
+#' @aliases catchNames,FLMetierExt
 setMethod('catchNames', signature(object='FLMetierExt'),
   function(object)
   {
@@ -467,7 +473,7 @@ setMethod('catchNames', signature(object='FLMetierExt'),
 )
 
 #' @rdname FLCatchesExt
-#' @aliases catchNames, FLMetiersExt
+#' @aliases catchNames,FLMetiersExt
 setMethod('catchNames', signature(object='FLMetiersExt'),
   function(object)
   {
@@ -476,7 +482,7 @@ setMethod('catchNames', signature(object='FLMetiersExt'),
 )
 
 #' @rdname FLCatchesExt
-#' @aliases catchNames, FLFleetExt
+#' @aliases catchNames,FLFleetExt
 setMethod('catchNames', signature(object='FLFleetExt'),
   function(object)
   {
@@ -485,7 +491,7 @@ setMethod('catchNames', signature(object='FLFleetExt'),
 ) 
 
 #' @rdname FLCatchesExt
-#' @aliases catchNames, FLFleetsExt
+#' @aliases catchNames,FLFleetsExt
 setMethod('catchNames', signature(object='FLFleetsExt'),
   function(object)
   {

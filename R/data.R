@@ -131,8 +131,21 @@
 #'
 #' @name datasets
 #' @aliases one oneIt multi res_flbeia mur
-#' @seealso \link{FLBEIA}, \linkS4class{FLBiols}, \linkS4class{FLFleetsExt}, \linkS4class{FLSRSim},
-#' \linkS4class{FLIndices}, \linkS4class{FLQuant}
+#' oneBio oneSR oneFl oneCv oneIndAge oneIndBio oneAdv
+#' oneMainC oneBioC oneFlC oneCvC oneObsC oneObsCIndAge oneObsCIndBio
+#' oneAssC oneAdvC
+#' oneItBio oneItSR oneItFl oneItCv oneItIndAge oneItIndBio oneItAdv
+#' oneItMainC oneItBioC oneItFlC oneItCvC oneItObsC oneItObsCIndAge oneItObsCIndBio
+#' oneItAssC oneItAdvC
+#' multiBio multiSR multiBD multiFl multiCv multiAdv
+#' multiMainC multiBioC multiFlC multiCvC multiObsC
+#' multiAssC multiAdvC
+#' oneRes oneItRes multiRes
+#' catch evhoe
+#' 
+#' 
+#' @seealso \code{\link{FLBEIA}}, \code{\linkS4class{FLBiols}}, \code{\linkS4class{FLFleetsExt}}, 
+#' \code{\linkS4class{FLSRsim}}, \code{\linkS4class{FLIndices}}, \code{\linkS4class{FLQuant}}
 #' 
 # @references
 #' @keywords datasets

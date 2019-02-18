@@ -9,6 +9,8 @@ plotFLFleets(fleets, prob = c(0.95, 0.5, 0.05), pdfnm = "bc")
 \arguments{
 \item{fleets}{A FLFleets object.}
 
+\item{prob}{A numeric vector with the probabilities used to calculate the quantiles.}
+
 \item{pdfnm}{The name for the pdf document will be the fleet's name and pdfnm separated by a line.}
 }
 \value{

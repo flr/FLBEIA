@@ -3,6 +3,7 @@
 #' Return a pdf with plots using FLBEIA object (FLFleets and covars).
 #'
 #' @param obj An FLBEIA object. 
+#' @param prob A numeric vector with the probabilities used to calculate the quantiles.
 #' @param pdfnm The name for the pdf document will be "Eco" and pdfnm separated by a line.
 #
 #' @return A pdf with capacity, costs, effort, profits by fleet.

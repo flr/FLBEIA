@@ -18,6 +18,7 @@ export(
   "annualTAC",
   "annexIVHCR",
   "B_flbeia",
+  "biolfleets2flstock",
   "bioSum",
 "bioSumQ",
   "C_flbeia",

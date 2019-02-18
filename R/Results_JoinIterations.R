@@ -4,7 +4,7 @@
 #   * joinIter(object, files, directory, Niters)
 #
 #  
-#   object: character. The name of the object that must be 'joined'. The object 
+#   objnam: character. The name of the object that must be 'joined'. The object 
 #           _must_ be the output of BEIA function.
 #   files: a character vector with the names of the files.
 #   directory: the directory where the files are stored, (the default is the 
@@ -21,7 +21,29 @@
 # Changed: 03/11/2011 07:42:28
 #------------------------------------------------------------------------------#
 
-joinIter <- function(object, files, directory = NULL, Niters = 1, elements = 'all', advice.ext = 'TAC', fleets.ctrl.ext = 'seasonal.share'){
+#' Joins the iterations of several FLBEIA outputs
+#' 
+#' joinIter function allows to join different outputs of FBEIA simulations. 
+#' For example when simulations are run iteration by iteration separately, 
+#' with this function we can merged all the iterations into one FLBEIA output object.
+#'
+#' @param objnam Character. The name of the object that will be joined.
+#'               The object must be the output of FLBEIA function.
+#' @param files A character vector with the names of the files from which \code{objnam} will be taken.
+#' @param directory The directory were the files are stored. Default value is the current directory.
+#' @param Niters A numeric vector with the number of iterations per object.
+#'               If length=1, then it is assumed that all objects have the same number of iterations.
+#' @param elements The elements of the objects that must be joined. 
+#'                 The default is to join all the objects.
+#' @param advice.ext Character. The element from \code{advice} object that will be replaced. Default is 'TAC'.
+#' @param fleets.ctrl.ext Character. The element from \code{fleets.ctrl} object that will be replaced. Default is 'seasonal.share'. 
+#
+#' @return A new FLBEIA output object with all the iterations joined. 
+#' 
+#' @note The files must contain a single object (named as \code{objnam} value).
+#' 
+
+joinIter <- function(objnam, files, directory = NULL, Niters = 1, elements = 'all', advice.ext = 'TAC', fleets.ctrl.ext = 'seasonal.share'){
 
     nit <- ifelse(length(Niters) == 1, length(files)*Niters, prod(Niters))
 
@@ -29,8 +51,6 @@ joinIter <- function(object, files, directory = NULL, Niters = 1, elements = 'al
     
     # load the one object and propagate it to 'nit'.
     if(!is.null(directory)) setwd(directory)
-    
-    objnam <- object
     
     load(files[1])
     

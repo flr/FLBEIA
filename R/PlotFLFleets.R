@@ -132,6 +132,7 @@ total.discards.stock.df <- function(fleet){
 #'}
 
 #' @param fleets A FLFleets object. 
+#' @param prob A numeric vector with the probabilities used to calculate the quantiles.
 #' @param pdfnm The name for the pdf document will be the fleet's name and pdfnm separated by a line.
 #
 #' @return A pdf for each fleet with plots.

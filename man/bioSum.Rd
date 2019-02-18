@@ -103,9 +103,15 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 \item{Blim}{named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 
 \item{Prflim}{named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate economic risk yearly.}
+
+\item{discF}{Discount rate.}
+
+\item{y0}{character. Reference year.}
 }
 \value{
-The data frames can be of wide or long format. In long format all the indicators are in the same column.
+A data frame with columns for scenario, year, stock, iter, indicator, value,...
+
+ The data frames can be of wide or long format. In long format all the indicators are in the same column.
  There is one column, indicator, for the name of the indicator and a second one value for the numeric value of the indicator.
  In the wide format each of the indicators correspond with one column in the data frame. 
  The long format it is recommendable to work with ggplot2 functions for example while the wide format 
@@ -139,9 +145,6 @@ Summarize the results of the simulation in data frames.
              "catch",  "discards", "discRat", "landings" and "price".
      \item{riskSum:} A data frame with the risk indicators. The indicators are:
              "pBlim", "pBpa" and "pPrflim".
-         
-     
-     
      \item{vesselSum, vesselSumQ:} Data frame with the indicators at vessel level. The indicators are:
               "catch", "costs", "discards", "discRat", "effort",       
              "fcosts", "gva", "grossValue", "landings", "fep",  "price", "grossSurplus",
@@ -152,8 +155,6 @@ Summarize the results of the simulation in data frames.
      indicator. The indicators are: recruitment, ssb, f, biomass, catch, landings and discards.
      \item{ecoSum_damara:} ecoSum built in the framework of Damara project.
 }
-     
-The data frames
 }
 \examples{
 \dontrun{
@@ -224,7 +225,8 @@ head(oneRes_mt)
 head(oneRes_mtStk)
 head(oneRes_adv)
 
-# Wide format with seasonal disaggregation. No seasonal disagregation available for bio and adv summaries.
+# Wide format with seasonal disaggregation. No seasonal disagregation available for 
+# bio and adv summaries.
 
 oneRes_bio    <- bioSum(oneRes, long = FALSE) # Biol summary is only by year.
 oneRes_flt    <- fltSum(oneRes, long = FALSE, byyear = FALSE)
@@ -316,7 +318,8 @@ oneItRes_mtQ     <- mtSumQ(oneItRes_mt)
 oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
 oneItRes_advQ    <- advSumQ(oneItRes_adv)
 
-oneItRes_risk <- riskSum(oneItRes, Bpa = c(stk1= 900), Blim = c(stk1 = 600), Prflim = c(fl1 = 0), scenario = 'alternative')
+oneItRes_risk <- riskSum( oneItRes, Bpa = c(stk1= 900), Blim = c(stk1 = 600), 
+                          Prflim = c(fl1 = 0), scenario = 'alternative')
 
 oneItRes_npv  <- npv(oneItRes, y0 = '2014')
 
@@ -383,7 +386,9 @@ multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
 multiRes_advQ    <- advSumQ(multiRes_adv)
 
 multiRes_npv  <- npv(multiRes, y0 = '2014')
-risk_multiRes <- riskSum(multiRes, Bpa = c(stk1= 135000, stk2 = 124000), Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(fl1 = 0, fl2 = 0), scenario = 'alternative')
+risk_multiRes <- riskSum( multiRes, Bpa = c(stk1= 135000, stk2 = 124000), 
+                          Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(fl1 = 0, fl2 = 0), 
+                          scenario = 'alternative')
 
 }
 }

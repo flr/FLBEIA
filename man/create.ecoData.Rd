@@ -25,7 +25,7 @@ This function generates an covar object with the economic indicators and fills i
             slots in FLFleets object. The data is given in excel File (xls and xlsx).
 }
 \seealso{
-/link{FLFleetsExt}, /link{create.biols.arrays}
+\code{\link{FLFleetsExt}}, \code{\link{create.biol.arrays}}
 }
 \author{
 Dorleta Garcia & Sonia Sanchez.

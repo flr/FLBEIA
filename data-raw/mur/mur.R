@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------------- 
 
 # mur.r - code to generate data in mur.RData
-# FLBEIA/data-row/mur/mur.r
+# FLBEIA/data-raw/mur/mur.r
 
 # Copyright: AZTI, 2018
 # Author: Dorleta Garcia and Sonia Sanchez (AZTI) (<flbeia@azti.es>)
@@ -39,5 +39,5 @@
 # Save the data
 #==============================================================================
 
-  save( catch, evhoe, file='../../data/mur.RData')
+  save( catch, evhoe, file='../../data/mur.RData', compress="xz")
 

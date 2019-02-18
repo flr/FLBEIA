@@ -51,7 +51,7 @@
 #' @return An \code{FLBiol}. 
 #'
 #' @author Dorleta Garcia & Sonia Sanchez.
-#' @seealso \link{FLBiol}, \link{create.fleets.arrays}
+#' @seealso \code{\link{FLBiol}}, \code{\link{create.fleets.arrays}}
 #' @keywords create.biol.arrays
 #'
 #'  

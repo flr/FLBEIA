@@ -13,10 +13,6 @@ create.advice.ctrl(stksnames, HCR.models = NULL, ...)
 
 \item{...}{any extra arguments necessary in the HCR specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
 To assure the correct functioning the extra arguments must have a name.}
-
-\item{first.year}{The first year in which advice is calculated.}
-
-\item{last.year}{The last year in which advice is calculated.}
 }
 \value{
 A list of lists with the basic structure of the advice.ctrl object.

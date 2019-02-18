@@ -61,7 +61,8 @@ plotbioSum( bioSum(oneRes), stk.nam='stk0') # if incorrect name for the stock
 plotfltSum( fltSum(oneRes), proj.yr=2010) # fltSum output in wide format
 plotfltSum( fltSum(oneRes, long = FALSE)) # fltSum output in long format
 plotfltSum( fltSum(oneRes), flt.nam='stk1') # if incorrect name for the fleet
-plotfltSum( fltSum(oneRes, byyear = FALSE)) # although seasonal disagregation, it is summarised by year
+plotfltSum( fltSum(oneRes, byyear = FALSE)) # although seasonal disagregation, 
+                                            # it is summarised by year
 
 #------------------------------------------------
 # Example OneIters: As one but with iterations.
@@ -77,7 +78,8 @@ plotbioSum( bioSum(s1), stk.nam='stk0') # if incorrect name for the stock
 plotfltSum( fltSum(s1), proj.yr=2010) # fltSum output in wide format
 plotfltSum( fltSum(s1, long = FALSE)) # fltSum output in long format
 plotfltSum( fltSum(s1), flt.nam='stk1') # if incorrect name for the fleet
-plotfltSum( fltSum(s1, byyear = FALSE)) # although seasonal disagregation, it is summarised by year
+plotfltSum( fltSum(s1, byyear = FALSE)) # although seasonal disagregation, 
+                                        # it is summarised by year
 
 # also possible to plot information on various scenarios
 sc11_bio <- bioSum(s1)

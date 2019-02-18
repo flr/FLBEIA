@@ -50,6 +50,9 @@ validFLBDsim <- function(object){
    }
 
 #' @name FLBDsim
+#' @rdname FLBDsim
+#' @aliases FLBDsim FLBDsim-class
+#' 
 #' @title FLBDsim class and methods
 #' 
 #' @description A class  to simulate the growth of populations aggregated in biomass.

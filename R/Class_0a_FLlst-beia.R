@@ -64,6 +64,29 @@ getPlural <- function(object)
 
 #! FLCatchesExt
 
+#' Class FLCatchesExt
+#' 
+#' A list of \code{FLCatchExt} objects.
+#'
+#' @name FLCatchesExt
+#' @aliases FLCatchesExt-class 
+#' @docType class
+#' @section Slots: \describe{
+#'   \item{.Data}{Internal S4 data representation, of class \code{list}.}
+#'   \item{desc}{As textual description of the object contents}
+#'   \item{lock}{Can the object be extended/trimmed? \code{TRUE} or \code{FALSE}.}
+#'   \item{names}{A character vector for the element names} }
+# @template FLlst-constructors
+#' @param object An object of class FLCatchExt, list or missing.
+#' @param ... Other objects to be assigned by name to the class slots.
+#' 
+#' @author The FLBEIA Team
+#' @seealso \code{\link{FLlst}}, \code{\link[base]{list}},
+#'   \code{\link[base]{vector}}, \code{\link{FLCatchExt}}
+#' @keywords classes
+#'
+
+
 # validity
 vFLCs <- function(object){
 	# Make sure the list contains all items of the same class
@@ -76,7 +99,7 @@ vFLCs <- function(object){
 
 # class
 #' @aliases FLCatchesExt
-#' @rdname FLCatchExt
+#' @rdname FLCatchesExt
 setClass("FLCatchesExt", contains="FLlst", 
 	validity=vFLCs
 )
@@ -87,8 +110,8 @@ setGeneric("FLCatchesExt", function(object, ...){
 	}
 )
 
-#' @aliases FLCatchesExt, ANY
-#' @rdname FLCatchExt
+#' @aliases FLCatchesExt,ANY
+#' @rdname FLCatchesExt
 setMethod("FLCatchesExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 
@@ -105,8 +128,8 @@ setMethod("FLCatchesExt", signature(object="ANY"), function(object, ...){
 	new("FLCatchesExt", lst)
 })
 
-#' @aliases FLCatchesExt, missing
-#' @rdname FLCatchExt
+#' @aliases FLCatchesExt,missing
+#' @rdname FLCatchesExt
 setMethod("FLCatchesExt", "missing", function(...){
 	if(missing(...)){
 		new("FLCatchesExt")
@@ -116,27 +139,50 @@ setMethod("FLCatchesExt", "missing", function(...){
 	}
 })
 
-#' @aliases FLCatchesExt, list
-#' @rdname FLCatchExt
+#' @aliases FLCatchesExt,list
+#' @rdname FLCatchesExt
 setMethod("FLCatchesExt", "list", function(object){
 	new("FLCatchesExt", object)
 })
 
 
-#' @aliases FLCatchesExt, is.FLCatchesExt
-#' @rdname FLCatchExt
+#' @aliases is.FLCatchesExt
+#' @rdname FLCatchesExt
 setGeneric("is.FLCatchesExt", function(object, ...){
 	standardGeneric("is.FLCatchesExt")
 	}
 )
 
-#' @aliases FLCatchesExt, is.FLCatchesExt,ANY
-#' @rdname FLCatchExt
+#' @aliases is.FLCatchesExt,ANY
+#' @rdname FLCatchesExt
 setMethod("is.FLCatchesExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLCatchesExt")
 })
 
 #! FLMetiersExt
+
+#' Class FLMetiersExt
+#' 
+#' A list of \code{FLMetierExt} objects.
+#'
+#' @name FLMetiersExt
+#' @aliases FLMetiersExt-class 
+#' @docType class
+#' @section Slots: \describe{
+#'   \item{.Data}{Internal S4 data representation, of class \code{list}.}
+#'   \item{desc}{As textual description of the object contents}
+#'   \item{lock}{Can the object be extended/trimmed? \code{TRUE} or \code{FALSE}.}
+#'   \item{names}{A character vector for the element names} }
+# @template FLlst-constructors
+#' @param object An object of class FLMetierExt, list or missing.
+#' @param ... Other objects to be assigned by name to the class slots.
+#' 
+#' @author The FLBEIA Team
+#' @seealso \code{\link{FLlst}}, \code{\link[base]{list}},
+#'   \code{\link[base]{vector}}, \code{\link{FLMetierExt}}
+#' @keywords classes
+#'
+
 
 # validity
 vFLMs <- function(object){
@@ -150,7 +196,7 @@ vFLMs <- function(object){
 
 # class
 #' @aliases FLMetiersExt
-#' @rdname FLMetierExt
+#' @rdname FLMetiersExt
 setClass("FLMetiersExt", contains="FLlst", 
 	validity=vFLMs
 )
@@ -162,7 +208,7 @@ setGeneric("FLMetiersExt", function(object, ...){
 )
 
 #' @aliases FLMetiersExt,ANY
-#' @rdname FLMetierExt
+#' @rdname FLMetiersExt
 setMethod("FLMetiersExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 	nlst <- length(lst1)
@@ -182,7 +228,7 @@ setMethod("FLMetiersExt", signature(object="ANY"), function(object, ...){
 })
 
 #' @aliases FLMetiersExt,missing
-#' @rdname FLMetierExt
+#' @rdname FLMetiersExt
 setMethod("FLMetiersExt", "missing", function(...){
 	if(missing(...)){
 		new("FLMetiersExt")
@@ -195,26 +241,49 @@ setMethod("FLMetiersExt", "missing", function(...){
 })
 
 #' @aliases FLMetiersExt,list
-#' @rdname FLMetierExt
+#' @rdname FLMetiersExt
 setMethod("FLMetiersExt", "list", function(object){
 	new("FLMetiersExt", object)
 })
 
 # is
 #' @aliases FLMetiersExt,is.FLMetiersExt
-#' @rdname FLMetierExt
+#' @rdname FLMetiersExt
 setGeneric("is.FLMetiersExt", function(object, ...){
 	standardGeneric("is.FLMetiersExt")
 	}
 )
 
 #' @aliases FLMetiersExt,is.FLMetiersExt,ANY
-#' @rdname FLMetierExt
+#' @rdname FLMetiersExt
 setMethod("is.FLMetiersExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLMetiersExt")
 })
 
 #! FLFleetsExt
+
+#' Class FLFleetsExt
+#' 
+#' A list of \code{FLFleetExt} objects.
+#'
+#' @name FLFleetsExt
+#' @aliases FLFleetsExt-class 
+#' @docType class
+#' @section Slots: \describe{
+#'   \item{.Data}{Internal S4 data representation, of class \code{list}.}
+#'   \item{desc}{As textual description of the object contents}
+#'   \item{lock}{Can the object be extended/trimmed? \code{TRUE} or \code{FALSE}.}
+#'   \item{names}{A character vector for the element names} }
+# @template FLlst-constructors
+#' @param object An object of class FLFleetExt, list or missing.
+#' @param ... Other objects to be assigned by name to the class slots.
+#' 
+#' @author The FLBEIA Team
+#' @seealso \code{\link{FLlst}}, \code{\link[base]{list}},
+#'   \code{\link[base]{vector}}, \code{\link{FLFleetExt}}
+#' @keywords classes
+#'
+
 
 # validity
 vFLFs <- function(object){
@@ -228,7 +297,7 @@ vFLFs <- function(object){
 
 # class
 #' @aliases FLFleetsExt
-#' @rdname FLFleetExt
+#' @rdname FLFleetsExt
 setClass("FLFleetsExt", contains="FLlst",
 	validity=vFLFs
 )
@@ -240,7 +309,7 @@ setGeneric("FLFleetsExt", function(object, ...){
 )
 
 #' @aliases FLFleetsExt,ANY
-#' @rdname FLFleetExt
+#' @rdname FLFleetsExt
 setMethod("FLFleetsExt", signature(object="ANY"), function(object, ...){
 	lst1 <- list(...)
 	nlst <- length(lst1)
@@ -252,7 +321,7 @@ setMethod("FLFleetsExt", signature(object="ANY"), function(object, ...){
 })
 
 #' @aliases FLFleetsExt,FLFleetExt-missing
-#' @rdname FLFleetExt
+#' @rdname FLFleetsExt
 setMethod("FLFleetsExt", "missing", function(...){
 	if(missing(...)){
 		new("FLFleetsExt")
@@ -263,21 +332,21 @@ setMethod("FLFleetsExt", "missing", function(...){
 })
 
 #' @aliases FLFleetsExt,list
-#' @rdname FLFleetExt
+#' @rdname FLFleetsExt
 setMethod("FLFleetsExt", "list", function(object){
 	new("FLFleetsExt", object)
 })
 
 # is
 #' @aliases is.FLFleetsExt
-#' @rdname FLFleetExt
+#' @rdname FLFleetsExt
 setGeneric("is.FLFleetsExt", function(object, ...){
 	standardGeneric("is.FLFleetsExt")
 	}
 )
 
 #' @aliases is.FLFleetsExt,ANY
-#' @rdname FLFleetExt
+#' @rdname FLFleetsExt
 setMethod("is.FLFleetsExt", "ANY", function(object, ...){
 	identical(is(object)[1],"FLFleetsExt")
 })
