@@ -231,7 +231,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           i <- i+1
           if (i>length(stk_nms)) {
             break()
-          } else next()
+          } else next
         }
   }
   

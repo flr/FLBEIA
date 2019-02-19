@@ -1,5 +1,6 @@
 .travis.yml
 docs/
+data-raw/
 man-roxygen/
 Makefile
 .git/
