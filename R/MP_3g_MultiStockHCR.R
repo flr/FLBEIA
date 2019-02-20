@@ -65,7 +65,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     stocksCat      <- advice.ctrl[['stocksCategory']]
     approach       <- ifelse(is.null(advice.ctrl[['approach']]), 'max', advice.ctrl[['approach']])
     
-    if(stocksCat[stknm] == 1) stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    if(stocksCat[stknm] == 1) stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
    # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n 
     

@@ -38,7 +38,7 @@
     m <- match.call(expand.dots = FALSE)
     if (is.matrix(eval(m$data, parent.frame()))) 
       m$data <- as.data.frame(data)
-    m$... <- m$exclude <- m$drop.unused.levels <- m$sparse <- NULL
+    m['...'] <- m$exclude <- m$drop.unused.levels <- m$sparse <- NULL
     m[[1L]] <- as.name("model.frame")
     mf <- eval(m, parent.frame())
     if (length(formula) == 2L) {

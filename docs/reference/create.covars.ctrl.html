@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Citation and Authors • FLBEIA</title>
+<title>covars.ctrl object creator — create.covars.ctrl • FLBEIA</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -25,12 +25,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
-<link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script>
+<link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script>
 
 
 
-<meta property="og:title" content="Citation and Authors" />
+<meta property="og:title" content="covars.ctrl object creator — create.covars.ctrl" />
+
+<meta property="og:description" content="It creates the covars.ctrl object to be used in the call to the main function FLBEIA." />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -47,7 +50,7 @@
   </head>
 
   <body>
-    <div class="container template-citation-authors">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -59,7 +62,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">FLBEIA</a>
+        <a class="navbar-link" href="../index.html">FLBEIA</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.3</span>
       </span>
     </div>
@@ -74,13 +77,13 @@
   </a>
 </li>
 <li>
-  <a href="reference/index.html">Reference</a>
+  <a href="../reference/index.html">Reference</a>
 </li>
 <li>
-  <a href="articles/index.html">Articles</a>
+  <a href="../articles/index.html">Articles</a>
 </li>
 <li>
-  <a href="news/index.html">News</a>
+  <a href="../news/index.html">News</a>
 </li>
       </ul>
       
@@ -98,38 +101,69 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Citation</h1>
-      
+    <h1>covars.ctrl object creator</h1>
+    
+    <div class="hidden name"><code>create.covars.ctrl.Rd</code></div>
     </div>
 
-    <p>Jardim E, Urtizberea A, Motova A, Osio C, Ulrich C, Millar C, Mosqueira I, Poos J, Virtanen J, Hamon K, Carvalho N, Prellezo R, Holmes S (2013).
-&ldquo;Bioeconomic Modelling Applied to Fisheries with R/FLR/FLBEIA.&rdquo;
-European Commission Joint Research Centre, Ispra, Italy. 
-</p>
-    <pre>@TechReport{,
-  title = {Bioeconomic Modelling Applied to Fisheries with R/FLR/FLBEIA},
-  author = {E. Jardim and A. Urtizberea and A. Motova and C. Osio and C. Ulrich and C. Millar and I. Mosqueira and J.J. Poos and J. Virtanen and K. Hamon and N. Carvalho and R. Prellezo and S. Holmes},
-  institution = {European Commission Joint Research Centre},
-  year = {2013},
-  address = {Ispra, Italy},
-}</pre>
-    <div class="page-header">
-      <h1>Authors</h1>
+    <div class="ref-description">
+    
+    <p>It creates the covars.ctrl object to be used in the call to the main function FLBEIA.</p>
+    
     </div>
 
-    <ul class="list-unstyled">
-      <li>
-        <p><strong>Dorleta Garcia</strong>. Author, maintainer. 
-        </p>
-      </li>
-    </ul>
+    <pre class="usage"><span class='fu'>create.covars.ctrl</span>(<span class='no'>cvrsnames</span>, <span class='kw'>process.models</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>flq</span>,
+  <span class='kw'>immediate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>cvrsnames</th>
+      <td><p>A vector with the name of the covariates in the OM.</p></td>
+    </tr>
+    <tr>
+      <th>process.models</th>
+      <td><p>A character vector of the same length as cvrsnames with the name of the process model
+followed by each of the covariates.
+The first element corresponds with the process model of the first covariable in cvrsnames, 
+the second with the second and so on. 
+The default is NULL in which case 'fixedCovar' is used for **all** the covariates.</p></td>
+    </tr>
+    <tr>
+      <th>flq</th>
+      <td><p>An FLQuant to give structure to the FLQuants to be used within the function, 
+the dimension and dimnames in 'year', 'season' and 'iter' will be used to create the necessary FLQuants.</p></td>
+    </tr>
+    <tr>
+      <th>immediate</th>
+      <td><p>logical, indicating if the warnings should be output immediately.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>any extra arguments necessary in the HCR specific creators. '...' are extracted using 'list(...)', this generates a named list with the extra arguments.
+To assure the correct functioning the extra arguments must have a name.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>A list of lists with the basic structure of the covars.ctrl object.</p>
+    
 
   </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
 
+  </div>
 </div>
-
 
       <footer>
       <div class="copyright">

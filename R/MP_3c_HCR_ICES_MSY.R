@@ -47,7 +47,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
       if(any(stk@catch[,tail(dimnames(stk@catch)$year,3)]<1e-2)){
         stk <- stf_correctSel(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
         }else{
-         stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+         stk <- stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
     
       }}else{
        stk <- stfBD(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3)}

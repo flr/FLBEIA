@@ -33,7 +33,7 @@ neaMAC_ltmp <- function(stocks, advice, advice.ctrl, year, stknm,...){
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
 
-    stk <- FLAssess::stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+    stk <- stf(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
 
    # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n
     
