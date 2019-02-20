@@ -1,7 +1,7 @@
 .travis.yml
-docs/
-data-raw/
-man-roxygen/
+docs
+data-raw
+man-roxygen
 Makefile
 .git/
 ^appveyor\.yml$

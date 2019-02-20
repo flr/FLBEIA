@@ -19,7 +19,6 @@ Depends:
     ggplot2
 Suggests: R.rsp, FLXSA, FLa4a, Matrix, spict, FLash, FLAssess, nloptr, triangle, mvtnorm
 Additional_repositories: http://flr-project.org/R
-Remotes: mawp/spict/spict
 License: GPL-2
 VignetteBuilder: R.rsp
 RoxygenNote: 6.1.1

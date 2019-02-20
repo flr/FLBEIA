@@ -6,6 +6,8 @@ importFrom("stats", "aggregate", "anova", "as.formula", "coef", "cor",
   "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot")
 importFrom("utils", "data", "installed.packages")
 import("ggplot2")
+importFrom("stats", "optim")
+importFrom("utils", "read.csv")
 
 #importFrom("mvtnorm", "rmvnorm")
 #importFrom("nloptr", "nloptr")

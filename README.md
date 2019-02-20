@@ -1,6 +1,6 @@
 # FLBEIA
-- Version: 1.15.2
-- Date: 2017-10-02
+- Version: 1.15.3
+- Date: 2019-02-19
 - Author: Dorleta GARCIA <dgarcia@azti.es>
 - Maintainer: Dorleta GARCIA, AZTI.
 - Repository: <https://github.com/flr/FLBEIA/>
@@ -26,7 +26,7 @@ To cite this package, start R and enter
 	citation("FLBEIA")
 
 ## License
-Copyright (c) 2010-2017 AZTI. Released under the [GPL v2](http://www.gnu.org/licenses/gpl-2.0.html).
+Copyright (c) 2010-2019 AZTI. Released under the [GPL v2](http://www.gnu.org/licenses/gpl-2.0.html).
 
 ## Contact
 You are welcome to:
