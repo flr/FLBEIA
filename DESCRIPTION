@@ -1,7 +1,7 @@
 Package: FLBEIA
 Title: Bio-Economic Impact Assessment of Management Strategies using FLR
 Version: 1.15.3
-Date: 2017-10-02
+Date: 2019-02-19
 Authors@R: c(person("Dorleta", "Garcia", email = "dgarcia@azti.es", role = c("aut","cre")))
 Description: A simulation toolbox that describes a fishery system under
     a Management Strategy Estrategy approach. The objective of the model is
@@ -19,6 +19,7 @@ Depends:
     ggplot2
 Suggests: R.rsp, FLXSA, FLa4a, Matrix, spict, FLash, FLAssess, nloptr, triangle, mvtnorm
 Additional_repositories: http://flr-project.org/R
+Remotes: mawp/spict/spict
 License: GPL-2
 VignetteBuilder: R.rsp
 RoxygenNote: 6.1.1
