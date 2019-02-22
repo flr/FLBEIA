@@ -18,7 +18,6 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
 
   if(Et.res[i] > c(fl@capacity[,yr,,ss,,i,drop=T])){ 
     fl@effort[,yr,,ss,,i] <- fl@capacity[,yr,,ss,,i,drop=T] 
-    next
   }
   else{ # Minimis, Quota transfer btw years and QuotaSwap.
       minimis <- fleets.ctrl[[flnm]]$LandObl_minimis # logical(ny)

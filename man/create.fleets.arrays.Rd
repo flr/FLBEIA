@@ -4,15 +4,16 @@
 \alias{create.fleets.arrays}
 \title{Function to generate an FLFleetsExt object given inputs as arrays}
 \usage{
-create.fleets.arrays(stk_objs, caa_objs, caa_objs_path,
-  update_price = TRUE, price_objs, price_objs_path, catch_obj,
-  effort_obj, flt_obj = NULL, stk_nms = NA, flt_nms, flt_mt_nms,
-  flt_mt_stk_nms, ages, hist.yrs, sim.yrs, mean.yrs,
-  new_hist.yrs = hist.yrs, caa_flt_mt_correspondences = NULL,
-  paa_flt_mt_correspondences = NULL, caaOpt, priceOpt, excel = TRUE)
+create.fleets.arrays(stk_objs, caa_objs, caa_objs_path, price_objs,
+  price_objs_path, catch_obj, effort_obj, flt_obj = NULL, stk_nms = NA,
+  flt_nms, flt_mt_nms, flt_mt_stk_nms, ages = NULL, hist.yrs, sim.yrs,
+  mean.yrs, new_hist.yrs = hist.yrs, update_catch_effort = TRUE,
+  update_price = TRUE, update_weight = TRUE,
+  caa_flt_mt_correspondences = NULL, paa_flt_mt_correspondences = NULL,
+  caaOpt, priceOpt, excel = TRUE)
 }
 \arguments{
-\item{stk_objs}{A character vector with the names of the files containing the stocks data. See \link{create.biols.arrays} for more detail.
+\item{stk_objs}{A character vector with the names of the files containing the stocks data. See \link{create.biol.arrays} for more detail.
 Supported format is only Excel (xls and xlsx), each stock can be in different format.}
 
 \item{caa_objs}{A character vector with the names of the files containing the catch at age data (in numbers), both for landings and discards.
@@ -25,8 +26,6 @@ The number of required files depend of the value of \code{caaOpt} argument:
 If NULL, the function looks for "caa_stknm_flnm.xlsx" in \code{caaOpt} = 1 or 2 and "caa_stknm.xlsx" in \code{caaOpt} = 3 ,4 or 5.}
 
 \item{caa_objs_path}{A character vector with the \code{caa_objs} file path.}
-
-\item{update_price}{Logical. If \code{TRUE} (default), prices must be provided and \code{price_objs} and \code{price_objs_path} arguments are required.}
 
 \item{price_objs}{A character vector with the names of the files containing the price at age data.
 Supported formats are Excel (xls and xlsx) and R format (RData), each prices file can be in different format.
@@ -68,6 +67,13 @@ and \code{excel} argument must be set to \code{FALSE}.}
 \item{new_hist.yrs}{A vector with the years from input files that will be used to condition the parameters in the historic years.
 If a value is not provided, the it is set equal to \code{hist.yrs}.}
 
+\item{update_catch_effort}{Logical. If \code{TRUE} (default), catch and effort must be provided and \code{catch_obj}, \code{effort_obj} arguments are required.}
+
+\item{update_price}{Logical. If \code{TRUE} (default), prices must be provided and \code{price_objs} and \code{price_objs_path} arguments are required.}
+
+\item{update_weight}{Logical. If \code{TRUE} (default), weights at age for landings and discards must be provided, 
+so wl and wd sheets are required in files listed in \code{stk_objs} argument.}
+
 \item{caa_flt_mt_correspondences}{An Excel file name. This file must contain one sheet per stock, with the correspondences between the fleet segments used in \code{caaa_obj} data 
 and the fleet metier segmentation used in the analysis. If the file does not exist, it is supposed that the caa data is given by fleet and metier.}
 
@@ -76,21 +82,21 @@ and the fleet metier segmentation used in the analysis. If the file does not exi
 \item{caaOpt}{A code number to determine the way in wich catch at age data are provided.
 The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 \itemize{ 
-   \item{1}{If catch at age data is available at m攼㸹tier level for all the m攼㸹tiers.}
+   \item{1}{If catch at age data is available at metier level for all the metiers.}
    \item{2}{If catch at age data is only available at fleet level.}
-   \item{3}{If catch at age data is disaggregated but the segments do not correspond exactly with the m攼㸹tiers/fleets considered in the case study.}
+   \item{3}{If catch at age data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
    \item{4}{If catch at age data is only available at stock level.}
    \item{5}{If we want to use the data available previously in the \code{FLCatch} objects from \code{flt_obj} to derive catch profiles at age 
-            and then apply \code{caaOpt==3} using only one fleet segment, fseg, which represents all the fleets and m攼㸹tiers.
+            and then apply \code{caaOpt==3} using only one fleet segment, fseg, which represents all the fleets and metiers.
             Note: This approach could lead to a different total catch at age profile derived from the fleets to those in the stocks.}
 }}
 
 \item{priceOpt}{A code number to determine the way in wich price at age data are provided.
 The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 \itemize{ 
-   \item{1}{If price data is available at m攼㸹tier level for all the m攼㸹tiers.}
+   \item{1}{If price data is available at metier level for all the metiers.}
    \item{2}{If price data is only available at fleet level.}
-   \item{3}{If price data is disaggregated but the segments do not correspond exactly with the m攼㸹tiers/fleets considered in the case study.}
+   \item{3}{If price data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
    \item{4}{If price data is only available at stock level.}
 }}
 
@@ -105,7 +111,7 @@ This function generates an FLFleetsExt object, given the data inputs as arrays.
              Supported formats are Excel (xls and xlsx) and R format (RData).
 }
 \seealso{
-\link{FLFleetsExt}, \link{create.biols.arrays}
+\code{\link{FLFleetsExt}}, \code{\link{create.biol.arrays}}
 }
 \author{
 Dorleta Garcia & Sonia Sanchez.

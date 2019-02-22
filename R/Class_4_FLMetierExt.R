@@ -42,30 +42,35 @@ validFLMetierExt <- function(object) {
 #' 
 #' @name FLMetierExt
 #' @aliases FLMetierExt-class FLMetierExt FLMetierExt-methods
-#' FLMetierExt,FLMetierExt-method, FLMetiersExt, FLMEtiersExt-methods
+#' FLMetierExt,FLMetierExt-method  FLMetiersExt,FLMetiersExt-methods
 #' 
-#' @title  FLMetierExt and FLMetiersExt classes and the methods to construct it.
+#' @title  FLMetierExt class and the methods to construct it.
 #'
-#' @description They extend the FLMetier and FLMetiers classes defined in FLFleets package. The only different is that 
-#' that the catches slot is a FLCatchesExt object
+#' @description It extends the FLMetier class defined in FLFleet package. 
+#' The only difference is that that the catches slot is a FLCatchesExt object.
 #' 
-#' @details The FLMetierExt object contains a representation of the metier of a  fishing fleet as constructed for the purposes of fleet dynamic modelling. 
+#' @details The FLMetierExt object contains a representation of the metier of a fishing fleet as constructed for the purposes of fleet dynamic modelling. 
 #'    This includes information on effortshare and variable costs.
 #
 #' 
-#' @param object An object of class FLQuant, missing or FLCatchExt.
-#' @param range Numerical vector with min, max, plusgroup, minyear and maxyear elements as in FLStock object.
-#' @param name The name of the metier.
-#' @param desc The description of the object.
-#' @param catches An object of class FLCatchesExt.
+#' @param catches,x An object of class FLQuant, missing or FLCatchExt.
 #' @param gear A character vector with the name of the gear used in the metier.
 #' @param ... Other objects to be assigned by name to the class slots 
+#' @param i subindices.
+#' @param drop If TRUE, deletes the dimensions of an array which have only one level.
 #' 
 #' @return The constructors return an object of class FLMetierExt.
+#' 
+#' @slot gear A character with the gear name of a fleet's metier.
+#' @slot effshare An FLQuant with the effort share of a fleet's metier relative to fleet's total effort 
+#'                (the sum of all metiers effshares for a fleet must sum 1).
+#' @slot vcost An FLQuant with the varible costs of a fleet's metier.
+#' @slot catches A FLCatchesExt with information on the fleet's metier catches.
+#' @slot name The name of the stock.
+#' @slot desc A description of the object.
+#' @slot range The range as in other FLR objects: c("min","max","plusgroup","minyear","maxyear").
 #'  
-#' 
-#' 
-#' 
+
 setClass('FLMetierExt',
 	representation('FLComp',
 		gear='character',

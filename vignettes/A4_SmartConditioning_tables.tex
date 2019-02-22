@@ -524,4 +524,128 @@
 
 
 
+%TABLE 10
+\begin{table}[!ht]
+
+  %\begin{center}
+  \centering
+  \begin{footnotesize}
+
+    \caption{Description of the arguments for \texttt{create.obs.ctrl} function.
+    In the table we assume that \texttt{st} is the name of the stock and \texttt{id} is the name of the index.
+    The arguments with \textsuperscript{*} are compulsory arguments.}
+
+    \label{tb:A4.table10}
+
+    \begin{threeparttable}
+
+      \begin{tabular}{lllll} %{c|c}
+        \hline
+        Argument & class & Dimension & Values & Required for \\
+        \hline
+        stksnames\textsuperscript{*} & vector & nst & names of the stocks &  \\
+        n.stks.inds\textsuperscript{*} & numeric vector & nst & number of indices per stock & \\
+        stkObs.models & character vector & nst & \texttt{'NoObsStock'},\texttt{'perfectObs'},
+                                                 \texttt{'age2ageDat'},\texttt{'age2agePop'}, &  \\
+         &  &  & \texttt{'age2bioDat'},\texttt{'age2bioPop'},\texttt{'bio2bioDat'},\texttt{'bio2bioPop'} &  \\
+         &  &  & (if NULL: 'perfectObs') &  \\
+        indObs.models & character vector & nst & \texttt{'NoObsIndex'},\texttt{'ageInd'},\texttt{'bioInd'},
+          \texttt{'ssbInd'},\texttt{'cbbmInd'},\texttt{'bio1plusInd'} &  \\
+         &  &  & (if NULL: 'NoObsIndex') &  \\
+        inmediate & logical  & 1 & \texttt{'TRUE'} (for getting warnings inmediately), & \\
+         &  &  & \texttt{'FALSE'} (default) &  \\
+        % OBS MODEL
+        flq.st & FLQuant & [na,ny,1,ns,1,ni] & object values not used, only dimensions and their names & 
+            \texttt{age2ageDat},\texttt{age2agePop},\texttt{age2bioDat}, \\
+         &  &  &  & \texttt{age2bioPop},\texttt{bio2bioDat},\texttt{bio2bioPop}, \\
+         &  &  &  & \texttt{ageInd} \\
+        % IND OBS MODEL
+        sInd.id.st & numeric & 1 & season for the observation of the stock & \texttt{ssbInd} \\
+        wageIni.id.st & numeric & 2 ('age1','age2plus') & weights at ages 1 and 2+ & \texttt{cbbmInd}\\
+        iter & numeric & 1 & number of iterations & \texttt{cbbmInd} \\
+        \hline
+      \end{tabular}
+
+      \begin{tablenotes}
+        % \small
+        \item nst: number of stocks
+        \item na: number of age clases for stock \texttt{st}.
+        \item ny: number of years for stock \texttt{st}.
+        \item ns: number of seasons for stock \texttt{st}.
+        \item ni: number of iteration for stock \texttt{st}.
+      \end{tablenotes}
+
+    \end{threeparttable}
+  \end{footnotesize}
+  %\end{center}
+
+\end{table}
+
+
+
+%TABLE 11
+\begin{table}[!ht]
+
+  %\begin{center}
+  \centering
+  \begin{footnotesize}
+
+    \caption{Description of the arguments for \texttt{create.advice.ctrl} function.
+    In the table we assume that \texttt{st} is the name of the stock.
+    %and \texttt{fl} the name of the fleet.
+    The arguments with \textsuperscript{*} are compulsory arguments.}
+
+    \label{tb:A4.table11}
+
+    \begin{threeparttable}
+
+      \begin{tabular}{lllll} %{c|c}
+        \hline
+        Argument & class & Dimension & Values & Required for \\
+        \hline
+        stksnames\textsuperscript{*} & vector & nst & names of the stocks &  \\
+        HCR.models & character vector & nst & \texttt{'fixedAdvice'},\texttt{'annualTAC'},
+                                                 \texttt{'IcesHCR'},\texttt{'ghlHCR'}, &  \\
+         &  &  & \texttt{'annexIVHCR'},\texttt{'froeseHCR'},\texttt{'F2CatchHCR'},\texttt{'neaMAC\_ltmp'}, &  \\
+         &  &  & \texttt{'aneHCR\_JD'} &  \\
+         &  &  & (if NULL: 'fixedAdvice') &  \\
+        % MISSING: ghlHCR, 
+        first.yr & numeric & 1 & first year for advice & \texttt{annualTAC},\texttt{IcesHCR},\texttt{F2CatchHCR}, \\
+         &  &  &  & \texttt{neaMAC\_ltmp},\texttt{aneHCR\_JD} \\
+        last.yr & numeric & 1 & last year for advice & \texttt{annualTAC},\texttt{IcesHCR},\texttt{F2CatchHCR}, \\
+         &  &  &  & \texttt{neaMAC\_ltmp},\texttt{aneHCR\_JD} \\
+        AdvCatch.st & logical & 1 & \texttt{'FALSE'} (TAC in terms of landings, default value), & 
+            \texttt{annualTAC},\texttt{IcesHCR},\texttt{F2CatchHCR}, \\
+        &  &  & \texttt{'TRUE'} (TAC in terms of catch) &  \texttt{neaMAC\_ltmp},\texttt{aneHCR\_JD} \\
+        Ftarget.st & numeric & 1 & target F value & \texttt{annualTAC} \\
+        ref.pts.st & matrix & [nrp,ni] & reference points & \texttt{IcesHCR},\texttt{annexIVHCR},
+                                                            \texttt{froeseHCR},\texttt{F2CatchHCR}, \\
+         &  &  &  & \texttt{aneHCR\_JD} \\
+        iter & numeric & 1 & number of iterations & \texttt{annexIVHCR},\texttt{froeseHCR},\texttt{F2CatchHCR}, \\
+        &  &  &  & \texttt{aneHCR\_JD} \\
+        TACs1.perc.st & numeric & 1 & percentage of TAC captured in 1st semester (out of 2) & \texttt{aneHCR\_JD} \\
+        tsurv.st & numeric & 1 & survey time (season) & \texttt{aneHCR\_JD} \\
+        cbbm.params.flq.st & FLQuant & [na,ny,1,ns,1,ni] 
+            & object values not used, only dimensions and their names & \texttt{aneHCR\_JD} \\
+        index.st & character & 1 & name of de index & \texttt{'annexIVHCR'},\texttt{aneHCR\_JD} \\
+        \hline
+      \end{tabular}
+
+      \begin{tablenotes}
+        % \small
+        \item nrp: number of reference points required for the HCR selected for stock \texttt{st}.
+        \item na: number of age clases for stock \texttt{st}.
+        \item ny: number of years for stock \texttt{st}.
+        \item ns: number of seasons for stock \texttt{st}.
+        \item ni: number of iteration for stock \texttt{st}.
+      \end{tablenotes}
+
+    \end{threeparttable}
+  \end{footnotesize}
+  %\end{center}
+
+\end{table}
+
+
+
 \end{landscape}

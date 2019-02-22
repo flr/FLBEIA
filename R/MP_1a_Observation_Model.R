@@ -113,7 +113,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     catch.n(res)    <- res@discards.n + res@landings.n
     landings(res)   <- quantSums(res@landings.n*res@landings.wt)
     discards(res)   <- quantSums(res@discards.n*res@discards.wt)
-    catch(res)      <- quantSums(res@catch.n*res@catch.wt)
+    catch(res)      <- res@landings + res@discards
         
     # harvest: * if age structured calculate it from 'n'.
     #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
@@ -148,7 +148,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
                     
                     else{
                         zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
-                                                uniroot(fobj, lower = 1e-300, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root), silent = TRUE)  
+                                                uniroot(fobj, lower = 1e-300, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i], tol = 1e-12)$root), silent = TRUE)  
                         res@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, res@harvest[ai-1,y,,,,i] )
                     }
                 }
@@ -372,7 +372,7 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     }
    
     stck              <- propagate(as(biol, "FLStock")[,1:ny], it, fill.iter = TRUE)
-    res@range <- res@range[1:7]
+    stck@range <- stck@range[1:7]
 
     landings(stck)     <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
     landings(stck)     <- FLQuant(ifelse(stck@landings > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
@@ -446,7 +446,7 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
              
     biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
     stck                <- propagate(as(biolbio, "FLStock")[,1:ny], it, fill.iter = TRUE) 
-    res@range <- res@range[1:7]
+    stck@range <- stck@range[1:7]
     dimnames(stck)      <- list(age="all")
 
     landings(stck)      <- FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))

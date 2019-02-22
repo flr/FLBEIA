@@ -143,14 +143,20 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     
     sts   <- catchNames(fl)
     
-    # The effort is restricted only by the stocks in 'stocks.restr'                      
-    if(!is.null(fleets.ctrl[[flnm]][['stocks.restr']])) {
-      sts <- fleets.ctrl[[flnm]][['stocks.restr']]
-    } else 
-      sts <- fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
+    # The effort is restricted only by the stocks in 'stocks.restr'    
+    # Remove the NA-s if any
+    # if(any(fleets.ctrl[[flnm]][['stocks.restr']])){
+    #   cat(paste("warning: there is at least one NA in  fleets.ctrl[['",flnm,"']][['stocks.restr']], and it has been removed, only the values different to NA will be maintained.\n", sep=""))
+    #   
+    #   fleets.ctrl[[flnm]][['stocks.restr']] <- fleets.ctrl[[flnm]][['stocks.restr']][!is.na(fleets.ctrl[[flnm]][['stocks.restr']])]
+    # }
+    # If the restrictors are missing => all the stocks restrict.
+    if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
+      fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
+    }  
+      
+    sts <- fleets.ctrl[[flnm]][['stocks.restr']]
     
-    if(is.na(fleets.ctrl[[flnm]][['stocks.restr']]))
-      cat(paste("warning: fleets.ctrl[['",flnm,"']][['stocks.restr']]==NA, then effort is restricted by capacity and not by any of the stocks.\n", sep=""))
     
     mtnms <- names(fl@metiers)
     

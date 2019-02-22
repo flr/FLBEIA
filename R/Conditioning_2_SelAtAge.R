@@ -41,6 +41,65 @@
 # Last change: 2011-03-18 09:46:35 (Sonia SYYYnchez)
 #-------------------------------------------------------------------------------
 
+#' Estimate selectivity at age
+#' 
+#' Estimates selectivity at age of an stock by a fleet and metier.
+#'
+#' @details
+#' 
+#' To calculate selectivity at age, the following formula is used:
+#' 
+#' \deqn{ C_{a,f,m} = \frac{C_{f,m}}{sum_{i=a_0,...a+} S_{i,f,m} \cdot B_i} \cdot S_{a,f,m} \cdot B_a } 
+#' 
+#' Where:
+#' 
+#'\itemize{
+#'      \item{a:} age. 
+#'      \item{f:} fleet. 
+#'      \item{m:} metier. 
+#'      \item{i:} susbscript of age. 
+#'      \item{\eqn{S_{a,f,m}}:} selectivity at age 'a' for fleet 'f' and metier 'm'. 
+#'      \item{\eqn{C_{a,f,m}}:} catch (in weight) at age 'a' for fleet 'f' and metier 'm'. 
+#'      \item{\eqn{C_{f,m}}:} total catch for fleet 'f' and metier 'm'. 
+#'      \item{\eqn{B_a}:} biomass (in weight) at age.  
+#'}
+#'
+#' Consult \href{https://github.com/flr/FLBEIA/blob/master/inst/doc/FLBEIA_manual.pdf}{FLBEIA manual} 
+#' to see the derivation of the formula.
+#' 
+#' The equation above is nonlinear and  therefore we cannot find an analytical expression
+#' for the selectivity. 
+#' Rewriting the equation above for each 'a' we have de following equation:
+#' 
+#' \deqn{ sum_{i=a_0,...a+} S_{i,f,m} \cdot B_i - \frac{C_{f,m}}{C_{a,f,m}} \cdot B_a \cdot S_{a,f,m}}
+#' 
+#' Thus we have a system of linear equations being {Sa0fm,...,Sa+fm} the unknown variables.
+#' The problem is that the equations in the system are not independent.
+#' Therefore, we have to remove one equation to get a system of independent equations.
+#' Furthermore, we have to add a constraint (an equation) to be able to solve the system. 
+#' 
+#' To make sure that output is correct, we solve the sistem for each year and season several times 
+#' (the number is set in \code{ntrials}), removing a different equation each time.
+#' Alway using the same constraint (\code{restriction=1}):
+#' \eqn{ sum_{i=a_0,...a+} S_{i,f,m} = 1} 
+#' Finally, we compare the values of \eqn{ S_{i,f,m} } and we check if they are the same.
+#' 
+#' 
+#' @param biols A FLBiols object.
+#' @param fleets A FLFleetsExt object.
+#' @param flnm A character vector with the name of the fleet for which you want to calculate selectivity.
+#' @param mtnm A character vector with the name of the metier for which you want to calculate selectivity.
+#' @param stnm A character vector with the name of the stock for which you want to calculate selectivity.
+#' @param years A character vector with the name of the years used to calculate selectivity.
+#' @param iter Numeric vector with the specific iterations to be consider. 
+#'             Default is taking all iterations.
+#' @param restriction If restriction = 1 => sum(Sa) = 1, whereas if restriction = 2 => max(Sa) = 1.
+#'                    Default value is 1.
+#' @param ntrials Numeric. If ntrials > 1, process success is checked.
+#' 
+#' @return A FLQuant with selectivity at age values in \code{years}. 
+#'         The rest of the years have value 0 for all ages.
+#'
 
 SelAtAge <- function(biols, fleets, flnm = 1, mtnm = 1, stnm = 1, years, iter = NULL, restriction = 1, ntrials = 3){
 

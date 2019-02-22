@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------------- 
 
 # one.r - code to generate data in one.RData
-# FLBEIA/data-row/one/one.r
+# FLBEIA/data-raw/one/one.r
 
 # Copyright: AZTI, 2018
 # Author: Agurtzane Urtizberea, Dorleta Garcia and Sonia Sanchez (AZTI) (<flbeia@azti.es>)
@@ -365,7 +365,7 @@
   stk1_idBio_range.endf <- 1-0.12
   stk1_idBio_range.min <- 0
   stk1_idBio_range.max <- 0
-  #  YFT_cpue_range.plusgroup <- 0
+  #  stk1_idBio_range.plusgroup <- 0
   stk1_idBio_range.minyear <- first.yr
   stk1_idBio_range.maxyear <- proj.yr-1
   
@@ -389,7 +389,7 @@
   stk1_idAge_range.endf <- 1-0.12
   stk1_idAge_range.min <- stk1.age.min
   stk1_idAge_range.max <- stk1.age.max
-  #  YFT_cpue_range.plusgroup <- 0
+  #  stk1_idAge_range.plusgroup <- 0
   stk1_idAge_range.minyear <- first.yr
   stk1_idAge_range.maxyear <- proj.yr-1
   
@@ -460,15 +460,14 @@
   assess.ctrl <- create.assess.ctrl(stksnames = stks, assess.models = assess.models)
   assess.ctrl[['stk1']]$work_w_Iter   <- TRUE
   
-  #==============================================================================
-  #source("sca.wrapper.R")
+  #==========================SCA====================================================
   
   assess.ctrl.age <- assess.ctrl
   assess.ctrl.age$stk1$assess.model <- "sca2flbeia"
   assess.ctrl.age[["stk1"]]$harvest.units <- "f"
   assess.ctrl.age[["stk1"]]$control$test <- TRUE
   
-  #==============================================================================
+  #==========================SPiCT====================================================
   
   assess.ctrl.bio <- assess.ctrl.age
   assess.ctrl.bio[["stk1"]]$assess.model <- "spict2flbeia"
@@ -499,9 +498,6 @@
   
   obs.ctrl.bio[['stk1']][['indObs']][['idBio']] <- list()
   obs.ctrl.bio[['stk1']][['indObs']][['idBio']][['indObs.model']]  <- 'bioInd'
-  obs.ctrl.bio$stk1$stkObs$TAC.ovrsht <- array(1,dim=c(length(stks),length(first.yr:last.yr)),dimnames=list(c(stks),ac(first.yr:last.yr)))
-  obs.ctrl.bio$stk1$stkObs$land.bio.error <- array(1,dim=c(length(stks),length(first.yr:last.yr)),dimnames=list(c(stks),ac(first.yr:last.yr)))
-  obs.ctrl.bio$stk1$stkObs$disc.bio.error <- array(1,dim=c(length(stks),length(first.yr:last.yr)),dimnames=list(c(stks),ac(first.yr:last.yr)))
 
   
   #=========================OBSERVATION: AGE2AGEDAT================================================
@@ -550,9 +546,7 @@
     obs.ctrl.age[['stk1']][['indObs']][['idAge']] <- list()
     obs.ctrl.age[['stk1']][['indObs']][['idAge']][['indObs.model']]  <- 'ageInd'
     obs.ctrl.age$stk1$stkObs$TAC.ovrsht <- TAC.ovrsht
-    # obs.ctrl.age$stk1$stkObs$TAC.ovrsht <- array(1,dim=c(length(stks),length(first.yr:last.yr)),dimnames=list(c(stks),ac(first.yr:last.yr)))
-    # obs.ctrl.age$stk1$stkObs$land.bio.error <- array(1,dim=c(length(stks),length(first.yr:last.yr)),dimnames=list(c(stks),ac(first.yr:last.yr)))
-    # obs.ctrl.age$stk1$stkObs$disc.bio.error <- array(1,dim=c(length(stks),length(first.yr:last.yr)),dimnames=list(c(stks),ac(first.yr:last.yr)))
+    
     obs.ctrl.age[['stk1']][['stkObs']][['ages.error']] <- ages.error
     
     slts <- c('nmort.error', 'fec.error', 'land.wgt.error', 'stk.nage.error', 'stk.wgt.error',
@@ -636,7 +630,7 @@
   save( oneAdv, oneAdvC, oneAssC, oneBio, oneBioC, oneCv, oneCvC, 
         oneFl, oneFlC, oneIndAge, oneIndBio, 
         oneMainC, oneObsC, oneObsCIndAge, oneObsCIndBio, oneSR, 
-        file ="../../data/one.RData")
+        file ="../../data/one.RData", compress="xz")
   
   
 # #==============================================================================
@@ -659,7 +653,7 @@
 #                advice.ctrl = oneAdvC)  # A list with one element to define how the TAC advice is obtained ("IcesHCR").
 # 
 #   oneRes <- s0
-#   save(oneRes,file='../data/oneRes.RData')
+#   save(oneRes,file='../data/oneRes.RData',compress="xz")
 #   
 #   
 # #==============================================================================

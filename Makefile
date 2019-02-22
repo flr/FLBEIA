@@ -37,7 +37,7 @@ release: build docs
 
 build:
 	cd ..;\
-	R CMD build $(PKGSRC) --compact-vignettes --resave-data
+	R CMD build $(PKGSRC) --compact-vignettes="gs+qpdf" --resave-data
 
 buildNV: README.md NEWS
 	cd ..;\

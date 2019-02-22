@@ -2,7 +2,8 @@
 % Please edit documentation in R/Class_2_FLSRsim.R
 \name{FLSRsim}
 \alias{FLSRsim}
-\title{FLSRsim class}
+\alias{FLSRsim-class}
+\title{FLSRsim class and methods}
 \arguments{
 \item{...}{Any of the slots in FLSRsim class.}
 }

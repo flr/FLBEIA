@@ -26,7 +26,7 @@
 #' @rdname create.fleets.arrays
 #' @aliases create.fleets.arrays
 #'
-#' @param stk_objs        A character vector with the names of the files containing the stocks data. See \link{create.biols.arrays} for more detail.
+#' @param stk_objs        A character vector with the names of the files containing the stocks data. See \link{create.biol.arrays} for more detail.
 #'                        Supported format is only Excel (xls and xlsx), each stock can be in different format.
 #' @param caa_objs        A character vector with the names of the files containing the catch at age data (in numbers), both for landings and discards.
 #'                        Supported formats are Excel (xls and xlsx) and R format (RData), each file can be in different format.
@@ -69,26 +69,29 @@
 #' @param mean.yrs        A vector with the years used to compute the mean to condition the parameters in the projection period.
 #' @param new_hist.yrs    A vector with the years from input files that will be used to condition the parameters in the historic years.
 #'                        If a value is not provided, the it is set equal to \code{hist.yrs}.
+#' @param update_catch_effort Logical. If \code{TRUE} (default), catch and effort must be provided and \code{catch_obj}, \code{effort_obj} arguments are required.
+#' @param update_weight   Logical. If \code{TRUE} (default), weights at age for landings and discards must be provided, 
+#'                        so wl and wd sheets are required in files listed in \code{stk_objs} argument.
 #' @param caa_flt_mt_correspondences An Excel file name. This file must contain one sheet per stock, with the correspondences between the fleet segments used in \code{caaa_obj} data 
 #'                                   and the fleet metier segmentation used in the analysis. If the file does not exist, it is supposed that the caa data is given by fleet and metier. 
 #' @param paa_flt_mt_correspondences An Excel file name. This file must contain information on prices correspondences, with same format and requirements as \code{caa_flt_mt_correspondences} argument.
 #' @param caaOpt          A code number to determine the way in wich catch at age data are provided.
 #'                        The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 #'                        \itemize{ 
-#'                           \item{1}{If catch at age data is available at métier level for all the métiers.}
+#'                           \item{1}{If catch at age data is available at metier level for all the metiers.}
 #'                           \item{2}{If catch at age data is only available at fleet level.}
-#'                           \item{3}{If catch at age data is disaggregated but the segments do not correspond exactly with the métiers/fleets considered in the case study.}
+#'                           \item{3}{If catch at age data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
 #'                           \item{4}{If catch at age data is only available at stock level.}
 #'                           \item{5}{If we want to use the data available previously in the \code{FLCatch} objects from \code{flt_obj} to derive catch profiles at age 
-#'                                    and then apply \code{caaOpt==3} using only one fleet segment, fseg, which represents all the fleets and métiers.
+#'                                    and then apply \code{caaOpt==3} using only one fleet segment, fseg, which represents all the fleets and metiers.
 #'                                    Note: This approach could lead to a different total catch at age profile derived from the fleets to those in the stocks.}
 #'                        }
 #' @param priceOpt        A code number to determine the way in wich price at age data are provided.
 #'                        The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 #'                        \itemize{ 
-#'                           \item{1}{If price data is available at métier level for all the métiers.}
+#'                           \item{1}{If price data is available at metier level for all the metiers.}
 #'                           \item{2}{If price data is only available at fleet level.}
-#'                           \item{3}{If price data is disaggregated but the segments do not correspond exactly with the métiers/fleets considered in the case study.}
+#'                           \item{3}{If price data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
 #'                           \item{4}{If price data is only available at stock level.}
 #'                        }
 #' @param excel           Logical. If \code{TRUE} (default), the data in the Excel file is used to create the stucture of the FLFleets object; whereas 
@@ -98,7 +101,7 @@
 #'
 #' 
 #' @author Dorleta Garcia & Sonia Sanchez.
-#' @seealso \link{FLFleetsExt}, \link{create.biols.arrays}
+#' @seealso \code{\link{FLFleetsExt}}, \code{\link{create.biol.arrays}}
 #' @keywords create.fleets.arrays
 #'
 #'  
@@ -107,90 +110,104 @@
 # # still missing an example
 # 
 
-create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price = TRUE, price_objs, price_objs_path, 
+create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs, price_objs_path, 
                                  catch_obj, effort_obj, flt_obj = NULL, # stk_obj= NULL, eco_obj=NULL,
                                  stk_nms = NA, flt_nms, flt_mt_nms, flt_mt_stk_nms, 
-                                 ages, hist.yrs, sim.yrs, mean.yrs, new_hist.yrs = hist.yrs,
+                                 ages = NULL, hist.yrs, sim.yrs, mean.yrs, new_hist.yrs = hist.yrs,
+                                 update_catch_effort = TRUE, update_price = TRUE, update_weight = TRUE, 
                                  caa_flt_mt_correspondences = NULL, paa_flt_mt_correspondences = NULL, caaOpt, priceOpt, excel = TRUE){
   
+ if(is.null(flt_obj)){
   ages_stk <- lapply(ages, function(x) ac(x))
+  stks <- names(ages_stk)
+ }
+ else{
+   stks <- unique(unlist(lapply(fleets, catchNames)))
+   ages_stk <- vector('list', length(stks)); names(ages_stk) <- stks
+   
+    flt_nms        <- names(fleets)
+    flt_mt_nms     <- lapply(fleets, function(x) names(x@metiers))   
+    flt_mt_stk_nms <- lapply(flt_obj, function(x) lapply(x@metiers, function(y) catchNames(y)))
+   
+   for(st in stks){
+     flmt <- strsplit(names(which(stock.fleetInfo(flt_obj)[st,] == 1))[1], '&&')[[1]]
+     ages_stk[[st]] <- dimnames(flt_obj[[flmt[1]]][[flmt[2]]][[st]]@landings.n)[[1]]
+     
+   }
+ }
+  
+  nages_stk  <- sapply(ages_stk, function(x) length(x))
+  
   hist.yrs <- ac(hist.yrs)
   sim.yrs  <- ac(sim.yrs)
   mean.yrs <- ac(mean.yrs)
-  
-  stks <- names(ages_stk)
-  
-  # stk_data <- caa_data <- list()
-  
   old_hist.yrs <- hist.yrs[which(!(hist.yrs %in% new_hist.yrs))]
-  
-  
-#  if(is.null(fbar)) fbar <- c(ages[1], ages[length(ages)])
-  
   yrs <- hist.yrs[1]:sim.yrs[length(sim.yrs)]
-  
-  nages_stk  <- sapply(ages, function(x) length(x))
   nyear <- length(yrs)
   
-  # Fcube format catch and effort (it can be excel, cvs or RData, but both in the same format)
-  fmt <- strsplit(catch_obj,'.', fixed = TRUE)[[1]][length(strsplit(catch_obj,'.', fixed = TRUE)[[1]])] 
-  if(fmt %in% c('xls', 'xlsx')){
-    catch_wb  <- loadWorkbook(catch_obj)
-    effort_wb <- loadWorkbook(effort_obj)
-    catch  <- readWorksheet(catch_wb, sheet = 1)
-    # check that all required columns are available
-    if (!all(c("year","fleet","metier","stock","category","catch") %in% names(catch)))
-      stop(paste("Columns 'year', 'fleet', 'metier', 'stock', 'category' and 'catch' are required in ", catch_obj, " file",sep=''))
-    # transform to character (if necessary)
-    catch$fleet    <- as.character(catch$fleet)
-    catch$metier   <- as.character(catch$metier)
-    catch$stock    <- as.character(catch$stock)
-    catch$category <- as.character(catch$category)
-    effort <- readWorksheet(effort_wb, sheet = 1)
-    # check that all required columns are available
-    if (!all(c("year","fleet","metier","effort") %in% names(effort)))
-      stop(paste("Columns 'year', 'fleet', 'metier' and 'effort' are required in ", effort_obj, " file",sep=''))
-    # transform to character (if necessary)
-    effort$fleet  <- as.character(effort$fleet)
-    effort$metier <- as.character(effort$metier)
-  }
-  else{
-    if(fmt == 'RData'){
-      load(catch_obj)
-      load(effort_obj)
+  
+  if(update_catch_effort == TRUE){
+    # Fcube format catch and effort (it can be excel, cvs or RData, but both in the same format)
+    fmt <- strsplit(catch_obj,'.', fixed = TRUE)[[1]][length(strsplit(catch_obj,'.', fixed = TRUE)[[1]])] 
+    if(fmt %in% c('xls', 'xlsx')){
+      catch_wb  <- loadWorkbook(catch_obj)
+      effort_wb <- loadWorkbook(effort_obj)
+      catch  <- readWorksheet(catch_wb, sheet = 1)
+      # check that all required columns are available
+      if (!all(c("year","fleet","metier","stock","category","catch") %in% names(catch)))
+        stop(paste("Columns 'year', 'fleet', 'metier', 'stock', 'category' and 'catch' are required in ", catch_obj, " file",sep=''))
+      # transform to character (if necessary)
+      catch$fleet    <- as.character(catch$fleet)
+      catch$metier   <- as.character(catch$metier)
+      catch$stock    <- as.character(catch$stock)
+      catch$category <- as.character(catch$category)
+      effort <- readWorksheet(effort_wb, sheet = 1)
+      # check that all required columns are available
+      if (!all(c("year","fleet","metier","effort") %in% names(effort)))
+        stop(paste("Columns 'year', 'fleet', 'metier' and 'effort' are required in ", effort_obj, " file",sep=''))
+      # transform to character (if necessary)
+      effort$fleet  <- as.character(effort$fleet)
+      effort$metier <- as.character(effort$metier)
     }
     else{
-      if(fmt == 'csv'){
-        catch <- read.csv(catch_obj)
-        effort <- read.csv(effort_obj)
+      if(fmt == 'RData'){
+        load(catch_obj)
+        load(effort_obj)
       }
       else{
-        stop('The format of catch and effort data must one of "RData", "csv", "xls" or "xlsx"')
+        if(fmt == 'csv'){
+          catch <- read.csv(catch_obj)
+          effort <- read.csv(effort_obj)
+        }
+        else{
+          stop('The format of catch and effort data must one of "RData", "csv", "xls" or "xlsx"')
       }
     }
   }
 
-  # Subset only to the years in new_hist.yrs
-  catch  <- subset(catch, year %in% new_hist.yrs)
-  effort <- subset(effort, year %in% new_hist.yrs)
+    # Subset only to the years in new_hist.yrs
+    catch  <- subset(catch, year %in% new_hist.yrs)
+    effort <- subset(effort, year %in% new_hist.yrs)
   
-  # calculate total catch by stock and year
-  catch_yr <- aggregate(catch ~ year + stock, catch, sum, na.rm = TRUE)
+    # calculate total catch by stock and year
+    catch_yr <- aggregate(catch ~ year + stock, catch, sum, na.rm = TRUE)
   
-  # calculate total effort by fleet and year
-  effort_yr <- aggregate(effort ~ year + fleet, effort, sum, na.rm = TRUE)
+    # calculate total effort by fleet and year
+    effort_yr <- aggregate(effort ~ year + fleet, effort, sum, na.rm = TRUE)
   
-  # Aggregate by stock, fleet, metier and category just in case there are duplicates
-  catch  <- aggregate(catch ~ stock + category + year + fleet + metier, catch, sum)
-  effort <- aggregate(effort ~ year + fleet + metier, effort, sum)
-  # add new column to the data.frame 'prop_mt' and 'prop_flmt' with the proportion by metier and by fleet and metier, respectively
-  catch <- ddply(catch, c("stock", "category", "year", "fleet"), transform, prop_mt = catch/sum(catch))
-  catch <- ddply(catch, c("stock", "category", "year"), transform, prop_flmt = catch/sum(catch))
-  # when catches==0, prop=NaN  --> set to 0
-  catch$prop_mt[is.nan(catch$prop_mt)]     <- 0
-  catch$prop_flmt[is.nan(catch$prop_flmt)] <- 0
-  # add a column to the data.frame 'prop' with the proportion by metier
-  effort <- ddply(effort, c("year", "fleet"), transform, prop = effort/sum(effort))
+    # Aggregate by stock, fleet, metier and category just in case there are duplicates
+    catch  <- aggregate(catch ~ stock + category + year + fleet + metier, catch, sum)
+    effort <- aggregate(effort ~ year + fleet + metier, effort, sum)
+    # add new column to the data.frame 'prop_mt' and 'prop_flmt' with the proportion by metier and by fleet and metier, respectively
+    catch <- ddply(catch, c("stock", "category", "year", "fleet"), transform, prop_mt = catch/sum(catch))
+    catch <- ddply(catch, c("stock", "category", "year"), transform, prop_flmt = catch/sum(catch))
+    # when catches==0, prop=NaN  --> set to 0
+    catch$prop_mt[is.nan(catch$prop_mt)]     <- 0
+    catch$prop_flmt[is.nan(catch$prop_flmt)] <- 0
+    # add a column to the data.frame 'prop' with the proportion by metier
+    effort <- ddply(effort, c("year", "fleet"), transform, prop = effort/sum(effort))
+}
+  
   
   if(excel == TRUE){
     nit <- 1
@@ -203,7 +220,7 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
     flt_mt_nms     <- lapply(flt_data, function(x) names(x@metiers)) 
     flt_mt_stk_nms <- lapply(flt_data, function(x) lapply(x@metiers, function(y) names(y@catches)))
 
-        stk_nms <- unique(unlist(flt_mt_stk_nms))
+    stk_nms <- unique(unlist(flt_mt_stk_nms))
     ages <- list()
     i <- 1
     for(fl in names(flt_data))
@@ -214,7 +231,7 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
           i <- i+1
           if (i>length(stk_nms)) {
             break()
-          } else next()
+          } else next
         }
   }
   
@@ -264,35 +281,69 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
       flfleets[[fl]] <- FLFleetExt(name = fl, desc = 'data imported from', effort = eff1_flq, fcost = eff_flq, capacity = eff_flq, crewshare = eff0_flq,
               metiers = FLMetiersExt(flmt))
     }
-  } else flfleets <- flt_obj
-  
+  } else{ 
+    flfleets <- flt_obj
+      }
   
   #---------------------------------------------------------------------
   ## Checking files and content
   #---------------------------------------------------------------------
   
-  # check that all files are available in the assigned paths
-  if (sum(!caa_objs %in% dir(caa_objs_path))>0) 
-    stop(paste("Following files missing in '", caa_objs_path, "': \n", paste(caa_objs[!(caa_objs %in% dir(caa_objs_path))], collapse = '\n'), sep=''))
-  if(update_price == TRUE) {if (sum(!price_objs %in% dir(price_objs_path))>0) 
-    stop(paste("Following files missing in '", price_objs_path,"': \n", paste(price_objs[!(price_objs %in% dir(price_objs_path))], collapse = '\n'), sep=''))}
-  if (!file.exists( catch_obj)) stop("'catch_obj' file is not available")
-  if (!file.exists( effort_obj)) stop("'effort_obj' file is not available")
   
-  for (st in stk_nms) {
-    # caa
-    if(caaOpt[st] %in% c(1,2)){ 
-      flst <- lapply(flt_mt_stk_nms, function(x) unique(unlist(x)))
-      flst_caa <- flst
-      for (i in 1:length(flst))
+  if (update_catch_effort ==TRUE) {
+    # check that all files are available in the assigned paths
+    if (sum(!caa_objs %in% dir(caa_objs_path))>0) 
+      stop(paste("Following files missing in '", caa_objs_path, "': \n", paste(caa_objs[!(caa_objs %in% dir(caa_objs_path))], collapse = '\n'), sep=''))
+    if(update_price == TRUE) {if (sum(!price_objs %in% dir(price_objs_path))>0) 
+      stop(paste("Following files missing in '", price_objs_path,"': \n", paste(price_objs[!(price_objs %in% dir(price_objs_path))], collapse = '\n'), sep=''))}
+    if (!file.exists( catch_obj)) stop("'catch_obj' file is not available")
+    if (!file.exists( effort_obj)) stop("'effort_obj' file is not available")
+  
+    for (st in stk_nms) {
+      # caa
+      if(caaOpt[st] %in% c(1,2)){ 
+        flst <- lapply(flt_mt_stk_nms, function(x) unique(unlist(x)))
+        flst_caa <- flst
+        for (i in 1:length(flst))
         flst_caa[[i]]   <- paste('caa_', names(flst)[i], "_", flst[[i]], ".xlsx", sep = "")
-      files_caa   <- sort(unlist(flst_caa))
+        files_caa   <- sort(unlist(flst_caa))
       if (sum(!files_caa %in% caa_objs)>0) 
         stop(paste("File names missing in 'caa_objs': \n", paste(files_caa[!files_caa %in% caa_objs], collapse = '\n'), sep=''))
     } else if (caaOpt[st] %in% c(3,4,5)) {
       file_caa <- paste( caa_objs_path, paste('caa_', st, ".xlsx", sep = ""), sep='/') 
       if (!file.exists(file_caa)) stop(paste("'", file_caa, "' file is not available", sep=''))
-    }
+    }}
+    
+    
+    # Check that catch and effort files (catch_obj and effort_obj, respectively) 
+    # contain the same fleets and metiers
+    if ( sum(sort(flt_nms) != sort(unique(catch$fleet)))>0 )
+      stop(paste("Check '", catch_obj, "' file, as only following fleets should appear: ", paste(flt_nms, collapse = ', '), sep = ''))
+    if ( sum(sort(flt_nms) != sort(unique(effort$fleet)))>0 )
+      stop(paste("Check '", effort_obj, "' file, as only following fleets should appear: ", paste(flt_nms, collapse = ', '), sep = ''))
+    
+    flmt_nms <- unique(catch[,c('fleet','metier')])
+    
+    for (fl in flt_nms) {
+      
+      if (sum(sort(flt_mt_nms[[fl]]) != sort(unique(subset(catch, fleet==fl)$metier)))>0)
+        stop(paste("Check '", catch_obj, "' file, as for fleet '", fl, "' only following metiers should appear: ", paste(flt_mt_nms[[fl]], collapse = ', '), sep = ''))
+      if (sum(sort(flt_mt_nms[[fl]]) != sort(unique(subset(effort, fleet==fl)$metier)))>0)
+        stop(paste("Check '", effort_obj, "' file, as for fleet '", fl, "' only following metiers should appear: ", paste(flt_mt_nms[[fl]], collapse = ', '), sep = ''))
+      
+      for (mt in flt_mt_nms[[fl]]) {
+        
+        if (sum(sort(flt_mt_stk_nms[[fl]][[mt]]) != sort(unique(subset(catch, fleet==fl & metier==mt)$stock)))>0)
+          stop(paste("Check '", catch_obj, "' file, as for fleet '", fl, "' and metier '", mt, "' only following stocks should appear: ", paste(flt_mt_stk_nms[[fl]][[mt]], collapse = ', '), sep = ''))
+        if (sum(sort(flt_mt_stk_nms[[fl]][[mt]]) != sort(unique(subset(effort, fleet==fl & metier==mt)$stock)))>0)
+          stop(paste("Check '", effort_obj, "' file, as for fleet '", fl, "' and metier '", mt, "' only following stocks should appear: ", paste(flt_mt_stk_nms[[fl]][[mt]], collapse = ', '), sep = ''))
+        
+      } # end mt
+    } # end fl
+  }
+    
+    
+    
     # prices
     if (update_price==TRUE) {
       if(priceOpt[st] %in% c(1,2)){ 
@@ -309,40 +360,16 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
       }
     }
     
-  }
   
-  # Check that catch and effort files (catch_obj and effort_obj, respectively) 
-  # contain the same fleets and metiers
-  if ( sum(sort(flt_nms) != sort(unique(catch$fleet)))>0 )
-    stop(paste("Check '", catch_obj, "' file, as only following fleets should appear: ", paste(flt_nms, collapse = ', '), sep = ''))
-  if ( sum(sort(flt_nms) != sort(unique(effort$fleet)))>0 )
-    stop(paste("Check '", effort_obj, "' file, as only following fleets should appear: ", paste(flt_nms, collapse = ', '), sep = ''))
   
-  flmt_nms <- unique(catch[,c('fleet','metier')])
-  
-  for (fl in flt_nms) {
-    
-    if (sum(sort(flt_mt_nms[[fl]]) != sort(unique(subset(catch, fleet==fl)$metier)))>0)
-      stop(paste("Check '", catch_obj, "' file, as for fleet '", fl, "' only following metiers should appear: ", paste(flt_mt_nms[[fl]], collapse = ', '), sep = ''))
-    if (sum(sort(flt_mt_nms[[fl]]) != sort(unique(subset(effort, fleet==fl)$metier)))>0)
-      stop(paste("Check '", effort_obj, "' file, as for fleet '", fl, "' only following metiers should appear: ", paste(flt_mt_nms[[fl]], collapse = ', '), sep = ''))
-    
-    for (mt in flt_mt_nms[[fl]]) {
-    
-      if (sum(sort(flt_mt_stk_nms[[fl]][[mt]]) != sort(unique(subset(catch, fleet==fl & metier==mt)$stock)))>0)
-        stop(paste("Check '", catch_obj, "' file, as for fleet '", fl, "' and metier '", mt, "' only following stocks should appear: ", paste(flt_mt_stk_nms[[fl]][[mt]], collapse = ', '), sep = ''))
-      if (sum(sort(flt_mt_stk_nms[[fl]][[mt]]) != sort(unique(subset(effort, fleet==fl & metier==mt)$stock)))>0)
-        stop(paste("Check '", effort_obj, "' file, as for fleet '", fl, "' and metier '", mt, "' only following stocks should appear: ", paste(flt_mt_stk_nms[[fl]][[mt]], collapse = ', '), sep = ''))
-      
-    } # end mt
-  } # end fl
-
+ 
 
   #---------------------------------------------------------------------
   ## Now, we have the structure and we need to fill in with the data.
   #---------------------------------------------------------------------
   ## Read in the weights at age
   #-----------------------------
+  if(update_weight == TRUE){
   cat('--------------------------------------------------------------------\n')   
   cat(' Weights at age \n') 
   cat('--------------------------------------------------------------------\n') 
@@ -393,9 +420,11 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
     }
     
   }
+  }
   
+ 
   
-  
+ if(update_catch_effort == TRUE){ 
   ## Landings and Discards at age
   #----------------------------------------------------------------
   cat('--------------------------------------------------------------------\n')   
@@ -602,17 +631,18 @@ create.fleets.arrays <- function(stk_objs, caa_objs, caa_objs_path, update_price
     da.yrs <-  readWorksheet(wb_caa, sheet = st, header = FALSE, startRow = nages_stk[[st]] +  3, startCol = 2, endRow = nages_stk[[st]] +  3)
     colnames(la) <- la.yrs
     colnames(da) <- da.yrs
-}
+}}
   
  
 #  browser()
-  
+
+  if(update_price == TRUE){  
     ## Read in the prices at age
   #-----------------------------  
   cat('--------------------------------------------------------------------\n')   
   cat(' Prices \n') 
   cat('--------------------------------------------------------------------\n') 
-if(update_price == TRUE){
+
   for(fl in names(flfleets)){
     
     for(mt in names(flfleets[[fl]]@metiers)){
@@ -716,11 +746,12 @@ if(update_price == TRUE){
   
 }  
   # browser()
-  
+
+if(update_catch_effort == TRUE){
   ## Calculate and fill in Effort share, vcost & effort
   #-------------------------------------------
   cat('--------------------------------------------------------------------\n')   
-  cat(' Effort, effort share and vcost \n') 
+  cat(' Effort and effort share') 
   cat('--------------------------------------------------------------------\n') 
 #browser()
   for(fl in names(flfleets)){
@@ -737,11 +768,7 @@ if(update_price == TRUE){
     }
     
   }
-  
-
-  ## Fill  fcost, capacity & crewshare
-  #-----------------------------------------------
-  
+}  
   
   ## Values for proyection
   #-----------------------------------------------

@@ -51,7 +51,7 @@
 #' @return An \code{FLBiol}. 
 #'
 #' @author Dorleta Garcia & Sonia Sanchez.
-#' @seealso \link{FLBiol}, \link{create.fleets.arrays}
+#' @seealso \code{\link{FLBiol}}, \code{\link{create.fleets.arrays}}
 #' @keywords create.biol.arrays
 #'
 #'  
@@ -113,7 +113,7 @@ create.biol.arrays <- function(filename, name = NA, ages, hist.yrs , sim.yrs, fb
       if (sl=='fec' & (!sl %in% wb_sheets)) { # if missing fec --> set equal to 1
         data[[sl]] <- data[['mat']]*0+1
         unit[[sl]] <- ''
-        next()
+        next
       }
       # check ages
       aa <- readWorksheet(wb, sheet = sl, header = FALSE, startRow = 2, startCol = 1, endCol = 1)$Col1

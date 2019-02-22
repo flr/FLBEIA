@@ -9,6 +9,8 @@ plotEco(obj, prob = c(0.95, 0.5, 0.05), pdfnm = "bc")
 \arguments{
 \item{obj}{An FLBEIA object.}
 
+\item{prob}{A numeric vector with the probabilities used to calculate the quantiles.}
+
 \item{pdfnm}{The name for the pdf document will be "Eco" and pdfnm separated by a line.}
 }
 \value{

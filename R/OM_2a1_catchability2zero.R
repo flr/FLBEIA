@@ -61,7 +61,7 @@ catchability2zero <- function(fleets, flnm, advice, fleets.ctrl, year) {
         
         for (mt in mtst) {
           if (is.na(fl.sel[st,mt])) {
-            next()
+            next
           } else if (fl.sel[st,mt]==1) { # if TACstk=0 + st can be discriminated in mt --> catch.q[mt_st]=0 
             fleets[[flnm]]@metiers[[mt]]@catches[[st]]@catch.q[,year,,,,i] <- 0
           } else if (fl.sel[st,mt]==0) { # if TACstk=0 + not possible to discriminate st in mt --> effshare[mt]=0

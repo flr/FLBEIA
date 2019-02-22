@@ -53,12 +53,12 @@ validFLCatchExt <- function(object)
 #' @aliases FLCatchExt-class FLCatchExt FLCatchExt-methods
 #' FLQuant,FLCatchExt-method
 #' 
-#' @title  FLCatchExt and FLCatchesExt classes and the methods to construct it.
+#' @title  FLCatchExt class and the methods to construct it.
 #'
-#' @description They extend the FLCatch and FLCatches classes defined in FLFleets package. the FLCatch class includes two extra slots alpha and beta
-#' used in the Cobb-Douglas production functions.
+#' @description It extends the FLCatch class defined in FLFleet package. 
+#'    The FLCatch class includes two extra slots alpha and beta used in the Cobb-Douglas production functions.
 #' 
-#' @details The FLCatchExt object contains a representation of the catch of a  fish stock as constructed for the purposes of fleet dynamic modelling. 
+#' @details The FLCatchExt object contains a representation of the catch of a fish stock as constructed for the purposes of fleet dynamic modelling. 
 #'    This includes information on removals (i.e. landings and discards), selectivity, weight, price and catch production parameters (catchability and elasticities).
 #'    
 #' @param object,x An object of class FLQuant, missing or FLCatchExt.
@@ -67,23 +67,29 @@ validFLCatchExt <- function(object)
 #' @param desc The description of the object.
 #' @param i,j,k,l,m,n subindices
 #' @param drop logical. Should the dimesions be dropped?
-#' @param ... Other objects to be assigned by name to the class slots 
+#' @param ... Other objects to be assigned by name to the class slots.
+#' @param e1,e2 FLCatchExt objects, where e2 is incorporated into e1 (see addFLCatch).
+#' @param value Value or values to be assigned to the particular FLQuant or FLCatchExt slot.
 #' 
-#' @slot landings An FLQuant of dimension [1,num. years, num. units, numb.season, 1, numb. iters] with the total landings in weight of the stock.
-#' @slot landings.n An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the  landings in numbers at age of the stock.
-#' @slot landings.wt An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the weight at age of the landings.
-#' @slot landings.sel An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the retention ogive of the metier for this stock. Elements must be between 0 and 1. landings.sel = 1-discards.sel. 
-#' @slot discards An FLQuant of dimension [1,num. years, num. units, numb.season, 1, numb. iters] with the total discards in weight of the stock.
-#' @slot discards.n An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the discards in numbers at age of the stock.
-#' @slot discards.wt An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the weight at age of the discards
-#' @slot discards.sel landings.sel An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the discard ogive of the metier for this stock. Elements must be between 0 and 1. discards.sel. = 1-landings.sel. 
-#' @slot catch.q An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the catchability at age of the stock for the corresponding metier. This is the catchability used in the catch production model.
-#' @slot price An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the price at age of the stock.
-#' @slot alpha An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the elsaticity parameter at age of the stock for the corresponding metier. This is one of the parameters used in the catch production model.
-#' @slot beta An FLQuant of dimension [num. ages ,num. years, num. units, numb.season, 1, numb. iters] with the elsaticity parameter at age of the stock for the corresponding metier. This is one of the parameters used in the catch production model
+#' @slot landings An FLQuant with the total landings in weight of the stock.
+#' @slot landings.n An FLQuant with the landings in numbers at age of the stock.
+#' @slot landings.wt An FLQuant with the weight at age of the landings.
+#' @slot landings.sel An FLQuant with the retention ogive of the metier for this stock. Elements must be between 0 and 1. landings.sel = 1-discards.sel. 
+#' @slot discards An FLQuant with the total discards in weight of the stock.
+#' @slot discards.n An FLQuant with the discards in numbers at age of the stock.
+#' @slot discards.wt An FLQuant with the weight at age of the discards.
+#' @slot landings.sel,discards.sel An FLQuant with the landing/discard ogive of the metier for this stock. 
+#'                                 Elements must be between 0 and 1, with discards.sel = 1-landings.sel. 
+#' @slot catch.q An FLQuant with the catchability at age of the stock for the corresponding metier. 
+#'               This is the catchability used in the catch production model.
+#' @slot price An FLQuant with the price at age of the stock.
+#' @slot alpha An FLQuant with the elasticity parameter at age of the stock for the corresponding metier. 
+#'             This is one of the parameters used in the catch production model.
+#' @slot beta An FLQuant with the elasticity parameter at age of the stock for the corresponding metier. 
+#'            This is one of the parameters used in the catch production model.
 #' @slot name The name of the stock.
 #' @slot desc A description of the object.
-#' @slot range The range as in other FLR objects. c("min","max","plusgroup","minyear","maxyear")
+#' @slot range The range as in other FLR objects: c("min","max","plusgroup","minyear","maxyear").
 #'
 #' 
 #' @return The constructors return an object of class FLCatchExt.
@@ -281,11 +287,13 @@ setGeneric('addFLCatch', function(e1, e2, ...)
 # catchNames
 setGeneric('catchNames', function(object, ...)
 		standardGeneric('catchNames'))
+#' @aliases catchNames<-
+#' @rdname FLCatchExt 
 setGeneric('catchNames<-', function(object, ..., value)
 		standardGeneric('catchNames<-'))
 		
 # addFLCatch for FLCatch {{{
-#' @aliases addFLCatch, FLCatchExt-methods, FLCatchExt, FLCatchExt
+#' @aliases addFLCatch,FLCatchExt,FLCatchExt FLCatchExt-methods
 #' @rdname FLCatchExt 
  setMethod('addFLCatch', signature(e1='FLCatchExt', e2='FLCatchExt'),
   function(e1, e2)
@@ -333,13 +341,13 @@ setMethod('setPlusGroup', signature(x='FLCatchExt', plusgroup='numeric'),
 )# }}}
 
 # catchNames {{{
-#' @aliases catchNames,  FLCatchExt
+#' @aliases catchNames,FLCatchExt
 #' @rdname FLCatchExt 
 setMethod('catchNames', signature(object='FLCatchExt'),
   function(object)
     return(object@name))
 
-#' @aliases catchNames<-,  FLCatchExt, character
+#' @aliases catchNames<-,FLCatchExt,character
 #' @rdname FLCatchExt 
 setReplaceMethod('catchNames', signature(object='FLCatchExt', value='character'),
   function(object, value)

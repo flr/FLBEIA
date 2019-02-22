@@ -35,6 +35,10 @@
 #       numberVessels] 
 #------------------------------------------------------------------------------#
 #' @rdname summary_flbeia
+#' @aliases ecoSum_damara
+#' @param fleets A FLFleetsExt object.
+#' @param flnms Names of the fleet for which the indicators will be calculated.
+#' @param covars List of FLQuants with information on covariates.
 ecoSum_damara <- function (fleets, flnms = "all", years, covars = NULL)
 {
     if (flnms[1] == "all")

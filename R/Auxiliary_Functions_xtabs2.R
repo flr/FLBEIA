@@ -8,6 +8,20 @@
 #           and in the function xtabs2 is an array.
 ###############################################################################
 
+#' Cross tabulation
+#' 
+#' Create a contingency table as an array, similar to \code{xtabs}.
+#' However, whereas \code{xtabs} converts NA-s in 0, \code{xtabs2} does not touch NA values.
+#' Moreover, while output class in \code{xtabs} is c("xtabs", "table"), 
+#' it is an array in \code{xtabs2}.
+#'
+#' @inheritParams stats:::xtabs
+#' 
+#' @return An array. 
+#' 
+# @seealso \code{\link{[stats]{xtabs}}}
+#' 
+
   
   xtabs2 <- function (formula = ~., data = parent.frame(), subset, sparse = FALSE, 
                       na.action, exclude = c(NA, NaN), drop.unused.levels = FALSE) 
@@ -24,7 +38,7 @@
     m <- match.call(expand.dots = FALSE)
     if (is.matrix(eval(m$data, parent.frame()))) 
       m$data <- as.data.frame(data)
-    m$... <- m$exclude <- m$drop.unused.levels <- m$sparse <- NULL
+    m['...'] <- m$exclude <- m$drop.unused.levels <- m$sparse <- NULL
     m[[1L]] <- as.name("model.frame")
     mf <- eval(m, parent.frame())
     if (length(formula) == 2L) {

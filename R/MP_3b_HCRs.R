@@ -45,12 +45,15 @@
 #' library(FLash)             # required to use the IcesHCR. Not available for win64
 #' library(ggplot2)  
 #' 
-#' # Load the data to run FLBEIA in a one stock one fleet example using the HCR used by ICES in the MSY framework. 
+#' # Load the data to run FLBEIA in a one stock one fleet example using the HCR used by ICES 
+#' # in the MSY framework. 
 #'  data(one) 
 #'  
-#' oneAdv$TAC[,ac(2009:2025)] <- NA # Put NA-s in the projection years to check how the function fills the advice object.
+#' oneAdv$TAC[,ac(2009:2025)] <- NA # Put NA-s in the projection years to check how the 
+#'                                  # function fills the advice object.
 #'  
-#' res <- IcesHCR(oneSt, oneAdv, oneAdvC, 19, 'stk1') # The value printed in the screen is the fishing mortality used in the advice.
+#' res <- IcesHCR(oneSt, oneAdv, oneAdvC, 19, 'stk1')
+#' # The value printed in the screen is the fishing mortality used in the advice.
 #'  
 #' res$TAC[,'2009']    # The resulting management advice.
 #' }  
@@ -93,12 +96,12 @@ annualTAC <- function(stocks, advice, advice.ctrl, year, stknm,...){
     # stk@range[6:7] <- 1
     #    } 
     # 
-    # stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
+    # stk <- stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = TRUE) #, disc.nyrs = disc.nyears)
     # 
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
     
     if(ageStruct == TRUE)
-      stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+      stk <- stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
     else
       stk <- stfBD(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)
                    

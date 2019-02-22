@@ -72,8 +72,8 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
   } else
     stocks.restr <- fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
   
-  if(is.na(fleets.ctrl[[flnm]][['stocks.restr']]))
-    cat(paste("warning: fleets.ctrl[['",flnm,"']][['stocks.restr']]==NA, then effort is restricted by capacity and not by any of the stocks.\n", sep=""))
+  # if(is.na(fleets.ctrl[[flnm]][['stocks.restr']]))
+  #   cat(paste("warning: fleets.ctrl[['",flnm,"']][['stocks.restr']]==NA, then effort is restricted by capacity and not by any of the stocks.\n", sep=""))
   
 
   for(i in 1:it){

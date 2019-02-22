@@ -54,7 +54,8 @@
         \hline 
         Argument & class & Dimension & Values & Required for \\
         \hline
-        {[[st]]}\$growth.model\textsuperscript{*} & character & 1 & \texttt{'fixedPopulation'},\texttt{'ASPG'}, \texttt{'BDPG'} &   \\
+        {[[st]]}\$growth.model\textsuperscript{*} & character & 1 & \texttt{'fixedPopulation'},\texttt{'ASPG'},\texttt{'BDPG'} & \\
+         &  &  & \texttt{'ASPG\_Baranov'} & \\
         \hline
       \end{tabular}
       
@@ -211,10 +212,10 @@
         {[[st]]}\$stkObs\$disc.bio.error & FLQuant & [1,ny,1,1,1,ni] & any & \texttt{age2bioDat},\texttt{bio2bioDat},\texttt{bio2bioPop} \\
         {[[st]]}\$indObs[[id]]\$indObs.model\textsuperscript{*} & character & 1 & \texttt{'NoObsIndex'},\texttt{'NoObservation'},\texttt{'ageInd'},
           \texttt{'bioInd'} &  \\
+         &  &  & \texttt{'ssbInd'},\texttt{'cbbmInd'} &  \\
         {[[st]]}\$indObs[[id]]\$ages.error & array & [na,na,ny,ni] & any & \texttt{ageInd} \\
-        % +++ SONIA pendiente de incluir: ,\texttt{'ssbInd'},\texttt{'cbbmInd'} for ANE
-        % {[[st]]}\$indObs[[id]]\$sInd & numeric & 1 & \texttt{season.name} (season in which index is observed) & \texttt{'ssbInd'} \\
-        % {[[st]]}\$indObs[[id]]\$wageIni & matrix & [2,ni] & weight at age for each age class (age1,age2plus) & \texttt{'ssbInd'} \\
+        {[[st]]}\$indObs[[id]]\$sInd & numeric & 1 & \texttt{season.name} (season in which index is observed) & \texttt{'ssbInd'} \\
+        {[[st]]}\$indObs[[id]]\$wageIni & matrix & [2,ni] & weight at age for each age class (age1,age2plus) & \texttt{'ssbInd'} \\
         \hline
       \end{tabular}
 
@@ -300,7 +301,7 @@
          &  &  & \texttt{'annexIVHCR'},\texttt{'ghlHCR'},\texttt{'aneHCRE'},\texttt{'neaMAC\_ltmp'}, &  \\
          &  &  & \texttt{'F2CatchHCR'},\texttt{'little2011HCR'},\texttt{'pidHCR'},\texttt{'pidHCRtarg'}, &  \\
          &  &  & \texttt{'MAPHCR'},\texttt{'CFPMSYHCR'},\texttt{'MultiStockHCR'} &  \\
-         {[[st]]}\$AdvCatch & logical & 1 & \texttt{'FALSE'} (TAC in terms of landings, default value), &  \\
+        {[[st]]}\$AdvCatch & logical & 1 & \texttt{'FALSE'} (TAC in terms of landings, default value), &  \\
          &  &  & \texttt{'TRUE'} (TAC in terms of catch) &  \\
         {[[st]]}\$nyears & numeric & 1 & season.name & \texttt{annualTAC}, \texttt{IcesHCR}, \texttt{F2CatchHCR},  \\
          &  &  &  & \texttt{MultiStockHCR} \\

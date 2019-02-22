@@ -40,7 +40,7 @@ MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
     
     if(ageStruct == TRUE)
-      stk <- FLAssess::stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+      stk <- stf(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
     else
       stk <- stfBD(stk, nyears = nyears, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)
     

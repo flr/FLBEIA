@@ -21,7 +21,7 @@ price_flbeia(fleet, stock)
 \arguments{
 \item{fleet}{An element of FLfleets object.}
 
-\item{covars}{A list of FLQuants used to store any kind of variables that are used within the simulation and are not stored in the standard objects.}
+\item{covars}{List of FLQuants with information on covariates.}
 
 \item{flnm}{Names of the fleets.}
 
