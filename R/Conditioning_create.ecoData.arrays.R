@@ -67,7 +67,7 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
   sheets <- getSheets(wb)
   sheets <- sheets[!(sheets == 'readme')]
 
-  fltnms <- names(fleets)
+  fltnms <- names(fltObj)
   if(!all(sheets %in% fltnms)) stop('Some of the fleets in the excel file do not correspond with the fleets in the FLFleetsObj (fltObj)')
   
   # Structure of the covars Object
