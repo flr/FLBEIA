@@ -58,7 +58,8 @@ These functions return the biomass (B), fishing mortality (F),  spawning stock b
       \item{C_flbeia}{ this function computes catches by fleets and stock.} 
       \item{L_flbeia}{ this function computes landings by fleets and stock.}
       \item{D_flbeia}{ this function computes the discards by fleets and stock.}
-      \item{summary_flbeia}{ this function computes recruitment, SSB, fishing mortality, 
-                             total biomass, and catch and landings for all fleets, by year and stock.}
+      \item{summary_flbeia}{ this function computes recruitment, SSB, fishing mortality,
+                             total biomass for all stocks; 
+                             and catch and landings for all fleets by year and stock.}
      }
 }
