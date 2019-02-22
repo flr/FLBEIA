@@ -96,7 +96,7 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
 \item{byyear}{logical. The indicators should be provided at season or year level? Default TRUE.}
 
-\item{InterestRate}{Capital oportunity cost rate}
+\item{InterestRate}{Capital oportunity cost rate.}
 
 \item{Bpa}{named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 
@@ -155,6 +155,8 @@ Summarize the results of the simulation in data frames.
      indicator. The indicators are: recruitment, ssb, f, biomass, catch, landings and discards.
      \item{ecoSum_damara:} ecoSum built in the framework of Damara project.
 }
+     
+The data frames
 }
 \examples{
 \dontrun{

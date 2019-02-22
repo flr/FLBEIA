@@ -37,10 +37,10 @@
 #'       \item{C_flbeia}{ this function computes catches by fleets and stock.} 
 #'       \item{L_flbeia}{ this function computes landings by fleets and stock.}
 #'       \item{D_flbeia}{ this function computes the discards by fleets and stock.}
-#'       \item{summary_flbeia}{ this function computes recruitment, SSB, fishing mortality, 
-#'                              total biomass, and catch and landings for all fleets, by year and stock.}
-#'      } 
-#'      
+#'       \item{summary_flbeia}{ this function computes recruitment, SSB, fishing mortality,
+#'                              total biomass for all stocks; 
+#'                              and catch and landings for all fleets by year and stock.}
+#'      }     
 
 
 #------------------------------------------------------------------------------#
@@ -87,7 +87,7 @@ F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
                     for(i in 1:it){
                         if(n.[a,y,i] == 0) aux[a,y,i] <- 0
                         else{
-                           xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i],  tol = 1e-12)$root, silent = TRUE)
+                           xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root, silent = TRUE)
                            aux[a,y,i] <- ifelse(class(xx) == 'try-error', NA, xx)
                         }      
             }}}
@@ -122,12 +122,12 @@ SSB_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
       si <- 0
       while( (si-spwn.sson)!=0) {
         si <- spwn.sson
-        spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,na.rm=T)==0, spwn.sson+1, spwn.sson)
+        spwn.sson  <- ifelse( sum(spwn(obj$biols[[stk]])[ , , 1, spwn.sson, drop = T]<1,  na.rm=TRUE)==0, spwn.sson+1, spwn.sson)
         d  <- si-spwn.sson
       }
       
       res[stk,,] <- apply(unitSums(n(obj$biols[[stk]])*wt(obj$biols[[stk]])*fec(obj$biols[[stk]])*mat(obj$biols[[stk]])*
-                                     exp(-spwn(obj$biols[[stk]])*m(obj$biols[[stk]])))[,years,,spwn.sson], c(2,6), sum, na.rm = TRUE)[drop=T]
+                                     exp(-spwn(obj$biols[[stk]])*m(obj$biols[[stk]])))[,years,,spwn.sson], c(2,6), sum, na.rm=TRUE)[drop=T]
     }
     return(res)
 }
@@ -152,7 +152,7 @@ B_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     res <- array(dim = c(length(stknms), ny,it), dimnames = list(stock = stknms, year = yrnms))
     
     for(stk in stknms){ # B 1st season
-        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,1], c(2,6), sum, na.rm = TRUE)[drop=T]
+        res[stk,,] <- apply(unitSums(obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,1], c(2,6), sum,  na.rm=TRUE)[drop=T]
     }
     return(res)
 }
@@ -184,7 +184,7 @@ R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
         si <- 0
         while( (si-rec.sson)!=0) { 
           si <- rec.sson
-          rec.sson  <- ifelse( sum(obj$biols[[stk]]@n[1, , 1, rec.sson, drop = T]!=0,na.rm=T)==0, rec.sson+1, rec.sson)
+          rec.sson  <- ifelse( sum(obj$biols[[stk]]@n[1, , 1, rec.sson, drop = T]!=0, na.rm=TRUE)==0, rec.sson+1, rec.sson)
           d  <- si-rec.sson 
         }
         if(na > 1){
@@ -276,7 +276,7 @@ D_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 
 
 #------------------------------------------------------------------------------#
-# summary_flbeia(obj) :: res[stocks, years, it, indicators] 
+# SUMMARY OF FLBEIA output :: res[stocks, years, it, indicators] 
 #------------------------------------------------------------------------------#
 
 #' @rdname summary_flbeia
@@ -304,7 +304,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 }
 
 #------------------------------------------------------------------------------#
-# SUMMARY of FLBEIA output :: res[stocks, years, it, indicators] 
+# summary_flbeia(obj) :: res[stocks, years, it, indicators] 
 #------------------------------------------------------------------------------#
 #' Summary of the FLBEIA output 
 #' 
@@ -341,6 +341,8 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #'      \item{ecoSum_damara:} ecoSum built in the framework of Damara project.
 #'}
 #'      
+#' The data frames       
+#'
 #'
 #' @return A data frame with columns for scenario, year, stock, iter, indicator, value,...
 #' 
@@ -683,7 +685,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
 bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
   if(dim(obj)[2] <= 6){ # the object is in long format
-    res <- aggregate(value ~ stock + indicator + year + scenario, obj, quantile, prob = prob)
+    res <- aggregate(value ~ stock + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass,  na.rm=TRUE)
     res <- cbind(res[,1:4], data.frame(res[,5],stringsAsFactors = FALSE))
     
     nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -695,7 +697,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                           discards = obj$discards, disc.iyv = obj$disc.iyv,
                           f = obj$f,landings = obj$landings, land.iyv = obj$land.iyv,
                           rec = obj$rec, ssb = obj$ssb), 
-                       list(stock = obj$stock, year = obj$year, scenario = obj$scenario), quantile, prob = prob, na.rm=T)
+                       list(stock = obj$stock, year = obj$year, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
     res <- cbind(res[,1:3], data.frame(res[,4]), data.frame(res[,5]), data.frame(res[,6]),
                            data.frame(res[,7]), data.frame(res[,8]), data.frame(res[,9]),
                            data.frame(res[,10]), data.frame(res[,11]), data.frame(res[,12]),
@@ -731,7 +733,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 #' @aliases fltSum
-#' @param InterestRate Capital oportunity cost rate
+#' @param InterestRate Capital oportunity cost rate.
 fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = TRUE, InterestRate = 0.03,scenario = 'bc')
 {
   fleets <- obj$fleets
@@ -761,9 +763,9 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       covars$NumbVessels <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
       dimnames(covars$NumbVessels) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
     }
-    if(is.null(covars$CapitalValue)){ 
-      covars$CapitalValue <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
-      dimnames(covars$CapitalValue) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
+    if(is.null(covars$CapitalCost)){ 
+      covars$CapitalCost <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
+      dimnames(covars$CapitalCost) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
     }
     
     
@@ -837,7 +839,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
           
         res[k:(k + prod(Dim) - 1), "fep"] <-  res[k:(k + prod(Dim) - 1), "grossSurplus"] - c(covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years])
         
-        res[k:(k + prod(Dim) - 1), "netProfit"] <-  res[k:(k + prod(Dim) - 1), "fep"] - c(covars[['CapitalValue']][f,years]*InterestRate*covars[['NumbVessels']][f,years])
+        res[k:(k + prod(Dim) - 1), "netProfit"] <-  res[k:(k + prod(Dim) - 1), "fep"] - c(covars[['CapitalCost']][f,years]*InterestRate*covars[['NumbVessels']][f,years])
         
         temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
         temp <- Reduce('+',temp)[,years]
@@ -918,7 +920,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
         
         res[k:(k + prod(Dim[-2]) - 1), "fep"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years]))
         
-        res[k:(k + prod(Dim[-2]) - 1), "netProfit"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years] - covars[['CapitalValue']][f,years]*InterestRate*covars[['NumbVessels']][f,years]))
+        res[k:(k + prod(Dim[-2]) - 1), "netProfit"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years] - covars[['CapitalCost']][f,years]*InterestRate*covars[['NumbVessels']][f,years]))
         
         temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
         temp <- Reduce('+',temp)[, years, ]
@@ -935,8 +937,12 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
       res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
       rownames(res) <- 1:dim(res)[1]
+      names(res)[!(names(res) %in% c("year", "season", "fleet", "iter", "time"))] <- 'value'
+      names(res)[names(res) == 'time'] <- 'indicator'
+      if('season' %in% names(res)) res <- res[,c('year','season', 'fleet', 'iter', 'indicator', 'value')]
+      else res <- res[,c('year', 'fleet', 'iter', 'indicator', 'value')]
       # res[, r1:(r1+1)] <-  res[, (r1+1):r1]
-      names(res)[r1:(r1+1)] <- c( 'indicator', 'value') 
+      # names(res)[r1:(r1+1)] <- c( 'indicator', 'value') 
     }
   
    res <- cbind(scenario = scenario, res)
@@ -950,26 +956,15 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 10){ # the object is in long format
     
     if(!('season' %in% names(obj))){
-      # This way of aggregating is not working well, it removes most of the indicators, maybe a problem with dimension?
-      # we use the data frame version of aggregate instead.
-      # res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
-      res <- aggregate(obj$value, 
-                       by = list(fleet = obj$fleet, indicator = obj$indicator, year = obj$year, scenario = obj$scenario), 
-                       FUN = quantile, prob = prob, na.rm = T)
-      
+      res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:4], data.frame(res[,5]))
-      
+    
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     
       names(res)[5:(5+length(prob)-1)] <- nms
     }
     else{
-     # res <- aggregate(value ~ fleet + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
-      
-      res <- aggregate(obj$value, 
-                       by = list(fleet = obj$fleet, indicator = obj$indicator, year = obj$year, scenario = obj$scenario, season = obj$season), 
-                       FUN = quantile, prob = prob, na.rm = T)
-      
+      res <- aggregate(value ~ fleet + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:5], data.frame(res[,6]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -985,7 +980,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                           price  = obj$price,           grossSurplus  = obj$grossSurplus,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                           vcosts  = obj$vcosts,         profitability  = obj$profitability), 
                           list(fleet = obj$fleet, year = obj$year, scenario = obj$scenario), 
-                          quantile, prob = prob, na.rm=T)
+                          quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
     
       res <- cbind(res[,1:3], 
                  data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
@@ -1006,7 +1001,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       nms10 <- paste('landings_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms11 <- paste('fep_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms12 <- paste('netProfit_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")     
-	    nms13 <- paste('nVessels_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
+	  nms13 <- paste('nVessels_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms14 <- paste('price_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms15 <- paste('grossSurplus_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
       nms16 <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1022,7 +1017,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                               grossValue  = obj$grossValue,         landings  = obj$landings,  fep  = obj$fep, netProfit = obj$netProfit,  nVessels  = obj$nVessels,     
                               price  = obj$price,           grossSurplus  = obj$grossSurplus,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                               vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                         list(fleet = obj$fleet, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
+                         list(fleet = obj$fleet, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
         
         res <- cbind(res[,1:4], 
                      data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),
@@ -1102,7 +1097,7 @@ revenue_flbeia <- function(fleet){
         for(st in sts){
             if(!(st %in% catchNames(m))) next
             dat <- m@catches[[st]]
-            res <- res + FLQuant(apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum,na.rm=T), dim = D)
+            res <- res + FLQuant(apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum, na.rm=TRUE), dim = D)
         }
     }
     return(res)               
@@ -1286,7 +1281,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 10){ # the object is in long format
     
     if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + stock + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+      res <- aggregate(value ~ fleet + stock + indicator + year + scenario, obj, quantile, prob = prob,na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:5], data.frame(res[,6]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1294,7 +1289,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       names(res)[6:(6+length(prob)-1)] <- nms
     }
     else{
-      res <- aggregate(value ~ fleet + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+      res <- aggregate(value ~ fleet + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:6], data.frame(res[,7]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1307,7 +1302,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price,  quota = obj$quota,       quotaUpt = obj$quotaUpt), 
                        list(fleet = obj$fleet, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.rm=T)
+                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:4], 
                    data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),
@@ -1326,7 +1321,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     else{
       res <- aggregate(list(catch = obj$catch, discards = obj$catch, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price, quota = obj$quota,    quotaUpt = obj$quotaUpt),                   
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:5], 
                    data.frame(res[,6]),  data.frame(res[,7]),   data.frame(res[,8]),  data.frame(res[,9]),
@@ -1367,7 +1362,7 @@ price_flbeia <- function(fleet, stock){
         m <- fleet@metiers[[mt]]
         if(!(stock %in% catchNames(m))) next
         dat <- m@catches[[stock]]
-        res <- res + apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum,na.rm=T)
+        res <- res + apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum, na.rm=TRUE)
     }
     
     res <- res/totL
@@ -1430,11 +1425,11 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
             
             for(ss in sts){
                 cc <- mt@catches[[ss]]
-                dfm[k:(k+prod(Dim)-1),'landings'] <- c(apply(cc@landings[,years,], c(2,4,6), sum, na.rm=T))
-                dfm[k:(k+prod(Dim)-1),'discards'] <- c(apply(cc@discards[,years,], c(2,4,6), sum, na.rm=T))
+                dfm[k:(k+prod(Dim)-1),'landings'] <- c(apply(cc@landings[,years,], c(2,4,6), sum,  na.rm=TRUE))
+                dfm[k:(k+prod(Dim)-1),'discards'] <- c(apply(cc@discards[,years,], c(2,4,6), sum,  na.rm=TRUE))
                 dfm[k:(k+prod(Dim)-1),'catch'] <- dfm[k:(k+prod(Dim)-1),'discards'] + dfm[k:(k+prod(Dim)-1),'landings']
                 dfm[k:(k+prod(Dim)-1),'discRat'] <-  dfm[k:(k+prod(Dim)-1),'discards']/dfm[k:(k+prod(Dim)-1),'catch']
-                revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,4,6), sum, na.rm=T)[,years,]
+                revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,4,6), sum, na.rm=TRUE)[,years,]
                 dfm[k:(k+prod(Dim)-1),'price']  <- c(revst)/dfm[k:(k+prod(Dim)-1),'landings']  
                 k <- k + prod(Dim)
             }
@@ -1467,11 +1462,11 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
           
           for(ss in sts){
             cc <- mt@catches[[ss]]
-            dfm[k:(k+prod(Dim[-2])-1),'landings'] <- c(apply(cc@landings[,years,], c(2,6), sum, na.rm=T))
-            dfm[k:(k+prod(Dim[-2])-1),'discards'] <- c(apply(cc@discards[,years,], c(2,6), sum, na.rm=T))
+            dfm[k:(k+prod(Dim[-2])-1),'landings'] <- c(apply(cc@landings[,years,], c(2,6), sum, na.rm=TRUE))
+            dfm[k:(k+prod(Dim[-2])-1),'discards'] <- c(apply(cc@discards[,years,], c(2,6), sum, na.rm=TRUE))
             dfm[k:(k+prod(Dim[-2])-1),'catch'] <- dfm[k:(k+prod(Dim[-2])-1),'discards'] + dfm[k:(k+prod(Dim[-2])-1),'landings']
             dfm[k:(k+prod(Dim[-2])-1),'discRat'] <-  dfm[k:(k+prod(Dim[-2])-1),'discards']/dfm[k:(k+prod(Dim[-2])-1),'catch']
-            revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,6), sum, na.rm=T)[,years,]
+            revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,6), sum, na.rm=TRUE)[,years,]
             dfm[k:(k+prod(Dim[-2])-1),'price']  <- c(revst)/dfm[k:(k+prod(Dim[-2])-1),'landings']  
             k <- k + prod(Dim[-2])
           }
@@ -1506,7 +1501,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 10){ # the object is in long format
     
     if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + metier + stock + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+      res <- aggregate(value ~ fleet + metier + stock + indicator + year + scenario, obj, quantile, prob = prob,na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:6], data.frame(res[,7]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1514,7 +1509,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       names(res)[7:(7+length(prob)-1)] <- nms
     }
     else{
-      res <- aggregate(value ~ fleet + metier + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+      res <- aggregate(value ~ fleet + metier + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:7], data.frame(res[,8]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1527,7 +1522,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price), 
                        list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.rm=T)
+                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:5], 
                    data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),  
@@ -1544,7 +1539,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     else{
       res <- aggregate(list(catch = obj$catch, discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price),                   
-                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:6], 
                    data.frame(res[,7]),  data.frame(res[,8]),   data.frame(res[,9]),  data.frame(res[,10]),
@@ -1671,7 +1666,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 9){ # the object is in long format
     
     if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + metier + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+      res <- aggregate(value ~ fleet + metier + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:5], data.frame(res[,6]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1679,7 +1674,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       names(res)[6:(6+length(prob)-1)] <- nms
     }
     else{
-      res <- aggregate(value ~ fleet + metier + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+      res <- aggregate(value ~ fleet + metier + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:6], data.frame(res[,7]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1692,7 +1687,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, grossValue = obj$grossValue,       
                             vcost = obj$vcost), 
                        list(fleet = obj$fleet, metier = obj$metier, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.rm=T)
+                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:4], 
                    data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  
@@ -1708,7 +1703,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     else{
       res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, grossValue = obj$grossValue,       
                             vcost = obj$vcost),                    
-                       list(fleet = obj$fleet, metier = obj$metier,  year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, metier = obj$metier,  year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:5], 
                    data.frame(res[,6]),  data.frame(res[,7]),   data.frame(res[,8]),  data.frame(res[,9]))
@@ -1801,7 +1796,7 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] < 8){ # the object is in long format
     
-    res <- aggregate(value ~  stock + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+    res <- aggregate(value ~  stock + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
     res <- cbind(res[,1:4], data.frame(res[,5]))
       
     nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -1814,7 +1809,7 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             quotaUpt = obj$quotaUpt, tac = obj$tac), 
                        list(stock = obj$stock, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.rm=T)
+                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:3], 
                    data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  
@@ -1940,7 +1935,7 @@ npv <- function(obj, discF = 0.05, y0, flnms = names(obj$fleets), years = dimnam
 #' @aliases npvQ
 npvQ <- function(obj, prob = c(0.05,0.5,0.95)){
   
-  res <- aggregate(npv ~  fleet + scenario, obj, quantile, prob = prob,na.rm=T)
+  res <- aggregate(npv ~  fleet + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
   res <- cbind(res[,1:2], data.frame(res[,3]))
   
   nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -2008,7 +2003,7 @@ vesselSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 if(dim(obj)[2] < 10){ # the object is in long format
   
   if(!('season' %in% names(obj))){
-    res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+    res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
     res <- cbind(res[,1:4], data.frame(res[,5]))
     
     nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -2016,7 +2011,7 @@ if(dim(obj)[2] < 10){ # the object is in long format
     names(res)[5:(5+length(prob)-1)] <- nms
   }
   else{
-    res <- aggregate(value ~ fleet + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+    res <- aggregate(value ~ fleet + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
     res <- cbind(res[,1:5], data.frame(res[,6]))
     
     nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -2032,7 +2027,7 @@ else{
                           price  = obj$price,           grossSurplus  = obj$grossSurplus,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                           vcosts  = obj$vcosts,         profitability  = obj$profitability), 
                      list(fleet = obj$fleet, year = obj$year, scenario = obj$scenario), 
-                     quantile, prob = prob, na.rm=T)
+                     quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
     
     res <- cbind(res[,1:3], 
                  data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
@@ -2067,7 +2062,7 @@ else{
                           grossValue  = obj$grossValue,         landings  = obj$landings,  fep  = obj$fep, netProfit = obj$netProfit,   
                           price  = obj$price,           grossSurplus  = obj$grossSurplus,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
                           vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                     list(fleet = obj$fleet, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
+                     list(fleet = obj$fleet, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
     
     res <- cbind(res[,1:4], 
                  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]), data.frame(res[,8]),  
@@ -2191,7 +2186,7 @@ vesselStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 10){ # the object is in long format
     
     if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + stock + indicator + year + scenario, obj, quantile, prob = prob,na.rm=T)
+      res <- aggregate(value ~ fleet + stock + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:5], data.frame(res[,6]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -2199,7 +2194,7 @@ vesselStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       names(res)[6:(6+length(prob)-1)] <- nms
     }
     else{
-      res <- aggregate(value ~ fleet + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.rm=T)
+      res <- aggregate(value ~ fleet + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       res <- cbind(res[,1:6], data.frame(res[,7]))
       
       nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
@@ -2212,7 +2207,7 @@ vesselStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price,  quota = obj$quota,       quotaUpt = obj$quotaUpt), 
                        list(fleet = obj$fleet, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.rm=T)
+                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:4], 
                    data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),
@@ -2231,7 +2226,7 @@ vesselStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     else{
       res <- aggregate(list(catch = obj$catch, discards = obj$catch, discRat = obj$discRat, landings = obj$landings,       
                             price = obj$price, quota = obj$quota,    quotaUpt = obj$quotaUpt),                   
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.rm = TRUE)
+                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
       
       res <- cbind(res[,1:4], 
                    data.frame(res[,5]),  data.frame(res[,6]),   data.frame(res[,7]),  data.frame(res[,8]),
