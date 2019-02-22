@@ -1735,7 +1735,7 @@ advSum <- function(obj, stknms = catchNames(obj$fleets),
   fleets <- obj$fleets
   advice <- obj$advice
   
-  if(stknms[1] == 'all') stknms <- names(biols)
+  if(stknms[1] == 'all') stknms <- names(obj$biols)
   
   sts <- stknms
   
