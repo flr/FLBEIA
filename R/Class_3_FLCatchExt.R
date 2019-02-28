@@ -74,11 +74,13 @@ validFLCatchExt <- function(object)
 #' @slot landings An FLQuant with the total landings in weight of the stock.
 #' @slot landings.n An FLQuant with the landings in numbers at age of the stock.
 #' @slot landings.wt An FLQuant with the weight at age of the landings.
-#' @slot landings.sel An FLQuant with the retention ogive of the metier for this stock. Elements must be between 0 and 1. landings.sel = 1-discards.sel. 
+# @slot landings.sel An FLQuant with the retention ogive of the metier for this stock. 
+#                    Elements must be between 0 and 1. landings.sel = 1-discards.sel. 
 #' @slot discards An FLQuant with the total discards in weight of the stock.
 #' @slot discards.n An FLQuant with the discards in numbers at age of the stock.
 #' @slot discards.wt An FLQuant with the weight at age of the discards.
-#' @slot landings.sel,discards.sel An FLQuant with the landing/discard ogive of the metier for this stock. 
+#' @slot landings.sel,discards.sel An FLQuant with the landing/discard ogive of the metier for this stock 
+#'                                 (i.e. landings.sel corresponds to the proportion of catches landed).
 #'                                 Elements must be between 0 and 1, with discards.sel = 1-landings.sel. 
 #' @slot catch.q An FLQuant with the catchability at age of the stock for the corresponding metier. 
 #'               This is the catchability used in the catch production model.

@@ -65,6 +65,8 @@ validFLMetierExt <- function(object) {
 #' @slot effshare An FLQuant with the effort share of a fleet's metier relative to fleet's total effort 
 #'                (the sum of all metiers effshares for a fleet must sum 1).
 #' @slot vcost An FLQuant with the varible costs of a fleet's metier.
+#'             These costs should be given by vessel and based on the effort units used for the fleet's effort (within the FLFleetExt object).
+#'             The number of vessels by fleet must be included in the covars object.
 #' @slot catches A FLCatchesExt with information on the fleet's metier catches.
 #' @slot name The name of the stock.
 #' @slot desc A description of the object.
