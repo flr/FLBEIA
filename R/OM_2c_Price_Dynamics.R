@@ -52,6 +52,8 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, year = 1, seas
     La  <- unitSums(Lau)[drop=T]    # [na,it]
     nu  <- dim(Lau)[3]
 
+    La[La==0] <- 0.1
+      
     Pa <- Pa0*(La0/La)^elas    #  [na,it]
     
     # When La = 0 -> Pa = Inf -> set Pa = NA
