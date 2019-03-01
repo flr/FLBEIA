@@ -79,15 +79,14 @@ The FLCatchExt object contains a representation of the catch of a fish stock as 
 
 \item{\code{landings.wt}}{An FLQuant with the weight at age of the landings.}
 
-\item{\code{landings.sel}}{An FLQuant with the retention ogive of the metier for this stock. Elements must be between 0 and 1. landings.sel = 1-discards.sel.}
-
 \item{\code{discards}}{An FLQuant with the total discards in weight of the stock.}
 
 \item{\code{discards.n}}{An FLQuant with the discards in numbers at age of the stock.}
 
 \item{\code{discards.wt}}{An FLQuant with the weight at age of the discards.}
 
-\item{\code{landings.sel,discards.sel}}{An FLQuant with the landing/discard ogive of the metier for this stock. 
+\item{\code{landings.sel,discards.sel}}{An FLQuant with the landing/discard ogive of the metier for this stock 
+(i.e. landings.sel corresponds to the proportion of catches landed).
 Elements must be between 0 and 1, with discards.sel = 1-landings.sel.}
 
 \item{\code{catch.q}}{An FLQuant with the catchability at age of the stock for the corresponding metier. 

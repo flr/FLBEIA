@@ -70,10 +70,11 @@ validFLFleetExt <- function(object) {
 #' 
 #' @return The constructors return an object of class FLFleetExt.
 #' 
-#' @slot effort An FLQuant with the effort of the fleet.
-#' @slot fcost An FLQuant with the fixed costs of the fleet.
-#' @slot capacity An FLQuant with the capacity of the fleet.
-#' @slot crewshare An FLQuant with the crewshare of the fleet.
+#' @slot effort An FLQuant with the effort of the fleet. The effort can have any units (e.g. number of fishing days, trips, hooks,...)
+#' @slot fcost An FLQuant with the fixed costs of the fleet. 
+#'             These costs should be given by vessel and the number of vessels by fleet must be included in the covars object.
+#' @slot capacity An FLQuant with the capacity of the fleet. Same units as in slot effort must be used.
+#' @slot crewshare An FLQuant with the crewshare of the fleet. Where crewshare is the percentage of revenues that goes to the crew.
 #' @slot metiers A FLMetiersExt with information on the fleet's metiers.
 #' @slot name The name of the stock.
 #' @slot desc A description of the object.
