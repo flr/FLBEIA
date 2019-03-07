@@ -125,10 +125,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     if(it > 1){    
       if(length(stnms) == 1) rho <- matrix(rho, 1,it, dimnames = list(stnms, 1:it))
       
-      TAC <- ifelse(B*rho[stnms,] < TAC.yr*QS.ss, B*rho[stnms,], TAC.yr*QS.ss)
+      TAC <- ifelse(B[stnms,]*rho[stnms,] < TAC.yr[stnms,]*QS.ss[stnms,], B[stnms,]*rho[stnms,], TAC.yr[stnms,]*QS.ss[stnms,])
     }
-    else TAC <- ifelse(B*rho[stnms] < TAC.yr*QS.ss, B*rho[stnms], TAC.yr*QS.ss)
+    else TAC <- ifelse(B[stnms,]*rho[stnms] < TAC.yr[stnms,]*QS.ss[stnms,], B[stnms,]*rho[stnms], TAC.yr[stnms,]*QS.ss[stnms,])
 
+    TAC <- matrix(TAC, length(stnms),it,dimnames = list(stnms, 1:it))
+    
     # Re-scale QS to fleet share within the season instead of season-fleet share within year.
     QS   <- lapply(stnms, function(x){          # list of stocks, each stock [nf,it]
                             res <- sweep(QS[[x]], 2, apply(QS[[x]],2, sum), "/")

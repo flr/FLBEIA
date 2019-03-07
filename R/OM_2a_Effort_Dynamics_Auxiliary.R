@@ -64,9 +64,9 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     # If TAC >= B*alpha => TAC = B*alpha.
     # Total seasonal quota share: [nst] 
     #------------------------------------------------------------------
-    TAC.yr   <- advice$TAC[,yr,,,,i,drop=T]    # nst
-    rho      <- fleets.ctrl$catch.threshold[,yr,,ss,,i, drop=T]  # [ns]
-    QS.ss    <- colSums(QS.fls)  #
+    TAC.yr   <- advice$TAC[rownames(B),yr,,,,i,drop=T]    # nst
+    rho      <- fleets.ctrl$catch.threshold[rownames(B),yr,,ss,,i, drop=T]  # [ns]
+    QS.ss    <- colSums(QS.fls)[rownames(B)]  #
 
     TAC <- ifelse(B*rho < TAC.yr*QS.ss, B*rho, TAC.yr*QS.ss)
 

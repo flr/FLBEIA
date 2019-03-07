@@ -348,6 +348,7 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
   }
   
   resF <- (1-crewS)*res - sum(vc.m*E) - fc
+
   
   # cat('prof: ', resF, ', rev: ',res, ', creWS:', crewS, ', TCS: ', crewS*res, ', Vc: ', sum(vc.m*E), ', FC: ', fc, '\n' )
   
@@ -429,8 +430,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   }
   
   resF <- (1-crewS)*res - sum(vc.m*E) - fc
-  
-  cat('profits: ', resF,'\n')
+#  cat('income: ', res,', vcost: ', sum(vc.m*E),', crewS: ', crewS*res, ', fcost: ', fc, '\n')
+#  cat('profits: ', resF,'effort: ', E,'\n')
   #---------------------------------------------------------------------------
   # constraint on effort-share: absolute or relative values.
   #---------------------------------------------------------------------------
