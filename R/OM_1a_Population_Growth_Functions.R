@@ -101,9 +101,10 @@ ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
         if(SR@proportion[,yr,,ss,,1] == 1){ # If the recruitment season is 'ss' generate it otherwise
             SR <- SRsim(SR, year = yr, season = ss, iter = 'all') 
             biol@n[1,yr,,ss] <- SR@rec[,yr,,ss]
-        }# else { # If the recruitment season is NOT 'ss', do nothing, the population in first age grupo is just the survivors of previous season, if recuritmen occurred in a previous season..
-         #   biol@n[1,yr,,ss] <- 0
-         # }
+       } else if (ss==1) { # If the recruitment season is NOT the first one, set numbers at first age group to 0 in this season.
+      biol@n[1,yr,,ss] <- 0
+    } # If the recruitment season is NOT the first one, do nothing, the population in first age group is just the survivors of previous season.
+    
     
     }
     
@@ -284,9 +285,10 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     if(SR@proportion[,yr,,ss,,1] == 1){ # If the recruitment season is 'ss' generate it otherwise
       SR <- SRsim(SR, year = yr, season = ss, iter = 'all') 
       biol@n[1,yr,,ss] <- SR@rec[,yr,,ss]
-    }# else { # If the recruitment season is NOT 'ss', do nothing, the population in first age grupo is just the survivors of previous season, if recuritmen occurred in a previous season..
-    #   biol@n[1,yr,,ss] <- 0
-    # }
+    } else if (ss==1) { # If the recruitment season is NOT the first one, set numbers at first age group to 0 in this season.
+      biol@n[1,yr,,ss] <- 0
+    } # If the recruitment season is NOT the first one, do nothing, the population in first age group is just the survivors of previous season.
+    
     
   }
   
