@@ -410,31 +410,38 @@ setMethod("dims", signature(obj="FLFleetExt"),
 
 ## window    {{{
 setMethod("window", signature(x="FLFleetExt"),
- function(x, start=dims(x)$minyear, end=dims(x)$maxyear, extend=TRUE, frequency=1) {
-
-    # window fleet
-    x <- qapply(x, window, start, end, extend, frequency)
-
-    # window metiers
-    metiers <- x@metiers
-    metiers <- FLMetiersExt(lapply(metiers, window, start, end))
-
-    # window catches
-    catches <- list()
-    for(i in seq(length(x@metiers))){
-
-      metiers[[i]]@catches <- FLCatchesExt(lapply(x@metiers[[i]]@catches, window, start, end, extend, frequency))
-
-
-    }
-   
-    x@metiers <- metiers
-
-		x@range["minyear"] <- start
-		x@range["maxyear"] <- end
-
-		return(x)
-	}
+        function(x, start=dims(x)$minyear, end=dims(x)$maxyear, extend=TRUE, frequency=1) {
+            
+            
+            resm <- vector('list', length(x@metiers))
+            names(resm) <- names(x@metiers)
+            
+            for(mt in names(x@metiers)){
+              
+              y <- x@metiers[[mt]]
+              
+              resm[[mt]] <- FLMetierExt(name = y@name,
+                                        desc = y@desc,
+                                        gear = y@gear, 
+                                        range = c(min = y@range['min'], y@range['max'], minyear = start,maxyear = end),
+                                        effshare = window(y@effshare, start = start, end = end, extend = extend, frequency = frequency),
+                                        vcost = window(y@vcost, start = start, end = end, extend = extend, frequency = frequency),
+                                        catches = FLCatchesExt(window(y@catches, start = start, end = end, extend = extend, frequency = frequency)))   
+              
+            }
+            
+            
+            res <- FLFleetExt(name = x@name,
+                              desc = x@desc,
+                              range = c(min = x@range['min'], x@range['max'], minyear = start,maxyear = end),
+                              effort = window(x@effort, start = start, end = end, extend = extend, frequency = frequency),
+                              capacity = window(x@capacity, start = start, end = end, extend = extend, frequency = frequency),
+                              crewshare = window(x@crewshare, start = start, end = end, extend = extend, frequency = frequency),
+                              fcost = window(x@fcost, start = start, end = end, extend = extend, frequency = frequency),
+                              metiers = FLMetiersExt(resm))
+            
+            return(res)
+          }
 )	# }}}
 
 ## effort		{{{

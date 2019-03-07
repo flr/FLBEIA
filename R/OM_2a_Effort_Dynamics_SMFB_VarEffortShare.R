@@ -225,7 +225,15 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
           
            if(!is.null(dim(rho))) rhoi <- rho[st,i,drop=F]
            else rhoi <- rho[st]
-          
+           
+           # Call the function to change the effort-share
+           efs.m[,i, drop=F] <- eval(call(effortShare.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
+                     efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
+                     ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
+                     restriction = restriction))
+           # Update the fleets object with the new effort share
+           fl  <- ....
+           
             Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
                                 efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
