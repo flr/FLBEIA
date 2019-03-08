@@ -65,13 +65,14 @@ The FLFleetExt object contains a representation of a fishing fleet as constructe
 \section{Slots}{
 
 \describe{
-\item{\code{effort}}{An FLQuant with the effort of the fleet.}
+\item{\code{effort}}{An FLQuant with the effort of the fleet. The effort can have any units (e.g. number of fishing days, trips, hooks,...)}
 
-\item{\code{fcost}}{An FLQuant with the fixed costs of the fleet.}
+\item{\code{fcost}}{An FLQuant with the fixed costs of the fleet. 
+These costs should be given by vessel and the number of vessels by fleet must be included in the covars object.}
 
-\item{\code{capacity}}{An FLQuant with the capacity of the fleet.}
+\item{\code{capacity}}{An FLQuant with the capacity of the fleet. Same units as in slot effort must be used.}
 
-\item{\code{crewshare}}{An FLQuant with the crewshare of the fleet.}
+\item{\code{crewshare}}{An FLQuant with the crewshare of the fleet. Where crewshare is the percentage of revenues that goes to the crew.}
 
 \item{\code{metiers}}{A FLMetiersExt with information on the fleet's metiers.}
 

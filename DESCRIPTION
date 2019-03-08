@@ -26,10 +26,8 @@ Imports:
   FLash,
   mvtnorm,
   triangle,
-  nloptr,
-  plyr,
-  XLConnect
-Suggests: R.rsp, spict
+  plyr
+Suggests: R.rsp, spict, XLConnect
 Additional_repositories: http://flr-project.org/R
 License: GPL-2
 VignetteBuilder: R.rsp

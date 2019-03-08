@@ -75,7 +75,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
   # if(is.na(fleets.ctrl[[flnm]][['stocks.restr']]))
   #   cat(paste("warning: fleets.ctrl[['",flnm,"']][['stocks.restr']]==NA, then effort is restricted by capacity and not by any of the stocks.\n", sep=""))
   
-
+  
   for(i in 1:it){
     
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
@@ -83,7 +83,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
                                 biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
                                 flnm = flnm, yr = yr, ss = ss, iters = i), environment())
     
-       
+    
     # # Correction of efs.m when no TAC for main target species
     if(!is.null(fleets.ctrl[[flnm]]$q2zero)){ 
       fl.sel <- fleets.ctrl[[flnm]]$q2zero
@@ -107,12 +107,12 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
                              ret.m = ret.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]],
                              restriction = restriction))
     }
-
+    
     qsum.stk <- sapply(names(q.m), function(x) sum(q.m[[x]]))
-
+    
     Et  <- 0.9*ifelse(effort.restr == 'min', min(effs[qsum.stk>0]), effs[effort.restr])[1] 
     Et <- ifelse(Et < K, Et, K*0.9)
-
+    
     
     catch.restr <- ifelse(is.null(restriction), 'landings', restriction)
     
@@ -136,39 +136,47 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
         names(efs.min) <- names(efs.max) <- names(fleets[[flnm]]@metiers)
       }
     }
-
-  #  if(fleets.ctrl[[flnm]]$efs.abs == FALSE){
-      # If efs.min == 0 or Cr.f == 0 or E0 == 0 set them equal to 1e-8 to avoid having indeterminations in the penalties
+    
+    #  if(fleets.ctrl[[flnm]]$efs.abs == FALSE){
+    # If efs.min == 0 or Cr.f == 0 or E0 == 0 set them equal to 1e-8 to avoid having indeterminations in the penalties
+    E0 <- Et*efs.m
+    
+    efs.min <- ifelse(efs.min == 0, 1e-8, efs.min)
+    E0      <- ifelse(E0 == 0, 1e-8, E0)
+    Cr.f    <- ifelse(Cr.f == 0, 1e-8, Cr.f)
+    
+    # recalculate efs.m in case E0 has changed.
+    efs.m <- E0/sum(E0)
+    
+    # Apply these restrictions to initial values
+    if (fleets.ctrl[[flnm]]$efs.abs == FALSE) {
+      
+      efs.min <- ifelse(efs.m <= efs.min, efs.m*0.99, efs.min)
+      efs.m <- ifelse(efs.m >= efs.max, efs.max*0.99, efs.m)
+      
       E0 <- Et*efs.m
-    
-      efs.min <- ifelse(efs.min == 0, 1e-8, efs.min)
-      E0      <- ifelse(E0 == 0, 1e-8, E0)
-      Cr.f    <- ifelse(Cr.f == 0, 1e-8, Cr.f)
-    
-      # recalculate efs.m in case E0 has changed.
-      efs.m <- E0/sum(E0)
-    
-      # Apply these restrictions to initial values
-      if (fleets.ctrl[[flnm]]$efs.abs == FALSE) {
-        
-        efs.min <- ifelse(efs.m <= efs.min, efs.m*0.99, efs.min)
-        efs.m <- ifelse(efs.m >= efs.max, efs.max*0.99, efs.m)
-        
-        E0 <- Et*efs.m
       
-      } else {
-        
-        efs.min <- ifelse(E0 <= efs.min, E0*0.99, efs.min)
-        E0 <- ifelse(E0 >= efs.max, efs.max*0.99, E0)
+    } else {
       
-      }
+      efs.min <- ifelse(E0 <= efs.min, E0*0.99, efs.min)
+      E0 <- ifelse(E0 >= efs.max, efs.max*0.99, E0)
       
-   # }
-  #  else{
-  #    E0 <- sum(efs.m
-  #  }
+    }
+    
+    # }
+    #  else{
+    #    E0 <- sum(efs.m
+    #  }
     
     X <- log(E0/(K - E0))
+    
+    L <- list(X=X,E0=E0, effs=effs, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
+              beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
+              wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
+              effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
+              tacos = tacos, rho = rho)
+    
+    save(L, file = 'c:/use/escritorio/MP.RData')
     
     eff_opt <- optim(X,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
                      beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
@@ -197,17 +205,17 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
     
     if(LO == TRUE){ # IF LandObl == TRUE => restr == 'catch
       
-        lo_res <- MaxProfit_Extra_LO(biols = biols, fleets = fleets, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, fl = fl, Et.res = Et.res, 
-                                      efs.res = efs.res, efs.min = efs.min, efs.max = efs.max,  yr = yr, ss = ss, 
-                                     flnm = flnm, it = it, i = i,  sts = sts, q.m = q.m, alpha.m = alpha.m, 
-                                     beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
-                                     ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
-                                     effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
-                                     tacos = tacos)
-       list2env(lo_res, globalenv())
+      lo_res <- MaxProfit_Extra_LO(biols = biols, fleets = fleets, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, fl = fl, Et.res = Et.res, 
+                                   efs.res = efs.res, efs.min = efs.min, efs.max = efs.max,  yr = yr, ss = ss, 
+                                   flnm = flnm, it = it, i = i,  sts = sts, q.m = q.m, alpha.m = alpha.m, 
+                                   beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
+                                   ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
+                                   effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
+                                   tacos = tacos)
+      list2env(lo_res, globalenv())
     } 
   } # END OF ITERATIONS LOOP
-
+  
   
   
   # Update the quota share of this step and the next one if the
@@ -233,35 +241,35 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
       fleets.ctrl$seasonal.share[[st]][flnm,yr,,,,i] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
     }
   }
-
-
-
-
-    # Update the quota share of this step and the next one if the
-    # quota share does not coincide with the actual catch. (update next one only if s < ns).
-    
-    if(dim(biols[[1]]@n)[4] > 1){ # only for seasonal models
-      for(st in sts){
-        
-        #   browser()
-        #  if(st == 'SKH') browser()
-        
-        yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-        ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
-        quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
-        # The catch.
-        catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
-        
-        Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-        catchD <- eval(call(catchFun, N = Nst, B = B[st], E = Et.res, efs.m = efs.res, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st]))
-        itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
-        catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
-        
-        quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st], catch = catch, season = ss)        # [ns,it]
-        
-        fleets.ctrl$seasonal.share[[st]][flnm,yr,,,,i] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
-      }
+  
+  
+  
+  
+  # Update the quota share of this step and the next one if the
+  # quota share does not coincide with the actual catch. (update next one only if s < ns).
+  
+  if(dim(biols[[1]]@n)[4] > 1){ # only for seasonal models
+    for(st in sts){
+      
+      #   browser()
+      #  if(st == 'SKH') browser()
+      
+      yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
+      ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
+      quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
+      # The catch.
+      catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
+      
+      Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+      catchD <- eval(call(catchFun, N = Nst, B = B[st], E = Et.res, efs.m = efs.res, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st]))
+      itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
+      catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
+      
+      quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st], catch = catch, season = ss)        # [ns,it]
+      
+      fleets.ctrl$seasonal.share[[st]][flnm,yr,,,,i] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
     }
+  }
   
   
   #  update effort
@@ -340,6 +348,7 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
   }
   
   resF <- (1-crewS)*res - sum(vc.m*E) - fc
+
   
   # cat('prof: ', resF, ', rev: ',res, ', creWS:', crewS, ', TCS: ', crewS*res, ', Vc: ', sum(vc.m*E), ', FC: ', fc, '\n' )
   
@@ -365,7 +374,7 @@ f_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
 #-------------------------------------------------------------------------------
 
 f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
-                        wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, stocks.restr, efs.abs, tacos, rho){
+                                  wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, stocks.restr, efs.abs, tacos, rho){
   
   E <- K/(1+exp(-X))
   
@@ -421,7 +430,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   }
   
   resF <- (1-crewS)*res - sum(vc.m*E) - fc
-  
+#  cat('income: ', res,', vcost: ', sum(vc.m*E),', crewS: ', crewS*res, ', fcost: ', fc, '\n')
+#  cat('profits: ', resF,'effort: ', E,'\n')
   #---------------------------------------------------------------------------
   # constraint on effort-share: absolute or relative values.
   #---------------------------------------------------------------------------
@@ -436,16 +446,16 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
     pen_efsMax <- pen_efsMin <- 0
     #efs <- efs#to allow 0 values in efs
     if(length(efs) > 1){ # If there is onlly one metier we don't want any penalty on this.
-    # This penalty ensures that efs < efs.max because otherwise  log(efs/(efs.max - efs)) = NaN
+      # This penalty ensures that efs < efs.max because otherwise  log(efs/(efs.max - efs)) = NaN
       pen_efsMax <- sum(log(efs/(efs.max - efs)))
-    # Using the inverse 1/efs and using efs.min, we bound the minimum
+      # Using the inverse 1/efs and using efs.min, we bound the minimum
       pen_efsMin <- sum(log((1/efs)/((1/efs.min) - (1/efs))))
-  }}
+    }}
   
   
   # print(efs)
   # print(efs.min)
-    
+  
   #---------------------------------------------------------------------------
   # constraint on capacity
   #---------------------------------------------------------------------------
@@ -458,8 +468,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   # constraint on catches, comply with all the TACS ('min') or only with one.
   #---------------------------------------------------------------------------
   if(effort.restr == 'none') resTAC <- 0 # The overshoot of TACs is not penalized but it does not produce any rent so overshooting 
-                                        # all of them should not be wroth unless there are some unconstrained stocks
-                                        # like OTH, in this case if no TAC and the biomas sin unlimited, there must be some stock constraint.  
+  # all of them should not be wroth unless there are some unconstrained stocks
+  # like OTH, in this case if no TAC and the biomas sin unlimited, there must be some stock constraint.  
   if(effort.restr == 'min'){
     
     resTAC <- rep(0, length(q.m))  # One resctriction per stock.
@@ -475,7 +485,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
         
         if(catch.restr == 'landings') Cam <- Cam*ret.m[[st]]
         
- #       resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cam))/0.00005)) this constraint does not work for all the stocks simultaneously
+        #       resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cam))/0.00005)) this constraint does not work for all the stocks simultaneously
         Ctot <- ifelse( sum(Cam)==0, 1e-08*0.99,sum(Cam))
         resTAC[st] <- log(Ctot/(Cr.f[st]-Ctot))
         #   cat(st, ' - ', sum(Cam), '\n')
@@ -488,8 +498,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
         
         # resTAC[st] <- sum(Cm)  - Cr.f[st]
         #       cat(st, ' - ', sum(Cm), '\n')
-      #
-       # resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cm))/0.00005)) this constraint does not work for all the stocks simultaneously
+        #
+        # resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cm))/0.00005)) this constraint does not work for all the stocks simultaneously
         resTAC[st] <- log(sum(Cm)/(Cr.f[st]-sum(Cm)))
         
       }
@@ -498,7 +508,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
     pen_OverShoot <- sum(resTAC[stocks.restr], na.rm = TRUE) # only the overshoot of the TAC of some stocks penalizes the function.
   }
   
-   if(!(effort.restr %in% c('none', 'min'))){
+  if(!(effort.restr %in% c('none', 'min'))){
     stk.cnst <- effort.restr
     
     Nst <- array(N[[stk.cnst]][drop=T],dim = dim(N[[stk.cnst]])[c(1,3,6)])
@@ -514,7 +524,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
     
     if(catch.restr == 'landings') Cm <- Cm*c(ret.m[[stk.cnst]])
     
-   # resTAC[st] <- 1e7*sum(1/(1+2^((-Cr.f[stk.cnst]+sum(Cm))/0.00005))) This penalty works properly only if the multiplier is in the scale of the profits.
+    # resTAC[st] <- 1e7*sum(1/(1+2^((-Cr.f[stk.cnst]+sum(Cm))/0.00005))) This penalty works properly only if the multiplier is in the scale of the profits.
     resTAC[stk.cnst] <- log(sum(Cm)/(Cr.f[stk.cnst]-sum(Cm)))
     
     pen_OverShoot <- resTAC[stk.cnst]

@@ -70,10 +70,11 @@ validFLFleetExt <- function(object) {
 #' 
 #' @return The constructors return an object of class FLFleetExt.
 #' 
-#' @slot effort An FLQuant with the effort of the fleet.
-#' @slot fcost An FLQuant with the fixed costs of the fleet.
-#' @slot capacity An FLQuant with the capacity of the fleet.
-#' @slot crewshare An FLQuant with the crewshare of the fleet.
+#' @slot effort An FLQuant with the effort of the fleet. The effort can have any units (e.g. number of fishing days, trips, hooks,...)
+#' @slot fcost An FLQuant with the fixed costs of the fleet. 
+#'             These costs should be given by vessel and the number of vessels by fleet must be included in the covars object.
+#' @slot capacity An FLQuant with the capacity of the fleet. Same units as in slot effort must be used.
+#' @slot crewshare An FLQuant with the crewshare of the fleet. Where crewshare is the percentage of revenues that goes to the crew.
 #' @slot metiers A FLMetiersExt with information on the fleet's metiers.
 #' @slot name The name of the stock.
 #' @slot desc A description of the object.
@@ -409,31 +410,38 @@ setMethod("dims", signature(obj="FLFleetExt"),
 
 ## window    {{{
 setMethod("window", signature(x="FLFleetExt"),
- function(x, start=dims(x)$minyear, end=dims(x)$maxyear, extend=TRUE, frequency=1) {
-
-    # window fleet
-    x <- qapply(x, window, start, end, extend, frequency)
-
-    # window metiers
-    metiers <- x@metiers
-    metiers <- FLMetiersExt(lapply(metiers, window, start, end))
-
-    # window catches
-    catches <- list()
-    for(i in seq(length(x@metiers))){
-
-      metiers[[i]]@catches <- FLCatchesExt(lapply(x@metiers[[i]]@catches, window, start, end, extend, frequency))
-
-
-    }
-   
-    x@metiers <- metiers
-
-		x@range["minyear"] <- start
-		x@range["maxyear"] <- end
-
-		return(x)
-	}
+        function(x, start=dims(x)$minyear, end=dims(x)$maxyear, extend=TRUE, frequency=1) {
+            
+            
+            resm <- vector('list', length(x@metiers))
+            names(resm) <- names(x@metiers)
+            
+            for(mt in names(x@metiers)){
+              
+              y <- x@metiers[[mt]]
+              
+              resm[[mt]] <- FLMetierExt(name = y@name,
+                                        desc = y@desc,
+                                        gear = y@gear, 
+                                        range = c(min = y@range['min'], y@range['max'], minyear = start,maxyear = end),
+                                        effshare = window(y@effshare, start = start, end = end, extend = extend, frequency = frequency),
+                                        vcost = window(y@vcost, start = start, end = end, extend = extend, frequency = frequency),
+                                        catches = FLCatchesExt(window(y@catches, start = start, end = end, extend = extend, frequency = frequency)))   
+              
+            }
+            
+            
+            res <- FLFleetExt(name = x@name,
+                              desc = x@desc,
+                              range = c(min = x@range['min'], x@range['max'], minyear = start,maxyear = end),
+                              effort = window(x@effort, start = start, end = end, extend = extend, frequency = frequency),
+                              capacity = window(x@capacity, start = start, end = end, extend = extend, frequency = frequency),
+                              crewshare = window(x@crewshare, start = start, end = end, extend = extend, frequency = frequency),
+                              fcost = window(x@fcost, start = start, end = end, extend = extend, frequency = frequency),
+                              metiers = FLMetiersExt(resm))
+            
+            return(res)
+          }
 )	# }}}
 
 ## effort		{{{

@@ -29,7 +29,7 @@
 #-------------------------------------------------------------------------------
 # SMFB_LO(fleets, biols, covars, fleets.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
+SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
     
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
@@ -125,12 +125,10 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     if(it > 1){    
       if(length(stnms) == 1) rho <- matrix(rho, 1,it, dimnames = list(stnms, 1:it))
       
-      TAC <- ifelse(B[stnms,]*rho[stnms,] < TAC.yr[stnms,]*QS.ss[stnms,], B[stnms,]*rho[stnms,], TAC.yr[stnms,]*QS.ss[stnms,])
+      TAC <- ifelse(B*rho[stnms,] < TAC.yr*QS.ss, B*rho[stnms,], TAC.yr*QS.ss)
     }
-    else TAC <- ifelse(B[stnms,]*rho[stnms] < TAC.yr[stnms,]*QS.ss[stnms,], B[stnms,]*rho[stnms], TAC.yr[stnms,]*QS.ss[stnms,])
+    else TAC <- ifelse(B*rho[stnms] < TAC.yr*QS.ss, B*rho[stnms], TAC.yr*QS.ss)
 
-    TAC <- matrix(TAC, length(stnms),it,dimnames = list(stnms, 1:it))
-    
     # Re-scale QS to fleet share within the season instead of season-fleet share within year.
     QS   <- lapply(stnms, function(x){          # list of stocks, each stock [nf,it]
                             res <- sweep(QS[[x]], 2, apply(QS[[x]],2, sum), "/")
@@ -227,7 +225,15 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
           
            if(!is.null(dim(rho))) rhoi <- rho[st,i,drop=F]
            else rhoi <- rho[st]
-          
+           
+           # Call the function to change the effort-share
+           efs.m[,i, drop=F] <- eval(call(effortShare.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
+                     efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
+                     ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
+                     restriction = restriction))
+           # Update the fleets object with the new effort share
+           fl  <- ....
+           
             Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
                                 efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],

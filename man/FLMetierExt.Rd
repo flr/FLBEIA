@@ -58,7 +58,9 @@ The FLMetierExt object contains a representation of the metier of a fishing flee
 \item{\code{effshare}}{An FLQuant with the effort share of a fleet's metier relative to fleet's total effort 
 (the sum of all metiers effshares for a fleet must sum 1).}
 
-\item{\code{vcost}}{An FLQuant with the varible costs of a fleet's metier.}
+\item{\code{vcost}}{An FLQuant with the varible costs of a fleet's metier.
+These costs should be given by vessel and based on the effort units used for the fleet's effort (within the FLFleetExt object).
+The number of vessels by fleet must be included in the covars object.}
 
 \item{\code{catches}}{A FLCatchesExt with information on the fleet's metier catches.}
 
