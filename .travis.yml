@@ -1,27 +1,41 @@
-# .travis.yml for R projects.
-#
-# https://travis-ci.org/flr/FLCore
-
-warnings_are_errors: false
-
 language: r
-
-matrix:
-  include:
-    - os: linux
-      r: release
-
+env:
+- R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
+warnings_are_errors: false
+os:
+- linux
+- osx
+r:
+- release
+addons:
+  apt:
+    packages:
+    - libgsl0-dev
+branches:
+  only:
+  - master
 sudo: false
-
 cache: packages
-
-r_github_packages: mawp/spict/spict
-
 notifications:
   email:
     on_success: change
     on_failure: change
+after_success:
+- 'export PKGVER=$(sed -n "s/Version: *\([^ ]*\)/\1/p" DESCRIPTION)'
+- export REL=$(echo $PKGVER | grep -o "\." | grep -c "\.")
+- echo $PKGVER $REL
+- R CMD INSTALL --build FLBEIA_$PKGVER.tar.gz
+- rm FLBEIA_$PKGVER.tar.gz
+- export RELEASE_PKG_FILE=$(ls FLBEIA*gz)
+- echo $RELEASE_PKG_FILE
 
-branches:
-  only:
-    - master
+deploy:
+  provider: releases
+  api_key:
+    secure: ZvBCUEmgrZSlS7mwiu/dA5TQIW90qwZwRC74wxDRTdumWqfY+m/9dYUq7v4GO9ZtGGxA4VDhtdC1z+v1GHucjWF/pgEgFfhSefjFe12KpYqVP+FlnqdODx1uKoDN8FyOoUHMHBGV6KorebtFLICf+ldqqhbB/GFPN85bCgcI4lc=
+  file: $RELEASE_PKG_FILE
+  skip_cleanup: true
+  draft: true
+  on:
+    repo: flr/FLBEIA
+    condition: $REL = "2"
