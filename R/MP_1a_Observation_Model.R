@@ -76,8 +76,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     # rec = n[1,,1,1] + n[1,,2,2] + n[1,,3,3] + n[1,,4,4]
     # n up to (year) to use it after in the 'f' calculation.
     n <- unitSums(biol@n)[,1:year,,1]
-    n[n == 0] <- 1e-6   # if n == 0 replace it by a small number to avoid 'Inf' in harvest.
-        
+         
     if(dim(biol@n)[3] > 1){
         for(u in 2:dim(biol@n)[3])
             n[1,] <- n[1,] + biol@n[1,1:year,u,u]
@@ -92,6 +91,8 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
       n[1,1:(year-1),] <- ifelse( is.na(n[1,1:(year-1),]), 0, n[1,1:(year-1),])
          
     stock.n(res) <- n[,1:(year-1)]
+    
+    n[n == 0] <- 1e-6   # if n == 0 replace it by a small number to avoid 'Inf' in harvest.
     
     stock(res) <- quantSums(res@stock.n*res@stock.wt)
         
