@@ -89,10 +89,10 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     # for current year if season before recruitment season:
     if (ss != ns)
       n[1,1:(year-1),] <- ifelse( is.na(n[1,1:(year-1),]), 0, n[1,1:(year-1),])
-         
-    stock.n(res) <- n[,1:(year-1)]
     
     n[n == 0] <- 1e-6   # if n == 0 replace it by a small number to avoid 'Inf' in harvest.
+    
+    stock.n(res) <- n[,1:(year-1)]
     
     stock(res) <- quantSums(res@stock.n*res@stock.wt)
         
