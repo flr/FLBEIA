@@ -64,7 +64,7 @@ The only difference is that that the catches slot is a FLCatchesExt object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">FLBEIA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.4</span>
       </span>
     </div>
 
@@ -175,7 +175,9 @@ FLMetierExt(catches, gear = "NA", ...)
 <dt><code>gear</code></dt><dd><p>A character with the gear name of a fleet's metier.</p></dd>
     <dt><code>effshare</code></dt><dd><p>An FLQuant with the effort share of a fleet's metier relative to fleet's total effort 
 (the sum of all metiers effshares for a fleet must sum 1).</p></dd>
-    <dt><code>vcost</code></dt><dd><p>An FLQuant with the varible costs of a fleet's metier.</p></dd>
+    <dt><code>vcost</code></dt><dd><p>An FLQuant with the varible costs of a fleet's metier.
+These costs should be given by vessel and based on the effort units used for the fleet's effort (within the FLFleetExt object).
+The number of vessels by fleet must be included in the covars object.</p></dd>
     <dt><code>catches</code></dt><dd><p>A FLCatchesExt with information on the fleet's metier catches.</p></dd>
     <dt><code>name</code></dt><dd><p>The name of the stock.</p></dd>
     <dt><code>desc</code></dt><dd><p>A description of the object.</p></dd>

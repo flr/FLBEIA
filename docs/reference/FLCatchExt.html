@@ -64,7 +64,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">FLBEIA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.4</span>
       </span>
     </div>
 
@@ -199,11 +199,11 @@ catchNames(object) <- value</pre>
 <dt><code>landings</code></dt><dd><p>An FLQuant with the total landings in weight of the stock.</p></dd>
     <dt><code>landings.n</code></dt><dd><p>An FLQuant with the landings in numbers at age of the stock.</p></dd>
     <dt><code>landings.wt</code></dt><dd><p>An FLQuant with the weight at age of the landings.</p></dd>
-    <dt><code>landings.sel</code></dt><dd><p>An FLQuant with the retention ogive of the metier for this stock. Elements must be between 0 and 1. landings.sel = 1-discards.sel.</p></dd>
     <dt><code>discards</code></dt><dd><p>An FLQuant with the total discards in weight of the stock.</p></dd>
     <dt><code>discards.n</code></dt><dd><p>An FLQuant with the discards in numbers at age of the stock.</p></dd>
     <dt><code>discards.wt</code></dt><dd><p>An FLQuant with the weight at age of the discards.</p></dd>
-    <dt><code>landings.sel,discards.sel</code></dt><dd><p>An FLQuant with the landing/discard ogive of the metier for this stock. 
+    <dt><code>landings.sel,discards.sel</code></dt><dd><p>An FLQuant with the landing/discard ogive of the metier for this stock 
+(i.e. landings.sel corresponds to the proportion of catches landed).
 Elements must be between 0 and 1, with discards.sel = 1-landings.sel.</p></dd>
     <dt><code>catch.q</code></dt><dd><p>An FLQuant with the catchability at age of the stock for the corresponding metier. 
 This is the catchability used in the catch production model.</p></dd>

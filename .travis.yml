@@ -1,33 +1,43 @@
 language: r
+
 env:
 - R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
+
 warnings_are_errors: false
+
 os:
 - linux
 - osx
+
 r:
 - release
+
 addons:
   apt:
     packages:
     - libgsl0-dev
+
 branches:
   only:
   - master
+
 sudo: false
+
 cache: packages
+
 notifications:
   email:
     on_success: change
     on_failure: change
+
 after_success:
-- 'export PKGVER=$(sed -n "s/Version: *\([^ ]*\)/\1/p" DESCRIPTION)'
-- export REL=$(echo $PKGVER | grep -o "\." | grep -c "\.")
-- echo $PKGVER $REL
-- R CMD INSTALL --build FLBEIA_$PKGVER.tar.gz
-- rm FLBEIA_$PKGVER.tar.gz
-- export RELEASE_PKG_FILE=$(ls FLBEIA*gz)
-- echo $RELEASE_PKG_FILE
+  - 'export PKGVER=$(sed -n "s/Version: *\([^ ]*\)/\1/p" DESCRIPTION)'
+  - export REL=$(echo $PKGVER | grep -o "\." | grep -c "\.")
+  - echo $PKGVER $REL
+  - R CMD INSTALL --build FLBEIA_$PKGVER.tar.gz
+  - rm FLBEIA_$PKGVER.tar.gz
+  - export RELEASE_PKG_FILE=$(ls FLBEIA*gz)
+  - echo $RELEASE_PKG_FILE
 
 deploy:
   provider: releases

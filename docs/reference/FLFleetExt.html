@@ -64,7 +64,7 @@ The only difference is that that the metiers slot is a FLMetiersExt object." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">FLBEIA</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15.4</span>
       </span>
     </div>
 
@@ -186,10 +186,11 @@ FLCatchExt, FLCatchesExt or FLMetierExt.</p></td>
 
     
     <dl class='dl-horizontal'>
-<dt><code>effort</code></dt><dd><p>An FLQuant with the effort of the fleet.</p></dd>
-    <dt><code>fcost</code></dt><dd><p>An FLQuant with the fixed costs of the fleet.</p></dd>
-    <dt><code>capacity</code></dt><dd><p>An FLQuant with the capacity of the fleet.</p></dd>
-    <dt><code>crewshare</code></dt><dd><p>An FLQuant with the crewshare of the fleet.</p></dd>
+<dt><code>effort</code></dt><dd><p>An FLQuant with the effort of the fleet. The effort can have any units (e.g. number of fishing days, trips, hooks,...)</p></dd>
+    <dt><code>fcost</code></dt><dd><p>An FLQuant with the fixed costs of the fleet. 
+These costs should be given by vessel and the number of vessels by fleet must be included in the covars object.</p></dd>
+    <dt><code>capacity</code></dt><dd><p>An FLQuant with the capacity of the fleet. Same units as in slot effort must be used.</p></dd>
+    <dt><code>crewshare</code></dt><dd><p>An FLQuant with the crewshare of the fleet. Where crewshare is the percentage of revenues that goes to the crew.</p></dd>
     <dt><code>metiers</code></dt><dd><p>A FLMetiersExt with information on the fleet's metiers.</p></dd>
     <dt><code>name</code></dt><dd><p>The name of the stock.</p></dd>
     <dt><code>desc</code></dt><dd><p>A description of the object.</p></dd>
