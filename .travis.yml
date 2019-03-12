@@ -12,6 +12,12 @@ os:
 r:
 - release
 
+env:
+  global:
+    - _R_CHECK_FORCE_SUGGESTS_=FALSE
+    - _R_CHECK_LATEX_VIGNETTES=FALSE
+    - _R_CHECK_WEAVE_VIGNETTES=FALSE
+
 addons:
   apt:
     packages:
