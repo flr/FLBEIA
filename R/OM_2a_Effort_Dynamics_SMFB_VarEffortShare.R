@@ -169,8 +169,8 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
     Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
 
-    q.m <- alpha.m <- beta.m  <- ret.m <- wd.m <- wl.m <-vector('list', length(sts))
-    names(q.m) <- names(alpha.m) <- names(beta.m) <- names(ret.m) <- names(wl.m) <- names(wd.m) <- sts
+    q.m <- alpha.m <- beta.m  <- ret.m <- wd.m <- wl.m <- pr.m <- vector('list', length(sts))
+    names(q.m) <- names(alpha.m) <- names(beta.m) <- names(ret.m) <- names(wl.m) <- names(wd.m) <- names(pr.m) <-sts
 
     for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
@@ -191,7 +191,8 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
         ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
         wl.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
         wd.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-
+        pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+        
 
         for(mt in mtnms){
 
@@ -203,6 +204,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
             ret.m[[st]][mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, drop = TRUE] 
             wl.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@landings.wt[,yr,,ss, drop = TRUE]
             wd.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, drop = TRUE]
+            pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr,,ss, drop = TRUE]
         }    
         
         Cr.f[st,] <- TAC[st,]*QS[[st]][flnm,]
@@ -220,22 +222,29 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
           }
         }
         
+    }
+    
+    
+    ## Update the effort-share using the defined model
+    effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
+    efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m = alpha.m[[st]], 
+                       beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, restriction = restriction))
+    
+    cat('Effort share: ', efs.m, ', sum:', apply(efs.m,2,sum), '\n')
+    # Update the fleets object with the new effort share
+    for(mt in names(fl@metiers))  fl@metiers[[mt]]@effshare[,yr,,ss] <-  efs.m[mt,] 
+    
+    for(st in sts){
+        
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
         for(i in 1:it){
           
            if(!is.null(dim(rho))) rhoi <- rho[st,i,drop=F]
            else rhoi <- rho[st]
            
-           # Call the function to change the effort-share
-           efs.m[,i, drop=F] <- eval(call(effortShare.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
-                     efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
-                     ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
-                     restriction = restriction))
-           # Update the fleets object with the new effort share
-           fl  <- ....
-           
-            Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
+           Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+            
+           effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
                                 efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
                                 ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
                                 restriction = restriction))
@@ -417,4 +426,30 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     
     return(list(fleets = fleets, fleets.ctrl = fleets.ctrl))
 }
+
+
+
+#-------------------------------------------------
+## GRAVITY MODEL TO UPDATE THE EFFORT SHARE
+#-------------------------------------------------
+
+gravity <- function(Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rhoi, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m,
+                    ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, restriction = restriction){ 
+  
+  N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
+  names(N0) <- names(N)
+    
+  V.m  <- Reduce('+', lapply(names(q.m), function(x) 
+                              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)))
+  
+  TotV <- apply(V.m,2,sum)
+  
+  res <- sweep(V.m, 2, TotV, "/")
+  
+  return(res)
+}
+
+
+
+
 
