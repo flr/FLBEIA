@@ -24,7 +24,11 @@ addons:
     - libgsl0-dev
     - texlive-latex-extra
 
-brew_packages: basictex
+before_install: |
+  if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+    brew update
+    brew install basictex
+  fi
 
 branches:
   only:
