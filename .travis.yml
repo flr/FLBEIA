@@ -24,6 +24,7 @@ addons:
     - libgsl0-dev
     - texlive-latex-extra
 
+brew_packages: basictex
 
 branches:
   only:
