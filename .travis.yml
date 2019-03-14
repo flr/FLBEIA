@@ -22,6 +22,8 @@ addons:
   apt:
     packages:
     - libgsl0-dev
+    - texlive-latex-extra
+
 
 branches:
   only:
