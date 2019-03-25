@@ -232,7 +232,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
     efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m, 
                        beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
-                       season = ss, fleet = fl, fleet.ctrl = fleets.ctrl[[flnm]], restriction = restriction))
+                       season = ss, year = yr, fleet = fl, fleet.ctrl = fleets.ctrl[[flnm]], restriction = restriction))
     
     cat('Effort share: ', efs.m, ', sum:', apply(efs.m,2,sum), '\n')
     # Update the fleets object with the new effort share
@@ -460,7 +460,7 @@ gravity <- function(Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rhoi, efs.m = efs
 #-------------------------------------------------
 mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m, 
                           beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
-                          season, fleet, fleet.ctrl, restriction){
+                          season, year, fleet, fleet.ctrl, restriction){
   
   
   ## step 1 
@@ -482,7 +482,7 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     pr.m.i     <- lapply(pr.m, function(x) x[,,,i,drop=F])
     
     updated.df <- update_RUM_params(model = fleet.ctrl[['mlogit.model']], predict.df = predict.df, 
-                                  fleet = fleet, covars = covars, season = season,
+                                  fleet = fleet, covars = covars, season = season, year = year,
                                   N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
     ## step 3 
     res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df)
@@ -539,7 +539,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   predict.df$index <- seq_len(nrow(predict.df)) 
   ## Use mFormula to define model form
-  LD.predict <- mlogit.data(predict.df, choice = "choice", shape = "long",
+  LD.predict <- mlogit:::mlogit.data(predict.df, choice = "choice", shape = "long",
                             alt.var = "metier", chid.var = "index")
   
   return(LD.predict)
@@ -547,7 +547,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
 
 # ** update_RUM_params **: For this I have tried to keep the inputs the same as for the gravity model. 
 #                 Here, we update the data in the predict_df (from 1) with the values to predict over.
-update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season,
+update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, year,
                               N, q.m, wl.m, beta.m, ret.m, pr.m) {
   
   ## Update the values in the predict.df
@@ -582,13 +582,13 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season,
   
   # 3. vcost
   if("vcost" %in% colnames(predict.df)) {
-    v <- do.call(rbind, lapply(fl@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,yr,,s]))))
+    v <- do.call(rbind, lapply(fl@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season]))))
     predict.df$vcost <- v$data
   }
   
   # 4. effort share - past effort share, y-1
   if("effshare" %in% colnames(predict.df)) {
-    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,yr-1,,s]))))
+    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season]))))
     predict.df$effshare <- e$data
   }
   
