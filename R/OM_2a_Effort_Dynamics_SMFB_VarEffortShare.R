@@ -438,7 +438,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
 #-------------------------------------------------
 
 gravity <- function(Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rhoi, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m,
-                    ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, restriction = restriction){ 
+                    ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, restriction = restriction, year, season){ 
   
   N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
   names(N0) <- names(N)
