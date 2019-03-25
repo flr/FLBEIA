@@ -3,7 +3,7 @@ import("FLFleet")
 import("methods")
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("stats", "aggregate", "anova", "as.formula", "coef", "cor",
-  "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot", "optim")
+  "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot", "optim", "na.pass")
 importFrom("utils", "data", "installed.packages")
 import("ggplot2")
 importFrom("utils", "read.csv")
@@ -12,10 +12,8 @@ import("FLa4a")
 import("FLash")
 import("Matrix")
 import("plyr")
-importFrom("XLConnect", "xlcFreeMemory", "loadWorkbook", "getSheets", "readWorksheet")
 importFrom("mvtnorm", "rmvnorm")
 importFrom("triangle", "rtriangle")
-importFrom("nloptr", "nloptr")
 
 export(
 "advSum",
