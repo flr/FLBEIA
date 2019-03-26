@@ -29,7 +29,7 @@ before_install: |
     brew update
     brew cask install basictex
     brew install gsl
-    tlmgr install placeins
+    sudo tlmgr install placeins
   fi
 
 branches:
