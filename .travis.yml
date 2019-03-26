@@ -29,6 +29,7 @@ before_install: |
     brew update
     brew cask install basictex
     brew install gsl
+    sudo tlmgr update --self
     sudo tlmgr install placeins
   fi
 
