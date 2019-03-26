@@ -23,6 +23,7 @@
 # Changed: 13/01/2015
 # Changed: 01/04/2015 Itsaso Carmona 
 # Changed: 29/04/2015 Itsaso carmona (LO in some years)
+# Addes Effort share models: 20/03/2019 Dorleta 
 #-------------------------------------------------------------------------------
 
 
@@ -225,10 +226,13 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     }
     
     
+  #  browser()
+            
     ## Update the effort-share using the defined model
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
-    efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m = alpha.m[[st]], 
-                       beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, restriction = restriction))
+    efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m, 
+                       beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
+                       season = ss, year = yr, fleet = fl, fleet.ctrl = fleets.ctrl[[flnm]], restriction = restriction))
     
     cat('Effort share: ', efs.m, ', sum:', apply(efs.m,2,sum), '\n')
     # Update the fleets object with the new effort share
@@ -434,7 +438,8 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
 #-------------------------------------------------
 
 gravity <- function(Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rhoi, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m,
-                    ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, restriction = restriction){ 
+                    ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
+                    season, year, fleet, fleet.ctrl, restriction = restriction){ 
   
   N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
   names(N0) <- names(N)
@@ -451,5 +456,176 @@ gravity <- function(Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rhoi, efs.m = efs
 
 
 
+#-------------------------------------------------
+## mlogit MODEL TO UPDATE THE EFFORT SHARE
+#-------------------------------------------------
+mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m, 
+                          beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
+                          season, year, fleet, fleet.ctrl, restriction){
+  
+  
+  ## step 1 
+  predict.df <- make_RUM_predict_df(model = fleet.ctrl[['mlogit.model']], fleet = fleet, s = season)
+  
+  res <- efs.m
+  res[] <- NA
+  
+  for(i in 1:dim(N[[1]])[6]){
+  ## step 2 
+    
+    Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
+    q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
+    alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
+    beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
+    wl.m.i     <- lapply(wl.m, function(x) x[,,,i,drop=F])
+    wd.m.i     <- lapply(wd.m, function(x) x[,,,i,drop=F])
+    ret.m.i    <- lapply(ret.m, function(x) x[,,,i,drop=F])
+    pr.m.i     <- lapply(pr.m, function(x) x[,,,i,drop=F])
+    
+    updated.df <- update_RUM_params(model = fleet.ctrl[['mlogit.model']], predict.df = predict.df, 
+                                  fleet = fleet, covars = covars, season = season, year = year,
+                                  N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
+    ## step 3 
+    res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df)
+  }
+  
+
+  return(res)
+}
+
+
+# ** make_RUM_predict_df **:  this makes the correctly formated dataframe over which to predict 
+#     the effort shares. It requires the mlogit model, fleet object and season as input.
+make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
+  
+  ## Pass mlogit model object
+  ## Pass fleet object
+  
+  mod.coefs <- names(coef(model)) ## Model coefficients
+  
+  ## 1. season - note, just return the season for which we're predicting
+  seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
+  
+  ## 2. catch or catch rates
+  C <- if(any(sapply(catchNames(fleet), grepl, mod.coefs))) {
+    
+    ## Return the catchnames that are in the coefficients
+    catchNames(fleet)[unlist(sapply(catchNames(fleet), function(n) { any(grepl(n, mod.coefs))}))]
+    
+  } else { NA }
+  
+  ## 3. vcost 
+  v    <- if(any(grepl("vcost", mod.coefs))) { -1 } else { NA }
+  
+  ## 4. effshare 
+  e    <- if(any(grepl("effshare", mod.coefs))) { -1 } else { NA }
+  
+  ## Construct the dataframe
+  predict.df <- expand.grid(metier = fleet@metiers@names, 
+                            choice = "yes", 
+                            season = as.numeric(seas), 
+                            vcost = v, 
+                            effshare = e,
+                            stringsAsFactors = FALSE)
+  ## Remove any columns with NAs, indicating variable not used
+  predict.df <- predict.df[,which(sapply(predict.df, function(x) all(!is.na(x))))]
+  
+  ## Combine with the catch rate columns
+  if(!all(is.na(C))) {	
+    C.df <- as.data.frame(matrix(-1, ncol = length(C), nrow = nrow(predict.df)))
+    colnames(C.df) <- C
+    
+    predict.df <- cbind(predict.df, C.df)
+  }
+  
+  predict.df$index <- seq_len(nrow(predict.df)) 
+  ## Use mFormula to define model form
+  LD.predict <- mlogit:::mlogit.data(predict.df, choice = "choice", shape = "long",
+                            alt.var = "metier", chid.var = "index")
+  
+  return(LD.predict)
+}
+
+# ** update_RUM_params **: For this I have tried to keep the inputs the same as for the gravity model. 
+#                 Here, we update the data in the predict_df (from 1) with the values to predict over.
+update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, year,
+                              N, q.m, wl.m, beta.m, ret.m, pr.m) {
+  
+  ## Update the values in the predict.df
+  
+  ## 2. catch / catch rates - on same scale.
+  ## Note, these should be updated based on the biomass increases, so we do a
+  ## similar calculation as for the gravity model
+  ## Here have to be careful as not all metiers may catch all stocks...
+  
+  if(any(sapply(catchNames(fleet), grepl, names(coef(model))))) {
+    
+    N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
+    names(N0) <- names(N)
+    
+    ## This should be the catch rate per stock per metier ??
+    CR.m   <- lapply(names(q.m), function(x) 
+      cbind(stock = x,
+            as.data.frame(
+              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)
+            )
+      )
+    )
+    
+    CR <- do.call(rbind, CR.m)
+    
+    for(st in unique(CR$stock)) {
+      predict.df[,st] <- CR[CR$stock == st,2] 
+    }
+    predict.df[is.na(predict.df)] <- 0
+    
+  }
+  
+  # 3. vcost
+  if("vcost" %in% colnames(predict.df)) {
+    v <- do.call(rbind, lapply(fl@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season]))))
+    predict.df$vcost <- v$data
+  }
+  
+  # 4. effort share - past effort share, y-1
+  if("effshare" %in% colnames(predict.df)) {
+    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season]))))
+    predict.df$effshare <- e$data
+  }
+  
+  return(predict.df)
+  
+}
+
+
+# ** predict_RUM ** : this function does the predictions and returns the effort shares.
+predict_RUM <- function(model, updated.df) {
+  
+  ## Extract the model matrix and parameter coefficients
+  mod.mat <- model.matrix(model$formula, data = updated.df)
+  beta <- as.matrix(coef(model))
+  
+  ## Check the model matrix and coefficients are ordered correctly
+  if(any(!colnames(mod.mat) == rownames(beta))) {
+    stop("Model matrix and coefficients are not the same")
+  }
+  
+  ## linear predictor long
+  eta_long <- mod.mat %*% beta
+  
+  ## linear predictor wide
+  eta_wide <- matrix(eta_long, ncol = length(unique(updated.df$metier)), byrow = TRUE)
+  names(eta_wide) <- updated.df$metier 
+  
+  ## convert to a probability
+  p_hat <- exp(eta_wide) / rowSums(exp(eta_wide))
+  colnames(p_hat) <- updated.df$metier 
+  p_hat <- as.data.frame(t(p_hat))
+  
+#  cat('Effort Share mlogit: ', p_hat[,1], '\n')
+  
+  return(p_hat[,1])
+  
+}
 
 
