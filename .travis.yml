@@ -32,7 +32,7 @@ before_install: |
     sudo tlmgr update --self
     sudo tlmgr install placeins
     sudo tlmgr install threeparttable
-    sudo tlmgr install pdflscape
+    sudo tlmgr install oberdiek
   fi
 
 branches:
