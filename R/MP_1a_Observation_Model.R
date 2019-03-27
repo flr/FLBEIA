@@ -611,7 +611,7 @@ bio1plusInd <- function(biol, index, obs.ctrl, year, stknm,...){
   
   it <- dim(biol@n)[6]
   ns <- dim(biol@n)[4]
-  a1plus <- which(dimnames(biol@n)$age=='1'):dim(biols$PIL@n)[1]
+  a1plus <- which(dimnames(biol@n)$age=='1'):dim(biol@n)[1]
   
   # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
   yrnm   <- dimnames(biol@n)[[2]][year]   
