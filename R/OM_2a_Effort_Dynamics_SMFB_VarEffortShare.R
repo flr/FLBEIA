@@ -23,7 +23,7 @@
 # Changed: 13/01/2015
 # Changed: 01/04/2015 Itsaso Carmona 
 # Changed: 29/04/2015 Itsaso carmona (LO in some years)
-# Addes Effort share models: 20/03/2019 Dorleta 
+# Added Effort share models: 20/03/2019 Dorleta 
 #-------------------------------------------------------------------------------
 
 
@@ -167,6 +167,8 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
 
     efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
                     length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
+    vc.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss, drop=T])), 
+                    length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
     effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
     Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
 
@@ -231,7 +233,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     ## Update the effort-share using the defined model
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
     efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m, 
-                       beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
+                       beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, vc.m = vc.m,
                        season = ss, year = yr, fleet = fl, fleet.ctrl = fleets.ctrl[[flnm]], restriction = restriction))
     
     cat('Effort share: ', efs.m, ', sum:', apply(efs.m,2,sum), '\n')
@@ -437,19 +439,34 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
 ## GRAVITY MODEL TO UPDATE THE EFFORT SHARE
 #-------------------------------------------------
 
-gravity <- function(Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rhoi, efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m,
-                    ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
-                    season, year, fleet, fleet.ctrl, restriction = restriction){ 
+gravity.flbeia <- function(Cr,  N, B, q.m, rho, efs.m, alpha.m, beta.m,
+                    ret.m, wl.m, wd.m, pr.m, vc.m, season, year, fleet, fleet.ctrl, restriction = restriction,...){ 
   
   N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
   names(N0) <- names(N)
-    
-  V.m  <- Reduce('+', lapply(names(q.m), function(x) 
+  
+  if(fleet.ctrl$gravity.model == 'revenue'){  
+    V.m  <- Reduce('+', lapply(names(q.m), function(x) 
                               apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)))
+    TotV <- apply(V.m,2,sum)
+    res <- sweep(V.m, 2, TotV, "/")
+  }else{
+    if(fleet.ctrl$gravity.model == 'profit'){
+        V.m  <- Reduce('+', lapply(names(q.m), function(x) 
+            apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)))
+        TotV <- apply(V.m - vc.m,2,sum) 
+        
+        res <- sweep(V.m, 2, TotV, "/")
+      
+    }
+    else stop('gravity.model argument must be equal to "profit" or "revenue')
+  }
   
-  TotV <- apply(V.m,2,sum)
+  trad <- ifelse(is.null(fleet.ctrl$gravity.tradition), 0, fleet.ctrl$gravity.tradition)
   
-  res <- sweep(V.m, 2, TotV, "/")
+  res <- efs.m*trad+ res*(1-trad)
+  
+
   
   return(res)
 }
@@ -460,8 +477,8 @@ gravity <- function(Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rhoi, efs.m = efs
 ## mlogit MODEL TO UPDATE THE EFFORT SHARE
 #-------------------------------------------------
 mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m, 
-                          beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, 
-                          season, year, fleet, fleet.ctrl, restriction){
+                          beta.m, ret.m, wl.m, wd.m, pr.m, vc.m,
+                          season, year, fleet, fleet.ctrl, restriction,...){
   
   
   ## step 1 
@@ -627,5 +644,181 @@ predict_RUM <- function(model, updated.df) {
   return(p_hat[,1])
   
 }
+
+
+
+#-------------------------------------------------
+## MARKOV MODEL TO UPDATE THE EFFORT SHARE
+#-------------------------------------------------
+
+Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m, 
+                          beta.m, ret.m, wl.m, wd.m, pr.m, vc.m,
+                          season, year, fleet, fleet.ctrl, restriction,...){
+  
+  
+  ## step 1 
+  predict.df <- make_Markov_predict_df(model = fleet.ctrl[['Markov.model']], fleet = fleet, s = season)
+  
+  res <- efs.m
+  res[] <- NA
+  
+  for(i in 1:dim(N[[1]])[6]){
+    ## step 2 
+    
+    Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
+    q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
+    alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
+    beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
+    wl.m.i     <- lapply(wl.m, function(x) x[,,,i,drop=F])
+    wd.m.i     <- lapply(wd.m, function(x) x[,,,i,drop=F])
+    ret.m.i    <- lapply(ret.m, function(x) x[,,,i,drop=F])
+    pr.m.i     <- lapply(pr.m, function(x) x[,,,i,drop=F])
+    
+    updated.df <- update_Markov_params(model = fleet.ctrl[['Markov.model']], predict.df = predict.df, 
+                                    fleet = fleet, covars = covars, season = season, year = year,
+                                    N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
+    ## step 3 
+  #  browser()
+    res[,i] <- predict_Markov(model = fleet.ctrl[['Markov.model']], updated.df = updated.df, fleet = fleet, season = season, year = year)
+  }
+  
+  
+  return(res)
+}
+
+
+make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
+  
+  ## Pass multinom model object
+  ## Pass fleet object
+  
+  mod.coefs <- model$coefnames ## Model coefficients
+  
+  ## 1. season - note, just return the season for which we're predicting
+  seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
+  
+  ## 2. catch or catch rates
+  C <- if(any(sapply(catchNames(fleet), grepl, mod.coefs))) {
+    
+    ## Return the catchnames that are in the coefficients
+    catchNames(fleet)[unlist(sapply(catchNames(fleet), function(n) { any(grepl(n, mod.coefs))}))]
+    
+  } else { NA }
+  
+  ## 3. vcost 
+  v    <- if(any(grepl("vcost", mod.coefs))) { -1 } else { NA }
+  
+  ## 4. effshare 
+  e    <- if(any(grepl("effshare", mod.coefs))) { -1 } else { NA }
+  
+  ## Construct the dataframe
+  ## Note, we need the state from which vessels are coming
+  predict.df <- expand.grid(state.tminus1 = fleet@metiers@names,
+                            season = as.numeric(seas), 
+                            vcost = v, 
+                            effshare = e,
+                            stringsAsFactors = FALSE)
+  ## Remove any columns with NAs, indicating variable not used
+  predict.df <- predict.df[,which(sapply(predict.df, function(x) all(!is.na(x))))]
+  
+  ## Correct attributes for prediction data
+  if(!is.na(seas)) { 
+    if(attr(model$terms, "dataClasses")[["season"]] == "factor") {
+      predict.df$season <- as.factor(predict.df$season)
+    }
+  }
+  
+  ## Combine with the catch rate columns
+  if(!all(is.na(C))) {	
+    C.df <- as.data.frame(matrix(-1, ncol = length(C), nrow = nrow(predict.df)))
+    colnames(C.df) <- C
+    
+    predict.df <- cbind(predict.df, C.df)
+  }
+  
+  return(predict.df)
+}
+
+
+
+update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season, year,
+                                 N, q.m, wl.m, beta.m, ret.m, pr.m) {
+  
+  ## Update the values in the predict.df
+  
+  ## 2. catch / catch rates - on same scale.
+  ## Note, these should be updated based on the biomass increases, so we do a
+  ## similar calculation as for the gravity model
+  ## Here have to be careful as not all metiers may catch all stocks...
+  
+  if(any(sapply(catchNames(fleet), grepl, model$coefnames))) {
+    
+    N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
+    names(N0) <- names(N)
+    
+    ## This should be the catch rate per stock per metier ??
+    CR.m   <- lapply(names(q.m), function(x) 
+      cbind(stock = x,
+            as.data.frame(
+              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)
+            )
+      )
+    )
+    
+    CR <- do.call(rbind, CR.m)
+    
+    for(st in unique(CR$stock)) {
+      predict.df[,st] <- CR[CR$stock == st,2]  ## This will repeat, to ensure we get for each metier combinations
+    }
+    predict.df[is.na(predict.df)] <- 0
+    
+  }
+  
+  # 3. vcost
+  if("vcost" %in% colnames(predict.df)) {
+    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season]))))
+    predict.df$vcost <- v$data
+  }
+  
+  # 4. effort share - past effort share, y-1
+  if("effshare" %in% colnames(predict.df)) {
+    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season]))))
+    predict.df$effshare <- e$data
+  }
+  
+  return(predict.df)
+  
+}
+
+
+
+predict_Markov <- function(model, updated.df, fleet, season, year) {
+  
+  # Transition probs
+# browser()
+  p_hat <- cbind(updated.df[c("state.tminus1")], nnet:::predict.multinom(model, updated.df, type = "probs"))
+  p_hat_mat <- as.matrix(p_hat[,2:ncol(p_hat)])
+  
+  # past effort
+  
+  # New year
+  if(season == 1) {
+    last.season <- dims(fleet)[["season"]]
+    cur.eff <- as.matrix(sapply(fleet@metiers, function(x) x@effshare[,year-1, , last.season]))
+  }
+  
+  # Same year
+  if(season > 1) {
+    cur.eff <- as.matrix(sapply(fleet@metiers, function(x) x@effshare[, year, , season-1]))
+  }
+  
+  new.share <- apply(p_hat_mat, 2, function(x) x %*% cur.eff)
+  
+  if(sum(new.share) != 1) {stop("Error - effort share does not sum to 1")}
+  
+  return(new.share)
+  
+}
+
 
 
