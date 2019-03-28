@@ -814,7 +814,7 @@ predict_Markov <- function(model, updated.df, fleet, season, year) {
   
   new.share <- apply(p_hat_mat, 2, function(x) x %*% cur.eff)
   
-  if(sum(new.share) != 1) {stop("Error - effort share does not sum to 1")}
+  if(round(sum(new.share),6) != 1) {stop("Error - effort share does not sum to 1")}
   
   return(new.share)
   

@@ -176,7 +176,6 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
               effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
               tacos = tacos, rho = rho)
     
-    save(L, file = 'c:/use/escritorio/MP.RData')
     
     eff_opt <- optim(X,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
                      beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
