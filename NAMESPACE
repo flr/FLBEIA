@@ -102,6 +102,7 @@ export(
   "R_flbeia",
   "riskSum",
   "revenue_flbeia",
+  "segregmix",
   "SelAtAge",
   "setUnitsNA",
   "SSB_flbeia",
