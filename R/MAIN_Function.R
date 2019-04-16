@@ -241,6 +241,14 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     maxyear <- ac(dims(biols[[1]])$maxyear)
     seasons <- 1:ns
     
+    # Check input objects
+    sim.years <- as.numeric(main.ctrl$sim.years)
+    checkBiols(window(biols,start=sim.years[1]-1,end=sim.years[2]))                       # - biols
+    checkSRs(lapply(SRs,window, start=sim.years[1]-1,end=sim.years[2]))                   # - SRs
+    checkFleets(window(fleets,start=sim.years[1]-1,end=sim.years[2]), ctrl = fleets.ctrl) # - fleets
+    checkAdvice(advice)                                                                   # - advice
+    checkObsctrl(obs.ctrl)                                                                # - obs.ctrl
+    
     # Stock names
     stnms <- names(biols)
     
@@ -265,7 +273,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
           }}}}
     
     # Extract years, check and convert into positions.
-    sim.years <- as.numeric(main.ctrl$sim.years)
+    # sim.years <- as.numeric(main.ctrl$sim.years)
     if(!(sim.years[1] %in% as.numeric(minyear):as.numeric(maxyear))) stop('First simulation year is outside year range in the objects')
     if(!(sim.years[length(sim.years)] %in% as.numeric(minyear):as.numeric(maxyear))) stop('Last simulation year is outside year range in the objects')
     # convert sim.years in positon is the FLR objects.
