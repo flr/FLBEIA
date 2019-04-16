@@ -671,7 +671,7 @@ ssbInd <- function(biol, fleets, index, obs.ctrl, year, season,...){
 #   index.var is no longer used to store the uncertainty of the index. The uncertainty can be incorporate in 
 #   the slot index.q, ie., @index.q = q*err
 #-------------------------------------------------------------------------------   
-cbbmInd <- function(biol, index, obs.ctrl, year, season,...){
+cbbmInd <- function(biol, fleets, index, obs.ctrl, year, season,...){
   
   it <- dim(biol@n)[6]
   ns <- dim(biol@n)[4]
