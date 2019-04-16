@@ -17,6 +17,7 @@
 #-------------------------------------------------------------------------------
 
 #' @rdname annualTAC
+#' @aliases ghlHCR
 ghlHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
 
     it <- dim(indices[[1]][[1]]@index)[6]

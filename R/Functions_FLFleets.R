@@ -23,6 +23,7 @@
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
 #' @rdname landStock.f
+#' @aliases landStock
 landStock <- function(obj, stock){
     
     aux <- 0
@@ -55,6 +56,7 @@ landStock <- function(obj, stock){
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
 #' @rdname landStock.f
+#' @aliases discStock
 discStock <- function(obj, stock){
     aux <- 0
     res <- FLQuant()
@@ -87,6 +89,7 @@ discStock <- function(obj, stock){
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
 #' @rdname landStock.f
+#' @aliases catchStock
 catchStock <- function(obj, stock){
     return(discStock(obj, stock) + landStock(obj,stock))
 }
@@ -99,6 +102,7 @@ catchStock <- function(obj, stock){
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
 #' @rdname landStock.f
+#' @aliases landWStock
 landWStock <- function(obj, stock){
     
     aux <- 0
@@ -131,6 +135,7 @@ landWStock <- function(obj, stock){
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
 #' @rdname landStock.f
+#' @aliases discWStock
 discWStock <- function(obj, stock){
     aux <- 0
     res <- FLQuant()
@@ -163,6 +168,7 @@ discWStock <- function(obj, stock){
 #      the 'stock' in the FLFleets objetc.
 #-------------------------------------------------------------------------------
 #' @rdname landStock.f
+#' @aliases catchWStock
 catchWStock <- function(obj, stock){
     return(discWStock(obj, stock) + landWStock(obj,stock))
 }

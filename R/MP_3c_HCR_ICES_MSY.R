@@ -15,6 +15,7 @@
 # 07/09/2011 12:20:24
 #-------------------------------------------------------------------------------
 #' @rdname annualTAC
+#' @aliases IcesHCR
 IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
    # project the stock 3 years, (current year, TAC year, TAC year + 1 for ssb or biomass constraints).

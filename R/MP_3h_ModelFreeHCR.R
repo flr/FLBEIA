@@ -4,6 +4,7 @@
 # Implementation of the HCR presented in Pomarede 2010. 
 #-------------------------------------------------------------------------------
 #' @rdname annualTAC
+#' @aliases pidHCR
 pidHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
   
   Idnm <- advice.ctrl[[stknm]][['index']]  # either the name or the position of the index in FLIndices object.
@@ -53,6 +54,7 @@ pidHCR <- function(indices, advice, advice.ctrl, year, stknm,...){
 # Implementation of the HCR presented in Pomarede 2010. 
 #-------------------------------------------------------------------------------
 #' @rdname annualTAC
+#' @aliases pidHCRItarg
 pidHCRItarg <- function(indices, advice, advice.ctrl, year, stknm,...){
   
   Idnm <- advice.ctrl[[stknm]][['index']]  # either the name or the position of the index in FLIndices object.
@@ -105,6 +107,7 @@ pidHCRItarg <- function(indices, advice, advice.ctrl, year, stknm,...){
 # setting Cmax equal to a really high number or Inf.
 #-------------------------------------------------------------------------------
 #' @rdname annualTAC
+#' @aliases little2011HCR
 little2011HCR <- function(indices, advice, advice.ctrl, year, stknm,...){
   
   Idnm <- advice.ctrl[[stknm]][['index']]  # either the name or the position of the index in FLIndices object.

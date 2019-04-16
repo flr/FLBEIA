@@ -252,7 +252,7 @@ create.ghlHCR.ctrl <- function(resst,stkname, largs){
 
 
 #------------------------------------------------------------------------------#
-#                        *** create.froeseHCR.ctrl  ***
+#                        *** create.FroeseHCR.ctrl  ***
 #-------------------------------------------------------------------------------
 create.FroeseHCR.ctrl <- function(resst,stkname, largs){
 

@@ -436,8 +436,11 @@ This second model used to simulate \textit{mixed fisheries} dynamics calculates 
                                                
     \begin{equation}\label{eq:maxprof.stkCnst}
                    \max_{E_f, \gamma_{f,1},\ldots,\gamma_{f,n_{MT,f}}} 
-                    \sum_m\sum_{st}\sum_a  L_{st,a,f,m} \cdot P_{st,a,f,m}- 
-                           E_f\cdot\gamma_{f,m}\cdot VaC_{f,m} - FxC_f\cdot n_{V_f}                                                   
+                    % \left[  
+                      % \left( 1- crewS \right) \cdot
+                      \sum_m\sum_{st}\sum_a  L_{st,a,f,m} \cdot P_{st,a,f,m}- 
+                             E_f\cdot\gamma_{f,m}\cdot VaC_{f,m} - FxC_f\cdot n_{V_f}
+                    % \right]
     \end{equation}
 
   \noindent with the constraints:

@@ -166,6 +166,7 @@ plotbioSum <- function( obj, stk.nam, Blim=NA, Bpa=NA, proj.yr=NA) {
 # proj.yr = numeric (optional), with the projection starting year.
 #----------------------------------------------------------------------
 #' @rdname plotbioSum
+#' @aliases plotfltSum
 plotfltSum <- function( obj, flt.nam, proj.yr=NA) {
   
   # Required indicators

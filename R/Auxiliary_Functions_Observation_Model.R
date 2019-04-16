@@ -1,4 +1,5 @@
 #' @rdname landStock.f
+#' @aliases tlandStock
 #Landings
 
 #tlandStock
@@ -75,6 +76,7 @@ wtalStock <- function(obj, stknm)
 #obj : an object of class FlFleetsExt
 #stknm : character, the name of the stock
 #' @rdname landStock.f
+#' @aliases tdiscStock
 tdiscStock <- function(obj, stknm){
     aux <- 0
     for(f in obj){

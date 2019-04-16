@@ -18,6 +18,7 @@
 # N: The number of years to recover ssb
 #-------------------------------------------------------------------------------
 #' @rdname annualTAC
+#' @aliases MAPHCR
 MAPHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
    
    # project the stock 3 years, (current year, TAC year, TAC year + 1 for ssb or biomass constraints). 

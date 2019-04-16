@@ -112,7 +112,7 @@ ricker.low <- function(){
 # - a * b         , if b < SSB <= B
 # - A * B * uncAdd, if B < SSB
 # 
-# where uncAdd corresponds to the uncertainty for SSB > B,
+# where uncAdd corresponds to the uncertainty added when SSB > B,
 # with uncAdd = @uncertainty ^ ((sd of SR residuals for SSB <= B) / (sd of SR residuals for SSB <= B) - 1)
 
 segregmix <- function () 
