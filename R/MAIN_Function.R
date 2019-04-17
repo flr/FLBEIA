@@ -241,14 +241,6 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     maxyear <- ac(dims(biols[[1]])$maxyear)
     seasons <- 1:ns
     
-    # Check input objects
-    sim.years <- as.numeric(main.ctrl$sim.years)
-    checkBiols(window(biols,start=sim.years[1]-1,end=sim.years[2]))                       # - biols
-    checkSRs(lapply(SRs,window, start=sim.years[1]-1,end=sim.years[2]))                   # - SRs
-    checkFleets(window(fleets,start=sim.years[1]-1,end=sim.years[2]), ctrl = fleets.ctrl) # - fleets
-    checkAdvice(advice)                                                                   # - advice
-    checkObsctrl(obs.ctrl)                                                                # - obs.ctrl
-    
     # Stock names
     stnms <- names(biols)
     
@@ -259,21 +251,9 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     chckdim0 <- checkDims(biols,  minyear, maxyear, ns, it)
     chckdim1 <- checkDims(fleets, minyear, maxyear, ns, it)
     if(!is.null(covars)) chckdim2 <- checkDims(covars, minyear, maxyear, ns, it)
-    # Check when the model to describe BD is Pellatom, that alpha has the right values.
-
-    if(!is.null(BDs)){
-      BDnms<- names(BDs)
-      for(stk.bd in BDnms){
-        if(BDs[[stk.bd]]@model=="PellaTom"){
-          p <- BDs[[stk.bd]]@params["p",,,]
-          r <- BDs[[stk.bd]]@params["r",,,]
-          K <- BDs[[stk.bd]]@params["K",,,]
-          if(any(BDs[[stk.bd]]@alpha<1) || any(as.vector(BDs[[stk.bd]]@alpha) > as.vector(((p/r+1)^(1/p))))){
-            stop("alpha<1 or alpha > min((p/r+1)^(1/p))")
-          }}}}
-    
+   
     # Extract years, check and convert into positions.
-    # sim.years <- as.numeric(main.ctrl$sim.years)
+    sim.years <- as.numeric(main.ctrl$sim.years)
     if(!(sim.years[1] %in% as.numeric(minyear):as.numeric(maxyear))) stop('First simulation year is outside year range in the objects')
     if(!(sim.years[length(sim.years)] %in% as.numeric(minyear):as.numeric(maxyear))) stop('Last simulation year is outside year range in the objects')
     # convert sim.years in positon is the FLR objects.

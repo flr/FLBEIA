@@ -88,7 +88,7 @@ There are two types of HCRs model-free HCRs and model-Based HCRs.
               The user can specify the year in which you aim to reach Fmsy, with a linear transition between
               Fsq to Fmsy in the intervening years}
       \item{F2CatchHCR:} {This HCR transforms the fishing mortality advice given as input data to catch advice without any other restriction.}
-      \item{FroeseHCR:} {The HCR defined in the paper by Froese, Branch et al. in Fish and Fisheries 2010.}
+      \item{FroeseHCR:} {The HCR defined in the paper by Froese, Branch et al. in Fish and Fisheries 2011.}
       \item{ghlHCR:} {The model-free HCR used in the management of greenland-halibut}
       \item{IcesHCR:} {The HCR used by ICES to generate TAC advice in the MSY framework.}
       \item{little2011HCR:} {The HCR defined in the paper by Little et al. in ICES Journal of Marine Science 2011.}

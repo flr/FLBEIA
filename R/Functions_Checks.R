@@ -28,15 +28,18 @@ checkDims <- function(object, minyear, maxyear, ns, it){
 
 
 
-#' @title Checking arguments of FLBEIA function
+#' @title Checking inputs of FLBEIA function
 #' @description This functions checks wether some conditions are met for the inputs 
 #'              in the different arguments of the FLBEIA function.
-#'              Specifically there are checking functions for: 
+#'              There are also checking functions for specific inputs: 
 #'              biols, fleets, SRs, advice, and obs.ctrl arguments.
 #' 
 #' Functions available:
 #' \itemize{
 #' 
+#'    \item{\code{checkFLBEIAData}}{: for checking inputs for differents arguments of FLBEIA function 
+#'                               (of class FLBiols).}
+#'     
 #'    \item{\code{checkBiols}}{: for checking biols argument of FLBEIA function 
 #'                               (of class FLBiols).}
 #'    \item{\code{checkFleets}}{: for checking fleets argument of FLBEIA function 
@@ -49,21 +52,119 @@ checkDims <- function(object, minyear, maxyear, ns, it){
 #'                               (of class list).}
 #' }
 #' 
-#' @param object An object of the appropiate class depending on the FLBEIA argument to be checked:
-#'               - biols   : A FLBiols object.
-#'               - fleets  : A FLFleetsExt object.
-#'               - SRs     : A list of FLSRsim objects.
-#'               - advice  : A list with two FLQuant elements, TAC and quota.share.
-#'               - obs.ctrl: A list.
+#' @param biols       An FLBiols object.
+#' @param fleets      An FLFleetsExt object.
+#' @param SRs         A list of FLSRsim objects.
+#' @param BDs         A list of FLBDsim objects.
+#' @param covars      A list of FLQuants.
+#' @param indices     A list of FLIndices.
+#' @param advice      A list with two FLQuant elements, TAC and quota.share.
+#' @param main.ctrl   A list with the settings to control the main function.
+#' @param biols.ctrl  A list with the settings to control the biological operating model for each stock.
+#' @param fleets.ctrl A list with the settings to control the fleets operating model for each fleet.
+#' @param covars.ctrl A list with the settings to control the covars operating model for each fleet.
+#' @param obs.ctrl    A list with the settings to control the observation model for each stock.
+#' @param assess.ctrl A list with the settings to control the specify the assessment model for each stock.
+#' @param advice.ctrl A list with the settings to control the advice model for each stock.
+#' @param object      An object of the appropiate class depending on the FLBEIA argument to be checked:
+#'                    \itemize{
+#'                      \item{\code{biols}}   {: A FLBiols object.}
+#'                      \item{\code{fleets}}  {:A FLFleetsExt object.}
+#'                      \item{\code{SRs}}     {: A list of FLSRsim objects.}
+#'                      \item{\code{BDs}}     {: A list of FLBDsim objects.}
+#'                      \item{\code{advice}}  {: A list with two FLQuant elements, TAC and quota.share..}
+#'                      \item{\code{obs.ctrl}}{: A list.}
+#'                    }
+#'
+#'
+#' @param ctrl   An object of class list (optional argument), input for fleets.ctrl argument of FLBEIA function.
 #'
 #' @return An error message if there is any error detected.
 #' 
+
 
 
 #-------------------------------------------------------------------------------
 #  checkBiols(object) - checking biols argument of FLBEIA function
 #-------------------------------------------------------------------------------
 
+checkFLBEIAData <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices = NULL, advice = NULL, main.ctrl, biols.ctrl, 
+                            fleets.ctrl, covars.ctrl, obs.ctrl, assess.ctrl,  advice.ctrl){
+  
+  sim.years <- as.numeric(main.ctrl$sim.years)
+  
+  
+  # Check input objects
+  
+  # - biols
+  
+  checkBiols(window(biols,start=sim.years[1]-1,end=sim.years[2]))
+  
+  # - SRs
+  
+  checkSRs(lapply(SRs,window, start=sim.years[1]-1,end=sim.years[2]))
+  
+  # - BDs
+  
+  checkBDs(lapply(BDs,window, start=sim.years[1]-1,end=sim.years[2]))
+  
+  # - fleets
+  
+  checkFleets(window(fleets,start=sim.years[1]-1,end=sim.years[2]), ctrl = fleets.ctrl)
+  
+  # - advice
+  
+  checkAdvice(advice)
+  
+  # - obs.ctrl
+  
+  checkObsctrl(obs.ctrl)
+  
+  
+  # Extract the common dimensions [year, season, it] from the 1st biol.
+  
+  ny <- dim(biols[[1]]@n)[2]
+  ns <- dim(biols[[1]]@n)[4]
+  it <- dim(biols[[1]]@n)[6]
+  minyear <- ac(dims(biols[[1]])$minyear)
+  maxyear <- ac(dims(biols[[1]])$maxyear)
+  
+  
+  # Check that all FLQuants have the rigth [ny,ns,it] dimensions. 
+  
+  chckdim0 <- checkDims(biols,  minyear, maxyear, ns, it)
+  chckdim1 <- checkDims(fleets, minyear, maxyear, ns, it)
+  if(!is.null(covars)) chckdim2 <- checkDims(covars, minyear, maxyear, ns, it)
+  
+  
+  return(TRUE)
+  
+}
+
+
+# data(one)
+# checkFLBEIAData( biols = oneBio, SRs = oneSR, BDs = NULL, fleets = oneFl, 
+#                  covars = oneCv, indices = NULL, advice = oneAdv, 
+#                  main.ctrl = oneMainC, biols.ctrl = oneBioC, fleets.ctrl = oneFlC, 
+#                  covars.ctrl = oneCvC, obs.ctrl = oneObsC, assess.ctrl = oneAssC, advice.ctrl = oneAdvC)
+# data(oneIt)
+# checkFLBEIAData( biols = oneItBio, SRs = oneItSR, BDs = NULL, fleets = oneItFl, 
+#                  covars = oneItCv, indices = NULL, advice = oneItAdv, 
+#                  main.ctrl = oneItMainC, biols.ctrl = oneItBioC, fleets.ctrl = oneItFlC, 
+#                  covars.ctrl = oneItCvC, obs.ctrl = oneItObsC, assess.ctrl = oneItAssC, advice.ctrl = oneItAdvC)
+# data(multi)
+# checkFLBEIAData( biols = multiBio, SRs = multiSR, BDs = multiBD, fleets = multiFl, 
+#                  covars = multiCv, indices = NULL, advice = multiAdv, 
+#                  main.ctrl = multiMainC, biols.ctrl = multiBioC, fleets.ctrl = multiFlC, 
+#                  covars.ctrl = multiCvC, obs.ctrl = multiObsC, assess.ctrl = multiAssC, advice.ctrl = multiAdvC)
+
+
+#-------------------------------------------------------------------------------
+#  checkBiols(object) - checking biols argument of FLBEIA function
+#-------------------------------------------------------------------------------
+#' @rdname checkFLBEIAData
+#' @aliases checkBiols
+ 
 checkBiols <- function(object) {
   
   for (st in names(object)) {
@@ -102,7 +203,7 @@ checkBiols <- function(object) {
 #-------------------------------------------------------------------------------
 #  checkFleets(object) - checking fleets argument of FLBEIA function
 #-------------------------------------------------------------------------------
-#' @rdname checkBiols
+#' @rdname checkFLBEIAData
 #' @aliases checkFleets
 
 checkFleets <- function(object, ctrl=NULL) {
@@ -167,8 +268,8 @@ checkFleets <- function(object, ctrl=NULL) {
 # 
 # # Errors
 # obj1 <- oneFl
-# obj1$fl1@capacity[] <- NA # capacity = NA
-# checkFleets(obj1)
+# obj1$fl1@capacity[] <- NA # capacity = NA & no info on fleets.
+# checkFleets(obj1)         # outputs a warning
 # obj2 <- multiFl
 # obj2$fl1@effort
 # obj2$fl1@metiers$met1@effshare[,ac(1990),] <- NA # sum != 1, but effort = 0 
@@ -194,7 +295,7 @@ checkFleets <- function(object, ctrl=NULL) {
 #-------------------------------------------------------------------------------
 #  checkSRs(object) - checking SRs argument of FLBEIA function
 #-------------------------------------------------------------------------------
-#' @rdname checkBiols
+#' @rdname checkFLBEIAData
 #' @aliases checkSRs
 
 checkSRs <- function(object) {
@@ -241,9 +342,51 @@ checkSRs <- function(object) {
 
 
 #-------------------------------------------------------------------------------
+#  checkBDs(object) - checking BDs argument of FLBEIA function
+#-------------------------------------------------------------------------------
+#' @rdname checkFLBEIAData
+#' @aliases checkBDs
+
+checkBDs <- function(object) {
+  
+  for (st in names(object)) {
+    
+    if(object[[st]]@model=="PellaTom"){
+      
+      p <- object[[st]]@params["p",,,]
+      r <- object[[st]]@params["r",,,]
+      K <- object[[st]]@params["K",,,]
+      
+      if ( any(object[[st]]@alpha<1) || any(as.vector(object[[st]]@alpha) > as.vector(((p/r+1)^(1/p)))) )
+        stop("Check alpha parameter for biomass dynamics of stock '", st,"' (required (p/r+1)^(1/p) < alpha < 1)." )
+        
+    }
+  }
+  
+  return(TRUE)
+  
+}
+
+
+# oneBD <- NULL
+# checkBDs(oneBD)
+# data(multi)
+# checkBDs(multiBD)
+# 
+# # Errors
+# obj1 <- obj2 <- obj3 <- multiBD
+# obj1$stk2@alpha[1,1,] <- 10 # alpha < 1
+# checkBDs(obj1)
+# obj2$stk2@alpha[1,1,] <- 
+#   (obj2$stk2@params["p",1,1,]/obj2$stk2@params["r",1,1,]+1)^(1/obj2$stk2@params["p",1,1,]) - 1 # alpha > (p/r+1)^(1/p)
+# checkBDs(obj2)
+
+
+
+#-------------------------------------------------------------------------------
 #  checkAdvice(object) - checking advice argument of FLBEIA function
 #-------------------------------------------------------------------------------
-#' @rdname checkBiols
+#' @rdname checkFLBEIAData
 #' @aliases checkAdvice
 
 checkAdvice <- function(object) {
@@ -278,7 +421,7 @@ checkAdvice <- function(object) {
 #-------------------------------------------------------------------------------
 #  checkObsctrl(object) - checking obs.ctrl argument of FLBEIA function
 #-------------------------------------------------------------------------------
-#' @rdname checkBiols
+#' @rdname checkFLBEIAData
 #' @aliases checkObsctrl
 
 checkObsctrl <- function(object) {
