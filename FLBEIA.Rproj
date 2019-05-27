@@ -15,3 +15,6 @@ LaTeX: pdfLaTeX
 BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
+PackageBuildArgs: --no-multiarch --with-keep.source
+PackageBuildBinaryArgs: --no-multiarch --with-keep.source
+PackageCheckArgs: --no-multiarch --with-keep.source
