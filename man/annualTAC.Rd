@@ -82,6 +82,8 @@ There are two types of HCRs model-free HCRs and model-Based HCRs.
 }
 \itemize{
       \item{aneHCRE:} {The HCR used in the bay of biscay anchovy long term management plan.}
+      \item{aneHCRs:} {The HCRs (escapement biomass) tested for the bay of biscay anchovy with different calendars.
+                       For details see Sanchez et al. 2019. MEPS 617-618: 245-263.}
       \item{annexIVHCR:} {The HCR used by EC and ICES to generate the TAC advice for data poor stocks.}
       \item{annualTAC:} {A HCR that generates annual TAC advice. The HCR provides the whole flexibility of fwd.}
       \item{CFPMSYHCR:} {HCR adapting the MAP HCR to allow flexibility in the year Fmsy is achieved. 
