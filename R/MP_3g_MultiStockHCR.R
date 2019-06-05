@@ -155,19 +155,21 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     # The checks inthe secont step depend on the approach
     if((approach %in% c('max', 'mean')) & any(Fadv0 > Fupp)){
       lambda1 <- apply(Fupp/Fadv0,2,min) # The F multiplier.
-      Fadv <- sweep(Fadv0,2,lambda1,"*")
+      Fadv0 <- Fadv <- sweep(Fadv0,2,lambda1,"*")
     }
-    if((approach == 'min') & any(Fadv0 < Flow)){
-      lambda1 <- apply(Flow/Fadv0,2,max) #[it]
+    
+    # If for some stock, under any option, we are below Flow, we increase F as much as possible within the ranges.
+    if(any(Fadv0 < Flow)){#if((approach == 'min') & any(Fadv0 < Flow)){
+      lambda2 <- apply(Flow/Fadv0,2,max) #[it]
       upps <- Fupp/Fadv0
-      comp1 <- colSums((1/sweep(upps,1,lambda1,"/")) >1) # [it]
+      comp1 <- colSums((1/sweep(upps,1,lambda2,"/")) >1) # [it]
       # The correction will be always the minimum of the Fupp/Fadv0 ratios, because for NONE of the stock we can be above.
       pos <- apply(upps,2,which.min) # [it]
       # If comp1 == 0, for this iteration non of the stocks is above Fupp
       # If comp1 == 1, there exist one stock above Fupp
       # If comp1 > 1, there are several stocks above Fupp, so from the corresponding multipliers we need to select the lowest one.
-      lambda1 <- ifelse(comp1 == 0, lambda1,  sapply(1:length(comp1),function(x) upps[pos[x],x] ))
-      Fadv <- sweep(Fadv0,2,lambda1,"*")
+      lambda2 <- ifelse(comp1 == 0, lambda2,  sapply(1:length(comp1),function(x) upps[pos[x],x] ))
+      Fadv <- sweep(Fadv0,2,lambda2,"*")
       }
      
     Fadv_st <- Fadv[stknm,]
