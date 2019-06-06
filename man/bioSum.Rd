@@ -23,9 +23,9 @@
 \title{Summary of the FLBEIA output}
 \usage{
 bioSum(obj, stknms = "all", years = dimnames(obj$biols[[1]]@n)$year,
-  long = TRUE, scenario = "bc")
+  long = FALSE, scenario = "bc", byyear = TRUE, ssb_season = NULL)
 
-bioSumQ(obj, prob = c(0.95, 0.5, 0.05))
+bioSumQ(obj, probs = c(0.95, 0.5, 0.05))
 
 fltSum(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
   byyear = TRUE, long = TRUE, InterestRate = 0.03, scenario = "bc")
@@ -90,13 +90,15 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
 \item{scenario}{a character string with the name of the scenario corresponding with obj. Default bc.}
 
-\item{prob}{a numeric vector with the probabilities used to calculate the quantiles.}
+\item{byyear}{logical. The indicators should be provided at season or year level? Default TRUE.}
+
+\item{ssb_season}{If byyear = TRUE, the season in which ssb will be taken.}
 
 \item{flnms}{Names of the fleet for which the indicators will be calculated.}
 
-\item{byyear}{logical. The indicators should be provided at season or year level? Default TRUE.}
-
 \item{InterestRate}{Capital oportunity cost rate.}
+
+\item{prob}{a numeric vector with the probabilities used to calculate the quantiles.}
 
 \item{Bpa}{named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 
@@ -171,6 +173,7 @@ data(res_flbeia)
 # Example One: One stock, one fleet, one iter.
 #------------------------------------------------
 oneRes_bio    <- bioSum(oneRes)
+oneRes$fleets[[1]] <- setUnitsNA(oneRes$fleets[[1]]) 
 oneRes_flt    <- fltSum(oneRes)
 oneRes_fltStk <- fltStkSum(oneRes)
 oneRes_mt     <- mtSum(oneRes)
@@ -199,12 +202,12 @@ head(oneRes_mtStkQ)
 head(oneRes_advQ)
 
 # Wide format
-oneRes_bio    <- bioSum(oneRes, long = FALSE, years = ac(2016:2020))
-oneRes_flt    <- fltSum(oneRes, long = FALSE, years = ac(2016:2020))
-oneRes_fltStk <- fltStkSum(oneRes, long = FALSE, years = ac(2016:2020))
-oneRes_mt     <- mtSum(oneRes, long = FALSE, years = ac(2016:2020))
-oneRes_mtStk  <- mtStkSum(oneRes, long = FALSE, years = ac(2016:2020))
-oneRes_adv    <- advSum(oneRes, long = FALSE, years = ac(2016:2020))
+oneRes_bio    <- bioSum(oneRes, long = TRUE, years = ac(2016:2020))
+oneRes_flt    <- fltSum(oneRes, long = TRUE, years = ac(2016:2020))
+oneRes_fltStk <- fltStkSum(oneRes, long = TRUE, years = ac(2016:2020))
+oneRes_mt     <- mtSum(oneRes, long = TRUE, years = ac(2016:2020))
+oneRes_mtStk  <- mtStkSum(oneRes, long = TRUE, years = ac(2016:2020))
+oneRes_adv    <- advSum(oneRes, long = TRUE, years = ac(2016:2020))
 
 head(oneRes_bio)
 head(oneRes_flt)
@@ -227,10 +230,10 @@ head(oneRes_mt)
 head(oneRes_mtStk)
 head(oneRes_adv)
 
-# Wide format with seasonal disaggregation. No seasonal disagregation available for 
-# bio and adv summaries.
+# Wide format with seasonal disaggregation. No seasonal disagregation available for
+#  adv summaries.
 
-oneRes_bio    <- bioSum(oneRes, long = FALSE) # Biol summary is only by year.
+oneRes_bio    <- bioSum(oneRes, long = FALSE, byyear = FALSE) # Biol summary is only by year.
 oneRes_flt    <- fltSum(oneRes, long = FALSE, byyear = FALSE)
 oneRes_fltStk <- fltStkSum(oneRes, long = FALSE, byyear = FALSE)
 oneRes_mt     <- mtSum(oneRes, long = FALSE, byyear = FALSE)
@@ -243,7 +246,7 @@ oneRes_fltStkQ <- fltStkSumQ(oneRes_fltStk)
 oneRes_mtQ     <- mtSumQ(oneRes_mt)
 oneRes_mtStkQ  <- mtStkSumQ(oneRes_mtStk)
 oneRes_advQ    <- advSumQ(oneRes_adv)
-oneRes_bio    <- bioSum(oneRes, long = TRUE) # Biol summary is only by year.
+# #  # Long format and seasonaloneRes_bio    <- bioSum(oneRes, long = TRUE) # Biol summary is only by year.
 oneRes_flt    <- fltSum(oneRes, long = TRUE, byyear = FALSE)
 oneRes_fltStk <- fltStkSum(oneRes, long = TRUE, byyear = FALSE)
 oneRes_mt     <- mtSum(oneRes, long = TRUE, byyear = FALSE)
@@ -262,6 +265,7 @@ oneRes_advQ    <- advSumQ(oneRes_adv)
 # Example OneIt: As one but with iterations.
 #------------------------------------------------
 oneItRes_bio    <- bioSum(oneItRes, scenario = 'with_iters')
+oneItRes$fleets[[1]] <- setUnitsNA(oneItRes$fleets[[1]])
 oneItRes_flt    <- fltSum(oneItRes, scenario = 'with_iters')
 oneItRes_fltStk <- fltStkSum(oneItRes, scenario = 'with_iters')
 oneItRes_mt     <- mtSum(oneItRes, scenario = 'with_iters')
@@ -320,7 +324,7 @@ oneItRes_mtQ     <- mtSumQ(oneItRes_mt)
 oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
 oneItRes_advQ    <- advSumQ(oneItRes_adv)
 
-oneItRes_risk <- riskSum( oneItRes, Bpa = c(stk1= 900), Blim = c(stk1 = 600), 
+oneItRes_risk <- riskSum( oneItRes, Bpa = c(stk1= 900), Blim = c(stk1 = 600),
                           Prflim = c(fl1 = 0), scenario = 'alternative')
 
 oneItRes_npv  <- npv(oneItRes, y0 = '2014')
@@ -329,6 +333,7 @@ oneItRes_npv  <- npv(oneItRes, y0 = '2014')
 # Example Multi: Two stock, two fleet, four iters.
 #------------------------------------------------
 multiRes_bio    <- bioSum(multiRes)
+multiRes$fleets <- FLFleetsExt(lapply(multiRes$fleets, function(x) setUnitsNA(x)))
 multiRes_flt    <- fltSum(multiRes)
 multiRes_fltStk <- fltStkSum(multiRes)
 multiRes_mt     <- mtSum(multiRes)
@@ -358,7 +363,7 @@ multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
 multiRes_advQ    <- advSumQ(multiRes_adv)
 
 
-multiRes_bio    <- bioSum(multiRes, long = FALSE) # Biol summary is only by year.
+multiRes_bio    <- bioSum(multiRes, long = FALSE, byyear = FALSE)
 multiRes_flt    <- fltSum(multiRes, long = FALSE, byyear = FALSE)
 multiRes_fltStk <- fltStkSum(multiRes, long = FALSE, byyear = FALSE)
 multiRes_mt     <- mtSum(multiRes, long = FALSE, byyear = FALSE)
@@ -373,7 +378,7 @@ multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
 multiRes_advQ    <- advSumQ(multiRes_adv)
 
 
-multiRes_bio    <- bioSum(multiRes, long = TRUE) # Biol summary is only by year.
+multiRes_bio    <- bioSum(multiRes, long = TRUE, byyear = FALSE)
 multiRes_flt    <- fltSum(multiRes, long = TRUE, byyear = FALSE)
 multiRes_fltStk <- fltStkSum(multiRes, long = TRUE, byyear = FALSE)
 multiRes_mt     <- mtSum(multiRes, long = TRUE, byyear = FALSE)
@@ -388,8 +393,8 @@ multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
 multiRes_advQ    <- advSumQ(multiRes_adv)
 
 multiRes_npv  <- npv(multiRes, y0 = '2014')
-risk_multiRes <- riskSum( multiRes, Bpa = c(stk1= 135000, stk2 = 124000), 
-                          Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(fl1 = 0, fl2 = 0), 
+risk_multiRes <- riskSum( multiRes, Bpa = c(stk1= 135000, stk2 = 124000),
+                          Blim = c(stk1= 96000, stk2 = 89000), Prflim = c(fl1 = 0, fl2 = 0),
                           scenario = 'alternative')
 
 }
