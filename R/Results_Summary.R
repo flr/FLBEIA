@@ -85,11 +85,16 @@ F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
             for(y in yrnms){
                 for(a in fbar_age){
                     for(i in 1:it){
+                      if(is.na(n.[a,y,i])){ 
+                          aux[a,y,i] <- NA
+                      }
+                      else{
                         if(n.[a,y,i] == 0) aux[a,y,i] <- 0
                         else{
                            xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root, silent = TRUE)
                            aux[a,y,i] <- ifelse(class(xx) == 'try-error', NA, xx)
-                        }      
+                        }
+                    }
             }}}
            res[stk,,] <- apply(aux,2:3,mean) 
         }
