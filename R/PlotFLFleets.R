@@ -132,7 +132,7 @@ total.discards.stock.df <- function(fleet){
 #'}
 
 #' @param fleets A FLFleets object. 
-#' @param prob A numeric vector with the probabilities used to calculate the quantiles.
+#' @param probs A numeric vector with the probabilities used to calculate the quantiles.
 #' @param pdfnm The name for the pdf document will be the fleet's name and pdfnm separated by a line.
 #
 #' @return A pdf for each fleet with plots.
@@ -147,7 +147,7 @@ total.discards.stock.df <- function(fleet){
 
 
 
-plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
+plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc"){
   
   names.fl <- names(fleets)
   path.pdf <- ''
@@ -173,10 +173,10 @@ plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     df$indicator <- factor(df$indicator)
     df$species <- factor(df$species)
     df$fleet <- factor(df$fleet)  
-    res <- aggregate(data ~ age + year+species+indicator+fleet, df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ age + year+species+indicator+fleet, df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:5], data.frame(res[,6]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[6:(6+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[6:(6+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=species)) + 
       geom_line() + theme_bw() + geom_point(size=2,shape=21) + 
@@ -211,10 +211,10 @@ plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
 
     df <- rbind(df,effort.df,fcost.df,capacity.df,crewshare.df) 
 
-    res <- aggregate(data ~ quant + year+variable+indicator, df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ quant + year+variable+indicator, df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:4], data.frame(res[,5]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[5:(5+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[5:(5+length(probs)-1)] <- nms
     res$quant <- as.factor(res$quant)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=indicator)) + 
       geom_line() + theme_bw() + geom_point(size=2,shape=21)+  
@@ -246,10 +246,10 @@ plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     }
       df$fleet <- names.fl[i]
  
-      res <- aggregate(data ~ quant + year+fleet+metier+indicator, df, quantile, prob = prob, na.rm=T)
+      res <- aggregate(data ~ quant + year+fleet+metier+indicator, df, quantile, probs = probs, na.rm=T)
       res <- cbind(res[,1:5], data.frame(res[,6]))
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      names(res)[6:(6+length(prob)-1)] <- nms
+      nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+      names(res)[6:(6+length(probs)-1)] <- nms
       res$quant <- as.factor(res$quant)
       p <- ggplot( data=res, aes(x=year, y=q50, fill=metier)) + 
         geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
@@ -289,10 +289,10 @@ plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
         df <- rbind(landings.n.df,discards.n.df,landings.wt.df,discards.wt.df)
         df$stock <- rep(paste(nms.metiers[[k]],"//",nms.stock.metier[j]),dim(df)[1])
 
-        res <- aggregate(data ~ age + year+stock+indicator, df, quantile, prob = prob, na.rm=T)
+        res <- aggregate(data ~ age + year+stock+indicator, df, quantile, probs = probs, na.rm=T)
         res <- cbind(res[,1:4], data.frame(res[,5]))
-        nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        names(res)[5:(5+length(prob)-1)] <- nms
+        nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+        names(res)[5:(5+length(probs)-1)] <- nms
         res$age <- as.factor(res$age)
         p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
           geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
@@ -320,10 +320,10 @@ plotFLFleets <- function(fleets,prob = c(0.95,0.5,0.05),pdfnm="bc"){
         df <- rbind(alpha.df,beta.df,catch.q.df)
         df$stock <- rep(paste(nms.metiers[[k]],"//",nms.stock.metier[j]),dim(df)[1])
 
-        res <- aggregate(data ~ age + year+stock+indicator, df, quantile, prob = prob, na.rm=T)
+        res <- aggregate(data ~ age + year+stock+indicator, df, quantile, probs = probs, na.rm=T)
         res <- cbind(res[,1:4], data.frame(res[,5]))
-        nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        names(res)[5:(5+length(prob)-1)] <- nms
+        nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+        names(res)[5:(5+length(probs)-1)] <- nms
         res$age <- as.factor(res$age)
         p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
           geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 

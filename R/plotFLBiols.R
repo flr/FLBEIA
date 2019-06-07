@@ -12,7 +12,7 @@
 
 #' @param biols A FLBiols object 
 #' @param pdfnm The name for the pdf document will be stock's name and pdfnm separated by a line.
-#' @param prob a numeric vector with the probabilities used to calculate the quantiles. 
+#' @param probs a numeric vector with the probabilities used to calculate the quantiles. 
 #' @return A pdf for each stock with plots.
 
 #' @examples
@@ -32,7 +32,7 @@
 ###############################################################################
 #.......................................................
 #....................FUNCTIONS..........................
-plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
+plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     
   names.biols <- names(biols)
   path.pdf <- ''
@@ -44,10 +44,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     biol <- biols[[i]]
     
     biol.sl.df <- as.data.frame(biol@n)
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -61,10 +61,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     
    
     biol.sl.df <- as.data.frame(biol@wt)
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -77,10 +77,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     print(p)
     
     biol.sl.df <- as.data.frame(biol@m)
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -93,10 +93,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     print(p)
     
     biol.sl.df <- as.data.frame(fec(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -109,10 +109,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     print(p)
     
     biol.sl.df <- as.data.frame(mat(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -125,10 +125,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     print(p)
     
     biol.sl.df <- as.data.frame(spwn(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -141,10 +141,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     print(p)
  
     biol.sl.df <- as.data.frame(ssb(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -164,10 +164,10 @@ plotFLBiols <- function(biols,prob = c(0.95,0.5,0.05),pdfnm="bc"){
         rec <- rec+biol@n[1,,k,k,,]}}
     biol.sl.df <- as.data.frame(rec)
 
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, prob = prob, na.rm=T)
+    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:3], data.frame(res[,4]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[4:(4+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
