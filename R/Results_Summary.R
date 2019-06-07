@@ -1814,7 +1814,9 @@ advSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
 #' @rdname bioSum
 #' @aliases riskSum
 riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
-
+  
+  # biols
+  
   if (stknms == 'all') { 
     stknms <- names(obj$biols)
   } else if (sum(!stknms %in% names(obj$biols))>0) {
@@ -1825,9 +1827,20 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   }
   
   bioS <- bioSum(obj, stknms = stknms, years = years, long = FALSE, scenario = scenario)
-  bioS <- cbind(bioS, Bpa = Bpa[bioS$stock],  Blim = Blim[bioS$stock])
-  bioS <- cbind(bioS, risk.pa = as.numeric(bioS$ssb < bioS$Bpa), risk.lim = as.numeric(bioS$ssb < bioS$Blim))
-
+  
+  bioS <- bioS %>% group_by(scenario, year, stock, iter) %>% 
+    mutate(Bpa = Bpa[stock], Blim = Blim[stock], risk.pa = as.numeric(ssb<Bpa), risk.lim = as.numeric(ssb<Blim))
+  
+  bioS.pa <- bioS %>% group_by(year, stock, scenario) %>% 
+    summarise(indicator="pBpa", value = sum(risk.pa)/length(risk.pa))
+  
+  bioS.lim <- bioS %>% group_by(year, stock, scenario) %>% 
+    summarise(indicator = "pBlim", value = sum(risk.lim)/length(risk.lim))
+  
+  outbio <- bind_rows( bioS.lim, bioS.pa) %>% rename(unit=stock)
+  
+  # fleets
+  
   if (flnms == 'all') { 
     flnms <- names(obj$fleets)
   } else if (sum(!flnms %in% names(obj$fleets))>0) {
@@ -1838,48 +1851,20 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   }
   
   flS <- fltSum(obj, years = years, flnms = flnms, long = FALSE, scenario = scenario)
-  flS <- cbind(flS, refp = Prflim[flS$fleet])
-  flS <- cbind(flS, risk = as.numeric(flS$grossSurplus < flS$refp))
   
-  if(all(is.na(flS$risk))){ # if economic data not available for example
-    flS$risk <- 0
-    auxFl    <- aggregate(risk ~ year + fleet + scenario, data=flS, FUN=function(x){sum(x)/length(x)})
-    auxFl$risk[] <- NA
-  }else{
-    auxFl    <- aggregate(risk ~ year + fleet + scenario, data=flS, FUN=function(x){sum(x)/length(x)})
-  }
+  flS <- flS %>% group_by(scenario, year, fleet, iter) %>% 
+    mutate(refp = Prflim[fleet], risk = as.numeric(grossSurplus < refp))
   
-  # auxBioPa   <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
-  if(all(is.na(bioS$risk.pa))){ # if Bpa not available
-    bioS$risk.pa <- 0
-    auxBioPa     <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
-    auxBioPa$risk.pa[] <- NA
-  }else{
-    auxBioPa     <- aggregate(risk.pa ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
-  }
+  outfl <- flS %>% group_by(year, fleet, scenario) %>% 
+    summarise(indicator = "pPrflim", value = sum(risk)/length(risk)) %>% rename(unit=fleet)
   
-  # auxBiolim  <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
-  if(all(is.na(bioS$risk.lim))){ # if Blim not available
-    bioS$risk.lim <- 0
-    auxBiolim     <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
-    auxBiolim$risk.lim[] <- NA
-  }else{
-    auxBiolim     <- aggregate(risk.lim ~ year + stock + scenario, data=bioS, FUN=function(x){sum(x)/length(x)})
-  }
+  # all combined
   
-  names(auxFl) <- c('year', 'unit', 'scenario', 'value')
-  names(auxBioPa) <- c('year', 'unit', 'scenario', 'value')
-  names(auxBiolim) <- c('year', 'unit', 'scenario', 'value')
+  res <- bind_rows( outbio, outfl)
   
-  res <- rbind( cbind(auxFl[,1:3],     indicator = 'pPrflim', value = auxFl[,4]), 
-                cbind(auxBioPa[,1:3],  indicator = 'pBpa',    value = auxBioPa[,4]), 
-                cbind(auxBiolim[,1:3], indicator = 'pBlim',   value = auxBiolim[,4]))
- # No sense in wide format  
-#  if(long == FALSE){
-#    temp <- reshape(res,v.names = 'value', timevar = 'indicator', idvar = c('scenario', 'year', 'unit'), direction = 'wide')  }
-
   return(res)
 }
+
 
 #----------------------------------------------------------------------
 # npv(obj, years, flnms)
