@@ -640,24 +640,25 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   dat <- array2df(xx, label.x="value")
   
   # Wide format 
-  res <- dat %>% tidyr::spread(key=indicators, value=value) %>% filter(year %in% years & stock %in% stknms) %>% arrange(year) %>%
-            group_by(stock, year, season, iter) %>%    mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings),
-                                                 disc.iyv = discards/lag(discards), scenario = scenario) 
+  res <- dat %>% mutate(scenario = scenario) %>% tidyr::spread(key=indicators, value=value) %>% 
+    filter(year %in% years & stock %in% stknms) %>% arrange(year) %>%
+    group_by(stock, year, season, iter, scenario) %>% mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings), 
+                                                   disc.iyv = discards/lag(discards)) 
   
   # year or seasonal?
   if(byyear == TRUE){
     if(length(unique(res$season)) >1){
       # indicators that are summ up over the seasons
-      res1 <- res %>% group_by(stock, year, iter)  %>% summarise_at(c('rec','f','catch', 'landings', 'discards'),'sum')
+      res1 <- res %>% group_by(stock, year, iter, scenario)  %>% summarise_at(c('rec','f','catch', 'landings', 'discards'),'sum')
       # ssb user selects the season
-      res2 <- res %>%  filter(season == ssb_season) %>% ungroup() %>% select(stock, year, iter, ssb)
+      res2 <- res %>%  filter(season == ssb_season) %>% ungroup() %>% select(stock, year, iter, scenario, ssb)
       # biomass the first season
-      res3 <- res %>%  filter(season == dimnames(obj$biols[[1]]@n)[[4]][1]) %>% ungroup() %>% select(stock, year, iter, biomass)
+      res3 <- res %>%  filter(season == dimnames(obj$biols[[1]]@n)[[4]][1]) %>% ungroup() %>% select(stock, year, iter, scenario, biomass)
       
-      res <- full_join(res1, res2,by = c('stock', 'year', 'iter'))
-      res <- full_join(res, res3,by = c('stock', 'year', 'iter'))
-      res <- res %>% arrange(year) %>%  group_by(stock, year, iter) %>%  mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings),
-                                                         disc.iyv = discards/lag(discards), scenario = scenario) 
+      res <- full_join(res1, res2, by = c('stock', 'year', 'iter', 'scenario'))
+      res <- full_join(res, res3, by = c('stock', 'year', 'iter', 'scenario'))
+      res <- res %>% arrange(year) %>%  group_by(stock, year, iter, scenario) %>%  mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings),
+                                                         disc.iyv = discards/lag(discards)) 
     }
     else{
       res <- res %>% ungroup() %>% select(-season)
@@ -678,13 +679,13 @@ bioSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
   if(dim(obj)[2] <= 7){ # the object is in long format
     
     if('season' %in% names(obj))
-        res <- obj %>% group_by(stock, year, season, indicator) %>%
-                                    summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
+        res <- obj %>% dplyr::group_by(stock, year, season, indicator) %>%
+                  dplyr::summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
                                               qmed = quantile(value, probs=probs[2], na.rm = TRUE), 
                                               qupp = quantile(value, probs=probs[3], na.rm = TRUE))
     else
-        res <- obj %>% group_by(stock, year, indicator)  %>% 
-                                    summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
+        res <- obj %>% dplyr::group_by(stock, year, indicator)  %>% 
+                  dplyr::summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
                                     qmed = quantile(value, probs=probs[2], na.rm = TRUE), 
                                     qupp = quantile(value, probs=probs[3], na.rm = TRUE))
       
