@@ -111,7 +111,6 @@ export(
   "revenue_flbeia",
   "segregmix",
   "SelAtAge",
-  "setUnitsNA",
   "SSB_flbeia",
   "stock.fleetInfo",
   "summary_flbeia",
@@ -143,7 +142,8 @@ exportMethods(
   "FLMetiersExt",
   "is.FLCatchesExt",
   "is.FLFleetsExt",
-  "is.FLMetiersExt"
+  "is.FLMetiersExt", 
+  "setUnitsNA"
 )
 
 exportClasses(
