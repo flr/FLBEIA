@@ -676,54 +676,42 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
 #' @aliases bioSumQ
 bioSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
 
+  p_names <- paste("q",ifelse(nchar(substr(probs,3, nchar(probs)))==1, 
+                              paste(substr(probs,3, nchar(probs)), 0, sep = ""), 
+                              substr(probs,3, nchar(probs))), sep = "")
+  
   if(dim(obj)[2] <= 7){ # the object is in long format
     
     if('season' %in% names(obj))
-        res <- obj %>% dplyr::group_by(stock, year, season, indicator) %>%
-                  dplyr::summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
-                                              qmed = quantile(value, probs=probs[2], na.rm = TRUE), 
-                                              qupp = quantile(value, probs=probs[3], na.rm = TRUE))
+      res <- obj %>% dplyr::group_by(stock, year, season, scenario, indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, probs=probs, na.rm = TRUE))) %>% 
+        unnest %>% tidyr::spread(key=quantiles, value=value)
+    
     else
-        res <- obj %>% dplyr::group_by(stock, year, indicator)  %>% 
-                  dplyr::summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
-                                    qmed = quantile(value, probs=probs[2], na.rm = TRUE), 
-                                    qupp = quantile(value, probs=probs[3], na.rm = TRUE))
       
+      res <- obj %>% dplyr::group_by(stock, year, scenario, indicator) %>% 
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, probs=probs, na.rm = TRUE))) %>% 
+        unnest %>% tidyr::spread(key=quantiles, value=value)
+    
   }
   else{
     
+    p_funs <- purrr::map(probs, ~purrr::partial(quantile, probs = .x, na.rm = TRUE)) %>% 
+      purrr::set_names(nm = p_names)
+    
     if('season' %in% names(obj)){
-        res1 <- obj %>% group_by(stock, year, season) %>%  
-          summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
-                   .funs =  list(qlow = quantile),probs= probs[1], na.rm=T)
-    
-        res2 <- obj %>% group_by(stock, year, season) %>%  
-          summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
-                   .funs =  list(qmed = quantile),probs=probs[2], na.rm=T)
-    
-        res3 <- obj %>% group_by(stock, year, season) %>%  
-          summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
-                   .funs =  list(qupp = quantile),probs=probs[3], na.rm=T)
-        res <- bind_cols(res1, res2[,-(1:3)], res3[,-(1:3)])
+      
+      res <- obj %>% group_by(stock, year, season, scenario) %>%  
+        summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
+                     .funs =  p_funs)
     }
     else{
-      res1 <- obj %>% group_by(stock, year) %>%  
-        summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
-                     .funs =  list(qlow = quantile),probs= probs[1], na.rm=T)
       
-      res2 <- obj %>% group_by(stock, year) %>%  
+      res <- obj %>% group_by(stock, year, scenario) %>%  
         summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
-                     .funs =  list(qmed = quantile),probs=probs[2], na.rm=T)
-      
-      res3 <- obj %>% group_by(stock, year) %>%  
-        summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
-                     .funs =  list(qupp = quantile),probs=probs[3], na.rm=T)
-      
-      res <- bind_cols(res1, res2[,-(1:2)], res3[,-(1:2)])
+                     .funs =  p_funs)
       
     }
-    
-    
     
   }
   
