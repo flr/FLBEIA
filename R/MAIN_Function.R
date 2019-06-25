@@ -86,6 +86,7 @@
 #' # Create summary data frames (biological, economic, and catch)
 #' proj.yr     <- 2013 
 #' s0_sum      <- bioSum(s0)
+#' s0$fleets$fl1 <- setUnitsNA(s0$fleets$fl1) # set units to NA to avoid errors in fltSum
 #' s0_flt      <- fltSum(s0)
 #' s0_fltStk   <- fltStkSum(s0)
 #'
@@ -138,6 +139,7 @@
 #' # Create summary data frames (biological, economic, and catch)
 #' proj.yr     <- 2013 
 #' s1_bio     <- bioSum(s1)
+#' s1$fleets$fl1 <- setUnitsNA(s1$fleets$fl1) # set units to NA to avoid errors in fltSum
 #' s1_flt     <- fltSum(s1)
 #' s1_fltStk  <- fltStkSum(s1)
 #' 
@@ -203,6 +205,8 @@
 #' # Create summary data frames (biological, economic, and catch)
 #' 
 #' s2_sum      <- bioSum(s2)
+#' for (fl in names(s2$fleets))  # set units to NA to avoid errors in fltSum
+#'   s2$fleets[[fl]] <- setUnitsNA(s2$fleets[[fl]])
 #' s2_flt      <- fltSum(s2)
 #' 
 #' s2b_flt     <- fltSum(s2, byyear = FALSE)
