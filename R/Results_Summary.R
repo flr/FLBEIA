@@ -642,14 +642,14 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   # Wide format 
   res <- dat %>% mutate(scenario = scenario) %>% tidyr::spread(key=indicators, value=value) %>% 
     filter(year %in% years & stock %in% stknms) %>% arrange(year) %>%
-    group_by(stock, year, season, iter, scenario) %>% mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings), 
+    dplyr::group_by(stock, year, season, iter, scenario) %>% mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings), 
                                                    disc.iyv = discards/lag(discards)) 
   
   # year or seasonal?
   if(byyear == TRUE){
     if(length(unique(res$season)) >1){
       # indicators that are summ up over the seasons
-      res1 <- res %>% group_by(stock, year, iter, scenario)  %>% summarise_at(c('rec','f','catch', 'landings', 'discards'),'sum')
+      res1 <- res %>% dplyr::group_by(stock, year, iter, scenario)  %>% summarise_at(c('rec','f','catch', 'landings', 'discards'),'sum')
       # ssb user selects the season
       res2 <- res %>%  filter(season == ssb_season) %>% ungroup() %>% select(stock, year, iter, scenario, ssb)
       # biomass the first season
@@ -657,7 +657,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
       
       res <- full_join(res1, res2, by = c('stock', 'year', 'iter', 'scenario'))
       res <- full_join(res, res3, by = c('stock', 'year', 'iter', 'scenario'))
-      res <- res %>% arrange(year) %>%  group_by(stock, year, iter, scenario) %>%  mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings),
+      res <- res %>% arrange(year) %>%  dplyr::group_by(stock, year, iter, scenario) %>%  mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings),
                                                          disc.iyv = discards/lag(discards)) 
     }
     else{
@@ -701,13 +701,13 @@ bioSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
     
     if('season' %in% names(obj)){
       
-      res <- obj %>% group_by(stock, year, season, scenario) %>%  
+      res <- obj %>% dplyr::group_by(stock, year, season, scenario) %>%  
         summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
                      .funs =  p_funs)
     }
     else{
       
-      res <- obj %>% group_by(stock, year, scenario) %>%  
+      res <- obj %>% dplyr::group_by(stock, year, scenario) %>%  
         summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
                      .funs =  p_funs)
       
@@ -1753,7 +1753,7 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   res <- full_join(res, x4, by = c('stock', 'year', 'iter'))
                 
   # Wide format 
-  res <- res %>%  group_by(stock, year, iter) %>% mutate(quotaUpt = catch/tac, discRat = discards/catch, scenario = scenario) 
+  res <- res %>%  dplyr::group_by(stock, year, iter) %>% mutate(quotaUpt = catch/tac, discRat = discards/catch, scenario = scenario) 
                 
   # reshaping this to the long format
    if(long == TRUE) res <- res %>% gather(key=indicator, value=value, catch, discards, discRat,landings, quotaUpt, tac)
@@ -1767,23 +1767,23 @@ advSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] <= 7){ # the object is in long format
     
-    res <- obj %>% group_by(stock, year, indicator)  %>% 
-      summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
+    res <- obj %>% dplyr::group_by(stock, year, indicator)  %>% 
+      dplyr::summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
                 qmed = quantile(value, probs=probs[2], na.rm = TRUE), 
                 qupp = quantile(value, probs=probs[3], na.rm = TRUE))
     
   }
   else{
     
-    res1 <- obj %>% group_by(stock, year) %>%  
+    res1 <- obj %>% dplyr::group_by(stock, year) %>%  
       summarise_at(c("catch",    "discards", "discRat",  "landings", "quotaUpt", "tac"),
                    .funs =  list(qlow = quantile),probs= probs[1], na.rm=T)
     
-    res2 <- obj %>% group_by(stock, year) %>%  
+    res2 <- obj %>% dplyr::group_by(stock, year) %>%  
       summarise_at(c("catch",    "discards", "discRat",  "landings", "quotaUpt", "tac"),
                    .funs =  list(qmed = quantile),probs=probs[2], na.rm=T)
     
-    res3 <- obj %>% group_by(stock, year) %>%  
+    res3 <- obj %>% dplyr::group_by(stock, year) %>%  
       summarise_at(c("catch",    "discards", "discRat",  "landings", "quotaUpt", "tac"),
                    .funs =  list(qupp = quantile),probs=probs[3], na.rm=T)
     
@@ -1817,16 +1817,16 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   
   bioS <- bioSum(obj, stknms = stknms, years = years, long = FALSE, scenario = scenario)
   
-  bioS <- bioS %>% group_by(scenario, year, stock, iter) %>% 
+  bioS <- bioS %>% dplyr::group_by(scenario, year, stock, iter) %>% 
     mutate(Bpa = Bpa[stock], Blim = Blim[stock], risk.pa = as.numeric(ssb<Bpa), risk.lim = as.numeric(ssb<Blim))
   
-  bioS.pa <- bioS %>% group_by(year, stock, scenario) %>% 
-    summarise(indicator="pBpa", value = sum(risk.pa)/length(risk.pa))
+  bioS.pa <- bioS %>% dplyr::group_by(year, stock, scenario) %>% 
+    dplyr::summarise(indicator="pBpa", value = sum(risk.pa)/length(risk.pa))
   
-  bioS.lim <- bioS %>% group_by(year, stock, scenario) %>% 
-    summarise(indicator = "pBlim", value = sum(risk.lim)/length(risk.lim))
+  bioS.lim <- bioS %>% dplyr::group_by(year, stock, scenario) %>% 
+    dplyr::summarise(indicator = "pBlim", value = sum(risk.lim)/length(risk.lim))
   
-  outbio <- bind_rows( bioS.lim, bioS.pa) %>% rename(unit=stock)
+  outbio <- bind_rows( bioS.lim, bioS.pa) %>% dplyr::rename(unit=stock)
   
   # fleets
   
@@ -1841,11 +1841,11 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   
   flS <- fltSum(obj, years = years, flnms = flnms, long = FALSE, scenario = scenario)
   
-  flS <- flS %>% group_by(scenario, year, fleet, iter) %>% 
+  flS <- flS %>% dplyr::group_by(scenario, year, fleet, iter) %>% 
     mutate(refp = Prflim[fleet], risk = as.numeric(grossSurplus < refp))
   
-  outfl <- flS %>% group_by(year, fleet, scenario) %>% 
-    summarise(indicator = "pPrflim", value = sum(risk)/length(risk)) %>% rename(unit=fleet)
+  outfl <- flS %>% dplyr::group_by(year, fleet, scenario) %>% 
+    dplyr::summarise(indicator = "pPrflim", value = sum(risk)/length(risk)) %>% dplyr::rename(unit=fleet)
   
   # all combined
   
