@@ -1,6 +1,10 @@
 import("FLCore")
 import("FLFleet")
 import("methods")
+import("tidyverse")
+import("arrayhelpers")
+importFrom("dplyr", "%>%","bind_cols", "filter", "full_join", "group_by", "mutate", "select", "summarise_at", "ungroup")
+importFrom("tidyr", "spread")
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("stats", "aggregate", "anova", "as.formula", "coef", "cor",
   "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot", "optim", "na.pass")
