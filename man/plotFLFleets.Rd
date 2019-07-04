@@ -4,12 +4,12 @@
 \alias{plotFLFleets}
 \title{Plots with fleets data}
 \usage{
-plotFLFleets(fleets, prob = c(0.95, 0.5, 0.05), pdfnm = "bc")
+plotFLFleets(fleets, probs = c(0.95, 0.5, 0.05), pdfnm = "bc")
 }
 \arguments{
 \item{fleets}{A FLFleets object.}
 
-\item{prob}{A numeric vector with the probabilities used to calculate the quantiles.}
+\item{probs}{A numeric vector with the probabilities used to calculate the quantiles.}
 
 \item{pdfnm}{The name for the pdf document will be the fleet's name and pdfnm separated by a line.}
 }

@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 #                               annexIVHCR
-#   HCR that implements the HCR described in Annex IV of (EC COM 2011 241)
-#       rules 6 and 9.
+#   HCR that implements the HCR described in Annex IV of (EC COM 2010 241)
+#       ICES categories 6 - 9
 #
 #   Bnow = (Iy-1 + Iy-2)/2
 #   Bref = (Iy-3 + Iy-4 + Iy-5)/3
@@ -14,8 +14,10 @@
 #
 #   Base Case: alpha = 0.2 and beta = 0.15
 #
-#   HCR 2 => f(Bnow/Bref)
+#   HCR 2 => f(Bnow/Bref) = 1
 #   HCR 4 => f(Bnow/Bref) = beta/alpha * (Bnow/Bref - 1) + 1
+#   Note: HCR names from De Oliveira et al. 2010. Technical Background Evaluation of Annex IV Rules. 
+#         ICES CM 2010/ACOM:5828 pp.
 #
 # * A single biomass index per stock.
 #

@@ -3,7 +3,7 @@
 #' Return a pdf with plots using FLBEIA object (FLFleets and covars).
 #'
 #' @param obj An FLBEIA object. 
-#' @param prob A numeric vector with the probabilities used to calculate the quantiles.
+#' @param probs A numeric vector with the probabilities used to calculate the quantiles.
 #' @param pdfnm The name for the pdf document will be "Eco" and pdfnm separated by a line.
 #
 #' @return A pdf with capacity, costs, effort, profits by fleet.
@@ -27,7 +27,7 @@
 #.......................................................
 #....................FUNCTIONS..........................
 
-plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
+plotEco <- function(obj,probs = c(0.95,0.5,0.05),pdfnm="bc"){
 
  names.fl <- names(obj$fleets)
 
@@ -45,10 +45,10 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
       #capacity   
 
     
-    res <- aggregate(capacity ~ year+ fleet, eco, quantile, prob = prob, na.rm=T)
+    res <- aggregate(capacity ~ year+ fleet, eco, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:2], data.frame(res[,3]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[3:(3+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
     res$fleet <- as.factor(res$fleet)
     p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
@@ -63,10 +63,10 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     
     
     #costs
-    res <- aggregate(costs ~ year+ fleet, eco, quantile, prob = prob, na.rm=T)
+    res <- aggregate(costs ~ year+ fleet, eco, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:2], data.frame(res[,3]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[3:(3+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
     p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -79,10 +79,10 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     print(p)
 
     #effort
-    res <- aggregate(effort ~ year+ fleet, eco, quantile, prob = prob, na.rm=T)
+    res <- aggregate(effort ~ year+ fleet, eco, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:2], data.frame(res[,3]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[3:(3+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
     p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -96,10 +96,10 @@ plotEco <- function(obj,prob = c(0.95,0.5,0.05),pdfnm="bc"){
     
     
     #grossSurplus
-    res <- aggregate(grossSurplus ~ year+ fleet, eco, quantile, prob = prob, na.rm=T)
+    res <- aggregate(grossSurplus ~ year+ fleet, eco, quantile, probs = probs, na.rm=T)
     res <- cbind(res[,1:2], data.frame(res[,3]))
-    nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    names(res)[3:(3+length(prob)-1)] <- nms
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
     p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 

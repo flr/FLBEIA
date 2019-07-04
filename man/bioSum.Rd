@@ -12,7 +12,6 @@
 \alias{mtSum}
 \alias{mtSumQ}
 \alias{advSum}
-\alias{advSumQ}
 \alias{riskSum}
 \alias{npv}
 \alias{npvQ}
@@ -52,11 +51,8 @@ mtSum(obj, flnms = names(obj$fleets),
 
 mtSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-advSum(obj, stknms = catchNames(obj$fleets),
-  years = dimnames(obj$biols[[1]]@n)[[2]], long = TRUE,
-  scenario = "bc")
-
-advSumQ(obj, prob = c(0.95, 0.5, 0.05))
+advSum(obj, stknms = "all", years = dimnames(obj$biols[[1]]@n)$year,
+  long = FALSE, scenario = "bc")
 
 riskSum(obj, stknms = names(obj$biols), Bpa, Blim, Prflim,
   flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]],

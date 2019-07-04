@@ -4,12 +4,12 @@
 \alias{plotEco}
 \title{Plots with fleets data}
 \usage{
-plotEco(obj, prob = c(0.95, 0.5, 0.05), pdfnm = "bc")
+plotEco(obj, probs = c(0.95, 0.5, 0.05), pdfnm = "bc")
 }
 \arguments{
 \item{obj}{An FLBEIA object.}
 
-\item{prob}{A numeric vector with the probabilities used to calculate the quantiles.}
+\item{probs}{A numeric vector with the probabilities used to calculate the quantiles.}
 
 \item{pdfnm}{The name for the pdf document will be "Eco" and pdfnm separated by a line.}
 }
