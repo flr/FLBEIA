@@ -86,7 +86,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, adv
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0              
-        tac <- (advice$TAC[st,yr]*QS)[drop=T] # it
+        tac <- advice$TAC[st,yr,drop=T]*QS # it
     }
     
     # biomass in the middle of the season  B[it] if age struc.
@@ -245,7 +245,7 @@ CobbDouglasAge.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advi
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0              
-        tac <- ((advice$TAC[st,yr]*QS)[drop=T]*(1+yrtr_p)) - yrtr_disc # it, add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
+        tac <- (advice$TAC[st,yr,drop=T]*QS*(1+yrtr_p)) - yrtr_disc # it, add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
                                                                       # the minimise is not added because it is discarded.      
     }
     
