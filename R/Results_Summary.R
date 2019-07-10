@@ -185,14 +185,13 @@ R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
     yrnms  <- years
     ssnms <- dimnames(obj$biols[[1]]@n)[[4]]
     
-    
-
-    stknms <- names(obj$biols)
-
     res <- array(0,dim = c(length(stknms), ny,ns,it), dimnames = list(stock = stknms, year = yrnms, season = ssnms, iter = 1:it))
     
     for(stk in stknms){
-      if(dim(obj$biols[[stk]]@n)[[1]] > 1) for(ss in 1:ns) for(ss0 in 1:ss) res[stk,,ss,] <- res[stk,,ss,] + obj$biols[[stk]]@n[1,yrnms,ss0,ss0,drop=T]
+      if(dim(obj$biols[[stk]]@n)[[1]] > 1) for(ss in 1:ns) for(ss0 in 1:ss) {
+        uu0 <- ifelse( dim(obj$biols[[stk]]@n)[[3]] > 1, ss0, 1)
+        res[stk,,ss,] <- res[stk,,ss,] + obj$biols[[stk]]@n[1,yrnms,uu0,ss0,drop=T]
+      }
       else{
             catch <- array(apply(catchStock(obj$fleets, stk),c(2,6), sum)[,years,drop = TRUE], dim = c(ny,ns,it))
             B     <- array((obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,,drop= TRUE], dim = c(ny,ns,it))
