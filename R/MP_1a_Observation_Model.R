@@ -634,6 +634,56 @@ bio1plusInd <- function(biol, index, obs.ctrl, year, stknm,...){
   return(index)     
 }
 
+#-------------------------------------------------------------------------------    
+# bio1plusnyrInd(biol, index, obs.ctrl, year, stknm)
+#-------------------------------------------------------------------------------   
+bio1plusnyrInd <- function(biol, index, fleets, obs.ctrl, year, stknm,...){
+  
+  it <- dim(biol@n)[6]
+  na <- dim(biol@n)[1]
+  ns <- dim(biol@n)[4]
+  a1plus <- which(dimnames(biol@n)$age=='1'):dim(biol@n)[1]
+  
+  # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
+  yrnm   <- dimnames(biol@n)[[2]][year]   
+  yrnm.1 <- dimnames(biol@n)[[2]][year-1] 
+  
+  # season?
+  # if the model is seasonal the abundance is taken from the start of the season
+  # that corresponds with startf. 
+  # sInd: The season from which we are goind to calculate the index. by default sInd = 1.
+  sInd <- 1
+  if(ns > 1){
+    st       <- index@range['startf']
+    seasInt  <- seq(0,1,length = ns+1)
+    sInd     <- findInterval(st,seasInt)    
+  }
+  
+  # project the population forward
+  
+  if (sInd == 1) {
+    
+    catch.n <- catchStock(fleets, name(biol))[, year - 1, , ns]
+    
+    biol@n[-c(1, na), year, , sInd] <- (biol@n[-c(na - 1, na), year - 1, , ns] * exp(-biol@m[-c(na - 1, na), year - 1, , ns]/2) - 
+                                          catch.n[-c(na - 1, na), ]) * exp(-biol@m[-c(na - 1, na), year - 1, , ns]/2)
+    
+    biol@n[na, year, , sInd] <- (biol@n[na - 1, year - 1, , ns] * exp(-biol@m[na - 1, year - 1, , ns]/2) - 
+                                   catch.n[na - 1, ]) * exp(-biol@m[na - 1, year - 1, , ns]/2) + 
+                                (biol@n[na,  year - 1, , ns] * exp(-biol@m[na, year - 1, , ns]/2) - 
+                                   catch.n[na, ]) * exp(-biol@m[na, year - 1, , ns]/2)
+  }
+  else 
+    stop("This function is only valid for indices in the 1st season")
+  
+  
+  B1plusnyr <- apply(biol@n[a1plus,year,,sInd,,]*biol@wt[a1plus,year,,sInd,,],c(2,6),sum)
+  
+  index@index[,yrnm.1] <- B1plusnyr*index@index.q[,yrnm.1]#*index@index.var[,yrnm.1]
+  
+  return(index)     
+}
+
 
 #-------------------------------------------------------------------------------    
 # SSB index
