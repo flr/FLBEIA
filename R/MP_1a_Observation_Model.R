@@ -227,7 +227,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
          
     stck              <- propagate(as(biol, "FLStock")[,1:ny,1,1],it, fill.iter = TRUE)  
     stck@range <- stck@range[1:7]
-    dimnames(stck) <- list(unit="unique")
+    dimnames(stck) <- list(unit="unique", season="all")
 
     landings.wt(stck)[] <- Obs.land.wgt(fleets, ages.error, land.wgt.error, yr, stknm)
     landings.n(stck)[]  <- Obs.land.nage(fleets, ages.error, land.nage.error, stck@landings.wt, yr, stknm)
