@@ -64,6 +64,10 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     it  <- dim(biols[[1]]@n)[6]
     flnms <- names(fleets)
     
+    # Advice season for each stock
+    adv.ss <- setNames( rep(NA,nst), stnms)
+    for (st in stnms) adv.ss[st] <- ifelse( is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
+    
     # Data
     B    <- matrix(t(sapply(stnms, function(x){   # biomass in the middle of the season  [nst,it]
                                 if(dim(biols[[x]]@n)[1] > 1)
@@ -98,13 +102,18 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                             # Calculate QS by fleet for the year and season
                             yr.share    <- advice$quota.share[[x]][,yr,, drop=T]        # [nf,it]
                             ss.share    <- fleets.ctrl$seasonal.share[[x]][,yr,,ss, drop=T]   # [nf,it]
-                            quota.share <-  matrix(yr.share*ss.share, length(flnms), it, dimnames = list(flnms, 1:it))
+                            quota.share <- matrix(yr.share*ss.share, length(flnms), it, dimnames = list(flnms, 1:it))
                             quota.share[is.na(quota.share)] <- 0
                             return(quota.share)})         
     names(QS) <- stnms
-        
+    
     # If TAC >= B*alpha => TAC = B*alpha.
     TAC.yr  <- matrix(advice$TAC[stnms,yr,drop=T], nst, it, dimnames = list(stnms, 1:it))   # [nst,it]
+    
+    # when advice season is different to ns: 
+    for (st in stnms)
+      if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
+    
     rho       <- fleets.ctrl$catch.threshold[,yr,,ss, drop=T]  # [ns,it]
     
     # if rho is a numeric => there is only one stock and one iteration wihout names => name it
@@ -391,19 +400,48 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
    # quota share does not coincide with the actual catch. (update next one only if s < ns).
    for(st in sts){
 
-        yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-        ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
+        if (adv.ss[st] == ns) {
+          yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
+          ss.share <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it)) # [it,ns]
+        } else {
+          ss1 <- (adv.ss[st]+1):ns
+          ss2 <- 1:adv.ss[st]
+          
+          if (ss <= adv.ss[st]) {
+            yr.share <- advice$quota.share[[st]][flnm,yr-1,, drop=T]      # [it]
+            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss2, drop=T], length(ss2), it)), 
+                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr-1,,ss1, drop=T], length(ss1), it))) # [it,ns]
+          } else {
+            yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
+            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr+1,,ss2, drop=T], length(ss2), it)), 
+                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss1, drop=T], length(ss1), it))) # [it,ns]
+          }
+        }
+     
         quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
+        
         # The catch.
         catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
-       Nst  <-  array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+        Nst  <-  array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
         catchD <- eval(call(catchFun, N = Nst,  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
         itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
         catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
             
-        quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss)        # [ns,it]
-                              
-        fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
+        quota.share     <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss, adv.season = adv.ss[st]) # [ns,it]
+        
+        quota.share.NEW <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it] double 't' to perform correctly the division between matrix and vector. 
+        
+        if (adv.ss[st] == ns) {
+          fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- quota.share.NEW
+        } else {
+          if (ss <= adv.ss[st]) {
+            fleets.ctrl$seasonal.share[[st]][flnm,yr-1,,ss1,] <- quota.share.NEW[ss1,]
+            fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss2,]   <- quota.share.NEW[ss2,]
+          } else {
+            fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss1,]   <- quota.share.NEW[ss1,]
+            fleets.ctrl$seasonal.share[[st]][flnm,yr+1,,ss2,] <- quota.share.NEW[ss2,]
+          }
+        }
          
    }
   

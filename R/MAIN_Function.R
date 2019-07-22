@@ -282,49 +282,54 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     
     if(main.ctrl$SimultaneousMngt == FALSE) {
       
-      # Define assessment conditions:
-      ass.yr <- ass.ss <- vector('list', length(stnms))
-      names(ass.yr) <- names(ass.ss) <- stnms
+      # Define advice conditions:
+      adv.yr <- adv.ss <- vector('list', length(stnms))
+      names(adv.yr) <- names(adv.ss) <- stnms
       for (st in stnms) {
         
-        # Assessment years
-        ass.yr[[st]] <- assess.ctrl[[st]][['ass.year']] # assessment years
-        if (is.null(ass.yr[[st]])) { # no value, then assessment yearly
-          ass.yr[[st]] <- sim.years
-        } else if (ass.yr[[st]]=='all' | is.na(ass.yr[[st]])) {
-          ass.yr[[st]] <- sim.years
-        } else { # convert assessment years into positions
-          ass.yr[[st]] <- as.numeric(ass.yr[[st]])
-          if(sum(!(ass.yr[[st]] %in% as.numeric(minyear):as.numeric(maxyear)))>0) # check
-            stop("Assessment years for: '", st, "' outside year range in the objects")
-          # convert ass.yr[[st]] in positon of the FLR objects
-          for (i in 1:length(ass.yr[[st]])) ass.yr[[st]][i] <- which(ass.yr[[st]][i] == as.numeric(minyear):as.numeric(maxyear))
+        # Advice years
+        adv.yr[[st]] <- advice.ctrl[[st]][['adv.year']] # advice years
+        if (is.null(adv.yr[[st]])) { # no value, then advice yearly
+          adv.yr[[st]] <- sim.years
+        } else if (adv.yr[[st]]=='all' | is.na(adv.yr[[st]])) {
+          adv.yr[[st]] <- sim.years
+        } else { # convert advice years into positions
+          adv.yr[[st]] <- as.numeric(adv.yr[[st]])
+          if(sum(!(adv.yr[[st]] %in% as.numeric(minyear):as.numeric(maxyear)))>0) # check
+            stop("Advice years for: '", st, "' outside year range in the objects")
+          # convert adv.yr[[st]] in positon of the FLR objects
+          for (i in 1:length(adv.yr[[st]])) adv.yr[[st]][i] <- which(adv.yr[[st]][i] == as.numeric(minyear):as.numeric(maxyear))
         }
         
-        # Assessment seasons
-        ass.ss[[st]] <- assess.ctrl[[st]][['ass.season']]
-        if (is.null(ass.ss[[st]])) { ass.ss[[st]] <- ns } else if (is.na(ass.ss[[st]])) { ass.ss[[st]] <- ns }
-        if (!(ass.ss[[st]] %in% seasons)) stop("Assessment season for: '", st, "' outside season range in the objects")
+        # Advice seasons
+        adv.ss[[st]] <- advice.ctrl[[st]][['adv.season']]
+        if (is.null(adv.ss[[st]])) { adv.ss[[st]] <- ns } else if (is.na(adv.ss[[st]])) { adv.ss[[st]] <- ns }
+          # For SSFB required advice season (if different to last one) for calculating season shares appropriately
+          for (fl in names(fleets)) if (fleets.ctrl[[fl]]$effort.model == "SSFB")
+            fleets.ctrl[[fl]][[st]]$adv.season <- adv.ss[[st]]
+        if (!(adv.ss[[st]] %in% seasons)) stop("Advice season for: '", st, "' outside season range in the objects")
         
-        # Assessment year estimates necessary?
-        # assess.ctrl[[st]]$ass.curryr=TRUE if estimates also for assessment year are needed
+        # Advice year assessment necessary?
+        # assess.ctrl[[st]]$ass.curryr=TRUE if assessment estimates also for advice year are needed
         if (is.null(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- F } else if (is.na(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- F }
         if (assess.ctrl[[st]]$ass.curryr==TRUE) obs.ctrl[[st]]$obs.curryr <- T
+        # Advice year observations necessary?
+        # obs.ctrl[[st]]$obs.curryr=TRUE if observations also for advice year are needed
         if (is.null(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F } else if (is.na(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F }
         
       }
       
     } else { # if main.ctrl$SimultaneousMngt == TRUE:
       
-      # Assessment years NOT to be defined (are assumed to be all years)
-      if (!is.null(assess.ctrl[[st]][['ass.year']]))
-        stop("Assessment years for: '", st, "' should not be defined if  main.ctrl$SimultaneousMngt == TRUE.
-              See assess.ctrl[['", st, "']][['ass.year']].")
+      # Advice years NOT to be defined (are assumed to be all years)
+      if (!is.null(advice.ctrl[[st]][['adv.year']]))
+        stop("Advice years for: '", st, "' should not be defined if  main.ctrl$SimultaneousMngt == TRUE.
+              See advice.ctrl[['", st, "']][['adv.year']].")
       
-      # Assessment seasons NOT to be defined (are assumed to be only once, in the last season)
-      if (!is.null(assess.ctrl[[st]][['ass.season']]))
-        stop("Assessment seasons for: '", st, "' should not be defined if main.ctrl$SimultaneousMngt == TRUE. 
-              See assess.ctrl[['", st, "']][['ass.season']].")
+      # Advice seasons NOT to be defined (are assumed to be only once, in the last season)
+      if (!is.null(advice.ctrl[[st]][['adv.season']]))
+        stop("Advice seasons for: '", st, "' should not be defined if main.ctrl$SimultaneousMngt == TRUE. 
+              See advice.ctrl[['", st, "']][['adv.season']].")
       
       # No possibility of doing the assessment in current year
       obs.ctrl <- lapply(obs.ctrl, function(x){
@@ -374,9 +379,9 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         if(main.ctrl$SimultaneousMngt == FALSE){   
           for (st in stnms) {
           
-            if (yr %in% ass.yr[[st]] & ss == ass.ss[[st]]) {
+            if (yr %in% adv.yr[[st]] & ss == adv.ss[[st]]) {
               
-              yr.man <- ifelse( ass.ss[[st]]==ns, yr, yr+1)
+              yr.man <- ifelse( adv.ss[[st]]==ns, yr, yr+1)
         
               #~~~~~~~~~~~~~~~~ MANAGEMENT PROCEDURE.  (>=annual) ~~~~~~~~~~~~~~~#
               cat('************ MANAGEMENT PROCEDURE ****************************\n')

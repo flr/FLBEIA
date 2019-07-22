@@ -100,33 +100,46 @@ capacityRest.SMFB <- function(eff, capacity){
 #-------------------------------------------------------------------------------
 # - updateQS.SMFB():: Updates the quota share (QS) in one season and the next 
 #          if the quota share does not coincide with the actual catch. 
-#          (updates next one only if s < ns).
+#          (updates next ones only if s < adv.season).
 #   * QS[ns,it]: quota share (fleet-season) for all the season of certain year.
 #   * Cr[it]: The catch restriction for the season
 #   * B[it]: Seasonal biomass.
 #   * E[it]: Predicted effort.
 #   * efs.m[mt,it], q.m[mt,it], alpha[mt,it], beta[mt,it]: Effort share, q and CobDog parameters.
-#   * season: the season for which quota hare mus be updated.
+#   * season: the season for which quota share must be updated.
 #
 #   x_s (original quota share)
 #   Cr and C (the catch restriction and the actual catch)
 #   x_s' = x_s*(C/Cr) (actual quota share)
 #           x_i' = x_i + (x_s - x_s')/(numb. of seas : i>s)
-#   x_i' the new quota share for season i such that i>s>=ns.
+#   x_i' the new quota share for season i such that i>s>=adv.season.
 #-------------------------------------------------------------------------------
-updateQS.SMFB <- function(QS, TAC, catch, season){
+updateQS.SMFB <- function(QS, TAC, catch, season, adv.season = dim(QS)[1]){
 
+    ns <- dim(QS)[1]
+    
     x_s  <- QS[season, ]
     x_s. <- catch/TAC
     QS[season,] <- x_s.
     
-    if(season == dim(QS)[1]) return (QS)
+    if(season == adv.season) return (QS)
     
-    x_i  <- matrix(QS[-(1:season),], dim(QS)[1]-season, dim(QS)[2])
+    if(adv.season == ns) {
+      x_i  <- matrix(QS[-(1:season),], ns-season, dim(QS)[2])
+    } else if(season < adv.season) {
+      x_i  <- matrix(QS[(season+1):adv.season,], adv.season-season, dim(QS)[2])
+    } else
+      x_i  <- matrix(QS[-((adv.season+1):season),], ns-(season-adv.season), dim(QS)[2])
+    
     x_i. <- x_i  + matrix((x_s - x_s.)*x_i/sum(x_i), dim(x_i)[1], dim(x_i)[2], byrow = TRUE)
     x_i. <- ifelse(x_i. < 0, 0, x_i.)
     
-    QS[-(1:season),] <- x_i.
+    if(adv.season == ns) {
+      QS[-(1:season),] <- x_i.
+    } else if(season < adv.season) {
+      QS[(season+1):adv.season,] <- x_i.
+    } else
+      QS[-((adv.season+1):season),] <- x_i.
     
     return(QS)
     
