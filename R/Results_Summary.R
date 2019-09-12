@@ -80,8 +80,8 @@ F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
             aux  <- array(dim = c(length(fbar_age), ny,ns,it), dimnames = Dnms)           
             
             n.  <- array(unitSums(obj$biols[[stk]]@n)[fbar_age,years,,,drop=T], dim = c(length(fbar_age),ny,ns,it), dimnames = Dnms)
-            m.  <- array(seasonSums(unitMeans(obj$biols[[stk]]@m))[fbar_age,years,drop=T], dim = c(length(fbar_age),ny,ns,it), dimnames = Dnms)
-            c.  <- array(apply(catchStock(obj$fleets, stk),c(1:2,4,6), sum)[fbar_age,years, drop = TRUE], dim = c(length(fbar_age),ny,ns,it), dimnames = Dnms)
+            m.  <- array(unitMeans(obj$biols[[stk]]@m)[fbar_age,years,,,drop=T], dim = c(length(fbar_age),ny,ns,it), dimnames = Dnms)
+            c.  <- array(apply(catchStock(obj$fleets, stk),c(1:2,4,6), sum)[fbar_age,years,,,drop = TRUE], dim = c(length(fbar_age),ny,ns,it), dimnames = Dnms)
         
             fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
         
@@ -96,7 +96,7 @@ F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
                         if(n.[a,y,ss,i] == 0) aux[a,y,ss,i] <- 0
                         else{
                           xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,ss,i], m=m.[a,y,ss,i], c = c.[a,y,ss,i])$root, silent = TRUE)
-                          aux[a,y,,i] <- ifelse(class(xx) == 'try-error', NA, xx)
+                          aux[a,y,ss,i] <- ifelse(class(xx) == 'try-error', NA, xx)
                         }
                       }     
                     }}}}
