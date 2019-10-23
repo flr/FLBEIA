@@ -641,9 +641,9 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   # Wide format 
   res <- dat %>% mutate(scenario = scenario) %>% tidyr::spread(key=indicators, value=value) %>% 
     filter(year %in% years & stock %in% stknms) %>% arrange(year) %>%
+    mutate_at(vars(c(2,4)), as.character) %>% mutate_at(vars(c(2,4)), as.numeric) %>%
     dplyr::group_by(stock, year, season, iter, scenario) %>% mutate(catch.iyv = catch/lag(catch), land.iyv = landings/lag(landings), 
                                                    disc.iyv = discards/lag(discards)) 
-  
   # year or seasonal?
   if(byyear == TRUE){
     if(length(unique(res$season)) >1){
@@ -1843,8 +1843,8 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   flS <- flS %>% dplyr::group_by(scenario, year, fleet, iter) %>% 
     mutate(refp = Prflim[fleet], risk = as.numeric(grossSurplus < refp))
   
-  outfl <- flS %>% dplyr::group_by(year, fleet, scenario) %>% 
-    dplyr::summarise(indicator = "pPrflim", value = sum(risk)/length(risk)) %>% dplyr::rename(unit=fleet)
+  outfl <- flS %>% dplyr::ungroup() %>%  dplyr::mutate(year = as.numeric(year)) %>% dplyr::group_by(year, fleet, scenario) %>% 
+    dplyr::summarise(indicator = "pPrflim", value = sum(risk)/length(risk)) %>% dplyr::rename(unit=fleet) 
   
   # all combined
   

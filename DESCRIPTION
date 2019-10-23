@@ -25,9 +25,8 @@ Imports:
   Matrix,
   FLash,
   mvtnorm,
-  triangle,
-  plyr
-Suggests: R.rsp, spict, XLConnect
+  triangle
+Suggests:    R.rsp, spict, XLConnect
 Additional_repositories: http://flr-project.org/R
 License: GPL (>= 2)
 Language: en-GB
