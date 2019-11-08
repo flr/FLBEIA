@@ -67,7 +67,7 @@ wtalStock <- function(obj, stknm)
            res[is.na(res)] <- 0
            }
         }
-    res <- res/cnt
+    res <- res/cnt # This is a normal mean ant it should be weighted!!
     return(res)
 }
 
