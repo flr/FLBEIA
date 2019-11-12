@@ -72,9 +72,6 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     res@landings.wt[] <- wtalStock(fleets,st)[,1:(year-1),1,1]
     res@catch.wt[] <-  (res@landings.wt*landStock(fleets,st)[,1:(year-1),1,1] + res@discards.wt*discStock(fleets,st)[,1:(year-1),1,1])/catchStock(fleets,st)[,1:(year-1),1,1]
         
-    # If catch.n = 0 => catch.wt = NaN in the previous line => we set it equ
-    catch.wt(res)[catch.n(res) == 0] <- (landings.wt(res)[landings.n(res) == 0] + landings.wt(res)[landings.n(res) == 0])/2
-    
     # "stock.n":  FIRST SEASON and SUM ALONG UNITS except recruitment
     # rec = n[1,,1,1] + n[1,,2,2] + n[1,,3,3] + n[1,,4,4]
     # n up to (year) to use it after in the 'f' calculation.
@@ -118,7 +115,10 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     landings(res)   <- quantSums(res@landings.n*res@landings.wt)
     discards(res)   <- quantSums(res@discards.n*res@discards.wt)
     catch(res)      <- res@landings + res@discards
-        
+    
+    # If catch.n = 0 => catch.wt = NaN in the previous line => we set it equ
+    catch.wt(res)[catch.n(res) == 0] <- (landings.wt(res)[landings.n(res) == 0] + landings.wt(res)[landings.n(res) == 0])/2
+    
     # harvest: * if age structured calculate it from 'n'.
     #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
     if(na == 1){
