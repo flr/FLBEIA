@@ -234,14 +234,21 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
         for(i in 1:it){
           
-           if(!is.null(dim(rho))) rhoi <- rho[st,i,drop=F]
-           else rhoi <- rho[st]
-          
-            Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
-                                efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
-                                ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
-                                restriction = restriction))
+           if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+           else rhoi <- rho
+           
+           # Extract the i-th element form the lists. 
+            Ni      <- lapply(N,       function(x) N[[x]][,,,,,i,drop=F])
+            q.m     <- lapply(q.m,     function(x) q.m[[x]][,,,i,drop=F])
+            beta.m  <- lapply(beta.m,  function(x) beta.m[[x]][,,,i,drop=F])
+            alpha.m <- lapply(alpha.m, function(x) alpha.m[[x]][,,,i,drop=F])
+            ret.m   <- lapply(ret.m,   function(x) ret.m[[x]][,,,i,drop=F])
+            wl.m    <- lapply(wl.m,    function(x) w.l[[x]][,,,i,drop=F])
+            wd.m    <- lapply(wd.m,    function(x) w.d[[x]][,,,i,drop=F])
+            
+            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i],  N = Ni, q.m = q.m, rho = rhoi, efs.m = efs.m[,i,drop=F], 
+                                alpha.m = alpha.m, beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m,
+                                restriction = restriction, stknm = st))
         }
     }
     

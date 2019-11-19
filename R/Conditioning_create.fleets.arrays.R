@@ -399,13 +399,24 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
         
         load(stk_objs[[st]])
         
-        wl <- ifelse('wl' %in% names(data), 'wl', 'wt')
-        wd <- ifelse('wd' %in% names(data), 'wd', wl)
+        if(class(data) == 'list'){
         
-        wts.land[[st]] <- apply(data[[wl]],1:2, median)
-        wts.disc[[st]] <- apply(data[[wd]],1:2, median)
-#if(st == 'MEG') browser()        
-        yrs_nms <- colnames(data[[wl]])[colnames(data[[wl]]) %in% hist.yrs]
+          wl <- ifelse('wl' %in% names(data), 'wl', 'wt')
+          wd <- ifelse('wd' %in% names(data), 'wd', wl)
+        
+          wts.land[[st]] <- apply(data[[wl]],1:2, median)
+          wts.disc[[st]] <- apply(data[[wd]],1:2, median)
+   
+          yrs_nms <- colnames(data[[wl]])[colnames(data[[wl]]) %in% hist.yrs]
+        }
+        if(class(data) == 'FLStock'){
+          
+          wts.land[[st]] <- apply(data@landings.wt,1:2, median)
+          wts.disc[[st]] <- apply(data@discards.wt,1:2, median)
+          
+          yrs_nms <- dimnames(data)$year[dimnames(data)$year %in% hist.yrs]
+          
+        }
       }
       else{ stop('stock data must be provided in excel or R format')}
       }
