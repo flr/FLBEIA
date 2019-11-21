@@ -684,13 +684,13 @@ bioSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
     if('season' %in% names(obj))
       res <- obj %>% dplyr::group_by(stock, year, season, scenario, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, probs=probs, na.rm = TRUE))) %>% 
-        unnest %>% tidyr::spread(key=quantiles, value=value)
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
     
     else
       
       res <- obj %>% dplyr::group_by(stock, year, scenario, indicator) %>% 
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, probs=probs, na.rm = TRUE))) %>% 
-        unnest %>% tidyr::spread(key=quantiles, value=value)
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
     
   }
   else{
@@ -727,328 +727,186 @@ bioSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
 #' @rdname bioSum
 #' @aliases fltSum
 #' @param InterestRate Capital oportunity cost rate.
+
 fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = TRUE, InterestRate = 0.03,scenario = 'bc')
 {
+  
   fleets <- obj$fleets
   covars <- obj$covars
   
-#  fleets <- lapply(fleets, setUnitsNA)
+  #  fleets <- lapply(fleets, setUnitsNA)
+  
   warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
           removing the units using the setUnitsNA function')
-
-    if (flnms[1] == "all") flnms <- names(fleets)
+  
+  if (flnms[1] == "all") flnms <- names(fleets)
+  
+  Dim <- dim(fleets[[1]]@effort[,years , ])[c(2, 4, 6)]
+  Dimnm <- dimnames(fleets[[1]]@effort[,years , ])
+  
+  FLQ0.dimfleets <- FLQuant(0, dimnames = c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6]))
+  
+  if(is.null(covars$Depreciation))covars$Depreciation <- FLQ0.dimfleets
+  if(is.null(covars$Salaries))    covars$Salaries <- FLQ0.dimfleets   
+  if(is.null(covars$MaxDays))     covars$MaxDays <- FLQuant(365/dim(fleets[[1]]@effort[, years, ])[4], dimnames = dimnames(FLQ0.dimfleets))
+  if(is.null(covars$NumbVessels)) covars$NumbVessels <- FLQ0.dimfleets
+  if(is.null(covars$CapitalCost)) covars$CapitalCost <- FLQ0.dimfleets
+  
+  if(byyear == F){
     
-    Dim <- dim(fleets[[1]]@effort[,years , ])[c(2, 4, 6)]
-    Dimnm <- dimnames(fleets[[1]]@effort[,years , ])
-    n <- prod(Dim) * length(flnms)
+    res <- NULL
+    res.fl <- NULL
     
-    if(is.null(covars$Depreciation)){ 
-      covars$Depreciation <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
-      dimnames(covars$Depreciation) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
-    }
-    if(is.null(covars$Salaries)){ 
-      covars$Salaries <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
-      dimnames(covars$Salaries) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
-    }
-    if(is.null(covars$MaxDays)){ 
-      covars$MaxDays <- FLQuant(365/dim(fleets[[1]]@effort[, years, ])[4], dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
-      dimnames(covars$MaxDays) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
-    }
-    if(is.null(covars$NumbVessels)){ 
-      covars$NumbVessels <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
-      dimnames(covars$NumbVessels) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
-    }
-    if(is.null(covars$CapitalCost)){ 
-      covars$CapitalCost <- FLQuant(0, dim = c(length(fleets),dim(fleets[[1]]@effort[, , ])[2:6]))
-      dimnames(covars$CapitalCost) <- c(fleet = list(names(fleets)), dimnames(fleets[[1]]@effort[, , ])[2:6])
-    }
+    year = rep(years, prod(Dim[2:3])) 
+    season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3])
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), 1)   
     
     
-    if(byyear == F){
-      res <- data.frame(year = rep(years, prod(Dim[2:3]) * length(flnms)),
-        season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3] *
-            length(flnms)), fleet = rep(flnms, each = prod(Dim)),
-        iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(flnms)),
-        capacity = numeric(n), 
-        catch = numeric(n),
-        costs = numeric(n), 
-        discards = numeric(n),
-        discRat = numeric(n),
-        effort = numeric(n),
-        fcosts = numeric(n),
- #       gcf = numeric(n),
-        gva = numeric(n),
-        grossValue = numeric(n), 
-        landings = numeric(n),
-        fep = numeric(n), 
-        NetProfit = numeric(n),
-        nVessels = numeric(n), 
-        price = numeric(n), 
-        grossSurplus = numeric(n),
-        quotaUpt = numeric(n), 
-        salaries = numeric(n), 
-        vcosts   = numeric(n),
-       stringsAsFactors = FALSE)
-    
-    k <- 1
     for (f in flnms) {
-        fl <- fleets[[f]]
-        mts <- names(fl@metiers)
-        
-        
-        temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
-        res[k:(k + prod(Dim) - 1), "catch"] <- c(Reduce('+',temp)[,years])
-        
-        temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(landWStock.f(fl, x))))
-        res[k:(k + prod(Dim) - 1), "landings"] <- c(Reduce('+',temp)[,years])
-        
-        temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(discWStock.f(fl, x))))
-        res[k:(k + prod(Dim) - 1), "discards"] <- c(Reduce('+',temp)[,years])
-        
-        res[k:(k + prod(Dim) - 1), "discRat"] <- res[k:(k + prod(Dim) - 1), "discards"]/res[k:(k + prod(Dim) - 1), "catch"]
-          
-        res[k:(k + prod(Dim) - 1), "capacity"] <- c(fl@capacity[,years, ])
-        
-        res[k:(k + prod(Dim) - 1), "effort"] <- c(fl@effort[,years, ])
-        
-        res[k:(k + prod(Dim) - 1), "fcosts"] <- c(totfcost_flbeia(fl, covars, f)[,years, ])
-        
-        res[k:(k + prod(Dim) - 1), "vcosts"] <- c(totvcost_flbeia(fl)[,years, ])
-        
-        res[k:(k + prod(Dim) - 1), "costs"] <- c(costs_flbeia(fl, covars, f)[,years, ])
-       
-        res[k:(k + prod(Dim) - 1), "grossValue"] <- c(revenue_flbeia(fl)[,years, ]) 
-        
-        res[k:(k + prod(Dim) - 1), "grossSurplus"] <- c(revenue_flbeia(fl)[,years, ]) - res[k:(k + prod(Dim) - 1), "costs"]
-        
-        res[k:(k + prod(Dim) - 1), "price"] <- res[k:(k + prod(Dim) - 1), "grossValue"] / res[k:(k + prod(Dim) - 1), "landings"]
-         
-        res[k:(k + prod(Dim) - 1), "salaries"] <- c(fl@crewshare[,years,]*revenue_flbeia(fl)[,years, ] + covars[['Salaries']][f,years])
-        
-        res[k:(k + prod(Dim) - 1), "gva"] <- res[k:(k + prod(Dim) - 1), "grossValue"] -  res[k:(k + prod(Dim) - 1), "costs"] + res[k:(k + prod(Dim) - 1), "salaries"]
-          
-        
-        res[k:(k + prod(Dim) - 1), "profitability"] <- res[k:(k + prod(Dim) - 1), "grossSurplus"]/res[k:(k + prod(Dim) - 1), "grossValue"]
- 
-        res[k:(k + prod(Dim) - 1), "nVessels"]  <- c(covars[['NumbVessels']][f,years])
-          
-        res[k:(k + prod(Dim) - 1), "fep"] <-  res[k:(k + prod(Dim) - 1), "grossSurplus"] - c(covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years])
-        
-        res[k:(k + prod(Dim) - 1), "netProfit"] <-  res[k:(k + prod(Dim) - 1), "fep"] - c(covars[['CapitalCost']][f,years]*InterestRate*covars[['NumbVessels']][f,years])
-        
-        temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
-        temp <- Reduce('+',temp)[,years]
-        totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
-        if(dim(temp)[4] > 1) {res[k:(k + prod(Dim) - 1), "quotaUpt"] <- c(sweep(temp, c(1:3,5:6),totTAC/dim(temp)[4], "/"))}
-        else{       res[k:(k + prod(Dim) - 1), "quotaUpt"] <- c(temp/totTAC)}
-        
-        k <- k + prod(Dim)
-    }}
-    else{
-      n <- prod(Dim[-2]) * length(flnms)
       
-      res <- data.frame(year = rep(years, prod(Dim[3]) * length(flnms)),
-                        fleet = rep(flnms, each = prod(Dim[-2])),
-                        iter = rep(rep(1:Dim[3], each = prod(Dim[1])), length(flnms)),
-                        capacity = numeric(n), 
-                        catch = numeric(n),
-                        costs = numeric(n), 
-                        discards = numeric(n),
-                        discRat = numeric(n),
-                        effort = numeric(n),
-                        fcosts = numeric(n),
-                        #       gcf = numeric(n),
-                        gva = numeric(n),
-                        grossValue = numeric(n), 
-                        landings = numeric(n),
-                        fep = numeric(n), 
-                        nVessels = numeric(n), 
-                        price = numeric(n), 
-                        grossSurplus = numeric(n),
-                        netProfit = numeric(n),
-                        quotaUpt = numeric(n), 
-                        salaries = numeric(n), 
-                        vcosts   = numeric(n),
-                        stringsAsFactors = FALSE)
+      f <- names(fleets) #loop
+      fl <- fleets[[f]]
+      mts <- names(fl@metiers)
+      fleet = rep(flnms, each = prod(Dim))
       
-      k <- 1
-      for (f in flnms) {
-   #     print(f)
-        fl <- fleets[[f]]
-        mts <- names(fl@metiers)
-        
-        
-        temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
-        res[k:(k + prod(Dim[-2]) - 1), "catch"] <- c(Reduce('+',temp)[, years, ])
-        
-        temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(landWStock.f(fl, x)))))
-        res[k:(k + prod(Dim[-2]) - 1), "landings"] <- c(Reduce('+',temp)[, years, ])
-        
-        temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(discWStock.f(fl, x)))))
-        res[k:(k + prod(Dim[-2]) - 1), "discards"] <- c(Reduce('+',temp)[, years, ])
-        
-        res[k:(k + prod(Dim[-2]) - 1), "discRat"] <- res[k:(k + prod(Dim[-2]) - 1), "discards"]/res[k:(k + prod(Dim[-2]) - 1), "catch"]
-        
-        res[k:(k + prod(Dim[-2]) - 1), "capacity"] <- c(seasonSums(fl@capacity[,years, ]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "effort"] <- c(seasonSums(fl@effort[,years, ]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "fcosts"] <- c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "vcosts"] <- c(seasonSums(totvcost_flbeia(fl)[,years, ]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "costs"] <- c(seasonSums(costs_flbeia(fl, covars, f)[,years, ]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "grossValue"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) 
-        
-        res[k:(k + prod(Dim[-2]) - 1), "price"] <- res[k:(k + prod(Dim[-2]) - 1), "grossValue"] / res[k:(k + prod(Dim[-2]) - 1), "landings"]
-        
-        res[k:(k + prod(Dim[-2]) - 1), "grossSurplus"] <- c(seasonSums(revenue_flbeia(fl)[,years, ])) - res[k:(k + prod(Dim[-2]) - 1), "costs"]
-        
-        res[k:(k + prod(Dim[-2]) - 1), "salaries"] <- c(seasonSums(fl@crewshare[,years,]*revenue_flbeia(fl)[,years, ] + covars[['Salaries']][f,years]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "gva"] <- res[k:(k + prod(Dim[-2]) - 1), "grossValue"] - res[k:(k + prod(Dim[-2]) - 1), "costs"] + res[k:(k + prod(Dim[-2]) - 1), "salaries"]
-        
-        res[k:(k + prod(Dim[-2]) - 1), "profitability"] <- res[k:(k + prod(Dim[-2]) - 1), "grossSurplus"]/res[k:(k + prod(Dim[-2]) - 1), "grossValue"]
-        
-        res[k:(k + prod(Dim[-2]) - 1), "nVessels"]  <- c(seasonMeans(covars[['NumbVessels']][f, years, ]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "fep"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years]))
-        
-        res[k:(k + prod(Dim[-2]) - 1), "netProfit"] <- c(seasonSums(revenue_flbeia(fl)[,years, ] -  costs_flbeia(fl, covars, f)[,years, ] - covars[['Depreciation']][f,years]*covars[['NumbVessels']][f,years] - covars[['CapitalCost']][f,years]*InterestRate*covars[['NumbVessels']][f,years]))
-        
-        temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
-        temp <- Reduce('+',temp)[, years, ]
-        totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
-        res[k:(k + prod(Dim[-2]) - 1), "quotaUpt"] <- c(temp/totTAC)
-        
-        k <- k + prod(Dim[-2])
-    }}
-    
-    if(long == TRUE){ # transform res into long format
-      r1 <- ifelse(byyear == TRUE, 4,5)
-      r2 <- ifelse(byyear == TRUE, 22,23)
+      temp.catch <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
+      temp.landings <- lapply(catchNames(fl), function(x) quantSums(unitSums(landWStock.f(fl, x))))
+      temp.discards <- lapply(catchNames(fl), function(x) quantSums(unitSums(discWStock.f(fl, x))))
       
-      names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
-      res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
-      rownames(res) <- 1:dim(res)[1]
-      names(res)[!(names(res) %in% c("year", "season", "fleet", "iter", "time"))] <- 'value'
-      names(res)[names(res) == 'time'] <- 'indicator'
-      if('season' %in% names(res)) res <- res[,c('year','season', 'fleet', 'iter', 'indicator', 'value')]
-      else res <- res[,c('year', 'fleet', 'iter', 'indicator', 'value')]
-      # res[, r1:(r1+1)] <-  res[, (r1+1):r1]
-      # names(res)[r1:(r1+1)] <- c( 'indicator', 'value') 
+      res.fl <- bind_cols(year=year, season=season,fleet=fleet, iter=iter,
+                          catch=c(Reduce('+',temp.catch)[,years]),
+                          landings=c(Reduce('+',temp.landings)[,years]),
+                          discards=c(Reduce('+',temp.discards)[,years]),
+                          capacity=c(fl@capacity[,years, ]),
+                          effort=c(fl@effort[,years, ]),
+                          fcosts=c(totfcost_flbeia(fl, covars, f)[,years, ]),
+                          vcosts=c(totvcost_flbeia(fl)[,years, ]),
+                          costs=c(costs_flbeia(fl, covars, f)[,years, ]),
+                          fcosts=c(totfcost_flbeia(fl, covars, f)[,years, ]),
+                          vcosts=c(totvcost_flbeia(fl)[,years, ]),
+                          costs=c(costs_flbeia(fl, covars, f)[,years, ]),
+                          grossValue=c(revenue_flbeia(fl)[,years, ]),
+                          nVessels = c(covars[['NumbVessels']][f,years])) %>% 
+        mutate(discRat=discards/catch,
+               grossSurplus=grossValue-costs,
+               price=grossValue/landings,
+               salaries=c(fl@crewshare[,years,])*grossValue+c(covars[['Salaries']][f,years]),
+               gva=grossValue-costs+salaries,
+               profitability=grossSurplus/grossValue,
+               fep=grossSurplus- c(covars[['Depreciation']][f,years])*nVessels ,
+               netProfit=fep- c(covars[['CapitalCost']][f,years])*InterestRate*nVessels)
+      
+      #quotaUptake depends on the number of seasons
+      
+      temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
+      temp <- Reduce('+',temp)[,years]
+      totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
+      res.fl <- res.fl %>% mutate(quotaUpt=case_when(
+        dim(temp)[4] >1 ~ c(sweep(temp, c(1:3,5:6),totTAC/dim(temp)[4], "/")),
+        TRUE~ c(temp/totTAC)))
+      res <- bind_rows(res,res.fl)
     }
-  
-   res <- cbind(scenario = scenario, res)
-    return(res)
-}
+  }else{
     
-#' @rdname bioSum
-#' @aliases fltSumQ
-fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
-  
-  if(dim(obj)[2] < 10){ # the object is in long format
+    res <- NULL
+    res.fl <- NULL
     
-    if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:4], data.frame(res[,5]))
+    year = rep(years, prod(Dim[3])) 
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1])), 1)   
     
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
     
-      names(res)[5:(5+length(prob)-1)] <- nms
-    }
-    else{
-      res <- aggregate(value ~ fleet + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:5], data.frame(res[,6]))
+    for (f in flnms) {
       
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      names(res)[6:(6+length(prob)-1)] <- nms
-    }
-  }
-  else{
-    
-    if(!('season' %in% names(obj))){
-      res <- aggregate(list(capacity = obj$capacity,      catch = obj$catch,         costs = obj$costs,          discards = obj$discards,       
-                          discRat = obj$discRat,    effort = obj$effort,       fcosts = obj$fcosts,        gva  = obj$gva,                    
-                          grossValue  = obj$grossValue,         landings  = obj$landings,  fep  = obj$fep, netProfit = obj$netProfit, nVessels  = obj$nVessels,     
-                          price  = obj$price,           grossSurplus  = obj$grossSurplus,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
-                          vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                          list(fleet = obj$fleet, year = obj$year, scenario = obj$scenario), 
-                          quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-    
-      res <- cbind(res[,1:3], 
-                 data.frame(res[,4]),  data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),
-                 data.frame(res[,8]),  data.frame(res[,9]),  data.frame(res[,10]),  data.frame(res[,11]),
-                 data.frame(res[,12]), data.frame(res[,13]), data.frame(res[,14]), data.frame(res[,15]),
-                 data.frame(res[,16]), data.frame(res[,17]), data.frame(res[,18]), data.frame(res[,19]),
-                 data.frame(res[,20]), data.frame(res[,21]), data.frame(res[,22]))
-                 
-      nms1  <- paste('capacity_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms2  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms3  <- paste('costs_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms4  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms5  <- paste('discRat_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms6  <- paste('effort_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms7  <- paste('fcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms8  <- paste('gva_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms9 <- paste('grossValue_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms10 <- paste('landings_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms11 <- paste('fep_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms12 <- paste('netProfit_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")     
-	  nms13 <- paste('nVessels_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms14 <- paste('price_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms15 <- paste('grossSurplus_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms16 <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms17 <- paste('salaries_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms18 <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms19 <- paste('profitability_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-   
-      names(res)[-c(1:3)] <- unlist(mget(paste('nms', 1:19, sep="")))
-    }
-    else{
-        res <- aggregate(list(capacity = obj$capacity,      catch = obj$catch,         costs = obj$costs,          discards = obj$discards,       
-                              discRat = obj$discRat,    effort = obj$effort,       fcosts = obj$fcosts,        gva  = obj$gva,                    
-                              grossValue  = obj$grossValue,         landings  = obj$landings,  fep  = obj$fep, netProfit = obj$netProfit,  nVessels  = obj$nVessels,     
-                              price  = obj$price,           grossSurplus  = obj$grossSurplus,    quotaUpt  = obj$quotaUpt,   salaries  = obj$salaries, 
-                              vcosts  = obj$vcosts,         profitability  = obj$profitability), 
-                         list(fleet = obj$fleet, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-        
-        res <- cbind(res[,1:4], 
-                     data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),
-                     data.frame(res[,9]),  data.frame(res[,10]),  data.frame(res[,11]),  data.frame(res[,12]),
-                     data.frame(res[,13]), data.frame(res[,14]), data.frame(res[,15]), data.frame(res[,16]),
-                     data.frame(res[,17]), data.frame(res[,18]), data.frame(res[,19]), data.frame(res[,20]),
-                     data.frame(res[,21]), data.frame(res[,22]), data.frame(res[,23]))
-        
-        nms1  <- paste('capacity_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms2  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms3  <- paste('costs_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms4  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms5  <- paste('discRat_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms6  <- paste('effort_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms7  <- paste('fcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms8  <- paste('gva_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms9  <- paste('grossValue_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms10 <- paste('landings_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms11 <- paste('fep_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms12 <- paste('netProfit_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms13 <- paste('nVessels_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms14 <- paste('price_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms15 <- paste('grossSurplus_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms16 <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms17 <- paste('salaries_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms18 <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        nms19 <- paste('profitability_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-        
-        names(res)[-c(1:4)] <- unlist(mget(paste('nms', 1:19, sep="")))
+      f <- names(fleets) #loop
+      fl <- fleets[[f]]
+      mts <- names(fl@metiers)
+      fleet = rep(flnms, each = prod(Dim))
       
+      temp.catch <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
+      temp.landings <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(landWStock.f(fl, x)))))
+      temp.discards <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(discWStock.f(fl, x)))))
+      
+      res.fl <- bind_cols(year=year,fleet=fleet, iter=iter,
+                          catch=c(Reduce('+',temp.catch)[,years]),
+                          landings=c(Reduce('+',temp.landings)[,years]),
+                          discards=c(Reduce('+',temp.discards)[,years]),
+                          capacity=c(seasonSums(fl@capacity[,years, ])),
+                          effort=c(seasonSums(fl@effort[,years, ])),
+                          fcosts=c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ])),
+                          vcosts=c(seasonSums(totvcost_flbeia(fl)[,years, ])),
+                          costs=c(seasonSums(costs_flbeia(fl, covars, f)[,years, ])),
+                          fcosts=c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ])),
+                          vcosts=c(seasonSums(totvcost_flbeia(fl)[,years, ])),
+                          costs=c(seasonSums(costs_flbeia(fl, covars, f)[,years, ])),
+                          grossValue=c(seasonSums(revenue_flbeia(fl)[,years, ])),
+                          nVessels =c(seasonMeans(covars[['NumbVessels']][f,years]))) %>% 
+        mutate(discRat = discards/catch,
+               grossSurplus = grossValue - costs,
+               price = grossValue/landings,
+               salaries = c(seasonSums(fl@crewshare[,years,])) * grossValue + c(seasonSums(covars[['Salaries']][f,years])),
+               gva = grossValue - costs + salaries,
+               profitability = grossSurplus/grossValue,
+               fep = grossSurplus - c(seasonSums(covars[['Depreciation']][f,years])) * nVessels ,
+               netProfit = fep - c(seasonSums(covars[['CapitalCost']][f,years])) * InterestRate * nVessels)
+      
+      #quotaUptake depends on the number of seasons
+      
+      temp <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
+      temp <- Reduce('+',temp)[,years]
+      totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
+      res.fl <- res.fl %>% mutate(quotaUpt=c(temp/totTAC))
+      res<- bind_rows(res,res.fl)
     }
   }
   
+  if(long == TRUE){ # transform res into long format
+    ind <- if_else(byyear == TRUE , 3,4)
+    indicator.nms <- names(res)[-c(1:ind)]
+    res <- res %>% gather(key=indicator,value=value,indicator.nms)
+    
+  }
+  
+  res <- res  %>% mutate(scenario=scenario) %>% select(scenario, everything())
   return(res)
 }
 
+#' @rdname bioSum
+#' @aliases fltSumQ
+
+fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
+  
+  p_names <- paste("q",ifelse(nchar(substr(prob,3, nchar(prob)))==1, 
+                              paste(substr(prob,3, nchar(prob)), 0, sep = ""), 
+                              substr(prob,3, nchar(prob))), sep = "")
+  
+  
+  if(dim(obj)[2] < 10){ # the object is in long format
+    if('season' %in% names(obj)){
+      res <- obj %>% dplyr::group_by(scenario,year,season,fleet,indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+    }else{
+      res <- obj %>% dplyr::group_by(scenario,year,fleet,  indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)}
+    
+  }else{
+    p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
+      purrr::set_names(nm = p_names)
+    
+    if('season' %in% names(obj)){
+      sum.nms <- names(obj)[-c(1:5)]
+      res <- obj %>% dplyr::group_by(scenario,year,season,fleet) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)
+    }
+    else{
+      sum.nms <- names(obj)[-c(1:4)]
+      res <- obj %>% dplyr::group_by(scenario, year,fleet) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)      
+    }}
+  
+  return(res)
+}
 
 #-------------------------------------------------------------------------------
 # revenue_flbeia(fleet, years)
@@ -1153,195 +1011,133 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 #' @rdname bioSum
 #' @aliases fltStkSum
 fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
-    
+  
   fleets <- obj$fleets
   advice <- obj$advice
   
-#  fleets <- lapply(fleets, setUnitsNA)
- 
+  #  fleets <- lapply(fleets, setUnitsNA)
+  
   warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
           removing the units using the setUnitsNA function')
   
-    if(flnms[1] == 'all') flnms <- names(fleets)
-    if(stknms[1] == 'all') stknms <- catchNames(fleets)
-     
-    Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
-    Dimnm <- dimnames(fleets[[1]]@effort[,years,])
-    
-    res <- NULL
-    
-    
-   if(byyear == FALSE){                                
-    for(f in flnms){
-        
-        fl   <- fleets[[f]]
-
-        stfl <- catchNames(fl)        
-        sts   <- stknms[stknms %in% stfl]
-        
-        n <- prod(Dim)*length(sts)
-        
-        dff <- data.frame(year = rep(years, prod(Dim[2:3])*length(sts)), 
-                    season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3]*length(sts)), 
-                    fleet = rep(f, n), 
-                    stock = rep(sts, each = prod(Dim)),
-                    iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(sts)),  
-                    landings = numeric(n), 
-                    discards = numeric(n),
-                    catch    = numeric(n),
-                    discRat  = numeric(n),
-                    price    = numeric(n),
-                    tacshare = numeric(n),
-                    quota    = numeric(n),
-                    quotaUpt = numeric(n),
-                    stringsAsFactors = FALSE)
-        
-        k <- 1
-        
-        for(st in sts){
-            
-            dff[k:(prod(Dim) + k-1),'landings'] <- c(apply(landWStock.f(fl, st),c(2,4,6), sum)[,years])    
-            dff[k:(prod(Dim) + k-1),'discards'] <- c(apply(discWStock.f(fl, st),c(2,4,6), sum)[,years]) 
-            dff[k:(prod(Dim) + k-1),'catch']    <- dff[k:(prod(Dim) + k-1),'discards'] + dff[k:(prod(Dim) + k-1),'landings']
-            dff[k:(prod(Dim) + k-1),'discRat']  <- dff[k:(prod(Dim) + k-1),'discards']/dff[k:(prod(Dim) + k-1),'catch']
-            dff[k:(prod(Dim) + k-1),'price']    <- c(price_flbeia(fl, st)[,years])
-            dff[k:(prod(Dim) + k-1),'tacshare'] <- c((advice$quota.share[[st]][f,])[,years])
-            dff[k:(prod(Dim) + k-1),'quota']    <- c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years])
-            dff[k:(prod(Dim) + k-1),'quotaUpt'] <- dff[k:(prod(Dim) + k-1),'catch']/dff[k:(prod(Dim) + k-1),'quota']
-            
-            k <- k + prod(Dim)     
-        }
-        res <- rbind(res, dff)
-    }}
-    else{
-      for(f in flnms){
-        
-        fl   <- fleets[[f]]
-        
-        stfl <- catchNames(fl)        
-        sts  <- stknms[stknms %in% stfl]
-        
-        n <- prod(Dim[-2])*length(sts)
-        
-        dff <- data.frame(year = rep(years, prod(Dim[3])*length(sts)), 
-                          fleet = rep(f, n), 
-                          stock = rep(sts, each = prod(Dim[-2])),
-                          iter = rep(rep(1:Dim[3], each = prod(Dim[1])), length(sts)),  
-                          landings = numeric(n), 
-                          discards = numeric(n),
-                          catch    = numeric(n),
-                          discRat  = numeric(n),
-                          price    = numeric(n),
-                          tacshare = numeric(n),
-                          quota    = numeric(n),
-                          quotaUpt = numeric(n),
-                          stringsAsFactors = FALSE)
-        
-        k <- 1
-        
-        for(st in sts){
-          
-          dff[k:(prod(Dim[-2]) + k-1),'landings'] <- c(apply(landWStock.f(fl, st),c(2,6), sum)[,years])    
-          dff[k:(prod(Dim[-2]) + k-1),'discards'] <- c(apply(discWStock.f(fl, st),c(2,6), sum)[,years]) 
-          dff[k:(prod(Dim[-2]) + k-1),'catch']    <- dff[k:(prod(Dim[-2]) + k-1),'discards'] + dff[k:(prod(Dim[-2]) + k-1),'landings']
-          dff[k:(prod(Dim[-2]) + k-1),'discRat']  <- dff[k:(prod(Dim[-2]) + k-1),'discards']/dff[k:(prod(Dim[-2]) + k-1),'catch']
-          dff[k:(prod(Dim[-2]) + k-1),'price']    <- c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(unitSums(landWStock.f(fl, st)[,years])))/seasonSums(unitSums(quantSums(landWStock.f(fl, st)[,years]))))
-          dff[k:(prod(Dim[-2]) + k-1),'tacshare']    <- c((advice$quota.share[[st]][f,])[,years])
-          dff[k:(prod(Dim[-2]) + k-1),'quota']    <- c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years])
-          dff[k:(prod(Dim[-2]) + k-1),'quotaUpt'] <- dff[k:(prod(Dim[-2]) + k-1),'catch']/dff[k:(prod(Dim[-2]) + k-1),'quota']
-          
-          k <- k + prod(Dim[-2])     
-        }
-        res <- rbind(res, dff)
-      }
-    }
-    
-    if(long == TRUE){ # transform res into long format
-      r1 <- ifelse(byyear == TRUE, 5,6)
-      r2 <- ifelse(byyear == TRUE, 12,13)
-      
-      names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
-      res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
-      rownames(res) <- 1:dim(res)[1]
-      names(res)[r1:(r1+1)] <- c('indicator', 'value') 
-    }
-    
-    res <- cbind(scenario = scenario, res)
+  if(flnms[1] == 'all') flnms <- names(fleets)
+  if(stknms[1] == 'all') stknms <- catchNames(fleets)
   
-    return(res)
-}                               
+  Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
+  Dimnm <- dimnames(fleets[[1]]@effort[,years,])
+  
+  res <- NULL
+  
+  
+  if(byyear == FALSE){ 
+    
+    year = rep(years, prod(Dim[2:3])) 
+    season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3])
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), 1)   
+    
+    
+    for(f in flnms){
+      
+      fl   <- fleets[[f]]
+      stfl <- catchNames(fl)        
+      sts   <- stknms[stknms %in% stfl]
+      
+      for(st in sts){
+        f <- names(fleets) #loop
+        fl <- fleets[[f]]
+        fleet = rep(flnms, each = prod(Dim))
+        stock = rep(sts, each = prod(Dim))
+        
+        res.fl.st <- bind_cols(year=year, season=season,fleet=fleet, stock=stock,iter=iter,
+                               catch= c(apply(catchWStock.f(fl, st),c(2,4,6), sum)[,years]),
+                               landings= c(apply(landWStock.f(fl, st),c(2,4,6), sum)[,years]),
+                               discards= c(apply(discWStock.f(fl, st),c(2,4,6), sum)[,years])) %>% 
+          mutate(discRat=discards/catch,
+                 price=c(price_flbeia(fl, st)[,years]),
+                 quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
+                 quotaUpt=catch/quota)
+        res <- bind_rows(res,res.fl.st)
+      }}
+  }  else{
+    
+    year = rep(years, prod(Dim[2:3])) 
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), 1)   
+    
+    for(f in flnms){
+      
+      fl   <- fleets[[f]]
+      stfl <- catchNames(fl)        
+      sts   <- stknms[stknms %in% stfl]
+      fleet = rep(flnms, each = prod(Dim))
+      
+      for(st in sts){
+        
+        stock = rep(sts, each = prod(Dim))
+        
+        res.fl.st <- bind_cols(year=year,fleet=fleet, stock=stock, iter=iter,
+                               catch= c(apply(catchWStock.f(fl, st),c(2,6), sum)[,years]),
+                               landings= c(apply(landWStock.f(fl, st),c(2,6), sum)[,years]),
+                               discards= c(apply(discWStock.f(fl, st),c(2,6), sum)[,years])) %>% 
+          mutate(discRat=discards/catch,
+                 price=c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(unitSums(landWStock.f(fl, st)[,years])))/landings),
+                 quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
+                 quotaUpt=catch/quota)
+        res <- bind_rows(res,res.fl.st)
+      }}
+  }
+  
+  if(long == TRUE){ # transform res into long format
+    ind <- if_else(byyear == TRUE , 4,5)
+    indicator.nms <- names(res)[-c(1:ind)]
+    res <- res %>% gather(key=indicator,value=value,indicator.nms)
+  }
+  
+  res <- res  %>% mutate(scenario=scenario) %>% select(scenario, everything())
+  
+  return(res)
+} 
+                               
 
 # fltStkSumQ 
 #' @rdname bioSum
 #' @aliases fltStkSumQ
+
+
 fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
+  
+  
+  p_names <- paste("q",ifelse(nchar(substr(prob,3, nchar(prob)))==1, 
+                              paste(substr(prob,3, nchar(prob)), 0, sep = ""), 
+                              substr(prob,3, nchar(prob))), sep = "")
+  
   
   if(dim(obj)[2] < 10){ # the object is in long format
     
-    if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + stock + indicator + year + scenario, obj, quantile, prob = prob,na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:5], data.frame(res[,6]))
-      
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      
-      names(res)[6:(6+length(prob)-1)] <- nms
-    }
-    else{
-      res <- aggregate(value ~ fleet + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:6], data.frame(res[,7]))
-      
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      names(res)[7:(7+length(prob)-1)] <- nms
-    }
-  }
-  else{
+    if('season' %in% names(obj)){
+      res <- obj %>% dplyr::group_by(scenario,year, season, fleet, stock, indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+    }else{
+      res <- obj %>% dplyr::group_by(scenario,year,fleet, stock, indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value))  %>% tidyr::spread(key=quantiles, value=value)}
+  }else{
+    p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
+      purrr::set_names(nm = p_names)
     
-    if(!('season' %in% names(obj))){
-      res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
-                            price = obj$price,  quota = obj$quota,       quotaUpt = obj$quotaUpt), 
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      
-      res <- cbind(res[,1:4], 
-                   data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),
-                   data.frame(res[,9]),  data.frame(res[,10]),  data.frame(res[,11]))
-      
-      nms1  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms2  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms3  <- paste('discRat_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms4  <- paste('landings_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms5  <- paste('price_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms6  <- paste('quota_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms7  <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-     
-      names(res)[-c(1:4)] <- unlist(mget(paste('nms', 1:7, sep="")))
+    if('season' %in% names(obj)){
+      sum.nms <- names(obj)[-c(1:6)]
+      res <- obj %>% dplyr::group_by(scenario,year, season,fleet, stock) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)
     }
     else{
-      res <- aggregate(list(catch = obj$catch, discards = obj$catch, discRat = obj$discRat, landings = obj$landings,       
-                            price = obj$price, quota = obj$quota,    quotaUpt = obj$quotaUpt),                   
-                       list(fleet = obj$fleet, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      
-      res <- cbind(res[,1:5], 
-                   data.frame(res[,6]),  data.frame(res[,7]),   data.frame(res[,8]),  data.frame(res[,9]),
-                   data.frame(res[,10]),  data.frame(res[,11]),  data.frame(res[,12]))
-      
-      nms1  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms2  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms3  <- paste('discRat_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms4  <- paste('landings_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms5  <- paste('price_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms6  <- paste('quota_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms7  <- paste('quotaUpt_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      
-      names(res)[-c(1:5)] <-  unlist(mget(paste('nms', 1:7, sep="")))
-      
-    }
-  }
+      sum.nms <- names(obj)[-c(1:5)]
+      res <- obj %>% dplyr::group_by(scenario,year, fleet, stock) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)      
+    }}
   
   return(res)
 }
-
-
 
 #-------------------------------------------------------------------------------
 # price_flbeia(fleet, years) (mean price in a fleet)
@@ -1377,12 +1173,12 @@ price_flbeia <- function(fleet, stock){
 #' @aliases mtStkSum
 mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), 
                      years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
-    
-    
+  
+  
   fleets <- obj$fleets
   advice <- obj$advice
   
- # fleets <- lapply(fleets, setUnitsNA)
+  # fleets <- lapply(fleets, setUnitsNA)
   
   warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
           removing the units using the setUnitsNA function')
@@ -1390,175 +1186,143 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
   if(flnms[1] == 'all') flnms <- names(fleets)
   if(stknms[1] == 'all') stknms <- catchNames(fleets)
   
-    if(flnms[1] == 'all') flnms <- names(fleets)
-    if(stknms[1] == 'all') stknms <- catchNames(fleets)
-     
-    Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
-    Dimnm <- dimnames(fleets[[1]]@effort[,years,])
-
-    res <- NULL
+  
+  Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
+  Dimnm <- dimnames(fleets[[1]]@effort[,years,])
+  
+  res <- NULL
+  res.fl.mt.stk <- NULL
+  
+  if(byyear == FALSE){
     
-    if(byyear == FALSE){       
+    year = rep(years, prod(Dim[2:3])) 
+    season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3])
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), 1)   
+    
     for(f in flnms){
-        fl <- fleets[[f]]
-        mts <- names(fl@metiers)
-        for(m in mts){
-            mt   <- fl@metiers[[m]]
-            stmt <- catchNames(mt)        
-            sts  <- stknms[stknms %in% stmt]
-
-            n <- prod(Dim)*length(sts)
+      
+      fl <- fleets[[f]]
+      mts <- names(fl@metiers)
+      fleet = rep(flnms, each = prod(Dim))
+      
+      
+      for(m in mts){
         
-            dfm <-  data.frame(year = rep(years, prod(Dim[2:3])*length(sts)), 
-                        season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3]*length(sts)), 
-                        fleet = rep(f, n), 
-                        metier = rep(m, n),
-                        stock = rep(sts, each = prod(Dim)),
-                        iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(sts)),  
-                        catch = numeric(n), 
-                        discards  = numeric(n),
-                        discRat  = numeric(n),
-                        landings = numeric(n), 
-                        price = numeric(n),
-                        stringsAsFactors = FALSE)
-            k <- 1
-            
-            for(ss in sts){
-                cc <- mt@catches[[ss]]
-                dfm[k:(k+prod(Dim)-1),'landings'] <- c(apply(cc@landings[,years,], c(2,4,6), sum,  na.rm=TRUE))
-                dfm[k:(k+prod(Dim)-1),'discards'] <- c(apply(cc@discards[,years,], c(2,4,6), sum,  na.rm=TRUE))
-                dfm[k:(k+prod(Dim)-1),'catch'] <- dfm[k:(k+prod(Dim)-1),'discards'] + dfm[k:(k+prod(Dim)-1),'landings']
-                dfm[k:(k+prod(Dim)-1),'discRat'] <-  dfm[k:(k+prod(Dim)-1),'discards']/dfm[k:(k+prod(Dim)-1),'catch']
-                revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,4,6), sum, na.rm=TRUE)[,years,]
-                dfm[k:(k+prod(Dim)-1),'price']  <- c(revst)/dfm[k:(k+prod(Dim)-1),'landings']  
-                k <- k + prod(Dim)
-            }
-            res <- rbind(res, dfm) 
-        }  
+        mt <- fl@metiers[[m]]
+        metier = rep(m, each = prod(Dim))
+        
+        stmt <- catchNames(mt)        
+        sts  <- stknms[stknms %in% stmt]
+        
+        for(ss in sts){
+          
+          stock = rep(ss, each = prod(Dim))
+          
+          cc <- mt@catches[[ss]]
+          
+          res.fl.mt.ss <- bind_cols(year=year, season=season,fleet=fleet,metier=metier,stock=stock, iter=iter,
+                                    landings=c(apply(cc@landings[,years,], c(2,4,6), sum,  na.rm=TRUE)),
+                                    discards=c(apply(cc@discards[,years,], c(2,4,6), sum,  na.rm=TRUE)),
+                                    revst =c(apply(cc@landings.n*cc@landings.wt*cc@price, c(2,4,6), sum, na.rm=TRUE)[,years,])) %>% 
+            mutate(catch=landings+discards,
+                   discRat=discards/catch,
+                   price=revst/landings)
+          
+          res <- bind_rows(res, res.fl.mt.ss)           
+          
+        }
+      }  
     }}
-    else {
-      for(f in flnms){
-        fl <- fleets[[f]]
-        mts <- names(fl@metiers)
-        for(m in mts){
-          mt   <- fl@metiers[[m]]
-          stmt <- catchNames(mt)        
-          sts  <- stknms[stknms %in% stmt]
-          
-          n <- prod(Dim[-2])*length(sts)
-          
-          dfm <-  data.frame(year = rep(years, prod(Dim[3])*length(sts)), 
-                            fleet = rep(f, n), 
-                             metier = rep(m, n),
-                             stock = rep(sts, each = prod(Dim[-2])),
-                             iter = rep(rep(1:Dim[3], each = prod(Dim[1])), length(sts)),  
-                             catch = numeric(n), 
-                             discards  = numeric(n),
-                             discRat  = numeric(n),
-                             landings = numeric(n), 
-                             price = numeric(n),
-                            stringsAsFactors = FALSE)
-          k <- 1
-          
-          for(ss in sts){
-            cc <- mt@catches[[ss]]
-            dfm[k:(k+prod(Dim[-2])-1),'landings'] <- c(apply(cc@landings[,years,], c(2,6), sum, na.rm=TRUE))
-            dfm[k:(k+prod(Dim[-2])-1),'discards'] <- c(apply(cc@discards[,years,], c(2,6), sum, na.rm=TRUE))
-            dfm[k:(k+prod(Dim[-2])-1),'catch'] <- dfm[k:(k+prod(Dim[-2])-1),'discards'] + dfm[k:(k+prod(Dim[-2])-1),'landings']
-            dfm[k:(k+prod(Dim[-2])-1),'discRat'] <-  dfm[k:(k+prod(Dim[-2])-1),'discards']/dfm[k:(k+prod(Dim[-2])-1),'catch']
-            revst <- apply(cc@landings.n*cc@landings.wt*cc@price, c(2,6), sum, na.rm=TRUE)[,years,]
-            dfm[k:(k+prod(Dim[-2])-1),'price']  <- c(revst)/dfm[k:(k+prod(Dim[-2])-1),'landings']  
-            k <- k + prod(Dim[-2])
-          }
-          res <- rbind(res, dfm) 
-        }  
-      }
+  else {
+    year = rep(years, prod(Dim[3])) 
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1])), 1)   
+    
+    for(f in flnms){
       
-    }
- 
-    if(long == TRUE){ # transform res into long format
-      r1 <- ifelse(byyear == TRUE, 6,7)
-      r2 <- ifelse(byyear == TRUE, 10,11)
+      fl <- fleets[[f]]
+      mts <- names(fl@metiers)
+      fleet = rep(flnms, each = prod(Dim))
       
-      names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
-      res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
-      rownames(res) <- 1:dim(res)[1]
-      names(res)[r1:(r1+1)] <- c('indicator', 'value') 
+      for(m in mts){
+        
+        mt <- fl@metiers[[m]]
+        metier = rep(m, each = prod(Dim))
+        
+        stmt <- catchNames(mt)        
+        sts  <- stknms[stknms %in% stmt]
+        
+        
+        for(ss in sts){
+          
+          stock = rep(ss, each = prod(Dim[-2]))
+          
+          cc <- mt@catches[[ss]]
+          
+          res.fl.mt.ss <- bind_cols(year=year,fleet=fleet,metier=metier,stock=stock, iter=iter,
+                                    landings=c(apply(cc@landings[,years,], c(2,6), sum,  na.rm=TRUE)),
+                                    discards=c(apply(cc@discards[,years,], c(2,6), sum,  na.rm=TRUE)),
+                                    revst =c(apply(cc@landings.n*cc@landings.wt*cc@price, c(2,6), sum, na.rm=TRUE)[,years,])) %>% 
+            mutate(catch=landings+discards,
+                   discRat=discards/catch,
+                   price=revst/landings)
+          
+          res <- bind_rows(res, res.fl.mt.ss)           
+          
+        }
+      }  
     }
     
-    res <- cbind(scenario = scenario, res)
-    
-    return(res)
-
+  }
+  
+  if(long == TRUE){ # transform res into long format
+    ind <- if_else(byyear == TRUE , 5,6)
+    indicator.nms <- names(res)[-c(1:ind)]
+    res <- res %>% gather(key=indicator,value=value,indicator.nms)
+  }
+  
+  res <- res  %>% mutate(scenario=scenario) %>% select(scenario, everything())
+  
+  return(res)
+  
 }
-
 
 # mtStkSumQ 
 #' @rdname bioSum
 #' @aliases mtStkSumQ
 mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
+  p_names <- paste("q",ifelse(nchar(substr(prob,3, nchar(prob)))==1, 
+                              paste(substr(prob,3, nchar(prob)), 0, sep = ""), 
+                              substr(prob,3, nchar(prob))), sep = "")
+  
+  
   if(dim(obj)[2] < 10){ # the object is in long format
     
-    if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + metier + stock + indicator + year + scenario, obj, quantile, prob = prob,na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:6], data.frame(res[,7]))
-      
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      
-      names(res)[7:(7+length(prob)-1)] <- nms
+    if('season' %in% names(obj)){
+      res <- obj %>% dplyr::group_by(scenario,year, season, fleet,metier, stock, indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+    }else{
+      res <- obj %>% dplyr::group_by(scenario,year,fleet,metier, stock, indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value))  %>% tidyr::spread(key=quantiles, value=value)}
+  }else{
+    p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
+      purrr::set_names(nm = p_names)
+    
+    if('season' %in% names(obj)){
+      sum.nms <- names(obj)[-c(1:7)]
+      res <- obj %>% dplyr::group_by(scenario,year, season,fleet,metier, stock) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)
     }
     else{
-      res <- aggregate(value ~ fleet + metier + stock + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:7], data.frame(res[,8]))
-      
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      names(res)[8:(8+length(prob)-1)] <- nms
-    }
-  }
-  else{
-    
-    if(!('season' %in% names(obj))){
-      res <- aggregate(list(catch = obj$catch,  discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
-                            price = obj$price), 
-                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      
-      res <- cbind(res[,1:5], 
-                   data.frame(res[,6]),  data.frame(res[,7]),  data.frame(res[,8]),  
-                   data.frame(res[,9]),  data.frame(res[,10]))
-      
-      nms1  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms2  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms3  <- paste('discRat_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms4  <- paste('landings_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms5  <- paste('price_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-    
-      names(res)[-c(1:5)] <- unlist(mget(paste('nms', 1:5, sep="")))
-    }
-    else{
-      res <- aggregate(list(catch = obj$catch, discards = obj$discards, discRat = obj$discRat, landings = obj$landings,       
-                            price = obj$price),                   
-                       list(fleet = obj$fleet, metier = obj$metier, stock = obj$stock, year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      
-      res <- cbind(res[,1:6], 
-                   data.frame(res[,7]),  data.frame(res[,8]),   data.frame(res[,9]),  data.frame(res[,10]),
-                   data.frame(res[,11]))
-      
-      nms1  <- paste('catch_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms2  <- paste('discards_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms3  <- paste('discRat_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms4  <- paste('landings_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms5  <- paste('price_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-     
-      names(res)[-c(1:6)] <-  unlist(mget(paste('nms', 1:5, sep="")))
-      
-    }
-  }
+      sum.nms <- names(obj)[-c(1:6)]
+      res <- obj %>% dplyr::group_by(scenario,year, fleet, metier, stock) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)      
+    }}
   
   return(res)
 }
-
 
 #------------------------------------------------------------------------------#
 # mtSum data.frame[scenario, year, season, fleet, metier, iter ||,|| 
@@ -1566,165 +1330,132 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 #' @aliases mtSum
+
 mtSum <- function(obj, flnms = names(obj$fleets),
-                     years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
-  
-  if(flnms[1] == 'all') flnms <- names(obj$fleets)
+                  years = dimnames(obj$biols[[1]]@n)[[2]], 
+                  byyear = TRUE, long = TRUE, scenario = 'bc'){
   
   fleets <- obj$fleets
   
- # fleets <- lapply(fleets, setUnitsNA)
+  #  fleets <- lapply(fleets, setUnitsNA)
   
   warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
           removing the units using the setUnitsNA function')
+  
+  if (flnms[1] == "all") flnms <- names(fleets)
+  
   
   Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
   Dimnm <- dimnames(fleets[[1]]@effort[,years,])
   
   res <- NULL
+  res.fl.mt <- NULL
+  
   
   if(byyear == FALSE){  
-  for(f in flnms){
-    fl <- fleets[[f]]
-    mts <- names(fl@metiers)
-    n <- prod(Dim)*length(mts)
     
-    dff <-  data.frame(year = rep(years, prod(Dim[2:3])*length(mts)), 
-                       season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3]*length(mts)), 
-                       fleet = rep(f, n), 
-                       metier = rep(mts, each = prod(Dim)),
-                       iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), length(mts)),  
-                       effshare = numeric(n), 
-                       effort = numeric(n),
-                       grossValue = numeric(n), 
-                       vcost = numeric(n),
-                       stringsAsFactors = FALSE)
-    k <- 1
-    for(m in mts){
-      mt <- fl@metiers[[m]]
-      dff[k:(k+prod(Dim)-1),'effort']   <- c((fl@effort*mt@effshare)[,years,])
-      dff[k:(k+prod(Dim)-1),'effshare'] <- c(mt@effshare[,years,])
-      dff[k:(k+prod(Dim)-1),'vcost']    <- c((fl@effort*mt@effshare*mt@vcost)[,years,])
-       dff[k:(k+prod(Dim)-1),'grossValue'] <- c(Reduce('+', lapply(mt@catches, function(x) unitSums(quantSums(x@landings.n*x@price))[,years])))
-
-      k <- k + prod(Dim)
-    }
+    year = rep(years, prod(Dim[2:3])) 
+    season = rep(rep(Dimnm[[4]], each = Dim[1]), Dim[3])
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), 1)   
     
-    res <- rbind(res, dff)      
-  }}
-  else{
+    
     for(f in flnms){
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      n <- prod(Dim[-2])*length(mts)
+      fleet = rep(flnms, each = prod(Dim))
       
-      dff <-  data.frame(year = rep(years, Dim[3]*length(mts)), 
-                         fleet = rep(f, n), 
-                         metier = rep(mts, each = prod(Dim[-2])),
-                         iter = rep(rep(1:Dim[3], each = prod(Dim[1])), length(mts)),  
-                         effshare = numeric(n), 
-                         effort = numeric(n),
-                         grossValue = numeric(n), 
-                         vcost = numeric(n),
-                         stringsAsFactors = FALSE)
-      k <- 1
+      
       for(m in mts){
         mt <- fl@metiers[[m]]
-        dff[k:(k+prod(Dim[-2])-1),'effort']   <- c(seasonSums((fl@effort*mt@effshare)[,years,]))
-        dff[k:(k+prod(Dim[-2])-1),'effshare'] <- c(seasonSums(mt@effshare[,years,]))
-        dff[k:(k+prod(Dim[-2])-1),'vcost']    <- c(seasonSums(fl@effort*mt@effshare*mt@vcost)[,years,])
-        dff[k:(k+prod(Dim[-2])-1),'grossValue'] <- c(Reduce('+', lapply(mt@catches, function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years])))
+        metier = rep(m, each = prod(Dim))
         
-        k <- k + prod(Dim[-2])
+        res.fl.mt <- bind_cols(year=year, season=season,fleet=fleet,metier=metier, iter=iter,
+                               effshare=c(mt@effshare[,years,])) %>% 
+          mutate(effort=c((fl@effort[,years,])*effshare),
+                 vcost=c(mt@vcost[,years,])*effort,
+                 grossValue=c(Reduce('+', lapply(mt@catches, 
+                                                 function(x) unitSums(quantSums(x@landings.n*x@price))[,years]))))
+        
+        res <- bind_rows(res, res.fl.mt)           
       }
+    }
+  } else{
+    
+    
+    year = rep(years, Dim[3]) 
+    iter = rep(rep(1:Dim[3], each = prod(Dim[1])), 1)   
+    
+    for(f in flnms){
+      fl <- fleets[[f]]
+      mts <- names(fl@metiers)
+      fleet = rep(flnms, each = prod(Dim[-2]))
       
-      res <- rbind(res, dff)   
       
+      for(m in mts){
+        mt <- fl@metiers[[m]]
+        metier = rep(m, each = prod(Dim[-2]))
+        
+        res.fl.mt <- bind_cols(year=year,  fleet=fleet,metier=metier,iter=iter,
+                               effshare=c(seasonSums(mt@effshare[,years,]))) %>% 
+          mutate(effort=c(seasonSums((fl@effort*mt@effshare)[,years,])),
+                 vcost=c(mt@vcost[,years,])*effort,
+                 grossValue=c(Reduce('+', lapply(mt@catches,
+                                                 function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years]))))          
+        res <- bind_rows(res, res.fl.mt)           
+      }
     }
   }
-    
-  if(long == TRUE){
-     # transform res into long format
-      r1 <- ifelse(byyear == TRUE, 5,6)
-      r2 <- ifelse(byyear == TRUE, 8,9)
-      
-      names(res)[r1:r2] <- paste('indicator',names(res)[r1:r2], sep = "_")
-      res <- reshape(res, direction = 'long', varying = r1:r2, sep = "_")[,1:(r1+1)]
-      rownames(res) <- 1:dim(res)[1]
-      names(res)[r1:(r1+1)] <- c('indicator', 'value') 
-    }
-    
-    res <- cbind(scenario = scenario, res)
-    
-
+  
+  if(long == TRUE){ # transform res into long format
+    ind <- if_else(byyear == TRUE , 4,5)
+    indicator.nms <- names(res)[-c(1:ind)]
+    res <- res %>% gather(key=indicator,value=value,indicator.nms)
+  }
+  
+  res <- res  %>% mutate(scenario=scenario) %>% select(scenario, everything())
+  
   return(res)
 }
-
 
 # mtStkSumQ 
 #' @rdname bioSum
 #' @aliases mtSumQ
+
 mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
+  
+  
+  p_names <- paste("q",ifelse(nchar(substr(prob,3, nchar(prob)))==1, 
+                              paste(substr(prob,3, nchar(prob)), 0, sep = ""), 
+                              substr(prob,3, nchar(prob))), sep = "")
+  
   
   if(dim(obj)[2] < 9){ # the object is in long format
     
-    if(!('season' %in% names(obj))){
-      res <- aggregate(value ~ fleet + metier + indicator + year + scenario, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:5], data.frame(res[,6]))
-      
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      
-      names(res)[6:(6+length(prob)-1)] <- nms
-    }
-    else{
-      res <- aggregate(value ~ fleet + metier + indicator + year + scenario + season, obj, quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      res <- cbind(res[,1:6], data.frame(res[,7]))
-      
-      nms <- paste('q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      names(res)[7:(7+length(prob)-1)] <- nms
-    }
-  }
-  else{
+    if('season' %in% names(obj)){
+      res <- obj %>% dplyr::group_by(scenario, year, season, fleet, stock, scenario, indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+    }else{
+      res <- obj %>% dplyr::group_by(scenario, year,fleet, metier, indicator) %>%
+        dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
+        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)}
+  }else{
+    p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
+      purrr::set_names(nm = p_names)
     
-    if(!('season' %in% names(obj))){
-      res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, grossValue = obj$grossValue,       
-                            vcost = obj$vcost), 
-                       list(fleet = obj$fleet, metier = obj$metier, year = obj$year, scenario = obj$scenario), 
-                       quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      
-      res <- cbind(res[,1:4], 
-                   data.frame(res[,5]),  data.frame(res[,6]),  data.frame(res[,7]),  
-                   data.frame(res[,6]))
-      
-      nms1  <- paste('effort_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms2  <- paste('effshare_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms3  <- paste('grossValue_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms4  <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-       
-      names(res)[-c(1:4)] <- unlist(mget(paste('nms', 1:4, sep="")))
+    if('season' %in% names(obj)){
+      sum.nms <- names(obj)[-c(1:6)]
+      res <- obj %>% dplyr::group_by(scenario,year, season,fleet, metier) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)
     }
     else{
-      res <- aggregate(list(effort = obj$effort,  effshare = obj$effshare, vcost = obj$vcost, grossValue = obj$grossValue,       
-                            vcost = obj$vcost),                    
-                       list(fleet = obj$fleet, metier = obj$metier,  year = obj$year, season = obj$season, scenario = obj$scenario), quantile, prob = prob, na.action = na.pass, na.rm=TRUE)
-      
-      res <- cbind(res[,1:5], 
-                   data.frame(res[,6]),  data.frame(res[,7]),   data.frame(res[,8]),  data.frame(res[,9]))
-                   
-      
-      nms1  <- paste('effort_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms2  <- paste('effshare_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms3  <- paste('grossValue_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      nms4  <- paste('vcost_q',ifelse(nchar(substr(prob,3, nchar(prob)))==1, paste(substr(prob,3, nchar(prob)), 0, sep = ""), substr(prob,3, nchar(prob))), sep = "")
-      
-      names(res)[-c(1:5)] <-  unlist(mget(paste('nms', 1:4, sep="")))
-      
-    }
-  }
+      sum.nms <- names(obj)[-c(1:5)]
+      res <- obj %>% dplyr::group_by(scenario, year, fleet, metier) %>%  
+        summarise_at(c(sum.nms),.funs =  p_funs)      
+    }}
   
   return(res)
 }
-
 #------------------------------------------------------------------------------#
 # advSum :: data.frame[scenario, year, stock, iter ||,|| 
 #        catch, discards, discRat, landings, quotaUpt, tac] 
