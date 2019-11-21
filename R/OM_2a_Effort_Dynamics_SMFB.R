@@ -234,20 +234,22 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
         for(i in 1:it){
           
+       #   browser()
+          
            if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
-           else rhoi <- rho
-           
+           else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
+ 
            # Extract the i-th element form the lists. 
-            Ni      <- lapply(N,       function(x) N[[x]][,,,,,i,drop=F])
-            q.m     <- lapply(q.m,     function(x) q.m[[x]][,,,i,drop=F])
-            beta.m  <- lapply(beta.m,  function(x) beta.m[[x]][,,,i,drop=F])
-            alpha.m <- lapply(alpha.m, function(x) alpha.m[[x]][,,,i,drop=F])
-            ret.m   <- lapply(ret.m,   function(x) ret.m[[x]][,,,i,drop=F])
-            wl.m    <- lapply(wl.m,    function(x) w.l[[x]][,,,i,drop=F])
-            wd.m    <- lapply(wd.m,    function(x) w.d[[x]][,,,i,drop=F])
+            Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+            q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
+            beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
+            alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
+            ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
+            wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
+            wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
             
-            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i],  N = Ni, q.m = q.m, rho = rhoi, efs.m = efs.m[,i,drop=F], 
-                                alpha.m = alpha.m, beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m,
+            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
+                                alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,
                                 restriction = restriction, stknm = st))
         }
     }
