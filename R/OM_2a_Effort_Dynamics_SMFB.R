@@ -290,23 +290,23 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               minimis <- fleets.ctrl[[flnm]]$LandObl_minimis # logical(ny)
               yrtrans <- fleets.ctrl[[flnm]]$LandObl_yearTransfer # logical(ny)
               
-              Ni         <- lapply(N, function(x) array(x[,,,,,i], dim= c(dim(x)[c(1,3)],1)))
-              q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
-              alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
-              beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
-              wl.m.i     <- lapply(wl.m, function(x) x[,,,i,drop=F])
-              wd.m.i     <- lapply(wd.m, function(x) x[,,,i,drop=F])
-              ret.m.i    <- lapply(ret.m, function(x) x[,,,i,drop=F])
+              
+              if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+              else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
+              
+              # Extract the i-th element form the lists. 
+              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+              q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
+              beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
+              alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
+              ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
+              wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
+              wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+              
               K <- c(fl@capacity[,yr,,ss,,i,drop=T])
-              
-              if(!is.null(dim(rho))) rhoi <- rho[st,i]
-              else rhoi <- rho[st]
-              
-              names(Ni) <- names(N)
-              names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m)
-              
-             Cr.f_min_qt <- Cr.f
-             eff_min_qt <- effs[, i]
+      
+              Cr.f_min_qt <- Cr.f
+              eff_min_qt <- effs[, i]
               # Minimis and Quota transfer.
               if(minimis[yr] == TRUE | yrtrans[yr] == TRUE){
                               
@@ -327,9 +327,9 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                   Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
                                         fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i]
                   
-                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.m.i[[st]], rho =rhoi,
-                                       efs.m = efs.m[,i,drop=F], alpha.m = alpha.m.i[[st]], beta.m = beta.m.i[[st]],
-                                        ret.m = ret.m.i[[st]], wl.m = wl.m.i[[st]], wd.m = wd.m.i[[st]],
+                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.mi[[st]], rho =rhoi,
+                                       efs.m = efs.m[,i,drop=F], alpha.m = alpha.mi[[st]], beta.m = beta.mi[[st]],
+                                        ret.m = ret.mi[[st]], wl.m = wl.mi[[st]], wd.m = wd.mi[[st]],
                                         restriction = restriction)) # the restriction in landing obligation should be catch
                 }
               }
@@ -339,11 +339,11 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               
               
               # Quota Swap
-              if(!is.null(dim(rho))) rhoi <- rho[,i]
-              else rhoi <- rho
+              if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+              else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
               
-              fcube_lo <- QuotaSwap(stknms = sts, E1, Cr.f = Cr.f[,i], Cr.f_exemp = Cr.f_min_qt[,i], N = Ni, B = B[,i,drop=F], efs.m = efs.m[,i,drop=F], q.m = q.m.i, alpha.m = alpha.m.i, beta.m = beta.m.i, 
-                                      wl.m = wl.m.i, wd.m = wd.m.i, ret.m = ret.m.i, K = K, rho = rhoi, flnm = flnm, fleets.ctrl = fleets.ctrl, stks_OF = stks_OF[,i],approach = 'fcube')
+              fcube_lo <- QuotaSwap(stknms = sts, E1, Cr.f = Cr.f[,i], Cr.f_exemp = Cr.f_min_qt[,i], N = Ni, B = B[,i,drop=F], efs.m = efs.m[,i,drop=F], q.m = q.mi, alpha.m = alpha.mi, beta.m = beta.mi, 
+                                      wl.m = wl.mi, wd.m = wd.mi, ret.m = ret.mi, K = K, rho = rhoi, flnm = flnm, fleets.ctrl = fleets.ctrl, stks_OF = stks_OF[,i],approach = 'fcube')
       
               eff[i] <- fcube_lo$E
               fl@effort[,yr,,ss,,i] <- fcube_lo$E
@@ -363,10 +363,10 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               
               # update ret.m to account for the discards due to minimise exemption.
               for(st in sts){
-             # if(flnm == 'MON_OT' & yr == 41)
+              # if(flnm == 'MON_OT' & yr == 41)
               #  browser()
-                # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
-                # otherwise it is increased so that the total discards equal to min_p*Cr.f  
+              # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
+              # otherwise it is increased so that the total discards equal to min_p*Cr.f  
                 
                 Cr.f[st,i] <- ifelse(Cr.f[st,i] == 0, 1e-6, Cr.f[st,i])
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
