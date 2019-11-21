@@ -50,22 +50,22 @@ CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m, ret.m, r
 #  CobbDouglasBio.effort Cr[1], B[1], q.m,efs.m,alpha.m,beta.m :: [mt]       
 #       The function does _not_work_ with iterations
 #-------------------------------------------------------------------------------
-CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, rho = NULL, restriction = 'catch',...){
+CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, rho = NULL, restriction = 'catch',stknm,...){
   
     if(is.null(rho)){ 
       rho <- rep(1, length(N)) 
       names(rho) <- names(N)
     }
   
-    Cr      <- Cr[st]
-    N       <- N[[st]] 
-    wl.m    <- wl.m[[st]]
-    wd.m    <- wd.m[[st]]
-    ret.m   <- ret.m[[st]] 
-    q.m     <- q.m[[st]]
-    alpha.m <- alpha.m[[st]]
-    beta.m  <- beta.m[[st]] 
-    rho     <- rho[st]
+    Cr      <- Cr[stknm,]
+    N       <- N[[stknm]] 
+    wl.m    <- wl.m[[stknm]]
+    wd.m    <- wd.m[[stknm]]
+    ret.m   <- ret.m[[stknm]] 
+    q.m     <- q.m[[stknm]]
+    alpha.m <- alpha.m[[stknm]]
+    beta.m  <- beta.m[[stknm]] 
+    rho     <- rho[stknm,]
 
     fObj <- function(E.f,Cr,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m,ret.m, rho, restriction){
 
@@ -138,15 +138,15 @@ CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,be
         names(rho) <- names(N)
     }
   
-     Cr      <- Cr[st]
-     N       <- N[[st]] 
-     wl.m    <- wl.m[[st]]
-     wd.m    <- wd.m[[st]]
-     ret.m   <- ret.m[[st]] 
-     q.m     <- q.m[[st]]
-     alpha.m <- alpha.m[[st]]
-     beta.m  <- beta.m[[st]] 
-     rho     <- rho[st]
+     Cr      <- Cr[stknm,]
+     N       <- N[[stknm]] 
+     wl.m    <- wl.m[[stknm]]
+     wd.m    <- wd.m[[stknm]]
+     ret.m   <- ret.m[[stknm]] 
+     q.m     <- q.m[[stknm]]
+     alpha.m <- alpha.m[[stknm]]
+     beta.m  <- beta.m[[stknm]] 
+     rho     <- rho[stknm,]
 
 
     fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m, rho, restriction){
