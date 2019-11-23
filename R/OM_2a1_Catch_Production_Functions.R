@@ -181,8 +181,11 @@ CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,be
 
 CobbDouglasComb   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rho = 1,...){
   
-  if(dim(N)[1] == 1) res <- CobbDouglasBio(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rho = 1,...)
-  else res <- CobbDouglasAge(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rho = 1,...)
+  if(dim(N)[1] == 1) res <- CobbDouglasBio(E = E,N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m,q.m = q.m, efs.m = efs.m,
+                                           alpha.m = alpha.m, beta.m  = beta.m, rho = rho)
+  else res <- CobbDouglasAge(E = E,N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m,q.m = q.m, efs.m = efs.m,
+                             alpha.m = alpha.m, beta.m  = beta.m, rho = rho)
+
     
   return(res)
 
@@ -192,23 +195,23 @@ CobbDouglasComb   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rh
 #  CobbDouglasAge.Effort :: Cr[1], B[na,nu], efs.m[mt], q.m,alpha.m,beta.m :: [mt,na,nu] 
 #-------------------------------------------------------------------------------
 
-CobbDouglasComb.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho = 1, restriction = 'catch', QS.groups, stknm...){
+CobbDouglasComb.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho = 1, restriction = 'catch', QS.groups, stknm,...){
   
   
   # Identify the stocks in the group of stknm
   grp <- names(which(QS.groups == QS.groups[stknm]))
   
   # The TAC quota of this stocks
-  Crs <- sum(unlist(Cr[QS.groups,]))
+  Crs <- sum(unlist(Cr[grp,]))
   
-  fObj <- function(E.f,Cr,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m, rho, restriction){
+  fObj <- function(E.f,Crs,N,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m, rho, restriction, grp = grp){
     # if catch = TRUE (=> the restriction is catch not landings. )
     
     lCa.m <- sapply(grp, function(x){ 
       
-            Ca.m <- CobbDouglasAge(E = E.f, N = N[[x]], wl.m = wl.m[[x]], wd.m = wd.m[[x]], 
+            Ca.m <- CobbDouglasComb(E = E.f, N = N[[x]], wl.m = wl.m[[x]], wd.m = wd.m[[x]], 
                                            ret.m = ret.m[[x]], q.m = q.m[[x]], efs.m = efs.m, 
-                                           alpha.m = alpha.m[[x]], beta.m = beta.m[[x]], rho = rho[[x]])
+                                           alpha.m = alpha.m[[x]], beta.m = beta.m[[x]], rho = rho[x,])
             if(restriction == 'catch') Ca.m <- Ca.m
             else  Ca.m <- ret.m[[x]]*Ca.m
             
@@ -222,13 +225,13 @@ CobbDouglasComb.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,b
   
   
   Cinfs <- sapply(grp, function(x) 
-                      Cinf.x <- CobbDouglasComb(E = 1e100, Cr = Cr[x,], N = N[[x]], wl.m = wl.m[[x]], wd.m = wd.m[[x]], q.m=q.m[[x]],
-                                      efs.m=efs.m,alpha.m=alpha.m[[x]],beta.m=beta.m[[x]],  ret.m = ret.m[[x]], rho = rho[[x]]))
+                      Cinf.x <- sum(CobbDouglasComb(E = 1e100, Cr = Cr[x,], N = N[[x]], wl.m = wl.m[[x]], wd.m = wd.m[[x]], q.m=q.m[[x]],
+                                      efs.m=efs.m,alpha.m=alpha.m[[x]],beta.m=beta.m[[x]],  ret.m = ret.m[[x]], rho = rho[x,])))
     
   if((sum(Crs) - sum(Cinfs))> 0) # Even with infinity effort it is not possible to catch the quota => return 'almost' infinity effort.
       return(effort = 1e100)
   
-  NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Cr,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, rho = rho,  restriction = restriction, ret.m = ret.m, tol = 1e-12)$root
+  NomEff <- uniroot(fObj,interval=c(0,1e100),Cr=Crs,N=N, wl.m = wl.m, wd.m = wd.m, q.m=q.m,efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, rho = rho,  restriction = restriction, ret.m = ret.m, tol = 1e-12, grp = grp)$root
   
   return(effort =  NomEff)
 }

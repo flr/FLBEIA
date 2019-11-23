@@ -600,57 +600,11 @@ CorrectCatch <- function(fleets, biols, BDs, biols.ctrl,fleets.ctrl, year = 1, s
 
 
                             
-
-##-------------------------------------------------------------------------------
-## CobbDouglasBio.CatchFleet(effort, Ba, q.m, efs.m, alpha.m, beta.m)
-##-------------------------------------------------------------------------------
-#CobbDouglasBio.CatchFleet <- function(effort, N, wl.m, wd.m, ret.m, q.m, efs.m, alpha.m, beta.m,...){
-#
-#    nmt <- dim(efs.m)[1]
-#    it  <- dim(efs.m)[2]
-#
-#   ## Redimensionate all the objects into dimension [nmt,it]
-#
-#    # dim(q.m) = dim(alpha.m) = dim(beta.m) = [nmt,na,nu,it]
-#    q.m     <- matrix(q.m[,,,,drop=TRUE],nmt,it)      # [nmt,it]
-#    alpha.m <- matrix(alpha.m[,,,,drop=TRUE],nmt,it)  # [nmt,it]
-#    beta.m  <- matrix(beta.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
-#    wl.m     <- matrix(wl.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
-#    wd.m     <- matrix(wd.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
-#    ret.m     <- matrix(ret.m[,,,,drop=TRUE],nmt,it)   # [nmt,it]
-#    # dim(B) = dim(effort) = [it]
-#    N       <- matrix(N, nmt, it, byrow = TRUE)      # [nmt,it]
-#    effort  <- matrix(effort, nmt, it, byrow = TRUE) # [nmt,it]
-#
-#    catch <- apply(q.m*(effort*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m,2,sum) # sum catch along metiers
-#
-#    return(catch)
-#}
-#
-##
-###-------------------------------------------------------------------------------
-### CobbDouglasAge.CatchFleet(effort, Ba, q.m, efs.m, alpha.m, beta.m)
-###-------------------------------------------------------------------------------
-#CobbDouglasAge.CatchFleet <- function(effort, N, ret.m, wl.m, wd.m, q.m, efs.m, alpha.m, beta.m,...){
-#
-#    dimq  <- dim(q.m)
-#    zz    <- ifelse(dimq == 1, FALSE, TRUE)
-#
-#    N <- array(N, dim = c(dim(q.m)[2:4], dim(q.m)[1]))  # [na,nuYYY?,itYYY?,mt]
-#    N <- aperm(N, c(4,1:3))  # [mt,na,nu,it]
-#
-#    effort <- array(effort, dim = c(length(effort), dim(q.m)[1:3])) # [it,mt,na,nu]
-#    effort <- aperm(effort, c(2:4,1))  # [mt,na,nu,it]
-#
-#    efs.m <- array(efs.m, dim = c(dim(efs.m), dimq[2:3]))
-#    efs.m <- aperm(efs.m, c(1,3:4,2))
-#
-#    catch <- apply(q.m*(effort*efs.m)^alpha.m*(N*(ret.m*wl.m + (1-ret.m)*wd.m))^beta.m, 4,sum)
-#
-#    return(catch)
-#}
-#
-#
-#
-#
-##
+#-------------------------------------------------------------------------------
+# CobbDouglasCom.CAA(fleets, biols, year = 1, season = 1)
+#-------------------------------------------------------------------------------
+CobbDouglasComb.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
+  
+  if(dim(biols[[stknm]]@n)[1] > 1) return(CobbDouglasAge.CAA(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year, season, flnm, stknm))
+  if(dim(biols[[stknm]]@n)[1] == 1) return(CobbDouglasBio.CAA(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year, season, flnm, stknm))
+}
