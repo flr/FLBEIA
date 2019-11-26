@@ -262,7 +262,8 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     catch.wt(stck)     <- (stck@landings.n*stck@landings.wt + stck@discards.n*stck@discards.wt)/(stck@landings.n + stck@discards.n)
     
     # If catch.n = 0 => catch.wt = NaN in the previous line => we set it equ
-    catch.wt(stck)[catch.n(stck) == 0] <- (landings.wt(stck)[landings.n(stck) == 0] + landings.wt(stck)[landings.n(stck) == 0])/2
+    catch.wt(stck)[!is.na(catch.n(stck)) & catch.n(stck) == 0] <- (landings.wt(stck)[!is.na(catch.n(stck)) & catch.n(stck) == 0] + 
+                                                                   discards.wt(stck)[!is.na(catch.n(stck)) & catch.n(stck) == 0])/2
     
  #   stck@harvest      <- FLQuant(NA,dim=c(na,ny,1,1,1,it), dimnames=list(age=biol@range[1]:biol@range[2], year=biol@range[4]:ny, unit='unique', season='all', area='unique', iter=1:it))
 

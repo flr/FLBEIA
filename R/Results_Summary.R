@@ -764,10 +764,10 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
     
     for (f in flnms) {
       
-      f <- names(fleets) #loop
+ #     f <- names(fleets) #loop
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet = rep(flnms, each = prod(Dim))
+      fleet <- rep(f, each = prod(Dim))
       
       temp.catch <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
       temp.landings <- lapply(catchNames(fl), function(x) quantSums(unitSums(landWStock.f(fl, x))))
@@ -817,10 +817,10 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
     
     for (f in flnms) {
       
-      f <- names(fleets) #loop
+ #     f <- names(fleets) #loop
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet = rep(flnms, each = prod(Dim))
+      fleet <- rep(f, each = prod(Dim))
       
       temp.catch <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
       temp.landings <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(landWStock.f(fl, x)))))

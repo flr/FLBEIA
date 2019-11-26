@@ -66,7 +66,7 @@ Obs.stk.nage <- function(biol, ages.error, stk.nage.error, yr)
                 }
             }
 
-            obs.num            <- obs.num*stk.nage.error[,1:ny,]
+            obs.num            <- FLQuant(obs.num[drop=T]*stk.nage.error[,1:ny,], dimnames = dimnames(obs.num))
              return(obs.num)
             }
 
