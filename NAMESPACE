@@ -3,7 +3,7 @@ import("FLFleet")
 import("methods")
 import("tidyverse")
 import("arrayhelpers")
-importFrom("dplyr", "as.tbl","%>%","bind_cols", "bind_rows", "filter", "full_join", "group_by", "mutate","mutate_at", "select", "summarise_at", "ungroup")
+importFrom("dplyr", "as.tbl","%>%","bind_cols", "bind_rows", "filter", "full_join", "group_by", "mutate","mutate_at", "select", "summarise_at", "ungroup", "if_else")
 importFrom("tidyr", "spread", "gather")
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("stats", "aggregate", "anova", "as.formula", "coef", "cor",
