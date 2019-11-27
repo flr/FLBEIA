@@ -1043,9 +1043,9 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       sts   <- stknms[stknms %in% stfl]
       
       for(st in sts){
-        f <- names(fleets) #loop
+ 
         fl <- fleets[[f]]
-        fleet = rep(flnms, each = prod(Dim))
+        fleet = rep(f, each = prod(Dim))
         stock = rep(sts, each = prod(Dim))
         
         res.fl.st <- bind_cols(year=year, season=season,fleet=fleet, stock=stock,iter=iter,
@@ -1068,7 +1068,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       fl   <- fleets[[f]]
       stfl <- catchNames(fl)        
       sts   <- stknms[stknms %in% stfl]
-      fleet = rep(flnms, each = prod(Dim))
+      fleet = rep(f, each = prod(Dim))
       
       for(st in sts){
         
@@ -1203,7 +1203,7 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
       
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet = rep(flnms, each = prod(Dim))
+      fleet = rep(f, each = prod(Dim))
       
       
       for(m in mts){
@@ -1241,7 +1241,7 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
       
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet = rep(flnms, each = prod(Dim))
+      fleet = rep(f, each = prod(Dim))
       
       for(m in mts){
         
@@ -1362,7 +1362,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
     for(f in flnms){
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet = rep(flnms, each = prod(Dim))
+      fleet = rep(f, each = prod(Dim))
       
       
       for(m in mts){
@@ -1388,7 +1388,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
     for(f in flnms){
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet = rep(flnms, each = prod(Dim[-2]))
+      fleet = rep(f, each = prod(Dim[-2]))
       
       
       for(m in mts){
