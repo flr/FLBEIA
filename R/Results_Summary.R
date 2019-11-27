@@ -1046,7 +1046,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
  
         fl <- fleets[[f]]
         fleet = rep(f, each = prod(Dim))
-        stock = rep(sts, each = prod(Dim))
+        stock = rep(st, each = prod(Dim))
         
         res.fl.st <- bind_cols(year=year, season=season,fleet=fleet, stock=stock,iter=iter,
                                catch= c(apply(catchWStock.f(fl, st),c(2,4,6), sum)[,years]),
@@ -1072,7 +1072,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       
       for(st in sts){
         
-        stock = rep(sts, each = prod(Dim))
+        stock = rep(st, each = prod(Dim))
         
         res.fl.st <- bind_cols(year=year,fleet=fleet, stock=stock, iter=iter,
                                catch= c(apply(catchWStock.f(fl, st),c(2,6), sum)[,years]),
