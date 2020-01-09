@@ -274,13 +274,9 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     za <- Ma+fa
     
     # middle ages
-    # biol@n[-c(1,na),yr,,ss] <- (biol@n[-c(na-1,na),yr-1,,ns]*exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) - catch.n[-c(na-1,na),])*
-    #   exp(-biol@m[-c(na-1,na),yr-1,,ns]/2)
     biol@n[-c(1,na),yr,,ss] <- biol@n[-c(na-1,na),yr-1,,ns]*exp(-za[-c(na-1,na),,,,,])
     # plusgroup
     biol@n[na,yr,,ss]       <- biol@n[na-1,yr-1,,ns]*exp(-za[na-1,,,,,])+biol@n[na,yr-1,,ns]*exp(-za[na,,,,,])
-    #(biol@n[na-1,yr-1,,ns]*exp(-biol@m[na-1,yr-1,,ns]/2) - catch.n[na-1,])*exp(-biol@m[na-1,yr-1,,ns]/2) + 
-    #   (biol@n[na,yr-1,,ns]*exp(-biol@m[na,yr-1,,ns]/2) - catch.n[na,])*exp(-biol@m[na,yr-1,,ns]/2)
     # 
   }
   else{
@@ -304,7 +300,6 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     
     # middle ages      # for unit == ss  and age = 1, it will be equal NA but be updated after with SRsim.
     biol@n[,yr,,ss] <- biol@n[,yr,,ss-1]*exp(-za)
-    #biol@n[,yr,,ss] <- (biol@n[,yr,,ss-1]*exp(-biol@m[,yr,,ss-1]/2) - catch.n)*exp(-biol@m[,yr,,ss-1]/2) 
   }
   
   # Update SSB.
