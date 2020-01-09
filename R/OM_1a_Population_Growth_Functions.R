@@ -241,14 +241,10 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
   
   na <- dim(biol@n)[1]
   ns <- dim(biol@n)[4]
+  ni <- dim(biol@n)[6]
   stock <- biol@name
   
-  findF <- function(E, qa, Ca, Ma, Na){
-    Ca. <- (Fa/(Fa+Ma))*(1-exp(-Ma-Fa))*Na
-    res <- sum((Ca.-Ca)^2)
-    return(res)
-  }
-  
+
   # IF season = 1 THEN age groups move to the next. 
   if(ss == 1){
     # total catch in year [y-1] season [ns].
@@ -267,16 +263,22 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     Ma <- unname(unclass(biol@m[,yr-1,,ns]))
     Na <- unname(unclass(biol@n[,yr-1,,ns]))
     Ca <- unname(unclass(catch.n))
-    fa <- NULL
+    fa <- Ma # the same dimensions as Ma
+    fa[] <- NA
     
-    for (a in 1:na)  fa[a] <- uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,],Ma=Ma[a,,,,,], Na=Na[a,,,,,], tol = 1e-12,extendInt = "yes")$root
     
+    loop.uniroot <- function(i) {
+      uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,i],Ma=Ma[a,,,,,i], Na=Na[a,,,,,i], tol = 1e-12,extendInt = "yes")$root
+    }
+
+    for (a in 1:na) fa[a,,,,,] <- vapply(1:ni, loop.uniroot, numeric(1))
+ 
     za <- Ma+fa
     
     # middle ages
-    biol@n[-c(1,na),yr,,ss] <- biol@n[-c(na-1,na),yr-1,,ns]*exp(-za[-c(na-1,na),,,,,])
+    biol@n[-c(1,na),yr,,ss] <- biol@n[-c(na-1,na),yr-1,,ns]*exp(-za[-c(na-1,na),,,,,,drop=F])
     # plusgroup
-    biol@n[na,yr,,ss]       <- biol@n[na-1,yr-1,,ns]*exp(-za[na-1,,,,,])+biol@n[na,yr-1,,ns]*exp(-za[na,,,,,])
+    biol@n[na,yr,,ss]       <- biol@n[na-1,yr-1,,ns]*exp(-za[na-1,,,,,,drop=F])+biol@n[na,yr-1,,ns]*exp(-za[na,,,,,,drop=F])
     # 
   }
   else{
@@ -292,9 +294,15 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     Ma <- unname(unclass(biol@m[,yr,,ss-1]))
     Na <- unname(unclass(biol@n[,yr,,ss-1]))
     Ca <- unname(unclass(catch.n[,yr,,ss-1]))
-    fa <- NULL
+    fa <- Ma # the same dimensions as Ma
+    fa[] <- NA
     
-    for (a in 1:na)  fa[a] <- uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,],Ma=Ma[a,,,,,], Na=Na[a,,,,,], tol = 1e-12,extendInt = "yes")$root
+    
+    loop.uniroot <- function(i) {
+      uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,i],Ma=Ma[a,,,,,i], Na=Na[a,,,,,i], tol = 1e-12,extendInt = "yes")$root
+    }
+    
+    for (a in 1:na) fa[a,,,,,] <- vapply(1:ni, loop.uniroot, numeric(1))
     
     za <- Ma+fa
     
