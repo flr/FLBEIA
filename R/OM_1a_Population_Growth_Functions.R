@@ -254,20 +254,57 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     # total catch in year [y-1] season [ns].
     catch.n <- catchStock(fleets,stock)[,yr-1,,ns]
     
+    Ca <-     catch.n <- catchStock(fleets,stock)[,yr-1,,ns]
+    
+    findF <- function(Fa,Ca, Ma, Na){
+      Ca. <- (Fa/(Fa+Ma))*(1-exp(-Ma-Fa))*Na
+      res <- sum(Ca.)-sum(Ca)
+      return(res)
+    }
+    
+    
+    catch.n <- catchStock(fleets,stock)[,yr-1,,ns]
+    Ma <- unname(unclass(biol@m[,yr-1,,ns]))
+    Na <- unname(unclass(biol@n[,yr-1,,ns]))
+    Ca <- unname(unclass(catch.n))
+    fa <- NULL
+    
+    for (a in 1:na)  fa[a] <- uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,],Ma=Ma[a,,,,,], Na=Na[a,,,,,], tol = 1e-12,extendInt = "yes")$root
+    
+    za <- Ma+fa
     
     # middle ages
-    biol@n[-c(1,na),yr,,ss] <- (biol@n[-c(na-1,na),yr-1,,ns]*exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) - catch.n[-c(na-1,na),])*
-      exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) 
+    # biol@n[-c(1,na),yr,,ss] <- (biol@n[-c(na-1,na),yr-1,,ns]*exp(-biol@m[-c(na-1,na),yr-1,,ns]/2) - catch.n[-c(na-1,na),])*
+    #   exp(-biol@m[-c(na-1,na),yr-1,,ns]/2)
+    biol@n[-c(1,na),yr,,ss] <- biol@n[-c(na-1,na),yr-1,,ns]*exp(-za[-c(na-1,na),,,,,])
     # plusgroup
-    biol@n[na,yr,,ss]       <- (biol@n[na-1,yr-1,,ns]*exp(-biol@m[na-1,yr-1,,ns]/2) - catch.n[na-1,])*exp(-biol@m[na-1,yr-1,,ns]/2) + 
-      (biol@n[na,yr-1,,ns]*exp(-biol@m[na,yr-1,,ns]/2) - catch.n[na,])*exp(-biol@m[na,yr-1,,ns]/2)
-    
+    biol@n[na,yr,,ss]       <- biol@n[na-1,yr-1,,ns]*exp(-za[na-1,,,,,])+biol@n[na,yr-1,,ns]*exp(-za[na,,,,,])
+    #(biol@n[na-1,yr-1,,ns]*exp(-biol@m[na-1,yr-1,,ns]/2) - catch.n[na-1,])*exp(-biol@m[na-1,yr-1,,ns]/2) + 
+    #   (biol@n[na,yr-1,,ns]*exp(-biol@m[na,yr-1,,ns]/2) - catch.n[na,])*exp(-biol@m[na,yr-1,,ns]/2)
+    # 
   }
   else{
     # total catch in year [yr] season [ss-1].
+    
+    findF <- function(Fa,Ca, Ma, Na){
+      Ca. <- (Fa/(Fa+Ma))*(1-exp(-Ma-Fa))*Na
+      res <- sum(Ca.)-sum(Ca)
+      return(res)
+    }
+    
     catch.n <- catchStock(fleets,stock)[,yr,,ss-1]
+    Ma <- unname(unclass(biol@m[,yr,,ss-1]))
+    Na <- unname(unclass(biol@n[,yr,,ss-1]))
+    Ca <- unname(unclass(catch.n[,yr,,ss-1]))
+    fa <- NULL
+    
+    for (a in 1:na)  fa[a] <- uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,],Ma=Ma[a,,,,,], Na=Na[a,,,,,], tol = 1e-12,extendInt = "yes")$root
+    
+    za <- Ma+fa
+    
     # middle ages      # for unit == ss  and age = 1, it will be equal NA but be updated after with SRsim.
-    biol@n[,yr,,ss] <- (biol@n[,yr,,ss-1]*exp(-biol@m[,yr,,ss-1]/2) - catch.n)*exp(-biol@m[,yr,,ss-1]/2) 
+    biol@n[,yr,,ss] <- biol@n[,yr,,ss-1]*exp(-za)
+    #biol@n[,yr,,ss] <- (biol@n[,yr,,ss-1]*exp(-biol@m[,yr,,ss-1]/2) - catch.n)*exp(-biol@m[,yr,,ss-1]/2) 
   }
   
   # Update SSB.
