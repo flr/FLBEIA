@@ -373,7 +373,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @param flnms Names of the fleet for which the indicators will be calculated.
 #' @param stknms Names of the stock for which the indicators will be calculated.
 #' @param years the names of the years for which the indicators will be calculated. 
-#' @param long logical. The data frame should be constructed using long or wide format? Default TRUE.
+#' @param long logical. The data frame should be constructed using long or wide format? Default FALSE.
 #' @param byyear logical. The indicators should be provided at season or year level? Default TRUE.
 #' @param ssb_season If byyear = TRUE, the season in which ssb will be taken.
 #' @param prob a numeric vector with the probabilities used to calculate the quantiles. 
@@ -393,10 +393,14 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' # Test the different arguments in summary function.
 #' 
 #' data(res_flbeia)
-# 
+#' 
+#' 
 #' #------------------------------------------------
 #' # Example One: One stock, one fleet, one iter.
 #' #------------------------------------------------
+#' 
+#' # Wide format (default)
+#' 
 #' oneRes_bio    <- bioSum(oneRes)
 #' oneRes$fleets[[1]] <- setUnitsNA(oneRes$fleets[[1]]) 
 #' oneRes_flt    <- fltSum(oneRes)
@@ -426,7 +430,8 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' head(oneRes_mtStkQ)
 #' head(oneRes_advQ)
 #' 
-#' # Wide format
+#' # Long format for a range of years
+#' 
 #' oneRes_bio    <- bioSum(oneRes, long = TRUE, years = ac(2016:2020))
 #' oneRes_flt    <- fltSum(oneRes, long = TRUE, years = ac(2016:2020))
 #' oneRes_fltStk <- fltStkSum(oneRes, long = TRUE, years = ac(2016:2020))
@@ -455,15 +460,15 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' head(oneRes_mtStk)
 #' head(oneRes_adv)
 #' 
-#' # Wide format with seasonal disaggregation. No seasonal disagregation available for
-#' #  adv summaries.
+#' # Wide format with seasonal disaggregation 
+#' # (Note: No seasonal disagregation available for adv summaries)
 #' 
-#' oneRes_bio    <- bioSum(oneRes, long = FALSE, byyear = FALSE) # Biol summary is only by year.
-#' oneRes_flt    <- fltSum(oneRes, long = FALSE, byyear = FALSE)
-#' oneRes_fltStk <- fltStkSum(oneRes, long = FALSE, byyear = FALSE)
-#' oneRes_mt     <- mtSum(oneRes, long = FALSE, byyear = FALSE)
-#' oneRes_mtStk  <- mtStkSum(oneRes, long = FALSE, byyear = FALSE)
-#' oneRes_adv    <- advSum(oneRes, long = FALSE) # Advice summary is only by year.
+#' oneRes_bio    <- bioSum(oneRes, byyear = FALSE)
+#' oneRes_flt    <- fltSum(oneRes, byyear = FALSE)
+#' oneRes_fltStk <- fltStkSum(oneRes, byyear = FALSE)
+#' oneRes_mt     <- mtSum(oneRes, byyear = FALSE)
+#' oneRes_mtStk  <- mtStkSum(oneRes, byyear = FALSE)
+#' oneRes_adv    <- advSum(oneRes) # Advice summary is only by year.
 #' 
 #' oneRes_bioQ    <- bioSumQ(oneRes_bio)
 #' oneRes_fltQ    <- fltSumQ(oneRes_flt)
@@ -471,7 +476,10 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' oneRes_mtQ     <- mtSumQ(oneRes_mt)
 #' oneRes_mtStkQ  <- mtStkSumQ(oneRes_mtStk)
 #' oneRes_advQ    <- advSumQ(oneRes_adv)
-#' # #  # Long format and seasonaloneRes_bio    <- bioSum(oneRes, long = TRUE) # Biol summary is only by year.
+#' 
+#' # Long format and seasonal
+#' 
+#' oneRes_bio    <- bioSum(oneRes, long = TRUE)
 #' oneRes_flt    <- fltSum(oneRes, long = TRUE, byyear = FALSE)
 #' oneRes_fltStk <- fltStkSum(oneRes, long = TRUE, byyear = FALSE)
 #' oneRes_mt     <- mtSum(oneRes, long = TRUE, byyear = FALSE)
@@ -489,6 +497,9 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' #------------------------------------------------
 #' # Example OneIt: As one but with iterations.
 #' #------------------------------------------------
+#' 
+#' # Wide format (default)
+#' 
 #' oneItRes_bio    <- bioSum(oneItRes, scenario = 'with_iters')
 #' oneItRes$fleets[[1]] <- setUnitsNA(oneItRes$fleets[[1]])
 #' oneItRes_flt    <- fltSum(oneItRes, scenario = 'with_iters')
@@ -504,12 +515,14 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
 #' oneItRes_advQ    <- advSumQ(oneItRes_adv)
 #' 
-#' oneItRes_bio    <- bioSum(oneItRes, long = FALSE, years = ac(2016:2020))
-#' oneItRes_flt    <- fltSum(oneItRes, long = FALSE, years = ac(2016:2020))
-#' oneItRes_fltStk <- fltStkSum(oneItRes, long = FALSE, years = ac(2016:2020))
-#' oneItRes_mt     <- mtSum(oneItRes, long = FALSE, years = ac(2016:2020))
-#' oneItRes_mtStk  <- mtStkSum(oneItRes, long = FALSE, years = ac(2016:2020))
-#' oneItRes_adv    <- advSum(oneItRes, long = FALSE, years = ac(2016:2020))
+#' # Long format for a range of years
+#' 
+#' oneItRes_bio    <- bioSum(oneItRes, long = TRUE, years = ac(2016:2020))
+#' oneItRes_flt    <- fltSum(oneItRes, long = TRUE, years = ac(2016:2020))
+#' oneItRes_fltStk <- fltStkSum(oneItRes, long = TRUE, years = ac(2016:2020))
+#' oneItRes_mt     <- mtSum(oneItRes, long = TRUE, years = ac(2016:2020))
+#' oneItRes_mtStk  <- mtStkSum(oneItRes, long = TRUE, years = ac(2016:2020))
+#' oneItRes_adv    <- advSum(oneItRes, long = TRUE, years = ac(2016:2020))
 #' 
 #'
 #' oneItRes_bioQ    <- bioSumQ(oneItRes_bio)
@@ -519,13 +532,15 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
 #' oneItRes_advQ    <- advSumQ(oneItRes_adv)
 #' 
+#' # Wide format with seasonal disaggregation 
+#' # (Note: No seasonal disagregation available for adv summaries)
 #' 
-#' oneItRes_bio    <- bioSum(oneItRes, long = FALSE) # Biol summary is only by year.
-#' oneItRes_flt    <- fltSum(oneItRes, long = FALSE, byyear = FALSE)
-#' oneItRes_fltStk <- fltStkSum(oneItRes, long = FALSE, byyear = FALSE)
-#' oneItRes_mt     <- mtSum(oneItRes, long = FALSE, byyear = FALSE)
-#' oneItRes_mtStk  <- mtStkSum(oneItRes, long = FALSE, byyear = FALSE)
-#' oneItRes_adv    <- advSum(oneItRes, long = FALSE) # Advice summary is only by year.
+#' oneItRes_bio    <- bioSum(oneItRes, byyear = FALSE)
+#' oneItRes_flt    <- fltSum(oneItRes, byyear = FALSE)
+#' oneItRes_fltStk <- fltStkSum(oneItRes, byyear = FALSE)
+#' oneItRes_mt     <- mtSum(oneItRes, byyear = FALSE)
+#' oneItRes_mtStk  <- mtStkSum(oneItRes, byyear = FALSE)
+#' oneItRes_adv    <- advSum(oneItRes) # Advice summary is only by year.
 #' 
 #' oneItRes_bioQ    <- bioSumQ(oneItRes_bio)
 #' oneItRes_fltQ    <- fltSumQ(oneItRes_flt)
@@ -534,6 +549,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' oneItRes_mtStkQ  <- mtStkSumQ(oneItRes_mtStk)
 #' oneItRes_advQ    <- advSumQ(oneItRes_adv)
 #' 
+#' # Long format and seasonal
 #' 
 #' oneItRes_bio    <- bioSum(oneItRes, long = TRUE) # Biol summary is only by year.
 #' oneItRes_flt    <- fltSum(oneItRes, long = TRUE, byyear = FALSE)
@@ -554,9 +570,13 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' 
 #' oneItRes_npv  <- npv(oneItRes, y0 = '2014')
 #' 
+#' 
 #' #------------------------------------------------
 #' # Example Multi: Two stock, two fleet, four iters.
 #' #------------------------------------------------
+#' 
+#' # Wide format (default)
+#' 
 #' multiRes_bio    <- bioSum(multiRes)
 #' multiRes$fleets <- FLFleetsExt(lapply(multiRes$fleets, function(x) setUnitsNA(x)))
 #' multiRes_flt    <- fltSum(multiRes)
@@ -572,28 +592,14 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
 #' multiRes_advQ    <- advSumQ(multiRes_adv)
 #' 
-#' multiRes_bio    <- bioSum(multiRes, long = FALSE, years = ac(2016:2020))
-#' multiRes_flt    <- fltSum(multiRes, long = FALSE, years = ac(2016:2020))
-#' multiRes_fltStk <- fltStkSum(multiRes, long = FALSE, years = ac(2016:2020))
-#' multiRes_mt     <- mtSum(multiRes, long = FALSE, years = ac(2016:2020))
-#' multiRes_mtStk  <- mtStkSum(multiRes, long = FALSE, years = ac(2016:2020))
-#' multiRes_adv    <- advSum(multiRes, long = FALSE, years = ac(2016:2020))
+#' # Long format for a range of years
 #' 
-#' 
-#' multiRes_bioQ    <- bioSumQ(multiRes_bio)
-#' multiRes_fltQ    <- fltSumQ(multiRes_flt)
-#' multiRes_fltStkQ <- fltStkSumQ(multiRes_fltStk)
-#' multiRes_mtQ     <- mtSumQ(multiRes_mt)
-#' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
-#' multiRes_advQ    <- advSumQ(multiRes_adv)
-#' 
-#' 
-#' multiRes_bio    <- bioSum(multiRes, long = FALSE, byyear = FALSE)
-#' multiRes_flt    <- fltSum(multiRes, long = FALSE, byyear = FALSE)
-#' multiRes_fltStk <- fltStkSum(multiRes, long = FALSE, byyear = FALSE)
-#' multiRes_mt     <- mtSum(multiRes, long = FALSE, byyear = FALSE)
-#' multiRes_mtStk  <- mtStkSum(multiRes, long = FALSE, byyear = FALSE)
-#' multiRes_adv    <- advSum(multiRes, long = FALSE) # Advice summary is only by year.
+#' multiRes_bio    <- bioSum(multiRes, long = TRUE, years = ac(2016:2020))
+#' multiRes_flt    <- fltSum(multiRes, long = TRUE, years = ac(2016:2020))
+#' multiRes_fltStk <- fltStkSum(multiRes, long = TRUE, years = ac(2016:2020))
+#' multiRes_mt     <- mtSum(multiRes, long = TRUE, years = ac(2016:2020))
+#' multiRes_mtStk  <- mtStkSum(multiRes, long = TRUE, years = ac(2016:2020))
+#' multiRes_adv    <- advSum(multiRes, long = TRUE, years = ac(2016:2020))
 #' 
 #' multiRes_bioQ    <- bioSumQ(multiRes_bio)
 #' multiRes_fltQ    <- fltSumQ(multiRes_flt)
@@ -602,6 +608,24 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
 #' multiRes_advQ    <- advSumQ(multiRes_adv)
 #' 
+#' # Wide format with seasonal disaggregation 
+#' # (Note: No seasonal disagregation available for adv summaries)
+#' 
+#' multiRes_bio    <- bioSum(multiRes, byyear = FALSE)
+#' multiRes_flt    <- fltSum(multiRes, byyear = FALSE)
+#' multiRes_fltStk <- fltStkSum(multiRes, byyear = FALSE)
+#' multiRes_mt     <- mtSum(multiRes, byyear = FALSE)
+#' multiRes_mtStk  <- mtStkSum(multiRes, byyear = FALSE)
+#' multiRes_adv    <- advSum(multiRes) # Advice summary is only by year.
+#' 
+#' multiRes_bioQ    <- bioSumQ(multiRes_bio)
+#' multiRes_fltQ    <- fltSumQ(multiRes_flt)
+#' multiRes_fltStkQ <- fltStkSumQ(multiRes_fltStk)
+#' multiRes_mtQ     <- mtSumQ(multiRes_mt)
+#' multiRes_mtStkQ  <- mtStkSumQ(multiRes_mtStk)
+#' multiRes_advQ    <- advSumQ(multiRes_adv)
+#' 
+#' # Long format and seasonal
 #' 
 #' multiRes_bio    <- bioSum(multiRes, long = TRUE, byyear = FALSE)
 #' multiRes_flt    <- fltSum(multiRes, long = TRUE, byyear = FALSE)
