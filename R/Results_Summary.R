@@ -1056,6 +1056,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                                discards= c(apply(discWStock.f(fl, st),c(2,4,6), sum)[,years])) %>% 
           mutate(discRat=discards/catch,
                  price=c(price_flbeia(fl, st)[,years]),
+                 tacshare=c(advice$quota.share[[st]][f,][,years]),
                  quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
                  quotaUpt=catch/quota)
         res <- bind_rows(res,res.fl.st)
@@ -1082,6 +1083,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                                discards= c(apply(discWStock.f(fl, st),c(2,6), sum)[,years])) %>% 
           mutate(discRat=discards/catch,
                  price=c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(unitSums(landWStock.f(fl, st)[,years])))/landings),
+                 tacshare=c(advice$quota.share[[st]][f,][,years]),
                  quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
                  quotaUpt=catch/quota)
         res <- bind_rows(res,res.fl.st)
