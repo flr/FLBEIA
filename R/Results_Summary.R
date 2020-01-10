@@ -728,7 +728,7 @@ bioSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
 #' @aliases fltSum
 #' @param InterestRate Capital oportunity cost rate.
 
-fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = TRUE, InterestRate = 0.03,scenario = 'bc')
+fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = FALSE, InterestRate = 0.03,scenario = 'bc')
 {
   
   fleets <- obj$fleets
@@ -1012,7 +1012,7 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 #' @aliases fltStkSum
-fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
+fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = FALSE, scenario = 'bc'){
   
   fleets <- obj$fleets
   advice <- obj$advice
@@ -1046,7 +1046,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       
       for(st in sts){
  
-        fl <- fleets[[f]]
+        # fl <- fleets[[f]]
         fleet = rep(f, each = prod(Dim))
         stock = rep(st, each = prod(Dim))
         
@@ -1174,7 +1174,7 @@ price_flbeia <- function(fleet, stock){
 #' @rdname bioSum
 #' @aliases mtStkSum
 mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), 
-                     years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
+                     years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = FALSE, scenario = 'bc'){
   
   
   fleets <- obj$fleets
@@ -1335,7 +1335,7 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 mtSum <- function(obj, flnms = names(obj$fleets),
                   years = dimnames(obj$biols[[1]]@n)[[2]], 
-                  byyear = TRUE, long = TRUE, scenario = 'bc'){
+                  byyear = TRUE, long = FALSE, scenario = 'bc'){
   
   fleets <- obj$fleets
   
@@ -1527,7 +1527,7 @@ advSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
 }
 
 #----------------------------------------------------------------------
-# riskSum(obj, stocks, fleets, years, long)
+# riskSum(obj, stknms, Bpa, Blim, Prflim, flnms, years, scenario)
 # Bpa = a named vector with the precautionary biomass per stock.
 # Blim = a named vector with the limit biomass per stock.
 # Prflim = a named vector with the limit profit per fleet.
@@ -1636,7 +1636,7 @@ npvQ <- function(obj, prob = c(0.05,0.5,0.95)){
 #----------------------------------------------------------------------
 #' @rdname bioSum
 #' @aliases vesselSum
-vesselSum <- function(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = TRUE, scenario = 'bc'){
+vesselSum <- function(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year, byyear = TRUE, long = FALSE, scenario = 'bc'){
   
   flS <- fltSum(obj, flnms = flnms, years = years, byyear = byyear, long = long, scenario = scenario)
   
@@ -1786,7 +1786,7 @@ return(res)
 #----------------------------------------------------------------------
 #' @rdname bioSum
 #' @aliases vesselStkSum
-vesselStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = TRUE, scenario = 'bc'){
+vesselStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = FALSE, scenario = 'bc'){
   
   fleets <- obj$fleets
   covars <- obj$covars
