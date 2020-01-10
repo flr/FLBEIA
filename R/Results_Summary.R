@@ -684,13 +684,13 @@ bioSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
     if('season' %in% names(obj))
       res <- obj %>% dplyr::group_by(stock, year, season, scenario, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, probs=probs, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     
     else
       
       res <- obj %>% dplyr::group_by(stock, year, scenario, indicator) %>% 
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, probs=probs, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     
   }
   else{
@@ -801,9 +801,11 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       temp <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
       temp <- Reduce('+',temp)[,years]
       totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
-      res.fl <- res.fl %>% mutate(quotaUpt=case_when(
-        dim(temp)[4] >1 ~ c(sweep(temp, c(1:3,5:6),totTAC/dim(temp)[4], "/")),
-        TRUE~ c(temp/totTAC)))
+      if (dim(temp)[4] >1) {
+        res.fl <- res.fl %>% mutate(quotaUpt = c(sweep(temp, c(1:3,5:6),totTAC/dim(temp)[4], "/")))
+      } else {
+        res.fl <- res.fl %>% mutate(quotaUpt =  c(temp/totTAC))
+      }
       res <- bind_rows(res,res.fl)
     }
   }else{
@@ -811,8 +813,8 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
     res <- NULL
     res.fl <- NULL
     
-    year = rep(years, prod(Dim[3])) 
-    iter = rep(rep(1:Dim[3], each = prod(Dim[1])), 1)   
+    year = rep(years, Dim[3]) 
+    iter = rep(rep(1:Dim[3], each = Dim[1]), 1)   
     
     
     for (f in flnms) {
@@ -820,7 +822,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
  #     f <- names(fleets) #loop
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet <- rep(f, each = prod(Dim))
+      fleet <- rep(f, each = prod(Dim[-2]))
       
       temp.catch <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
       temp.landings <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(landWStock.f(fl, x)))))
@@ -884,11 +886,11 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(scenario,year,season,fleet,indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     }else{
       res <- obj %>% dplyr::group_by(scenario,year,fleet,  indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)}
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)}
     
   }else{
     p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
@@ -1060,19 +1062,19 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       }}
   }  else{
     
-    year = rep(years, prod(Dim[2:3])) 
-    iter = rep(rep(1:Dim[3], each = prod(Dim[1:2])), 1)   
+    year = rep(years, Dim[3]) 
+    iter = rep(rep(1:Dim[3], each = Dim[1]), 1)   
     
     for(f in flnms){
       
       fl   <- fleets[[f]]
       stfl <- catchNames(fl)        
       sts   <- stknms[stknms %in% stfl]
-      fleet = rep(f, each = prod(Dim))
+      fleet = rep(f, each = prod(Dim[-2]))
       
       for(st in sts){
         
-        stock = rep(st, each = prod(Dim))
+        stock = rep(st, each = prod(Dim[-2]))
         
         res.fl.st <- bind_cols(year=year,fleet=fleet, stock=stock, iter=iter,
                                catch= c(apply(catchWStock.f(fl, st),c(2,6), sum)[,years]),
@@ -1116,11 +1118,11 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(scenario,year, season, fleet, stock, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     }else{
       res <- obj %>% dplyr::group_by(scenario,year,fleet, stock, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value))  %>% tidyr::spread(key=quantiles, value=value)}
+        unnest(quantiles,value)  %>% tidyr::spread(key=quantiles, value=value)}
   }else{
     p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
       purrr::set_names(nm = p_names)
@@ -1234,19 +1236,19 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
       }  
     }}
   else {
-    year = rep(years, prod(Dim[3])) 
-    iter = rep(rep(1:Dim[3], each = prod(Dim[1])), 1)   
+    year = rep(years, Dim[3]) 
+    iter = rep(rep(1:Dim[3], each = Dim[1]), 1)   
     
     for(f in flnms){
       
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
-      fleet = rep(f, each = prod(Dim))
+      fleet = rep(f, each = prod(Dim[-2]))
       
       for(m in mts){
         
         mt <- fl@metiers[[m]]
-        metier = rep(m, each = prod(Dim))
+        metier = rep(m, each = prod(Dim[-2]))
         
         stmt <- catchNames(mt)        
         sts  <- stknms[stknms %in% stmt]
@@ -1301,11 +1303,11 @@ mtStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(scenario,year, season, fleet,metier, stock, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     }else{
       res <- obj %>% dplyr::group_by(scenario,year,fleet,metier, stock, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value))  %>% tidyr::spread(key=quantiles, value=value)}
+        unnest(quantiles,value)  %>% tidyr::spread(key=quantiles, value=value)}
   }else{
     p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
       purrr::set_names(nm = p_names)
@@ -1383,7 +1385,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
     
     
     year = rep(years, Dim[3]) 
-    iter = rep(rep(1:Dim[3], each = prod(Dim[1])), 1)   
+    iter = rep(rep(1:Dim[3], each = Dim[1]), 1)   
     
     for(f in flnms){
       fl <- fleets[[f]]
@@ -1398,7 +1400,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
         res.fl.mt <- bind_cols(year=year,  fleet=fleet,metier=metier,iter=iter,
                                effshare=c(seasonSums(mt@effshare[,years,]))) %>% 
           mutate(effort=c(seasonSums((fl@effort*mt@effshare)[,years,])),
-                 vcost=c(mt@vcost[,years,])*effort,
+                 vcost=c(seasonSums(mt@vcost[,years,]))*effort,
                  grossValue=c(Reduce('+', lapply(mt@catches,
                                                  function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years]))))          
         res <- bind_rows(res, res.fl.mt)           
@@ -1434,11 +1436,11 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(scenario, year, season, fleet, stock, scenario, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     }else{
       res <- obj %>% dplyr::group_by(scenario, year,fleet, metier, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(quantiles,value)) %>% tidyr::spread(key=quantiles, value=value)}
+        unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)}
   }else{
     p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
       purrr::set_names(nm = p_names)
