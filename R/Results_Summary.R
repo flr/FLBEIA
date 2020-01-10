@@ -1434,7 +1434,7 @@ mtSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   if(dim(obj)[2] < 9){ # the object is in long format
     
     if('season' %in% names(obj)){
-      res <- obj %>% dplyr::group_by(scenario, year, season, fleet, stock, scenario, indicator) %>%
+      res <- obj %>% dplyr::group_by(scenario, year, season, fleet, metier, indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, prob=prob, na.rm = TRUE))) %>% 
         unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     }else{
@@ -1519,7 +1519,7 @@ advSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
       summarise_at(c("catch",    "discards", "discRat",  "landings", "quotaUpt", "tac"),
                    .funs =  list(qupp = quantile),probs=probs[3], na.rm=T)
     
-    res <- bind_cols(res1, res2[,-(1:2)], res3[,-(1:2)])
+    res <- bind_cols(res1, res2[,-(1:3)], res3[,-(1:3)])
     
   }
   
