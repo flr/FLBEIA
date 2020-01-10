@@ -157,7 +157,7 @@
 %----------------------------------------------------------------------------------------------------
 
 		This model is a simplified version of the behavior of fleets that work in a 
-	mixed fisheries framework. The function is seasonal and assumes that effort share among metiers is
+	mixed fisheries framework. The function is seasonal and assumes that effort share among m\'etiers is
 	given as input parameter.
 	 
 	In each season, the effort of each fleet, $f$, is restricted by the seasonal landing quotas or catch quotas
@@ -350,7 +350,7 @@
                      \end{cases}
     		\]
 		
-    \item Initially expected effort, $\hat E_{s,f}$, is shared between different metiers (i.e. species) month by month
+    \item Initially expected effort, $\hat E_{s,f}$, is shared between different m\'etiers (i.e. species) month by month
     on the basis of historical seasonal effort pattern.
     				$$\hat E_{s,m,st} = \hat E_{s,f} \cdot E_{s,m} = \kappa_f \cdot PED_{s,f} \cdot  E_{s,m}$$
     \noindent Where $E_{s,m}$ is the effort share by metier, $PED_{s,f}$ is the percentage of effective days and $\kappa_f$ is the 
@@ -369,7 +369,7 @@
     \item The reallocation of remaining effort, $\hat E_{s,m,st} - E_{s,m,st}$, can be performed in different ways:
       \begin{itemize}
         \item Proportionally to the price and availability of the species in a given season, or
-        \item proportionally to the effort allocated to the remaining metiers.
+        \item proportionally to the effort allocated to the remaining m\'etiers.
       \end{itemize}
     
     \item This is repeated stock by stock until no effort remains to be allocated or all the TACs are exhausted
@@ -406,9 +406,9 @@
   	\item[\texttt{effort.model}:] '\texttt{SSFB}'
   	\item[\texttt{restriction}:] '\texttt{catch}'. Related to quota threshold.
     \item[\texttt{effectiveDay.perc}:] A  \texttt{FLQuant} object with dimension \texttt{[quant = 1, year = ny, unit = 1, season = ns, area = 1, iter = ni]}, which contains the proportion of days expected to be effective in a season (i.e. in which the fleet will go out fishing), the previously mentioned $PED$ parameter (see Step 3).
-  	\item[\texttt{effort.realloc}:] Alternative values are \texttt{NULL} or '\texttt{curr.eff}'. Element used to describe how does the remaining effort have to be reallocated between the rest of the metiers targeting stocks for which there is already remaining quota.
+  	\item[\texttt{effort.realloc}:] Alternative values are \texttt{NULL} or '\texttt{curr.eff}'. Element used to describe how does the remaining effort have to be reallocated between the rest of the m\'etiers targeting stocks for which there is already remaining quota.
   		\begin{description}
-  			\item[\texttt{NULL}:] The same proportion is assigned for all metiers.
+  			\item[\texttt{NULL}:] The same proportion is assigned for all m\'etiers.
   			\item[\texttt{curr.eff}:] Effort is reallocated proportionally to the expected effort share. 
   		\end{description}
   \end{description}
@@ -430,7 +430,7 @@
 %----------------------------------------------------------------------------------------------------
 
 This second model used to simulate \textit{mixed fisheries} dynamics calculates the total effort and the effort 
-  allocation among metiers that maximises the profit of the fleet.
+  allocation among m\'etiers that maximises the profit of the fleet.
   The total effort is constrained by the capacity of the fleet (capacity unit has to be converted in the same unit as effort) 
   and by the catch quota of some  of the stocks. Mathematically:
                                                
@@ -558,7 +558,7 @@ As prices could also depend on total landings instead of on fleet's landings, th
 $L_{a,0,s}$ instead of $L_{a,0,s,f}$ in the formula above.
 
 Although price is stored at metier and stock level in \texttt{FLFleetsExt}, this function assumes that 
-price is common to all metiers within a fleet and it is calculated at fleet level. 
+price is common to all m\'etiers within a fleet and it is calculated at fleet level. 
 
 \subparagraph{The \texttt{fleets.ctrl} argument in \texttt{elasticPrice} function}
 \quad\\	
@@ -711,12 +711,12 @@ of the \texttt{FLStock} object are filled in the following way:
 	
 \begin{description}
 	
-	\item[\texttt{landings.n}:] Observed landings at age are obtained from \texttt{fleets} object, summing them up along seasons, units, metiers and fleets. After summing up, two sources of uncertainty are introduced, one related to aging error and the second one related to misreporting. 
+	\item[\texttt{landings.n}:] Observed landings at age are obtained from \texttt{fleets} object, summing them up along seasons, units, m\'etiers and fleets. After summing up, two sources of uncertainty are introduced, one related to aging error and the second one related to misreporting. 
 	Aging error is specified through \texttt{ages.error} argument, an array with dimension \texttt{[age = na, age = na, year = ny, iter = ni]}. For each year and iteration, each element \texttt{(i,j)} in the first 2 dimensions indicates the proportion of individuals of age \texttt{i} that are wrongly assigned to age \texttt{j}, thus the sum of the elements along the first dimension must be equal to 1. For each year and iteration, the real landings at age are multiplied matricially with the corresponding sub-matrix of \texttt{ages.error} object. 
 	Afterwards, the second source of uncertainty is introduced multiplying the obtained landings at age by \texttt{land.nage.error}, an \texttt{FLQuant} with dimension \texttt{[age = na, year = ny, unit = 1, season = 1, area = 1, iter = ni]}.
 	Once uncertainty is introduced in landings at age and weight at age, the total landings are computed and compared with the TAC. If  landings are lower than $\texttt{TAC}\cdot\texttt{TAC.ovrsht}$, the observed landings at age are unchanged, but if they were higher, the landings at age would be reduced by $\frac{1}{\texttt{TAC.ovrsht}}$ where \texttt{TAC.ovrsht} is a positive real number.
 	
-	\item[\texttt{landings.wt}:] Observed landings weight at age is derived from \texttt{fleets} object, averaging it along seasons, units, metiers and fleets. After averaging, 2 sources of uncertainty are introduced, one related to aging error and the second one related to misreporting. Aging error is the same as the one used in the landings at age. For each year and iteration, the real weight at age is weighted by the proportion of landings in each age group and multiplied matricially with the corresponding sub-matrix of \texttt{ages.error} object. 
+	\item[\texttt{landings.wt}:] Observed landings weight at age is derived from \texttt{fleets} object, averaging it along seasons, units, m\'etiers and fleets. After averaging, 2 sources of uncertainty are introduced, one related to aging error and the second one related to misreporting. Aging error is the same as the one used in the landings at age. For each year and iteration, the real weight at age is weighted by the proportion of landings in each age group and multiplied matricially with the corresponding sub-matrix of \texttt{ages.error} object. 
 	Afterwards, the second source of uncertainty is introduced multiplying the obtained weight at age by \texttt{land.wgt.error} an \texttt{FLQuant} with dimension \texttt{[age = na, year = ny, unit = 1, season = 1, area = 1, iter = ni]}.
 	
 	\item[\texttt{discards.n}:] Observed discards at age are obtained in the same way as the landings but summing up the discards instead of landings and using, in the second source of error, the object \texttt{disc.nage.error}, an \texttt{FLQuant} with dimension \texttt{[age = na, year = ny, unit = 1, season = 1, area = 1, iter = ni]}.
@@ -748,7 +748,7 @@ of the \texttt{FLStock} object are filled in the following way:
 		
 \begin{description}
 	\item[\texttt{m, mat, landings.n, landings.wt, discards.n, discards.wt, catch.n, catch.wt}] : Observed values for these slots are set to \texttt{NA}.
-	\item[\texttt{discards}:] Observed discards are obtained as follows: the discards are summed up along fleets and metiers and then uncertainty	(observation error) is introduced using a multiplicative error. This multiplicative error is specified through \texttt{disc.bio.error} argument an \texttt{FLQuant} with dimension \texttt{[quant = 1, year = ny, unit = 1, season = 1, area = 1, iter = ni]}. 
+	\item[\texttt{discards}:] Observed discards are obtained as follows: the discards are summed up along fleets and m\'etiers and then uncertainty	(observation error) is introduced using a multiplicative error. This multiplicative error is specified through \texttt{disc.bio.error} argument an \texttt{FLQuant} with dimension \texttt{[quant = 1, year = ny, unit = 1, season = 1, area = 1, iter = ni]}. 
 	\item[\texttt{landings}:] Observed landings are derived in the same way as discards but the argument used to introduce uncertainty is called \texttt{land.bio.error} in this case. 
 	  Once uncertainty is introduced in landings, they are compared with the TAC. If the landings are lower than $\texttt{TAC}\cdot\texttt{TAC.ovrsht}$, the observed landings are unchanged but if there were higher the landings would be reduced by $\frac{1}{\texttt{TAC.ovrsht}}$, where \texttt{TAC.ovrsht} is a positive real number.
 	\item[\texttt{catch}:] Observed catch slot is equal to the sum of landings and discards.
