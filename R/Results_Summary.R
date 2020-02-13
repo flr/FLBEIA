@@ -1846,7 +1846,8 @@ vesselStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj
     if(long == FALSE){
       for(col in c(6:8,10:12)){
         for(fl in flnms){
-          for(st in stknms){
+          sts <- catchNames(obj$fleets[[fl]])
+          for(st in sts){
             flS[flS$fleet == fl & flS$stock == st,col] <- flS[flS$fleet == fl & flS$stock == st,col]/c(seasonMeans(covars[['NumbVessels']][fl,years]))
           }}}
       res <- flS
@@ -1855,7 +1856,8 @@ vesselStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj
       ids <- c("landings", "discards", "catch" ,   "price",  "tacshare",   "quota"   )
       for(id in ids){
         for(fl in flnms){
-          for(st in stknms){
+          sts <- catchNames(obj$fleets[[fl]])
+          for(st in sts){
             flS[flS$indicator == id & flS$fleet == fl & flS$stock == st, 'value'] <- flS[flS$indicator == id & flS$fleet == fl & flS$stock == st, 'value']/c(seasonMeans(covars[['NumbVessels']][fl,years]))
       }}}
   
@@ -1865,7 +1867,8 @@ vesselStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj
     if(long == FALSE){
       for(col in c(6:8,10:12)){
         for(fl in flnms){
-          for(st in stknms){
+          sts <- catchNames(obj$fleets[[fl]])
+          for(st in sts){
             for(ss in dimnames(fleets[[fl]]@effort)[[4]]){
               flS[flS$fleet == fl & flS$stock == st & flS$season == ss,col] <- flS[flS$fleet == fl & flS$stock == st & flS$season == ss,col]/c((covars[['NumbVessels']][fl,years,,ss]))
           }}}}
@@ -1875,7 +1878,8 @@ vesselStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj
       ids <- c("landings", "discards", "catch" ,   "price",  "tacshare",   "quota"   )
       for(id in ids){
         for(fl in flnms){
-          for(st in stknms){
+          sts <- catchNames(obj$fleets[[fl]])
+          for(st in sts){
             for(ss in dimnames(fleets[[fl]]@effort)[[4]]){
               flS[flS$indicator == id & flS$fleet == fl & flS$stock == st & flS$season == ss, 'value'] <- flS[flS$indicator == id & flS$fleet == fl & flS$stock == st & flS$season == ss, 'value']/c(seasonMeans(covars[['NumbVessels']][fl,years,,ss]))
           }}}}
