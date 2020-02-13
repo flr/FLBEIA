@@ -99,13 +99,15 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
     effs <- numeric(length(q.m))
     names(effs) <- names(q.m)
     
+    # Numbers at age by stock
+    Nsts <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3,6)])))
+    
     for(st in names(q.m)){
       effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
-      Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-      effs[st] <-  eval(call(effort.fun, Cr = Cr.f[st],  N = Nst, q.m = q.m[[st]],
-                             efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]],
-                             ret.m = ret.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]],
-                             restriction = restriction))
+      effs[st] <-  eval(call(effort.fun, Cr = data.frame(Cr.f),  N = Nsts, q.m = q.m,
+                             efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m, beta.m = beta.m,
+                             ret.m = ret.m, wl.m = wl.m, wd.m = wd.m,
+                             restriction = restriction, stknm=st))
     }
     
     qsum.stk <- sapply(names(q.m), function(x) sum(q.m[[x]]))
