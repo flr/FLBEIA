@@ -215,8 +215,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
       q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q), length(unit.q),it),     dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
       alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
       beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-      ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta), length(
-        unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+      ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
       wl.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
       wd.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
       
@@ -256,28 +255,9 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
             wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
             wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
             
-            #The next variables necessary for CBaranovAge function
-            
-            Cayr_1 <- catchStock(fleets,st)[,yr-1,,,,i,drop=F]
-            Nayr_1 <- biols[[st]]@n[,yr-1,,ss,,i,drop=F]
-            Mayr_1 <- biols[[st]]@m[,yr-1,,ss,,i,drop=F]
-            Na  <-  biols[[st]]@n[,yr,,ss,,i,drop=F] # N is in the middle of the season,
-            #and we need N at athe beginning of the season
-            Ma <- biols[[st]]@m[,yr,,ss,,i,drop=F]
-            Wa <- biols[[st]]@wt[,yr,,ss,,i,drop=F]
-            n.mt <- length(mtnms)
-            Cafyr_1 <- Nayr_1
-            Cafyr_1[] <- 0
-            
-            for (met in 1:n.mt){
-              Cafyr_1 <- Cafyr_1+iter((fleets[[flnm]]@metiers[[met]]@catches[[st]]@landings.n+
-                                         fleets[[flnm]]@metiers[[met]]@catches[[st]]@discards.n)[,yr-1,,ss],it)}
-            
-            
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
-                                alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
-                                restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
-                                tac=TAC[st,i], Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1))
+                                alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,
+                                restriction = restriction, stknm = st, QS.groups = fleets.ctrl[[flnm]][['QS.groups']]))
         }
     }
     
@@ -354,11 +334,10 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                   Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
                                         fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i]
                   
-                  eff_min_qt[st] <-  eval(call(effort.fun,Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.mi[[st]], rho =rhoi,
+                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.mi[[st]], rho =rhoi,
                                        efs.m = efs.m[,i,drop=F], alpha.m = alpha.mi[[st]], beta.m = beta.mi[[st]],
                                         ret.m = ret.mi[[st]], wl.m = wl.mi[[st]], wd.m = wd.mi[[st]],
-                                        restriction = restriction,
-                                       QS.groups = fleets.ctrl[[flnm]][['QS.groups']])) # the restriction in landing obligation should be catch
+                                        restriction = restriction)) # the restriction in landing obligation should be catch
                 }
               }
               E1 <- min(eff_min_qt) # The effort resulting from minimis and year quota transfer examptions.
@@ -460,31 +439,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         # The catch.
         catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
         Nst  <-  array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-        
-        catchD <- array(NA, dim=dim(q.m[[st]]))
-        
-        for(i in 1:it){
-          
-          Cayr_1 <- catchStock(fleets,st)[,yr-1,,,,i,drop=F]
-          Nayr_1 <- biols[[st]]@n[,yr-1,,ss,,i,drop=F]
-          Mayr_1 <- biols[[st]]@m[,yr-1,,ss,,i,drop=F]
-          Na  <-  biols[[st]]@n[,yr,,ss,,i,drop=F] # N is in the middle of the season,
-          #and we need N at athe beginning of the season
-          Ma <- biols[[st]]@m[,yr,,ss,,i,drop=F]
-          Wa <- biols[[st]]@wt[,yr,,ss,,i,drop=F]
-          n.mt <- length(mtnms)
-          Cafyr_1 <- Nayr_1
-          Cafyr_1[] <- 0
-          
-          for (met in 1:n.mt){
-            Cafyr_1 <- Cafyr_1+iter((fleets[[flnm]]@metiers[[met]]@catches[[st]]@landings.n+
-                                       fleets[[flnm]]@metiers[[met]]@catches[[st]]@discards.n)[,yr-1,,ss],it)}
-
-        catchD[,,,i] <- eval(call(catchFun,fleets=fleets,biols=biols, Cr=Cr.f[st,i],N = Nst[,,i,drop=FALSE],  E = eff[i], efs.m = efs.m[,i,drop=FALSE], q.m = q.m[[st]][,,,i,drop=FALSE], 
-                            alpha.m = alpha.m[[st]][,,,i,drop=FALSE], beta.m = beta.m[[st]][,,,i,drop=FALSE], wd.m = wd.m[[st]][,,,i,drop=FALSE],
-                            wl.m = wl.m[[st]][,,,i,drop=FALSE], ret.m = ret.m[[st]][,,,i,drop=FALSE],
-                            tac=TAC[st,i], Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1))
-         }
+        catchD <- eval(call(catchFun, N = Nst,  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
         itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
         catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
             

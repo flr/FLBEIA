@@ -242,7 +242,6 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
   na <- dim(biol@n)[1]
   ns <- dim(biol@n)[4]
   ni <- dim(biol@n)[6]
-  nu <- dim(biol@n)[3]
   stock <- biol@name
   
 
@@ -267,22 +266,20 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     fa <- Ma # the same dimensions as Ma
     fa[] <- NA
     
-    for(u in 1:nu){
-      
+    
     loop.uniroot <- function(i) {
-      uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root
+      uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,i],Ma=Ma[a,,,,,i], Na=Na[a,,,,,i], tol = 1e-12,extendInt = "yes")$root
     }
 
-    for (a in 1:na) fa[a,,u,,,] <- vapply(1:ni, loop.uniroot, numeric(1))
+    for (a in 1:na) fa[a,,,,,] <- vapply(1:ni, loop.uniroot, numeric(1))
  
     za <- Ma+fa
     
     # middle ages
-    biol@n[-c(1,na),yr,u,ss] <- biol@n[-c(na-1,na),yr-1,u,ns]*exp(-za[-c(na-1,na),,u,,,,drop=F])
+    biol@n[-c(1,na),yr,,ss] <- biol@n[-c(na-1,na),yr-1,,ns]*exp(-za[-c(na-1,na),,,,,,drop=F])
     # plusgroup
-    biol@n[na,yr,u,ss]       <- biol@n[na-1,yr-1,u,ns]*exp(-za[na-1,,u,,,,drop=F])+biol@n[na,yr-1,u,ns]*exp(-za[na,,u,,,,drop=F])
+    biol@n[na,yr,,ss]       <- biol@n[na-1,yr-1,,ns]*exp(-za[na-1,,,,,,drop=F])+biol@n[na,yr-1,,ns]*exp(-za[na,,,,,,drop=F])
     # 
-    }
   }
   else{
     # total catch in year [yr] season [ss-1].
@@ -296,23 +293,22 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     catch.n <- catchStock(fleets,stock)[,yr,,ss-1]
     Ma <- unname(unclass(biol@m[,yr,,ss-1]))
     Na <- unname(unclass(biol@n[,yr,,ss-1]))
-    Ca <- unname(unclass(catch.n))
+    Ca <- unname(unclass(catch.n[,yr,,ss-1]))
     fa <- Ma # the same dimensions as Ma
     fa[] <- NA
     
-    for(u in 1:nu){
-      
+    
     loop.uniroot <- function(i) {
-      uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root
+      uniroot(findF,interval=c(0,2),Ca=Ca[a,,,,,i],Ma=Ma[a,,,,,i], Na=Na[a,,,,,i], tol = 1e-12,extendInt = "yes")$root
     }
     
-    for (a in 1:na) fa[a,,u,,,] <- vapply(1:ni, loop.uniroot, numeric(1))
+    for (a in 1:na) fa[a,,,,,] <- vapply(1:ni, loop.uniroot, numeric(1))
     
     za <- Ma+fa
     
     # middle ages      # for unit == ss  and age = 1, it will be equal NA but be updated after with SRsim.
-    biol@n[,yr,u,ss] <- biol@n[,yr,u,ss-1]*exp(-za[,,u,,,,drop=F])
-  }}
+    biol@n[,yr,,ss] <- biol@n[,yr,,ss-1]*exp(-za)
+  }
   
   # Update SSB.
   SR@ssb[,yr,,ss] <- unitSums(quantSums(n(biol) * wt(biol) * fec(biol)*mat(biol) * 
