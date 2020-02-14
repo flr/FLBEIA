@@ -9,9 +9,11 @@
 #   - CobbDouglasBio.effort - Effort from Cobb-Douglass production function aggregated in biomass
 #   - CobbDouglasAge.effort - Effort from Cobb-Douglass production function by age.
 #
-#   -CBaranov - Catch from Baranov production function by age.
-#   -CBaranov.effort - Effort from Baranov production.
-# Dorleta GarcYYYa
+#   - Baranov - Catch from Baranov production function by age.
+#   - Baranov.effort - Effort from Baranov production.
+# 
+# Dorleta Garcia 
+# Agurtzane Urtizberea (Baranov, January 2020)
 #-------------------------------------------------------------------------------
 
 
@@ -243,88 +245,93 @@ CobbDouglasComb.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,b
 # OUTPUT: Catch at age in weight.
 #-------------------------------------------------------------------------------
 
-CBaranov   <- function(E,Cr,efs.m, wl.m, wd.m, ret.m,q.m,
-                       alpha.m,beta.m,rho = 1,tac,
-                       Cayr_1,Nayr_1,Mayr_1,Na,Ma,Wa,Cafyr_1,...){
+Baranov   <- function(E, Cr, efs.m, wl.m, wd.m, ret.m, q.m,
+                       alpha.m, rho = 1, tac, Cyr_1 = NULL, Nyr_1 = NULL, Myr_1 = NULL, N, M, Cfyr_1 = NULL, Fknown = FALSE, Ft = NULL, Ff= NULL, ...){
+  
+  
+  na <- dim(M)[1]
+  W    <- ret.m*wl.m + (1-ret.m)*wd.m
   
   #We estimate F total assuming being proportional to F yr-1 and gamma an escalar
+  if(Fknown == FALSE){
+    # We apply baranov at fleet level so we take the mean of the weigths.
+    Wall <- array(apply(ret.m*wl.m + (1-ret.m)*wd.m,2:4,mean), dim = dim(M))
+
+    findF <- function(Fa,C, M, N){
+      C. <- (Fa/(Fa+M))*N*(1-exp(-M-Fa))
+      res <- sum(C.)-sum(C)
+      return(res)
+    }
   
-  na <- dim(Ma)[1] 
-  W <- (ret.m*wl.m + (1-ret.m)*wd.m)
+    Fayr_1 <- Nyr_1
+    Fayr_1[] <- NA
   
-  findF <- function(Fa,Ca, Ma, Na){
-    Ca. <- (Fa/(Fa+Ma))*Na*(1-exp(-Ma-Fa))
-    res <- sum(Ca.)-sum(Ca)
-    return(res)
-  }
+    for(a in 1:na) Fayr_1[a,,] <- uniroot(findF,interval=c(0,2), C = Cyr_1[a,,], M = Myr_1[a,,], N = Nyr_1[a,,],  tol = 1e-12,extendInt = "yes")$root
   
-  Fayr_1 <- Nayr_1
-  Fayr_1 [] <- NA
+    # estimate gamma where Fa =Fayr-1 *gamma
+    #if(na>1) Na  <-  as.vector(N)*iter(exp((biols[[stknm]]@m/2)[,yr,,ss]),it) # N is in the middle of the season,
   
-  for (a in 1:na) Fayr_1[a,,,,,] <- uniroot(findF,interval=c(0,2),
-                                            Ca=Cayr_1[a,,,,,],Ma=Mayr_1[a,,,,,], Na=Nayr_1[a,,,,,], 
-                                            tol = 1e-12,extendInt = "yes")$root
-  
-  #estimate gamma where Fa =Fayr-1 *gamma
-  #if(na>1) Na  <-  as.vector(N)*iter(exp((biols[[stknm]]@m/2)[,yr,,ss]),it) # N is in the middle of the season,
-  
-  find_gamma <- function(gamma, Fayr_1,Na,Ma,W,tac){
-    za <-  Fayr_1*gamma + Ma
-    Ca. <-  (Fayr_1*gamma/za) *(1-exp(-za))*Na*W
-    res <- sum(Ca.)-tac
-    return(res)}
+    find_gamma <- function(gamma, Fayr_1,N,M,W,tac){
+      z   <- Fayr_1*gamma + M
+      C.  <- (Fayr_1*gamma/z) *(1-exp(-z))*N*W
+      res <- sum(C.)-tac
+      return(res)}
   
   
-  gamma <- uniroot(find_gamma,interval=c(-5,5),
-                   Fayr_1=Fayr_1[,,,,,],Na=Na[,,,,,],Ma=Ma[,,,,,], W=Wa[,,,], tac=tac,
-                   tol = 1e-12,extendInt = "yes")$root
+      gamma <- uniroot(find_gamma, interval=c(-5,5), Fayr_1 = Fayr_1, N = N, M = M, W = Wall, tac = tac,
+                   tol = 1e-12, extendInt = "yes")$root
   
-  Fafyr_1 <- Nayr_1
-  Fafyr_1 [] <- NA
+      Fafyr_1   <- Nyr_1
+      Fafyr_1[] <- NA
   
-  for (a in 1:na) Fafyr_1[a,,,,,] <- uniroot(findF,interval=c(0,2),
-                                             Ca=Cafyr_1[a,,,,,],Ma=Mayr_1[a,,,,,], Na=Nayr_1[a,,,,,], 
-                                             tol = 1e-12,extendInt = "yes")$root
+      for (a in 1:na) Fafyr_1[a,,] <- uniroot(findF,interval=c(0,2), C = Cfyr_1[a,,], M = Myr_1[a,,], N = Nyr_1[a,,], 
+                                             tol = 1e-12, extendInt = "yes")$root
   
-  find_delta <- function(delta,gamma, Fayr_1, Fafyr_1,Na,Ma,W,Cr){
-    za <- Fayr_1*gamma+Ma
-    Cf <- delta*Fafyr_1/za*(1-exp(-za))*Na*Wa
-    res <- sum(Cf)-Cr
-  }
+      find_delta <- function(delta,gamma, Fayr_1, Fafyr_1,N,M,W,Cr){
+        z   <- Fayr_1*gamma+M
+        Cf  <- delta*Fafyr_1/z*(1-exp(-z))*N*W
+        res <- sum(Cf)-Cr
+      }
   
-  delta<- uniroot(find_delta,interval=c(-5,5),gamma=gamma,Fayr_1=Fayr_1[,,,,,], 
-                  Fafyr_1=Fafyr_1[,,,,,],Na=Na[,,,,,],Ma=Ma[,,,,,], W=Wa[,,,], Cr=Cr,
+      delta<- uniroot(find_delta,interval=c(-5,5), gamma = gamma, Fayr_1 = Fayr_1, Fafyr_1 = Fafyr_1, N = N, M = M, W = Wall, Cr = Cr,
                   tol = 1e-12,extendInt = "yes")$root
   
+      #Now Ff <- Ff*delta is known
+      dimq <- dim(q.m)
   
-  #Now Ff <- Ff*delta is known
-  dimq <- dim(q.m)
+      Ef  <- matrix(E,dim(efs.m)[1],dim(efs.m)[2], byrow = T)*efs.m      # [mt,it]
+      Ef  <- array(Ef, dim = c(dim(Ef), dimq[2:3]))
+      Ef  <- aperm(Ef, c(1,3:4,2))   # [mt,na,nu,it] 
   
-  Ef  <- matrix(E,dim(efs.m)[1],dim(efs.m)[2], byrow = T)*efs.m      # [mt,it]
-  Ef  <- array(Ef, dim = c(dim(Ef), dimq[2:3]))
-  Ef  <- aperm(Ef, c(1,3:4,2))   # [mt,na,nu,it] 
+      Faf_new <- array(apply(q.m*Ef,2:4, sum), dim = dim(q.m)[-1])
   
-  Fa_new <- gamma*Fayr_1-delta*Fafyr_1+sum(q.m*Ef)
-  za_new <- Fa_new+Ma
-  za_new <- array(za_new,dim=c(dim(Ef)))
-  Na <- array(Na,dim=c(dim(Ef)))
+      Fa_new <- gamma*Fayr_1-delta*Fafyr_1+ Faf_new
+      z_new <- Fa_new+M
+      z_new <- array(z_new,dim=c(dim(Ef)))
+      N <- array(N,dim=c(dim(Ef)))
+
+      C.m <- q.m*Ef/z_new*(1-exp(-z_new))*N*W
   
-  C.m <- q.m*Ef/za_new*(1-exp(-za_new))*Na*W
+      Clim <- sweep(W*N,4,rho,"*")
   
-  Clim <- sweep(W*Na,4,rho,"*")
+      C.m <- ifelse(C.m < Clim, C.m, Clim) # The truncation  of CobDoug is applied at metier level.
   
-  C.m <- ifelse(C.m < Clim, C.m, Clim) # The truncation  of CobDoug is applied at metier level.
+      return(catch =  C.m)}  # [mt,na,nu,it]
   
-  return(catch =  C.m)  # [mt,na,nu,it]
-  
+      else{ # We know the effort of all the fleets so we can calculate the real F. 
+        C.m <- Ff
+        C.m[] <- NA
+        for(mt in 1: dim(Ff)[1]) C.m[mt,,,] <- array(Ff[mt,,,], dim = dim(M))/(M+Ft)*(1-exp(-M-Ft))*N*array(W[mt,,,], dim = dim(M))  # [mt,na,nu,it]
+        return(C.m)
+      }  
 }
 
 #------------------------------------------------------ -------------------------
-#  CBaranov.Effort :: Cr[1], B[na,nu], efs.m[mt], q.m,alpha.m,beta.m :: [mt,na,nu] 
+#  Baranov.Effort :: Cr[1], B[na,nu], efs.m[mt], q.m,alpha.m,beta.m :: [mt,na,nu] 
 #-------------------------------------------------------------------------------
 
-CBaranov.effort   <- function(Cr,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho = NULL,
-                              restriction = 'catch',stknm,QS.groups,tac,Cayr_1,Nayr_1,Mayr_1,Na,Ma,Wa,Cafyr_1,...){
+Baranov.effort   <- function(Cr,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho = NULL,
+                              restriction = 'catch',stknm,QS.groups,tac,Cyr_1,Nyr_1,Myr_1,N,M,Cfyr_1,...){
   
   if(is.null(rho)){ 
     rho <- rep(1, length(N)) 
@@ -332,7 +339,7 @@ CBaranov.effort   <- function(Cr,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rh
   }
   
   Cr      <- Cr[stknm,]
-  # N       <- N[[stknm]] 
+  N       <- N[[stknm]] 
   wl.m    <- wl.m[[stknm]]
   wd.m    <- wd.m[[stknm]]
   ret.m   <- ret.m[[stknm]] 
@@ -340,15 +347,22 @@ CBaranov.effort   <- function(Cr,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rh
   alpha.m <- alpha.m[[stknm]]
   beta.m  <- beta.m[[stknm]] 
   rho     <- rho[stknm,]
+  tac     <- tac[stknm,]
+  Cyr_1   <- Cyr_1[[stknm]] 
+  Nyr_1   <- Nyr_1[[stknm]]    
+  Myr_1   <- Myr_1[[stknm]] 
+  M       <- M[[stknm]] 
+  Cfyr_1  <- Cfyr_1[[stknm]] 
   
   
   fObj <- function(E.f,Cr,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m, rho, restriction,
-                   tac, Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1){
+                   tac, Cyr_1=Cyr_1,Nyr_1=Nyr_1,Myr_1=Myr_1,N=N,M=M,W=W,Cfyr_1=Cfyr_1){
     # if catch = TRUE (=> the restriction is catch not landings. )
     
-    Ca.m <- CBaranov(E = E.f, Cr=Cr, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
+    Ca.m <- Baranov(E = E.f, Cr=Cr, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
                      efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho,
-                     tac=tac,Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1)
+                     tac = tac, Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1, 
+                     N = N, M = M, Cfyr_1 = Cfyr_1)
     
     if(restriction == 'catch') Ca.m <- Ca.m
     else  Ca.m <- ret.m*Ca.m
@@ -357,16 +371,18 @@ CBaranov.effort   <- function(Cr,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rh
   }
   
   
-  Cinf <- CBaranov(E = 1e100,Cr=Cr,wl.m = wl.m, wd.m = wd.m, q.m=q.m,
+  Cinf <- Baranov(E = 1e100,Cr=Cr,wl.m = wl.m, wd.m = wd.m, q.m=q.m,
                    efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m,  ret.m = ret.m, rho = rho,
-                   tac=tac,Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1)
+                   tac=tac, Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1, N = N, M = M,
+                    Cfyr_1 = Cfyr_1)
   if((Cr - sum(Cinf))> 0) # Even with infinity effort it is not possible to catch the quota => return 'almost' infinity effort.
     return(effort = 1e100)
   
   NomEff <- uniroot(fObj,interval=c(0,1e50),Cr=Cr, wl.m = wl.m, wd.m = wd.m, q.m=q.m,
-                    efs.m=efs.m,alpha.m=alpha.m,beta.m=beta.m, rho = rho,
+                    efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho,
                     restriction = restriction, ret.m = ret.m,
-                    tac=tac,Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1,tol = 1e-4)$root
+                    tac=tac, Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1, N = N, M = M,
+                    W = W, Cfyr_1 = Cfyr_1, tol = 1e-4)$root
   
   return(effort =  NomEff)
 }

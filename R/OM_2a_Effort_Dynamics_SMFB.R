@@ -64,6 +64,10 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     it  <- dim(biols[[1]]@n)[6]
     flnms <- names(fleets)
     
+    fl    <- fleets[[flnm]]
+    sts   <- catchNames(fl)
+    
+    
     # Advice season for each stock
     adv.ss <- setNames( rep(NA,nst), stnms)
     for (st in stnms) adv.ss[st] <- ifelse( is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
@@ -82,19 +86,25 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                                   
                                 } })) , nst,it, dimnames = list(stnms, 1:it))
 
-    N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
-                                if(dim(biols[[x]]@n)[1] > 1)
-                                    return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss, drop = FALSE])
-                                else{
-                                  if(biols.ctrl[[x]] == 'fixedPopulation'){
-                                    return((biols[[x]]@n)[,yr,,ss, drop=F])
-                                  }
-                                  else{
-                                    return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=F])
-                                  } } })
+    N   <- lapply(setNames(stnms, stnms), function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
+                                if(dim(biols[[x]]@n)[1] > 1)               return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss, drop = FALSE])
+                                if(biols.ctrl[[x]] == 'fixedPopulation')   return((biols[[x]]@n)[,yr,,ss, drop=F])
+                                if(biols.ctrl[[x]] == 'ASPG_Baranov')      return(biols[[x]]@n[,yr,,ss, drop = FALSE])
+                                # else   
+                                return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=F])})
+
+    # fake auxiliary object to use inthe objects below when Baranov is _not_ used.
+    fake <- lapply(N, function(x){ x[] <- NA; x})
+
     
-    names(N) <- stnms
-    
+    Nyr_1   <- lapply(setNames(stnms, stnms), function(x){   # biomass at age beggining of the season yr-1, list elements: [na,1,nu,1,1,it]
+                                 return(biols[[x]]@n[,yr-1,,ss, drop = FALSE])})
+    M   <- lapply(setNames(stnms, stnms), function(x){   # M  yr, list elements: [na,1,nu,1,1,it
+                                 return(biols[[x]]@m[,yr,,ss, drop = FALSE])})
+    Myr_1   <- lapply(setNames(stnms, stnms), function(x){   # M yr-1, list elements: [na,1,nu,1,1,it]
+                                return(biols[[x]]@m[,yr-1,,ss, drop = FALSE])})
+    Cyr_1  <- lapply(setNames(stnms, stnms), function(x) catchStock(fleets,x)[,yr-1,,ss, drop = FALSE])
+    Cfyr_1 <- lapply(setNames(stnms, stnms), function(x) catchStock.f(fl,x)[,yr-1,,ss, drop = FALSE])
 
                       
     # Quota share          
@@ -146,10 +156,6 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                             res[is.na(res)] <- 0 
                             return(res)})      
     names(QS) <- stnms
-
-    fl    <- fleets[[flnm]]
-    
-    sts   <- catchNames(fl)
     
     # The effort is restricted only by the stocks in 'stocks.restr'    
     # Remove the NA-s if any
@@ -233,16 +239,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         wd.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, drop = TRUE]
       }    
     }
-    
-    
-    
+
     
      for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
         for(i in 1:it){
-          
-    #   if(flnm == 'OT8_SP')   browser()
           
            if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
            else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
@@ -255,29 +257,17 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
             ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
             wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
             wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
-            
-            #The next variables necessary for CBaranovAge function
-            
-            Cayr_1 <- catchStock(fleets,st)[,yr-1,,,,i,drop=F]
-            Nayr_1 <- biols[[st]]@n[,yr-1,,ss,,i,drop=F]
-            Mayr_1 <- biols[[st]]@m[,yr-1,,ss,,i,drop=F]
-            Na  <-  biols[[st]]@n[,yr,,ss,,i,drop=F] # N is in the middle of the season,
-            #and we need N at athe beginning of the season
-            Ma <- biols[[st]]@m[,yr,,ss,,i,drop=F]
-            Wa <- biols[[st]]@wt[,yr,,ss,,i,drop=F]
-            n.mt <- length(mtnms)
-            Cafyr_1 <- Nayr_1
-            Cafyr_1[] <- 0
-            
-            for (met in 1:n.mt){
-              Cafyr_1 <- Cafyr_1+iter((fleets[[flnm]]@metiers[[met]]@catches[[st]]@landings.n+
-                                         fleets[[flnm]]@metiers[[met]]@catches[[st]]@discards.n)[,yr-1,,ss],it)}
-            
-            
+        
+            Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,3)],1)))
+            Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,3)],1)))
+            Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,3)],1)))
+            Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,,,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,3)],1)))
+            Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,,,,i,drop=T], dim = c(dim(M[[x]])[c(1,3)],1)))
+    
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
                                 alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
                                 restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
-                                tac=TAC[st,i], Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1))
+                                tac=TAC[,i,drop=F], Cyr_1 = Cyri_1, Nyr_1 = Nyri_1, Myr_1 = Myri_1,  M = Mi, Cfyr_1 = Cfyri_1))
         }
     }
     
@@ -291,7 +281,6 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         eff <- effRule.SMFB(effs = effs, prev.eff = matrix(fl@effort[,yr-1,,ss,drop=T],1,it), rule = rule)
         # Capacity restrictions.  
         eff <- capacityRest.SMFB(eff, c(fl@capacity[,yr,,ss,drop=T]))                                   
-#         fleets[[flnm]]@effort[,yr,,ss] <- eff 
         fl@effort[,yr,,ss] <- eff 
     }
     else{ # landObl == TRUE
@@ -343,8 +332,26 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                 Cr.f_min_qt <- Cr.f
               
                 for(st in sts){
-         #         browser()
-                  effort.fun <- ifelse(dim(Ni[[st]])[1] == 1, 'CobbDouglasBio.effort', 'CobbDouglasAge.effort')
+
+                  if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+                  else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
+                  
+                  # Extract the i-th element form the lists. 
+                  Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+                  q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
+                  beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
+                  alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
+                  ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
+                  wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
+                  wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+                  
+                  Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,3)],1)))
+                  Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,3)],1)))
+                  Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,3)],1)))
+                  Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,,,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,3)],1)))
+                  Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,,,,i,drop=T], dim = c(dim(M[[x]])[c(1,3)],1)))
+                 
+                  effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
                   # To calculate the final quota, the year transfer % needs to be applied to the original quota before
                   # discounting the quota used the pevious year and then discount this quota.
                   min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
@@ -354,11 +361,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                   Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
                                         fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i]
                   
-                  eff_min_qt[st] <-  eval(call(effort.fun,Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.mi[[st]], rho =rhoi,
-                                       efs.m = efs.m[,i,drop=F], alpha.m = alpha.mi[[st]], beta.m = beta.mi[[st]],
-                                        ret.m = ret.mi[[st]], wl.m = wl.mi[[st]], wd.m = wd.mi[[st]],
-                                        restriction = restriction,
-                                       QS.groups = fleets.ctrl[[flnm]][['QS.groups']])) # the restriction in landing obligation should be catch
+                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
+                                               alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
+                                               restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
+                                               tac=TAC[,i,drop=F], Cyr_1 = Cyri_1, Nyr_1 = Nyri_1, Myr_1 = Myri_1,  M = Mi, Cfyr_1 = Cfyri_1))
+                  
+            
                 }
               }
               E1 <- min(eff_min_qt) # The effort resulting from minimis and year quota transfer examptions.
@@ -391,8 +399,6 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               
               # update ret.m to account for the discards due to minimise exemption.
               for(st in sts){
-              # if(flnm == 'MON_OT' & yr == 41)
-              #  browser()
               # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
               # otherwise it is increased so that the total discards equal to min_p*Cr.f  
                 
@@ -429,9 +435,6 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
       }
     }
 
-          
-    #    save(advice,alpha.m,B,beta.m,Cr.f,rho,eff,effs,efs.m,fleets.ctrl, 
-    #         q.m,QS,QS.ss,TAC,TAC.yr, file = paste(flnm, file = '.RData', sep = ""))
    
    # Update the quota share of this step and the next one if the 
    # quota share does not coincide with the actual catch. (update next one only if s < ns).
@@ -459,31 +462,26 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         
         # The catch.
         catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
-        Nst  <-  array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
         
         catchD <- array(NA, dim=dim(q.m[[st]]))
         
         for(i in 1:it){
+   
+          if(is.null(dim(rho)))   rhoi <- rho
+          if(length(dim(rho))==2) rho <- rho[st,i]
+          Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,3)],1)))
+          Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,3)],1)))
+          Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,3)],1)))
+          Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,,,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,3)],1)))
+          Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,,,,i,drop=T], dim = c(dim(M[[x]])[c(1,3)],1)))
           
-          Cayr_1 <- catchStock(fleets,st)[,yr-1,,,,i,drop=F]
-          Nayr_1 <- biols[[st]]@n[,yr-1,,ss,,i,drop=F]
-          Mayr_1 <- biols[[st]]@m[,yr-1,,ss,,i,drop=F]
-          Na  <-  biols[[st]]@n[,yr,,ss,,i,drop=F] # N is in the middle of the season,
-          #and we need N at athe beginning of the season
-          Ma <- biols[[st]]@m[,yr,,ss,,i,drop=F]
-          Wa <- biols[[st]]@wt[,yr,,ss,,i,drop=F]
-          n.mt <- length(mtnms)
-          Cafyr_1 <- Nayr_1
-          Cafyr_1[] <- 0
+          #browser()
           
-          for (met in 1:n.mt){
-            Cafyr_1 <- Cafyr_1+iter((fleets[[flnm]]@metiers[[met]]@catches[[st]]@landings.n+
-                                       fleets[[flnm]]@metiers[[met]]@catches[[st]]@discards.n)[,yr-1,,ss],it)}
-
-        catchD[,,,i] <- eval(call(catchFun,fleets=fleets,biols=biols, Cr=Cr.f[st,i],N = Nst[,,i,drop=FALSE],  E = eff[i], efs.m = efs.m[,i,drop=FALSE], q.m = q.m[[st]][,,,i,drop=FALSE], 
+           catchD[,,,i] <- eval(call(catchFun, Cr=Cr.f[st,i],N = Ni[[st]],  E = eff[i], efs.m = efs.m[,i,drop=FALSE], q.m = q.m[[st]][,,,i,drop=FALSE], 
                             alpha.m = alpha.m[[st]][,,,i,drop=FALSE], beta.m = beta.m[[st]][,,,i,drop=FALSE], wd.m = wd.m[[st]][,,,i,drop=FALSE],
-                            wl.m = wl.m[[st]][,,,i,drop=FALSE], ret.m = ret.m[[st]][,,,i,drop=FALSE],
-                            tac=TAC[st,i], Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Wa=Wa,Cafyr_1=Cafyr_1))
+                            wl.m = wl.m[[st]][,,,i,drop=FALSE], ret.m = ret.m[[st]][,,,i,drop=FALSE], rho = rho,
+                            tac=TAC[st,i], Cyr_1 = Cyri_1[[st]], Nyr_1 = Nyri_1[[st]], Myr_1 = Myri_1[[st]],  M = Mi[[st]], 
+                            Cfyr_1 = Cfyri_1[[st]]))
          }
         itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
         catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
