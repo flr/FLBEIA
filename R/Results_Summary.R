@@ -1523,29 +1523,25 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
 #' @aliases advSumQ
 advSumQ <- function(obj,  probs = c(0.95,0.5,0.05)){
   
+  p_names <- paste("q",ifelse(nchar(substr(probs,3, nchar(probs)))==1, 
+                              paste(substr(probs,3, nchar(probs)), 0, sep = ""), 
+                              substr(probs,3, nchar(probs))), sep = "")
+  
   if(dim(obj)[2] <= 7){ # the object is in long format
     
     res <- obj %>% dplyr::group_by(scenario, stock, year, indicator)  %>% 
-      dplyr::summarise(qlow = quantile(value, probs=probs[1], na.rm = TRUE), 
-                qmed = quantile(value, probs=probs[2], na.rm = TRUE), 
-                qupp = quantile(value, probs=probs[3], na.rm = TRUE))
+      dplyr::summarise(quantiles = list(p_names), value=list(quantile(value, probs=probs, na.rm = TRUE))) %>% 
+      unnest(quantiles,value) %>% tidyr::spread(key=quantiles, value=value)
     
   }
   else{
     
-    res1 <- obj %>% dplyr::group_by(scenario, stock, year) %>%  
-      summarise_at(c("catch",    "discards", "discRat",  "landings", "quotaUpt", "tac"),
-                   .funs =  list(qlow = quantile),probs= probs[1], na.rm=T)
+    p_funs <- purrr::map(probs, ~purrr::partial(quantile, probs = .x, na.rm = TRUE)) %>% 
+      purrr::set_names(nm = p_names)
     
-    res2 <- obj %>% dplyr::group_by(scenario, stock, year) %>%  
+    res <- obj %>% dplyr::group_by(scenario, stock, year) %>%  
       summarise_at(c("catch",    "discards", "discRat",  "landings", "quotaUpt", "tac"),
-                   .funs =  list(qmed = quantile),probs=probs[2], na.rm=T)
-    
-    res3 <- obj %>% dplyr::group_by(scenario, stock, year) %>%  
-      summarise_at(c("catch",    "discards", "discRat",  "landings", "quotaUpt", "tac"),
-                   .funs =  list(qupp = quantile),probs=probs[3], na.rm=T)
-    
-    res <- bind_cols(res1, res2[,-(1:3)], res3[,-(1:3)])
+                   .funs =  p_funs)
     
   }
   
