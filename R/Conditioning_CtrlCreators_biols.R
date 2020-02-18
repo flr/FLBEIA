@@ -26,7 +26,7 @@
 
 create.biols.ctrl <- function(stksnames, growth.models = NULL, immediate = FALSE,...){
     
-    growth.models.available <- c('fixedPopulation', 'ASPG', 'BDPG')
+    growth.models.available <- c('fixedPopulation', 'ASPG', 'ASPG_Baranov', 'BDPG')
     
     nstk <- length(stksnames) 
     res  <- vector('list', nstk)
