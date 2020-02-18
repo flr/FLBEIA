@@ -247,7 +247,7 @@ CobbDouglasComb.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,b
 
 
 #-------------------------------------------------------------------------------
-#  CBaranov :: E[it], B[na,nu,it], efs.m[mt,it], q.m,alpha.m,beta.m :: [mt,na,nu,it] 
+#  Baranov :: E[it], B[na,nu,it], efs.m[mt,it], q.m,alpha.m,beta.m :: [mt,na,nu,it] 
 # Res => C.m[mt,na,nu,it=1]
 # OUTPUT: Catch at age in weight.
 #-------------------------------------------------------------------------------

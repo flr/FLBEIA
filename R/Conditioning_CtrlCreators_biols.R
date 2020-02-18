@@ -26,7 +26,7 @@
 
 create.biols.ctrl <- function(stksnames, growth.models = NULL, immediate = FALSE,...){
     
-    growth.models.available <- c('fixedPopulation', 'ASPG', 'BDPG')
+    growth.models.available <- c('fixedPopulation', 'ASPG', 'ASPG_Baranov', 'BDPG')
     
     nstk <- length(stksnames) 
     res  <- vector('list', nstk)
@@ -68,7 +68,7 @@ create.fixedPopulation.ctrl <- function(resst,stkname,largs) return(resst)
 #                       ** create.ASPG.ctrl **
 # No extra arguments needed
 #-------------------------------------------------------------------------------
-create.ASPG.ctrl <- function(resst,stkname,largs) return(resst)
+create.ASPG.ctrl <- create.ASPG_Baranov.ctrl <- function(resst,stkname,largs) return(resst)
 
 #-------------------------------------------------------------------------------
 #                       ** create.BDPG.ctrl **
