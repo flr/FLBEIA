@@ -98,14 +98,16 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
     # Calculate the initial point based on the effort that correspond with the TAC quotas.
     effs <- numeric(length(q.m))
     names(effs) <- names(q.m)
+    # Numbers at age by stock
+    Nsts <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3,6)])))
     
     for(st in names(q.m)){
+      
       effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
-      Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-      effs[st] <-  eval(call(effort.fun, Cr = Cr.f[st],  N = Nst, q.m = q.m[[st]],
-                             efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]],
-                             ret.m = ret.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]],
-                             restriction = restriction))
+      effs[st] <- eval(call(effort.fun, Cr = data.frame(Cr.f),  N = Nsts, q.m = q.m,
+                            efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m, beta.m = beta.m,
+                            ret.m = ret.m, wl.m = wl.m, wd.m = wd.m,
+                            restriction = restriction, stknm=st))
     }
     
     qsum.stk <- sapply(names(q.m), function(x) sum(q.m[[x]]))
@@ -207,10 +209,12 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
       lo_res <- MaxProfit_Extra_LO(biols = biols, fleets = fleets, fleets.ctrl = fleets.ctrl, advice.ctrl = advice.ctrl, fl = fl, Et.res = Et.res, 
                                    efs.res = efs.res, efs.min = efs.min, efs.max = efs.max,  yr = yr, ss = ss, 
                                    flnm = flnm, it = it, i = i,  sts = sts, q.m = q.m, alpha.m = alpha.m, 
-                                   beta.m = beta.m, pr.m = pr.m,  Cr.f = Cr.f, fc = fc,
+                                   beta.m = beta.m, pr.m = pr.m,  Cr.f = data.frame(Cr.f), fc = fc,
                                    ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, vc.m = vc.m, N = N,  B = B,  K=K,  rho = rho,
                                    effort.restr = effort.restr, crewS = crewS, catch.restr = restriction, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
                                    tacos = tacos)
+    
+      
       list2env(lo_res, globalenv())
     } 
   } # END OF ITERATIONS LOOP
@@ -418,7 +422,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
     # contribute to the revenue but it goes against the TAC => TACOS == TRUE
     if(tacos[st] == FALSE) # TAC Overshot is not discarded.
       Lrat <- 1
-    else Lrat <- ifelse(Cr.f[st]/Cst[st] > 1, 1, Cr.f[st]/Cst[st])  # TAC Overshot is  discarded.
+    else Lrat <- ifelse(Cr.f[st,]/Cst[st] > 1, 1, Cr.f[st,]/Cst[st])  # TAC Overshot is  discarded.
     # The overquota discards are proportional to the catch in all the metiers.
     #   cat('C: ',Cst[st], ', CS: ', Cr.f[st],'\n')
     res <- res + sum(ret.m[[st]]*Cam*pr.m[[st]])*Lrat
@@ -486,7 +490,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
         
         #       resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cam))/0.00005)) this constraint does not work for all the stocks simultaneously
         Ctot <- ifelse( sum(Cam)==0, 1e-08*0.99,sum(Cam))
-        resTAC[st] <- log(Ctot/(Cr.f[st]-Ctot))
+        resTAC[st] <- log(Ctot/(Cr.f[st,]-Ctot))
         #   cat(st, ' - ', sum(Cam), '\n')
       }
       else{
@@ -499,7 +503,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
         #       cat(st, ' - ', sum(Cm), '\n')
         #
         # resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cm))/0.00005)) this constraint does not work for all the stocks simultaneously
-        resTAC[st] <- log(sum(Cm)/(Cr.f[st]-sum(Cm)))
+        resTAC[st] <- log(sum(Cm)/(Cr.f[st,]-sum(Cm)))
         
       }
       
@@ -524,7 +528,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
     if(catch.restr == 'landings') Cm <- Cm*c(ret.m[[stk.cnst]])
     
     # resTAC[st] <- 1e7*sum(1/(1+2^((-Cr.f[stk.cnst]+sum(Cm))/0.00005))) This penalty works properly only if the multiplier is in the scale of the profits.
-    resTAC[stk.cnst] <- log(sum(Cm)/(Cr.f[stk.cnst]-sum(Cm)))
+    resTAC[stk.cnst] <- log(sum(Cm)/(Cr.f[stk.cnst,]-sum(Cm)))
     
     pen_OverShoot <- resTAC[stk.cnst]
   }
@@ -591,7 +595,7 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
         
         if(catch.restr == 'landings') Cm <- Cm*c(ret.m[[st]])
         
-        resTAC[st] <- sum(Cm)  - Cr.f[st]
+        resTAC[st] <- sum(Cm)  - Cr.f[st,]
         #       cat(st, ' - ', sum(Cm), '\n')
       }
     }}
@@ -611,7 +615,7 @@ g_ineq_MP_nloptr <- function(E, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
     
     if(catch.restr == 'landings') Cm <- Cm*c(ret.m[[stk.cnst]])
     
-    resTAC <- sum(Cm) - Cr.f[stk.cnst]
+    resTAC <- sum(Cm) - Cr.f[stk.cnst,]
   }
   
   # constraint on capacity.

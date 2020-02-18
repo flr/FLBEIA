@@ -54,10 +54,13 @@ CobbDouglasBio   <- function(E,N, wl.m, wd.m, q.m,efs.m,alpha.m,beta.m, ret.m, r
 #-------------------------------------------------------------------------------
 CobbDouglasBio.effort   <- function(Cr,N, wl.m, wd.m,q.m,efs.m,alpha.m,beta.m,ret.m, rho = NULL, restriction = 'catch',stknm,...){
   
-    if(is.null(rho)){ 
-      rho <- rep(1, length(N)) 
-      names(rho) <- names(N)
-    }
+    # if(is.null(rho)){ 
+    #   rho <- rep(1, length(N)) 
+    #   names(rho) <- names(N)
+    # }
+
+  if(is.null(rho))
+    rho <- matrix(1, length(N), 1, dimnames = list(names(N), 1))
   
     Cr      <- Cr[stknm,]
     N       <- N[[stknm]] 
@@ -135,10 +138,14 @@ CobbDouglasAge   <- function(E,N, wl.m, wd.m, ret.m,q.m,efs.m,alpha.m,beta.m,rho
 
 CobbDouglasAge.effort   <- function(Cr,N,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho = NULL, restriction = 'catch',stknm,...){
    
-    if(is.null(rho)){ 
-        rho <- rep(1, length(N)) 
-        names(rho) <- names(N)
-    }
+  
+  # if(is.null(rho)){ 
+  #   rho <- rep(1, length(N)) 
+  #   names(rho) <- names(N)
+  # }
+  
+   if(is.null(rho))
+    rho <- matrix(1, length(N), 1, dimnames = list(names(N), 1))
   
      Cr      <- Cr[stknm,]
      N       <- N[[stknm]] 
