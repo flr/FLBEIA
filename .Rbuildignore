@@ -1,3 +1,5 @@
+^Meta$
+^doc$
 .travis.yml
 docs
 data-raw

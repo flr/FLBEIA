@@ -1,5 +1,7 @@
+Meta
+doc
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
-.Rproj
+*.Rproj

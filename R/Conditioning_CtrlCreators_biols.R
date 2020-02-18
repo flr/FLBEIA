@@ -68,7 +68,7 @@ create.fixedPopulation.ctrl <- function(resst,stkname,largs) return(resst)
 #                       ** create.ASPG.ctrl **
 # No extra arguments needed
 #-------------------------------------------------------------------------------
-create.ASPG.ctrl <- function(resst,stkname,largs) return(resst)
+create.ASPG.ctrl <- create.ASPG_Baranov.ctrl <- function(resst,stkname,largs) return(resst)
 
 #-------------------------------------------------------------------------------
 #                       ** create.BDPG.ctrl **
