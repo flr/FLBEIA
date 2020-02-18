@@ -6,7 +6,10 @@
 # - ageBased.CobbDoug: Catch at age calculation when Cobb douglas is applied at
 #       age level.
 #  - updateCatch: Update the slots related to catch using the appropiate function.
+# 
 # Dorleta GarcYYYa
+# Created: 28/10/2010 12:33:04
+# Changed:03/06/2011 07:53:53
 #-------------------------------------------------------------------------------
 
 
