@@ -273,8 +273,10 @@ Baranov   <- function(E, Cr, efs.m, wl.m, wd.m, ret.m, q.m,
     Fayr_1 <- Nyr_1
     Fayr_1[] <- NA
   
-    for(a in 1:na) Fayr_1[a,,] <- uniroot(findF,interval=c(0,2), C = Cyr_1[a,,], M = Myr_1[a,,], N = Nyr_1[a,,],  tol = 1e-12,extendInt = "yes")$root
-  
+    for(a in 1:na){ 
+      if(Nyr_1[a,,] < Cyr_1[a,,]) Fayr_1[a,,] <- 1e100
+      else Fayr_1[a,,] <- uniroot(findF,interval=c(0,2), C = Cyr_1[a,,], M = Myr_1[a,,], N = Nyr_1[a,,],  tol = 1e-12,extendInt = "yes")$root
+    }
     # estimate gamma where Fa =Fayr-1 *gamma
     #if(na>1) Na  <-  as.vector(N)*iter(exp((biols[[stknm]]@m/2)[,yr,,ss]),it) # N is in the middle of the season,
   
@@ -288,11 +290,9 @@ Baranov   <- function(E, Cr, efs.m, wl.m, wd.m, ret.m, q.m,
       gamma <- uniroot(find_gamma, interval=c(-5,5), Fayr_1 = Fayr_1, N = N, M = M, W = Wall, tac = tac,
                    tol = 1e-12, extendInt = "yes")$root
   
-      Fafyr_1   <- Nyr_1
-      Fafyr_1[] <- NA
+      Fafyr_1   <- Fayr_1*Cfyr_1/Cyr_1
+      Fafyr_1[Cyr_1==0] <- 0
   
-      for (a in 1:na) Fafyr_1[a,,] <- uniroot(findF,interval=c(0,2), C = Cfyr_1[a,,], M = Myr_1[a,,], N = Nyr_1[a,,], 
-                                             tol = 1e-12, extendInt = "yes")$root
   
       find_delta <- function(delta,gamma, Fayr_1, Fafyr_1,N,M,W,Cr){
         z   <- Fayr_1*gamma+M

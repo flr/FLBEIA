@@ -280,13 +280,14 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year
        Q.M   <- lapply(setNames(names(fleets), names(fleets)), function(x){ 
                 lapply(setNames(names(fleets[[x]]@metiers), names(fleets[[x]]@metiers)),  
                           function(y){
-                            if(!(stknm %in% names(fleets[[x]]@metiers[[y]]@catches))) return(array(0, dim = c(na,nu, length(fleets[[x]]@metiers), it)))
+                            if(!(stknm %in% names(fleets[[x]]@metiers[[y]]@catches))) return(array(0, dim = c(na,nu, it)))
                             else return(array(fleets[[x]]@metiers[[y]]@catches[[stknm]]@catch.q[,yr,,ss,drop=TRUE],dim = c(na,nu, it)))
                           })})
        # Calculate total Ft and fleets partial F, Ff.
       FbyFlMt  <- lapply(setNames(names(fleets), names(fleets)), function(x){
                 return(lapply(setNames(names(fleets[[x]]@metiers),  names(fleets[[x]]@metiers)), function(y){
-                                    Ft.M <- sweep(Q.M[[x]][[y]], 1:3,EFS.M[[x]][y,]*EFF[[x]], "*")}))
+                                    Ft.M <- sweep(Q.M[[x]][[y]], 1:3,EFS.M[[x]][y,]*EFF[[x]], "*")
+                                    return(Ft.M)}))
         })
       FbyFl  <- lapply(setNames(names(fleets), names(fleets)), function(x){
         return(Reduce( '+', FbyFlMt[[x]]))})

@@ -83,7 +83,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
       if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
   
                             
-    for(stknm in  stnms){
+    for(stknm in  sts){
         tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
         if(is.null(tacos.fun))   alpha <- rep(1,nit)
         else{
@@ -103,7 +103,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
            else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
  
            # Extract the i-th element from the lists. 
-            Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+            Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,2)],1)))
             q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
             beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
             alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -111,11 +111,11 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
             wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
             wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
         
-            Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,3)],1)))
-            Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,3)],1)))
-            Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,3)],1)))
-            Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,,,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,3)],1)))
-            Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,,,,i,drop=T], dim = c(dim(M[[x]])[c(1,3)],1)))
+            Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+            Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+            Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+            Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+            Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
     
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
                                 alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
@@ -164,7 +164,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
               
               # Extract the i-th element form the lists. 
-              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
               q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
               beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
               alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -190,7 +190,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                   else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
                   
                   # Extract the i-th element form the lists. 
-                  Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+                  Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
                   q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
                   beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
                   alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -198,11 +198,11 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                   wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
                   wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
                   
-                  Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,3)],1)))
-                  Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,3)],1)))
-                  Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,3)],1)))
-                  Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,,,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,3)],1)))
-                  Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,,,,i,drop=T], dim = c(dim(M[[x]])[c(1,3)],1)))
+                  Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+                  Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+                  Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+                  Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+                  Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
                  
                   effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
                   # To calculate the final quota, the year transfer % needs to be applied to the original quota before
@@ -322,11 +322,11 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
    
           if(is.null(dim(rho)))   rhoi <- rho
           if(length(dim(rho))==2) rho <- rho[st,i]
-          Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,3)],1)))
-          Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,3)],1)))
-          Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,,,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,3)],1)))
-          Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,,,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,3)],1)))
-          Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,,,,i,drop=T], dim = c(dim(M[[x]])[c(1,3)],1)))
+          Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+          Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+          Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+          Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+          Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
           
           #browser()
           

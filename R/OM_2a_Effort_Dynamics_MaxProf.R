@@ -104,10 +104,13 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
     for(st in names(q.m)){
       
       effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
-      effs[st] <- eval(call(effort.fun, Cr = data.frame(Cr.f),  N = Nsts, q.m = q.m,
-                            efs.m = matrix(efs.m,nmt,1), alpha.m = alpha.m, beta.m = beta.m,
-                            ret.m = ret.m, wl.m = wl.m, wd.m = wd.m,
-                            restriction = restriction, stknm=st))
+
+      
+      effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f,  N = N, q.m = q.m, rho = rho, efs.m = efs.m, 
+                                alpha.m = alpha.m, beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m,stknm=st,
+                                restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
+                                tac=TAC, Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1))
+      
     }
     
     qsum.stk <- sapply(names(q.m), function(x) sum(q.m[[x]]))

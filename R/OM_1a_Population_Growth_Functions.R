@@ -270,7 +270,8 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     for(u in 1:nu){
       
     loop.uniroot <- function(i) {
-      uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root
+      if(Ca[a,,u,,,i] > Na[a,,u,,,i]) return(10)
+      return(uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root)
     }
 
     for (a in 1:na) fa[a,,u,,,] <- vapply(1:ni, loop.uniroot, numeric(1))
