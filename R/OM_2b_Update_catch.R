@@ -260,7 +260,8 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year
     
     if(dim(biols[[st]]@n)[1] == 1) stop(st, ' stock has no ages, Cobb Douglas cannot be applied at age level then! correct the "catch.model" argument in "fleets.ctrl" argument!\n')
     
-    N     <- (biols[[st]]@n*exp(-biols[[st]]@m/2))[,yr,,ss]  # Ba[na,it], biomass at age in the middle  of the season,
+    if(catch.model == 'Baranov')                  N     <- (biols[[st]]@n[,yr,,ss])  # Ba[na,it], biomass at age in the middle  of the season,
+    if(substr(catch.model,1,11) == 'CobbDouglas') N     <- (biols[[st]]@n*exp(-biols[[st]]@m/2))[,yr,,ss]  # Ba[na,it], biomass at age in the middle  of the season,
     
     M     <- biols[[st]]@m[,yr,,ss]  
 
@@ -341,7 +342,7 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year
 
 
     Cam <- eval(call(catch.model, E = eff[1,], N = Nst, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
-                            efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho, tac = tac,
+                            efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho,
                              M = M, Fknown = TRUE, Ft = Ft, Ff = Ff))
 
     

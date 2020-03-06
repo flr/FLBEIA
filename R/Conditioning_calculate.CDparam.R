@@ -120,17 +120,24 @@
  #' @param biols An FLBiols object.
  #' @param fleets An FLFleetsExt object. An extended version of the FLFleet object defined in FLCore. 
  #' @param BDs A list of FLSRsim objects. One per biomass dynamic stock in biols object.
+ #' @param fleets.ctrl Fleets' control file containing the catch production function for each fleet and stock.
  #' @param mean.yrs A character vector with the name of the years used to calculate mean selectivity.
  #' @param sim.yrs A character vector with the name of the years in the projection period.
  #' 
  #' @return A FLFleetsExt object. 
  #' 
  
- calculate.q.sel.flrObjs <- function(biols, fleets, BDs, mean.yrs, sim.yrs){
+ calculate.q.sel.flrObjs <- function(biols, fleets, BDs, fleets.ctrl, mean.yrs, sim.yrs){
    
     for(st in names(biols)){
     
       na <- dim(biols[[st]]@n)[1]
+      
+    # For age structured models calculate always Fa, to save on computations, for years 1:simyrs[]-1
+      yrs <- dimnames(biols[[st]]@n)[[2]]
+
+      Fa <- Fa_cond_Baranov(biols, fleets, year = yrs, stk = st)
+      Ct <- catchStock(fleets,st)
     
      if(na != 1){  # 'Biomass' in numbers because the catch is in numbers, in the middle of the season.
         B <- biols[[st]]@n*exp(-biols[[st]]@m/2)#*biols[[st]]@wt  
@@ -146,8 +153,12 @@
         for(mt in names(fleets[[fl]]@metiers)){
             
           cat(fl, ' - ', mt, ' - ', st, '\n')
+     #     if(fl == 'PGP_PT' & st == 'LDB') browser()
+          
             if(!(st %in% catchNames(fleets[[fl]]@metiers[[mt]]))) next  
           
+            catchProd <- fleets.ctrl[[fl]][[st]][['catch.model']] 
+              
             C     <- (fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n + fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n)
             alpha <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@alpha
             beta  <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@beta
@@ -156,8 +167,16 @@
             if(na == 1 ) C <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt + 
                               fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt
             
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q <- C/((E%^%alpha)*(B%^%beta))
             
+            # Cobb-Douglas q
+            if(substr(catchProd,1,11) == 'CobbDouglas') fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q <- C/((E%^%alpha)*(B%^%beta))
+            # Baranov q: First calculate Fa for the whole fishery and then using partial F calculate q = Fap/E^alpha.
+            if(catchProd == 'Baranov'){ 
+              Fpa <- (C/Ct)*Fa
+              
+              fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[] <- Fpa/(E%^%alpha)
+            }  
+           
             fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
                                                                                                                              fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n)
             fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
@@ -178,6 +197,55 @@
 }
    
    
-   
+# Auxiliar function to calculate F-at-age.
+ 
+ Fa_cond_Baranov <-    function(biols, fleets, stk, years = dimnames(biols[[1]]@n)$year){
+     stknms <- names(biols)
+     
+     it     <- dim(biols[[1]]@n)[6]
+     ny     <- length(years)
+     ns     <- dim(biols[[1]]@n)[4]
+     yrnms  <- years
+     ssnms <- dimnames(biols[[1]]@n)[[4]]
+     
+     # harvest: * if age structured calculate it from 'n'.
+       #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
+       na <- dim(biols[[stk]]@n)[1]
+       nu <- dim(biols[[stk]]@n)[3]
+       
+       res <- unclass(biols[[stk]]@n)
+       res[] <- NA
+       
+       Dnms <- dimnames(biols[[stk]]@n)
+       
+       n.  <- unclass(biols[[stk]]@n[,years,,,drop=F])
+       m.  <- unclass(biols[[stk]]@m[,years,,,drop=F])
+       c.  <- unclass(catchStock(fleets, stk)[,years,,,drop = F])
+       
+       fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
+       
+       for(ss in ssnms){
+         for(y in yrnms){
+           for(a in 1:na){
+             for(u in 1:nu){
+               for(i in 1:it){
+                 if(is.na(n.[a,y,u,ss,1,i])){ 
+                   res[a,y,u,ss,1,i] <- NA
+                 }
+                 else{
+                   if(n.[a,y,u,ss,1,i] == 0){ res[a,y,u,ss,1,i] <- 0; next}
+                   # if n. < c. we take the Fa in the previous 'correct  age because otherwise it could generate problems
+                   if(n.[a,y,u,ss,1,i] < c.[a,y,u,ss,1,i]){
+                     if(a == 1) res[a,y,u,ss,1,i] <- Inf
+                     else res[a,y,u,ss,1,i] <- res[a-1,y,u,ss,1,i]}
+                   else{
+                     xx <- try(uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,u,ss,1,i], m=m.[a,y,u,ss,1,i], c = c.[a,y,u,ss,1,i])$root, silent = TRUE)
+                     res[a,y,u,ss,1,i] <- ifelse(class(xx) == 'try-error', NA, xx)
+                   }
+                 }     
+               }}}}}
+     
+     return(res)
+   }
    
   

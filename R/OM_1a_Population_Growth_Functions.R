@@ -255,7 +255,7 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     
     findF <- function(Fa,Ca, Ma, Na){
       Ca. <- (Fa/(Fa+Ma))*(1-exp(-Ma-Fa))*Na
-      res <- sum(Ca.)-sum(Ca)
+      res <- Ca.-Ca
       return(res)
     }
     

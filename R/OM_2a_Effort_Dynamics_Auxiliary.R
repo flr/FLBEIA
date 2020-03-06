@@ -14,7 +14,14 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
   
   # Fleet's info
   fl    <- fleets[[flnm]]
-  sts   <- catchNames(fl)
+  
+  # The effort is restricted only by the stocks in 'stocks.restr'    
+  # If the restrictors are missing => all the stocks restrict.
+  #-----------------------------------------------------------------------------------
+  if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
+    fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
+  }  
+  sts   <- intersect(fleets.ctrl[[flnm]][['stocks.restr']], catchNames(fl))
   stnms <- names(biols)
   flnms <- names(fleets)
   mtnms <- names(fl@metiers)
@@ -137,22 +144,12 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
       QS[is.na(QS)] <- 0
     }
     else{
-      QS   <- lapply(stnms, function(x){          # list of stocks, each stock [nf,it]
+      QS   <- lapply(sts, function(x){          # list of stocks, each stock [nf,it]
         res <- sweep(QS[[x]], 2, apply(QS[[x]],2, sum), "/")
         res[is.na(res)] <- 0 
         return(res)})      
-      names(QS) <- stnms
+      names(QS) <- sts
     }
-    
-    
-    # The effort is restricted only by the stocks in 'stocks.restr'    
-    # If the restrictors are missing => all the stocks restrict.
-    #-----------------------------------------------------------------------------------
-    if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
-      fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
-    }  
-    sts <- fleets.ctrl[[flnm]][['stocks.restr']]
-    
     
     
     # flinfo: matrix with information on which metier catch which stock.
@@ -173,7 +170,7 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     # Economic input factors to compute profits
     #-----------------------------------------------------------------------------------------
     vc.m <- fc <- crewS <- NULL
-    if(effort.model == 'MaProfit'){
+    if(effort.model == 'MaxProfit'){
       # variable cost per unit of effort [nmt] 
       vc.m <- sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss,,iters, drop=T])  #[nmt]
     

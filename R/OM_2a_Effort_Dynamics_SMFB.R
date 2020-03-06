@@ -39,12 +39,20 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
     
-
+#if(flnm == 'GNS_FR') browser()
     
     # 'year' dimension.
     # Dimnsions and fl
     fl    <- fleets[[flnm]]
-    sts   <- catchNames(fl)
+    
+    # The effort is restricted only by the stocks in 'stocks.restr'    
+    # If the restrictors are missing => all the stocks restrict.
+    #-----------------------------------------------------------------------------------
+    if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
+      fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
+    }  
+    sts   <- intersect(fleets.ctrl[[flnm]][['stocks.restr']], catchNames(fl))
+   
     stnms <- names(biols)
     mtnms <- names(fl@metiers)
     nmt   <- length(mtnms)
@@ -79,7 +87,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
 
     
     # when advice season is different to ns: 
-    for (st in stnms)
+    for (st in sts)
       if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
   
                             
