@@ -399,6 +399,10 @@ checkAdvice <- function(object) {
     
   }
   
+  # Quant must be "stock": if not advSum is not working
+  if (quant(object$TAC) != "stock")
+    stop("quant(object$TAC) must be  'stock', instead of '", quant(object$TAC),"'.")
+  
   return(TRUE)
   
 }
