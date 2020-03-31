@@ -15,7 +15,7 @@
 #  + min and max effort thresholds by fleet
 #  + info on discrimination capability of the metiers (fleets.ctrl[[fl]]$q2zero[st,mt])
 #-------------------------------------------------------------------------------
-MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
+MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
   
   dimnms <- dimnames(biols[[1]]@n)
   
@@ -185,6 +185,14 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
                      effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
                      tacos = tacos, rho = rho)
     
+    if (eff_opt$convergence %in% c(1,10) )
+      eff_opt <- optim(eff_opt$par,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
+                       beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
+                       wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
+                       effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
+                       tacos = tacos, rho = rho, control=list(maxit=100000))
+    
+    
     # eff_nloptr <- nloptr::nloptr(E0,
     #                              eval_f= f_MP_nloptr,
     #                              lb = efs.min,
@@ -199,6 +207,32 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
     res <- K/(1+exp(-eff_opt[[1]]))
     Et.res[i]   <- sum(res)
     efs.res[,i] <- res/sum(res)
+    
+    # # CHECKS
+    # cat('CONVERGENCE: ', eff_opt$convergence, '\n')
+    # cat('- capacity cond: ', K >= Et.res, '\n')
+    # cat('- efsMax cond  :', names(res) , '\n')
+    # cat('                ', res <= efs.max , '\n')
+    # cat('- efsMin cond  :', names(res) , '\n')
+    # cat('                ', res >= efs.min , '\n')
+    # cat('- overshoot    : \n')
+    # for (st in stocks.restr) {
+    #   Nst <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+    #   if(dim(Nst)[1] > 1){
+    #     Cam.st <- CobbDouglasAge(sum(res),Nst, wl.m[[st]], wd.m[[st]],
+    #                              ret.m[[st]],q.m[[st]],matrix(res/sum(res),ncol = 1),alpha.m[[st]],beta.m[[st]],rho[st])
+    #     Cam.st[is.na(Cam.st)] <- 0
+    #     if(catch.restr == 'landings') Cam.st <- Cam.st*ret.m[[st]]
+    #     Ctot <- ifelse( sum(Cam.st)==0, 1e-08*0.99,sum(Cam.st))
+    #   } else{
+    #     Cm.st <- CobbDouglasBio(sum(res),Nst, wl.m[[st]], wd.m[[st]],
+    #                            q.m[[st]],matrix(res/sum(res),ncol = 1),alpha.m[[st]],beta.m[[st]], ret.m[[st]],rho[st])
+    #     if(catch.restr == 'landings') Cm.st <- Cm.st*c(ret.m[[st]])
+    #     Ctot <- sum(Cm.st)
+    #   }
+    #   cat('  * ',st,' -', Ctot <= Cr.f[st], '\n \n')
+    # }
+    
     cat('Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], ', ~~~~~ Funct. Value: ', eff_opt$value, '\n')
     
     
@@ -223,37 +257,11 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, fleets.ctrl, advice.ctr
   # quota share does not coincide with the actual catch. (update next one only if s < ns).
   
   if(dim(biols[[1]]@n)[4] > 1){ # only for seasonal models
+    
+    TAC.yr   <- advice$TAC[sts,yr,,,,i,drop=T] 
+    
     for(st in sts){
       
-      
-      yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-      ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
-      quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
-      # The catch.
-      catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
-      
-      Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-      catchD <- eval(call(catchFun, N = Nst, B = B[st], E = Et.res, efs.m = efs.res, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st]))
-      itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
-      catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
-      
-      quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st], catch = catch, season = ss)        # [ns,it]
-      
-      fleets.ctrl$seasonal.share[[st]][flnm,yr,,,,i] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
-    }
-  }
-  
-  
-  
-  
-  # Update the quota share of this step and the next one if the
-  # quota share does not coincide with the actual catch. (update next one only if s < ns).
-  
-  if(dim(biols[[1]]@n)[4] > 1){ # only for seasonal models
-    for(st in sts){
-      
-      #   browser()
-      #  if(st == 'SKH') browser()
       
       yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
       ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
@@ -388,8 +396,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   Cst <- Lst <-  numeric(length(q.m))
   names(Cst) <- names(Lst) <-names(q.m)
   
-  resTAC <- numeric(length(biols))
-  names(resTAC) <- names(biols)
+  resTAC <- numeric(nrow(B))
+  names(resTAC) <- rownames(B)
   
   #   cat( '**************************************************************************\n')
   
@@ -506,7 +514,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
       }
       
     }
-    pen_OverShoot <- sum(resTAC[stocks.restr], na.rm = TRUE) # only the overshoot of the TAC of some stocks penalizes the function.
+    pen_OverShoot <- sum(resTAC[stocks.restr]) # only the overshoot of the TAC of some stocks penalizes the function.
   }
   
   if(!(effort.restr %in% c('none', 'min'))){
