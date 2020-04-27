@@ -129,6 +129,7 @@
  
  calculate.q.sel.flrObjs <- function(biols, fleets, BDs, fleets.ctrl, mean.yrs, sim.yrs){
    
+   print('kku2')
     for(st in names(biols)){
     
       na <- dim(biols[[st]]@n)[1]
@@ -136,7 +137,7 @@
     # For age structured models calculate always Fa, to save on computations, for years 1:simyrs[]-1
       yrs <- dimnames(biols[[st]]@n)[[2]]
 
-      Fa <- Fa_cond_Baranov(biols, fleets, year = yrs, stk = st)
+      if(na > 1) Fa <- Fa_cond_Baranov(biols, fleets, year = yrs, stk = st)
       Ct <- catchStock(fleets,st)
     
      if(na != 1){  # 'Biomass' in numbers because the catch is in numbers, in the middle of the season.
@@ -153,7 +154,7 @@
         for(mt in names(fleets[[fl]]@metiers)){
             
           cat(fl, ' - ', mt, ' - ', st, '\n')
-     #     if(fl == 'PGP_PT' & st == 'LDB') browser()
+        #  if(fl == 'GN7_SP' & st == 'HKE') browser()
           
             if(!(st %in% catchNames(fleets[[fl]]@metiers[[mt]]))) next  
           
