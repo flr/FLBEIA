@@ -4,8 +4,9 @@
 \alias{create.biol.arrays}
 \title{Function to generate an FLBiol object given inputs as arrays}
 \usage{
-create.biol.arrays(filename, name = NA, ages, hist.yrs, sim.yrs,
-  fbar = NULL, mean.yrs, excel = TRUE, unit = list())
+create.biol.arrays(filename = NULL, data = NULL, name = NA, ages,
+  hist.yrs, sim.yrs, fbar = NULL, mean.yrs, source = "rdata",
+  unit = list())
 }
 \arguments{
 \item{filename}{A character vector with the name of the files containing the stock data.
@@ -19,6 +20,8 @@ landings and discard in numbers at age (laa and daa) are set to cca and 0, respe
 Finally for weights, if missing, weights at age for landings (wl) and discards (wd) are set to the weights in the population and 
 weights at age for catch (wc) are set to the weighted mean of the weights of landings and discards.}
 
+\item{data}{An R object with the stock data.}
+
 \item{name}{A character (optional) with the name of the stock.}
 
 \item{ages}{A numeric vector with the age classes of stock.}
@@ -31,8 +34,8 @@ weights at age for catch (wc) are set to the weighted mean of the weights of lan
 
 \item{mean.yrs}{A vector with the years used to compute the mean to condition the parameters in the projection period.}
 
-\item{excel}{Logical. \code{TRUE} (default), if the data is provided in an Excel file and 
-\code{FALSE}, if an RData object is used instead.}
+\item{source}{Character, 'excel', 'rdata' or 'object'.  'rdata' (default) if an RData object is used,  'excel' if the data is provided in an Excel file and 
+and 'object' if the data is an object of the working environment.}
 
 \item{unit}{A list with the units of the different elements included in \code{filename}. Unitless objects must be set to '' or character(1).
 This parameter is only required if \code{excel==FALSE}. When using Excell files the units are taken from the first row and column (cell A1) of each sheet. 

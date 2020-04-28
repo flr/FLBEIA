@@ -4,7 +4,7 @@
 \alias{calculate.q.sel.flrObjs}
 \title{Calculates selectivity-related parameters}
 \usage{
-calculate.q.sel.flrObjs(biols, fleets, BDs, mean.yrs, sim.yrs)
+calculate.q.sel.flrObjs(biols, fleets, BDs, fleets.ctrl, mean.yrs, sim.yrs)
 }
 \arguments{
 \item{biols}{An FLBiols object.}
@@ -12,6 +12,8 @@ calculate.q.sel.flrObjs(biols, fleets, BDs, mean.yrs, sim.yrs)
 \item{fleets}{An FLFleetsExt object. An extended version of the FLFleet object defined in FLCore.}
 
 \item{BDs}{A list of FLSRsim objects. One per biomass dynamic stock in biols object.}
+
+\item{fleets.ctrl}{Fleets' control file containing the catch production function for each fleet and stock.}
 
 \item{mean.yrs}{A character vector with the name of the years used to calculate mean selectivity.}
 
