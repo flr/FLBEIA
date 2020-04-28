@@ -129,7 +129,6 @@
  
  calculate.q.sel.flrObjs <- function(biols, fleets, BDs, fleets.ctrl, mean.yrs, sim.yrs){
    
-   print('kku2')
     for(st in names(biols)){
     
       na <- dim(biols[[st]]@n)[1]
