@@ -192,7 +192,8 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
                        beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
                        wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
                        effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
-                       tacos = tacos, rho = rho, tac=TAC[,i, drop=F], Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1, flnm = flnm, fleets.ctrl = fleets.ctrl)
+                       tacos = tacos, rho = rho, tac=TAC[,i, drop=F], Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1, flnm = flnm, fleets.ctrl = fleets.ctrl, 
+                       control=list(maxit=100000))
     
     # eff_nloptr <- nloptr::nloptr(E0,
     #                              eval_f= f_MP_nloptr,
@@ -359,7 +360,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
 
 f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
                                   wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K , effort.restr, catch.restr, stocks.restr, 
-                                  efs.abs, tacos, rho,tac, Cyr_1, Nyr_1, Myr_1,  M, Cfyr_1, 
+                                  efs.abs, tacos, rho, tac, Cyr_1, Nyr_1, Myr_1,  M, Cfyr_1, 
                                   flnm, fleets.ctrl){
   
   E <- K/(1+exp(-X))
