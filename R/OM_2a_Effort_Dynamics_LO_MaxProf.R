@@ -1,6 +1,7 @@
 MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.res, efs.res,  efs.min, efs.max, 
                                yr,ss, flnm, it, i, sts, q.m, alpha.m, beta.m, pr.m,  Cr.f, fc, ret.m, wd.m, wl.m, vc.m, N, B, K, rho,
-                               effort.restr, crewS, catch.restr, efs.abs, tacos){
+                               effort.restr, crewS, catch.restr, efs.abs, tacos, 
+                               tac=TAC[,i, drop=F], Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1){
   
 #if(flnm == 'DTS_SP' & yr == 39) browser()
  
@@ -51,7 +52,8 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
         eff_opt <- optim(X,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
                          beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
                          wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f_min_qt,  crewS = crewS, K = K , 
-                         effort.restr = 'min', catch.restr = 'catch', efs.abs = efs.abs, tacos = tacos, rho = rho)
+                         effort.restr = 'min', catch.restr = 'catch', efs.abs = efs.abs, tacos = tacos, rho = rho, 
+                         tac = tac, Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1, flnm = flnm, fleets.ctrl = fleets.ctrl)
         
         
         res <- K/(1+exp(-eff_opt[[1]]))

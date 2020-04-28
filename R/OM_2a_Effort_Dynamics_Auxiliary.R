@@ -9,7 +9,6 @@
 # rho: Check what sonia has done the last days.
 #------------------------------------------------------------------------------------
 
-
 FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, fleets.ctrl,  flnm, yr, ss,iters){
   
   # Fleet's info
@@ -49,14 +48,17 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     # biomass at age in the middle  of the season, list elements: 
     #-----------------------------------------------
     N   <- lapply(setNames(sts, sts), function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
-                                na <- dim(biols[[x]]@n)[1]
-                                nu <- dim(biols[[x]]@n)[3]
+                                na <- dim(biols[[x]]@n)[1]; age <- dimnames(biols[[x]]@n)$age 
+                                nu <- dim(biols[[x]]@n)[3]; uni <- dimnames(biols[[x]]@n)$unit
                                 catch.model <- fleets.ctrl[[flnm]][[x]][['catch.model']]
-                                if(catch.model == 'CobbDouglasAge')        return(array((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss,,iters, drop = TRUE], dim = c(na, nu, nit)))
-                                if(biols.ctrl[[x]] == 'fixedPopulation')   return(array(biols[[x]]@n[,yr,,ss,,iters, drop=TRUE], dim = c(na, nu, nit)))
-                                if(catch.model == 'Baranov')               return(array(biols[[x]]@n[,yr,,ss,,iters, drop = TRUE], dim = c(na, nu, nit)))
+                                if(catch.model == 'CobbDouglasAge')        
+                                  return(array((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss,,iters, drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))
+                                if(biols.ctrl[[x]] == 'fixedPopulation')   
+                                  return(array(biols[[x]]@n[,yr,,ss,,iters, drop=TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))
+                                if(catch.model == 'Baranov')               
+                                  return(array(biols[[x]]@n[,yr,,ss,,iters, drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))
                                 # else   
-                                return(array((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss,,iters, drop=F], dim = c(1, 1, nit)))})
+                                return(array((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss,,iters, drop=F], dim = c(1, 1, nit), dimnames = list(age, uni, iters)))})
 
     names(N) <- sts
 
@@ -67,12 +69,13 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     #------------------------------------------------------------------
     if(effort.model == 'MaxProfit'){
       QS   <- sapply(names(biols), function(x){           # 
-                    yr.share    <- advice$quota.share[[x]][,yr,,,,iters, drop=T]        # [nf, it] or [nf]
-                    ss.share    <- fleets.ctrl$seasonal.share[[x]][,yr,,ss,,iters, drop=T]   # [nf, it] or [nf]
-                    quota.share <- yr.share*ss.share # [nf, it] or [nf]
+                    yr.share    <- advice$quota.share[[x]][,yr,,,,iters, drop=T]           # [nf]
+                    ss.share    <- fleets.ctrl$seasonal.share[[x]][,yr,,ss,,iters, drop=T] # [nf]
+                    quota.share <- yr.share*ss.share # [nf]
                     quota.share[is.na(quota.share)] <- 0
                     return(quota.share)})
-      names(QS) <- names(biols)
+      # names(QS) <- names(biols)
+      QS <- matrix(QS, length(flnms), length(names(biols)), dimnames = list(flnms, names(biols)))
     }
     else{
       QS   <- lapply(stnms, function(x){           # list of stocks, each stock [nf,it]
@@ -91,25 +94,25 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     # All have dimension: [na,1,nu,1,1,it]
     #-----------------------------------------------------
     Nyr_1   <- lapply(setNames(sts, sts), function(x){   # biomass at age beggining of the season yr-1, list elements: [na,1,nu,1,1,it]
-      na <- dim(biols[[x]]@n)[1]
-      nu <- dim(biols[[x]]@n)[3]
-      return(array(biols[[x]]@n[,yr-1,,ss,iters, drop = TRUE], dim = c(na, nu,nit)))})
+      na <- dim(biols[[x]]@n)[1]; age <- dimnames(biols[[x]]@n)$age
+      nu <- dim(biols[[x]]@n)[3]; uni <- dimnames(biols[[x]]@n)$unit
+      return(array(biols[[x]]@n[,yr-1,,ss,,iters, drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))})
     M   <- lapply(setNames(sts, sts), function(x){   
-      na <- dim(biols[[x]]@n)[1]# M  yr, list elements: [na,nu,it]
-      nu <- dim(biols[[x]]@n)[3]
-      return(array(biols[[x]]@m[,yr,,ss,,iters,  drop = TRUE], dim = c(na, nu,nit)))})
+      na <- dim(biols[[x]]@n)[1]; age <- dimnames(biols[[x]]@n)$age # M  yr, list elements: [na,nu,it]
+      nu <- dim(biols[[x]]@n)[3]; uni <- dimnames(biols[[x]]@n)$unit
+      return(array(biols[[x]]@m[,yr,,ss,,iters,  drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))})
     Myr_1   <- lapply(setNames(sts, sts), function(x){   
-      na <- dim(biols[[x]]@n)[1] # M yr-1, list elements: [na,nu,it]
-      nu <- dim(biols[[x]]@n)[3]
-      return(array(biols[[x]]@m[,yr-1,,ss,,iters,  drop = TRUE], dim = c(na, nu, nit)))})
+      na <- dim(biols[[x]]@n)[1]; age <- dimnames(biols[[x]]@n)$age # M  yr-1, list elements: [na,nu,it]
+      nu <- dim(biols[[x]]@n)[3]; uni <- dimnames(biols[[x]]@n)$unit
+      return(array(biols[[x]]@m[,yr-1,,ss,,iters,  drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))})
     Cyr_1  <- lapply(setNames(sts, sts), function(x){
-      na <- dim(biols[[x]]@n)[1]
-      nu <- dim(biols[[x]]@n)[3]
-      array(catchStock(fleets,x)[,yr-1,,ss,,iters,  drop = TRUE], dim = c(na, nu, nit))})
+      na <- dim(biols[[x]]@n)[1]; age <- dimnames(biols[[x]]@n)$age
+      nu <- dim(biols[[x]]@n)[3]; uni <- dimnames(biols[[x]]@n)$unit
+      array(catchStock(fleets,x)[,yr-1,,ss,,iters,  drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters))})
     Cfyr_1 <- lapply(setNames(sts, sts), function(x){
-      na <- dim(biols[[x]]@n)[1]
-      nu <- dim(biols[[x]]@n)[3]
-      array(catchStock.f(fl,x)[,yr-1,,ss,,iters, drop = TRUE], dim = c(na, nu, nit))})
+      na <- dim(biols[[x]]@n)[1]; age <- dimnames(biols[[x]]@n)$age
+      nu <- dim(biols[[x]]@n)[3]; uni <- dimnames(biols[[x]]@n)$unit
+      array(catchStock.f(fl,x)[,yr-1,,ss,,iters, drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters))})
     
     
     # If TAC >= B*alpha => TAC = B*alpha.
@@ -128,13 +131,13 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     # TAC [nstnms, it], limited by rho*B
     #---------------------------------------------------------
  #   if(nit > 1){    
-      if(length(stnms) == 1) rho <- matrix(rho, 1,nit, dimnames = list(stnms, 1:iters))
+      if(length(stnms) == 1) rho <- matrix(rho, 1, nit, dimnames = list(stnms, iters))
       
       TAC <- ifelse(B[sts,]*rho[sts,] < TAC.yr[sts,]*QS.ss[sts,], B[sts,]*rho[sts,], TAC.yr[sts,]*QS.ss[sts,])
   #  }
  #   else TAC <- ifelse(B[sts,]*rho[sts] < TAC.yr[sts,]*QS.ss[sts,], B[sts,]*rho[sts], TAC.yr[sts,]*QS.ss[sts,])
     
-    TAC <- matrix(TAC, length(sts),nit,dimnames = list(sts, iters))
+    TAC <- matrix(TAC, length(sts), nit, dimnames = list(sts, iters))
     
 
     # Re-scale QS to fleet share within the season instead of season-fleet share within year.
