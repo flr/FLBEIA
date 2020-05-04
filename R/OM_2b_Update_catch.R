@@ -6,10 +6,10 @@
 # - ageBased.CobbDoug: Catch at age calculation when Cobb douglas is applied at
 #       age level.
 #  - updateCatch: Update the slots related to catch using the appropiate function.
-# 
 # Dorleta GarcYYYa
 # Created: 28/10/2010 12:33:04
 # Changed:03/06/2011 07:53:53
+# Changed: 17/02/2020 Baranov added
 #-------------------------------------------------------------------------------
 
 
@@ -24,8 +24,10 @@ updateCatch <- function(fleets, biols, BDs, advice, biols.ctrl, fleets.ctrl, adv
         # Which stocks are caught by fleet flnm.
         flsts <- catchNames(fleets[[flnm]])
         for(st in flsts){
-            catch.model <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'CAA', sep = ".")
-            fleets <- eval(call(catch.model, fleets = fleets, biols = biols, BDs = BDs, biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, advice = advice, advice.ctrl = advice.ctrl, year = year, season = season, flnm = flnm, stknm = st))
+            
+            na <- dim(biols[[st]]@n)[1]
+            if(na == 1) fleets <- BioPop.CAA(fleets = fleets, biols = biols, BDs = BDs, biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, advice = advice, advice.ctrl = advice.ctrl, year = year, season = season, flnm = flnm, stknm = st)
+            else        fleets <- AgePop.CAA(fleets = fleets, biols = biols, BDs = BDs, biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, advice = advice, advice.ctrl = advice.ctrl, year = year, season = season, flnm = flnm, stknm = st)   
         }
     }
     
@@ -48,7 +50,7 @@ updateCatch <- function(fleets, biols, BDs, advice, biols.ctrl, fleets.ctrl, adv
 #-------------------------------------------------------------------------------
 # aggregated.CobbDoug(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-CobbDouglasBio.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...){
+BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...){
 
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,,season,drop=T] # [it]
 
@@ -147,8 +149,11 @@ CobbDouglasBio.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, adv
     
     
     Nst  <- array(N[drop=T],dim = dim(N)[c(1,3,6)])
-    Cm <- CobbDouglasBio(E= eff[1,], N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
-             efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho)
+    
+    catch.model <- fleets.ctrl[[flnm]][[st]][['catch.model']]  
+      
+    Cm <- eval(call(catch.model,  E= eff[1,], N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
+             efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho))
     
     Ctotal <-  ifelse(rep(catch.restr == 'landings',it), apply(Cm*matrix(ret.m, dim(ret.m)[1], dim(ret.m)[4]),2,sum), apply(Cm,2,sum))
 
@@ -194,7 +199,7 @@ CobbDouglasBio.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, adv
 #-------------------------------------------------------------------------------
 # ageBased.CobbDoug(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-CobbDouglasAge.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
+AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
 
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,, season,drop=T] # [it]
 
@@ -210,10 +215,14 @@ CobbDouglasAge.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advi
     yr <- year
     ss <- season
     st <- stknm
+    na <- dim(biols[[stknm]]@n)[1]
+    nu <- dim(biols[[stknm]]@n)[3]
     
     fl    <- fleets[[flnm]]
     sts   <- catchNames(fl)
     mtnms <- names(fl@metiers)
+    
+    catch.model <- fleets.ctrl[[flnm]][[stknm]][['catch.model']]
 
     if(!(st %in% sts)) return(fleets)
     
@@ -245,18 +254,53 @@ CobbDouglasAge.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advi
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0              
-        tac <- (advice$TAC[st,yr,drop=T]*QS*(1+yrtr_p)) - yrtr_disc # it, add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
+        tac <- (advice$TAC[st,yr,drop=T]*QS*(1+yrtr_p)) - yrtr_disc   # [it], add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
                                                                       # the minimise is not added because it is discarded.      
     }
     
     if(dim(biols[[st]]@n)[1] == 1) stop(st, ' stock has no ages, Cobb Douglas cannot be applied at age level then! correct the "catch.model" argument in "fleets.ctrl" argument!\n')
     
-    N <- (biols[[st]]@n*exp(-biols[[st]]@m/2))[,yr,,ss]  # Ba[na,it], biomass at age in the middle  of the season,
+    if(catch.model == 'Baranov')                  N     <- (biols[[st]]@n[,yr,,ss])  # Ba[na,it], biomass at age in the middle  of the season,
+    if(substr(catch.model,1,11) == 'CobbDouglas') N     <- (biols[[st]]@n*exp(-biols[[st]]@m/2))[,yr,,ss]  # Ba[na,it], biomass at age in the middle  of the season,
+    
+    M     <- biols[[st]]@m[,yr,,ss]  
 
     efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])),
                 length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
     eff   <- matrix(fl@effort[,yr,,ss],length(mtnms), it, dimnames = list(mtnms, 1:it), byrow = T)
-
+    
+    # If 'Baranov' we calculate the total fishing mortality of all the fishery for year 'y'
+    if(catch.model == 'Baranov'){
+      EFF   <- lapply(setNames(names(fleets), names(fleets)), function(x) c(fleets[[x]]@effort[, yr,,ss]))
+      EFS.M <- lapply(setNames(names(fleets), names(fleets)), function(x){ 
+        matrix(sapply(names(fleets[[x]]@metiers), function(y)  
+                        fleets[[x]]@metiers[[y]]@effshare[, yr,,ss, drop=T] ), length(fleets[[x]]@metiers), it, 
+                           dimnames = list(names(fleets[[x]]@metiers), 1:it))})
+      
+      
+       Q.M   <- lapply(setNames(names(fleets), names(fleets)), function(x){ 
+                lapply(setNames(names(fleets[[x]]@metiers), names(fleets[[x]]@metiers)),  
+                          function(y){
+                            if(!(stknm %in% names(fleets[[x]]@metiers[[y]]@catches))) return(array(0, dim = c(na,nu, it)))
+                            else return(array(fleets[[x]]@metiers[[y]]@catches[[stknm]]@catch.q[,yr,,ss,drop=TRUE],dim = c(na,nu, it)))
+                          })})
+       # Calculate total Ft and fleets partial F, Ff.
+      FbyFlMt  <- lapply(setNames(names(fleets), names(fleets)), function(x){
+                return(lapply(setNames(names(fleets[[x]]@metiers),  names(fleets[[x]]@metiers)), function(y){
+                                    Ft.M <- sweep(Q.M[[x]][[y]], 1:3,EFS.M[[x]][y,]*EFF[[x]], "*")
+                                    return(Ft.M)}))
+        })
+      FbyFl  <- lapply(setNames(names(fleets), names(fleets)), function(x){
+        return(Reduce( '+', FbyFlMt[[x]]))})
+      
+      Ft <- array(Reduce('+', FbyFl), dim = c(na, nu, it)) #[na,nu.it]
+      Ff <- array(dim = c(length(mtnms), na, nu, it), dimnames = list(mtnms, NULL, 1:nu, 1:it))
+      for(m in mtnms) Ff[m,,,] <- FbyFlMt[[flnm]][[m]]  # [mt,na.nu,it]
+    }
+    else{
+      Ft <- Ff <- NULL
+    }
+    
     # flinfo: matrix with information on which metier catch which stock.
     fl.        <- FLFleetsExt(fl)
     names(fl.) <- flnm
@@ -293,22 +337,21 @@ CobbDouglasAge.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advi
         wd.m[mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, drop = TRUE]
     }
 
-    Nst  <- array(N[drop=T],dim = dim(N)[c(1,3,6)])
+    Nst     <- array(N[drop=T], dim = dim(N)[c(1,3,6)]) # [na.nu.it]
+    M       <- array(M[drop=T], dim = dim(M)[c(1,3,6)]) # [na.nu.it]
 
-    Cam <- CobbDouglasAge(E = eff[1,], N = Nst, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
-                            efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho)
 
-#    if(st == 'LDB' & flnm == 'DTS_SP') browser()
+    Cam <- eval(call(catch.model, E = eff[1,], N = Nst, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
+                            efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho,
+                             M = M, Fknown = TRUE, Ft = Ft, Ff = Ff))
+
     
  # if catch restriction is landings, Lrat is calculated over landigns, else it is calculated over total catch including undersize individuals.
     Ctotal <- ifelse(rep(catch.restr == 'landings', it), apply(Cam*ret.m,4,sum), apply(Cam,4,sum)) 
 
     tac.disc <- ifelse(Ctotal < tac, rep(1,it), tac/Ctotal)
     tac.disc <- ifelse(Ctotal == 0, 0, tac.disc) # In case Ctotal= 0 to avoid NaN in tac.disc
-    
- 
- # cat('Lrat: ', tac.disc, '\n')
- # cat('C: ', Ctotal, '\n')
+
 
     Cam <- array(Cam, dim = c(length(mtnms),dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,it))
 
@@ -603,8 +646,239 @@ CorrectCatch <- function(fleets, biols, BDs, biols.ctrl,fleets.ctrl, year = 1, s
 #-------------------------------------------------------------------------------
 # CobbDouglasCom.CAA(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-CobbDouglasComb.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
-  
-  if(dim(biols[[stknm]]@n)[1] > 1) return(CobbDouglasAge.CAA(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year, season, flnm, stknm))
-  if(dim(biols[[stknm]]@n)[1] == 1) return(CobbDouglasBio.CAA(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year, season, flnm, stknm))
-}
+# CobbDouglasComb.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
+#   
+#   if(dim(biols[[stknm]]@n)[1] > 1) return(CobbDouglasAge.CAA(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year, season, flnm, stknm))
+#   if(dim(biols[[stknm]]@n)[1] == 1) return(CobbDouglasBio.CAA(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year, season, flnm, stknm))
+# }
+# 
+
+
+#-------------------------------------------------------------------------------
+# Baranov (fleets, biols, year = 1, season = 1)
+#-------------------------------------------------------------------------------
+# Baranov.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
+#   
+#   rho <- fleets.ctrl[['catch.threshold']][stknm,year,, season,drop=T] # [it]
+#   
+#   nf    <- length(fleets)
+#   stnms <- names(biols)
+#   nst   <- length(stnms)
+#   it    <- dim(biols[[1]]@n)[6]
+#   
+#   #   if(year == 35 & stknm == 'HKE') browser()
+#   
+#   fleets <- unclass(fleets)
+#   
+#   yr <- year
+#   ss <- season
+#   st <- stknm
+#   
+#   fl    <- fleets[[flnm]]
+#   sts   <- catchNames(fl)
+#   mtnms <- names(fl@metiers)
+#   
+#   if(!(st %in% sts)) return(fleets)
+#   
+#   # tac <- rep(Inf,it)
+#   
+#   # catch restriction, if empty => landings.
+#   if (is.null(fleets.ctrl[[flnm]]$restriction)) {
+#     catch.restr <- 'landings'
+#   } else 
+#     catch.restr <- ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction, 
+#                           fleets.ctrl[[flnm]]$restriction[yr])
+#   # catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
+#   
+#   
+#   #  quota share % to be upodate du to year transfer.
+#   yrtr_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[stknm,yr]
+#   yrtr_p <- ifelse(is.null(yrtr_p), 0,yrtr_p)
+#   # if year transfer was used in previous year discount it, absolute catch
+#   yrtr_disc <- fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[stknm,yr-1,] # [it]
+#   
+#   if(is.null(yrtr_disc)) yrtr_disc <- 0
+#   
+#   fleets.ctrl[[flnm]] 
+#   # if TAC overshoot is discarded, calculate seasonal TAC to calculate the discards.
+#   TACOS <- fleets.ctrl[[flnm]][[stknm]][['discard.TAC.OS']]    # Is the TAC overshot discarded?
+#   TACOS <- ifelse(is.null(TACOS), TRUE, TACOS) 
+#   
+#   yr.share    <- advice$quota.share[[stknm]][flnm,yr,, drop=T]              # [it]
+#   ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
+#   QS          <- yr.share*ss.share                                          # [it]
+#   QS[is.na(QS)] <- 0              
+#   tac <- (advice$TAC[st,yr,drop=T])*QS 
+#   
+#   #in case there is year transfer the tac is recalculated
+#   
+#   if(TACOS){
+#     yr.share    <- advice$quota.share[[stknm]][flnm,yr,, drop=T]              # [it]
+#     ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
+#     QS          <- yr.share*ss.share                                          # [it]
+#     QS[is.na(QS)] <- 0              
+#     tac <- (advice$TAC[st,yr,drop=T]*QS*(1+yrtr_p)) - yrtr_disc # it, add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
+#     # the minimise is not added because it is discarded.      
+#   }
+#   
+#   
+#   # Re-scale QS to fleet share within the season instead of season-fleet share within year.
+#   # list of stocks, each stock [nf,it]
+#   
+#   
+#   if(dim(biols[[st]]@n)[1] == 1) stop(st, ' stock has no ages, Cobb Douglas cannot be applied at age level then! correct the "catch.model" argument in "fleets.ctrl" argument!\n')
+#   
+#   N <- (biols[[st]]@n*exp(-biols[[st]]@m/2))[,yr,,ss]  # Ba[na,it], biomass at age in the middle  of the season,
+#   B <- unitSums(quantSums(N*biols[[st]]@wt[,yr,,ss]))
+#   
+#   #TAC.SS is total catch in the season that is going to used to estimate total F, in CBaranov,
+#   #for that we need to estimate the QS.SS
+#   
+#   yr.share.All    <- matrix(advice$quota.share[[stknm]][,yr,, drop=T],
+#                             nrow=dim(advice$quota.share[[stknm]][,yr,, ])[1],ncol=it)        # [nf,it]
+#   ss.share.All    <- matrix( fleets.ctrl$seasonal.share[[stknm]][,yr,,ss, drop=T]  ,
+#                              nrow=dim(advice$quota.share[[stknm]][,yr,, ])[1],ncol=it)  
+#   # [nf,it]
+#   QS.ss <- apply(yr.share.All*ss.share,2,sum ) #[it]
+#   QS.ss[is.na(QS.ss)] <- 0
+#   
+#   
+#   TAC.yr  <- advice$TAC[stknm,yr,drop=T]
+#   
+#   #  for(stknm in  stnms){
+#   tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
+#   if(is.null(tacos.fun))   alpha <- rep(1,it)
+#   else{
+#     alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
+#   }
+#   TAC.yr <- TAC.yr*alpha 
+#   # }
+#   
+#   TAC.ss<- TAC.yr*QS.ss
+#   TAC.ss<- ifelse(as.vector(B*rho) < TAC.ss, as.vector(B*rho), TAC.ss)
+#   Cr.f <- tac #catches per fleet
+#   
+#   efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])),
+#                   length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
+#   eff   <- matrix(fl@effort[,yr,,ss],length(mtnms), it, dimnames = list(mtnms, 1:it), byrow = T)
+#   
+#   # flinfo: matrix with information on which metier catch which stock.
+#   fl.        <- FLFleetsExt(fl)
+#   names(fl.) <- flnm
+#   flinfo     <- stock.fleetInfo(fl.)
+#   flinfo <-  strsplit(apply(flinfo, 1,function(x) names(which(x == 1))[1]), '&&')
+#   
+#   mtst <- flinfo[[st]][2]
+#   
+#   age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
+#   age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
+#   age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
+#   
+#   unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
+#   unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
+#   unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
+#   
+#   q.m   <- array(0, dim = c(length(mtnms), length(age.q), length(unit.q),it),     dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
+#   alpha.m <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
+#   beta.m  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+#   ret.m  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+#   wl.m   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+#   wd.m   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
+#   
+#   
+#   for(mt in mtnms){
+#     
+#     if(!(st %in% names(fl@metiers[[mt]]@catches))) next
+#     
+#     q.m[mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, drop = TRUE]
+#     alpha.m[mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, drop = TRUE]
+#     beta.m[mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, drop = TRUE]
+#     ret.m[mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, drop = TRUE]
+#     wl.m[mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@landings.wt[,yr,,ss, drop = TRUE]
+#     wd.m[mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, drop = TRUE]
+#   }
+#   
+#   Nst  <- array(N[drop=T],dim = dim(N)[c(1,3,6)])
+#   Cam <- array(NA, dim=dim(q.m))
+#   
+#   for(i in 1: it){
+#     
+#     Cayr_1 <- catchStock(fleets,st)[,yr-1,,,,i,drop=F]
+#     Nayr_1 <- biols[[st]]@n[,yr-1,,ss,,i,drop=F]
+#     Mayr_1 <- biols[[st]]@m[,yr-1,,ss,,i,drop=F]
+#     Na  <-  biols[[st]]@n[,yr,,ss,,i,drop=F] # N is in the middle of the season,
+#     #and we need N at athe beginning of the season
+#     Ma <- biols[[st]]@m[,yr,,ss,,i,drop=F]
+#     Wa <- biols[[st]]@wt[,yr,,ss,,i,drop=F]
+#     n.mt <- length(mtnms)
+#     Cafyr_1 <- Nayr_1
+#     Cafyr_1[] <- 0
+#     
+#     for (met in 1:n.mt){
+#       Cafyr_1 <- Cafyr_1+iter((fleets[[flnm]]@metiers[[met]]@catches[[st]]@landings.n+
+#                                  fleets[[flnm]]@metiers[[met]]@catches[[st]]@discards.n)[,yr-1,,ss],it)}
+#     
+#     Cam[,,,i] <- Baranov(E = eff[1,], fleets=fleets,biols=biols, Cr=Cr.f[i],N = Nst[,,i],   efs.m = efs.m[,i,drop=FALSE], q.m = q.m[,,,i,drop=FALSE], 
+#                           alpha.m = alpha.m[,,,i], beta.m = beta.m[,,,i], wd.m =wd.m [,,,i,drop=FALSE],
+#                           wl.m = wl.m[,,,i,drop=FALSE], ret.m = ret.m[,,,i,drop=FALSE],
+#                           tac=TAC.ss[i],Cayr_1=Cayr_1,Nayr_1=Nayr_1,Mayr_1=Mayr_1,Na=Na,Ma=Ma,Cafyr_1=Cafyr_1)
+#   }
+#   # Cam <- CobbDouglasAge(E = eff[1,], N = Nst, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
+#   #                        efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho)
+#   
+#   
+#   #    if(st == 'LDB' & flnm == 'DTS_SP') browser()
+#   
+#   # if catch restriction is landings, Lrat is calculated over landigns, else it is calculated over total catch including undersize individuals.
+#   Ctotal <- ifelse(rep(catch.restr == 'landings', it), apply(Cam*ret.m,4,sum), apply(Cam,4,sum)) 
+#   
+#   tac.disc <- ifelse(Ctotal < tac, rep(1,it), tac/Ctotal)
+#   tac.disc <- ifelse(Ctotal == 0, 0, tac.disc) # In case Ctotal= 0 to avoid NaN in tac.disc
+#   
+#   
+#   # cat('Lrat: ', tac.disc, '\n')
+#   # cat('C: ', Ctotal, '\n')
+#   
+#   Cam <- array(Cam, dim = c(length(mtnms),dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,it))
+#   
+#   for(mt in 1:length(mtnms)){
+#     
+#     Ca <- array(Cam[mt,,,,,], dim = c(dim(biols[[st]]@n)[1], 1, dim(biols[[st]]@n)[3],1,1,it))
+#     
+#     if(!(st %in% names(fl@metiers[[mt]]@catches))) next
+#     cobj <- fl[[mt]][[st]]
+#     
+#     
+#     na <- dim(q.m)[2]
+#     nu <- ifelse(is.na(dim(q.m)[3]), 1, dim(q.m)[3])
+#     
+#     efm <- array(eff[1,]*efs.m[mt,], dim = c(it,na,1,nu,1,1))
+#     efm <- aperm(efm, c(2:6,1))
+#     
+#     dsa <- cobj@discards.sel[,yr,,ss]  # [na,1,nu,1,1,it]
+#     lsa <- cobj@landings.sel[,yr,,ss]  # [na,1,nu,1,1,it]
+#     sa  <- (dsa + lsa)  
+#     
+#     # Recalculate dsa and lsa according to 'tac.disc'     # [na,nu,it]
+#     lsa <- sweep(lsa,6,tac.disc, "*")
+#     dsa <- sa - lsa             # [na,nu,it]
+#     
+#     cobj@discards.n[,yr,,ss] <- Ca*dsa/sa/cobj@discards.wt[,yr,,ss]
+#     cobj@landings.n[,yr,,ss] <- Ca*lsa/sa/cobj@landings.wt[,yr,,ss]
+#     
+#     # When sa = 0 <-  land.n & dis.n = NA => change to 0.
+#     cobj@landings.n[,yr,,ss][is.na(cobj@landings.n[,yr,,ss])] <- 0
+#     cobj@discards.n[,yr,,ss][is.na(cobj@discards.n[,yr,,ss])] <- 0
+#     
+#     cobj@discards[,yr,,ss] <- apply(Ca*dsa/sa,c(2,4,6),sum,na.rm=T)
+#     cobj@landings[,yr,,ss] <- apply(Ca*lsa/sa,c(2,4,6),sum,na.rm=T)
+#     
+#     fl@metiers[[mt]]@catches[[st]] <- cobj          
+#   }
+#   
+#   fleets[[flnm]] <- fl
+#   
+#   #    fleets <- FLFleetsExt(fleets)
+#   
+#   return(fleets)
+# }

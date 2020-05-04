@@ -36,14 +36,15 @@
 #'                 landings and discard in numbers at age (laa and daa) are set to cca and 0, respectively. 
 #'                 Finally for weights, if missing, weights at age for landings (wl) and discards (wd) are set to the weights in the population and 
 #'                 weights at age for catch (wc) are set to the weighted mean of the weights of landings and discards.
+#' @param data     An R object with the stock data.
 #' @param name     A character (optional) with the name of the stock.
 #' @param ages     A numeric vector with the age classes of stock.
 #' @param fbar     A numeric vector with the age range (min,max) to be used for estimating average fishing mortality.
 #' @param hist.yrs A vector with the historical years.
 #' @param sim.yrs  A vector with the simulation years.
 #' @param mean.yrs A vector with the years used to compute the mean to condition the parameters in the projection period.
-#' @param excel    Logical. \code{TRUE} (default), if the data is provided in an Excel file and 
-#'                 \code{FALSE}, if an RData object is used instead.
+#' @param source    Character, 'excel', 'rdata' or 'object'.  'rdata' (default) if an RData object is used,  'excel' if the data is provided in an Excel file and 
+#'                 and 'object' if the data is an object of the working environment.
 #' @param unit     A list with the units of the different elements included in \code{filename}. Unitless objects must be set to '' or character(1).
 #'                 This parameter is only required if \code{excel==FALSE}. When using Excell files the units are taken from the first row and column (cell A1) of each sheet. 
 #'                 If the cell is empty then units are set to NA, in case of an unitless object then 1 must be inputed into cell A1.
@@ -62,7 +63,7 @@
 
 
 
-create.biol.arrays <- function(filename, name = NA, ages, hist.yrs , sim.yrs, fbar = NULL, mean.yrs, excel = TRUE, unit = list()){
+create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hist.yrs , sim.yrs, fbar = NULL, mean.yrs, source = 'rdata', unit = list()){
   
   ages     <- ac(ages)
   hist.yrs <- ac(hist.yrs)
@@ -72,9 +73,10 @@ create.biol.arrays <- function(filename, name = NA, ages, hist.yrs , sim.yrs, fb
   if (sum(!mean.yrs %in% hist.yrs)>0) stop('mean.yrs must be taken from hist.yrs')
   
   sheets <- c('n', 'wt', 'mat', 'fec', 'm', 'spwn')
-  
-  data <- vector('list', 6)
-  names(data) <- sheets
+  if(source != 'object'){
+    data <- vector('list', 6)
+    names(data) <- sheets
+  }
   
   if (length(ages)==1) {
     if (ages!='all') {
@@ -101,7 +103,7 @@ create.biol.arrays <- function(filename, name = NA, ages, hist.yrs , sim.yrs, fb
   nage  <- length(ages)
   nyear <- length(yrs)
   
-  if(excel == TRUE){
+  if(source == 'excel'){
     if (!is.null(names(unit))) 
       stop('units must be set in the Excel file')
     wb <- loadWorkbook(filename, create = FALSE)
@@ -133,13 +135,17 @@ create.biol.arrays <- function(filename, name = NA, ages, hist.yrs , sim.yrs, fb
     nit  <- 1
     unit <- lapply( unit, function(x) ifelse( is.na(x), 'NA', ifelse( x==1 | x=='1', '', as.character(x))))
   }
-  else{
+  if(source == 'rdata'){
     data <- loadToEnv(filename)[["data"]]
     nit <- ifelse(is.na(dim(data$n)[3]), 1, dim(data$n)[3])
     if (is.null(names(unit)))
       warning('Please remember to set the units for the different slots!')
   }
-  
+  if(source == 'object'){
+    nit <- ifelse(is.na(dim(data$n)[3]), 1, dim(data$n)[3])
+    if (is.null(names(unit)))
+      warning('Please remember to set the units for the different slots!')
+  }
   
   flq <- FLQuant(dim = c(length(ages), length(yrs), 1,1,1,nit), dimnames = list(age = ages, year = yrs, iter = 1:nit))
   

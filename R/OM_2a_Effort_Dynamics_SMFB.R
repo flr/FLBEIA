@@ -39,9 +39,28 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
     
-    dimnms <- dimnames(biols[[1]]@n) 
+#if(flnm == 'GNS_FR') browser()
     
     # 'year' dimension.
+    # Dimnsions and fl
+    fl    <- fleets[[flnm]]
+    
+    # The effort is restricted only by the stocks in 'stocks.restr'    
+    # If the restrictors are missing => all the stocks restrict.
+    #-----------------------------------------------------------------------------------
+    if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
+      fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
+    }  
+    sts   <- intersect(fleets.ctrl[[flnm]][['stocks.restr']], catchNames(fl))
+   
+    stnms <- names(biols)
+    mtnms <- names(fl@metiers)
+    nmt   <- length(mtnms)
+    nst   <- length(biols)
+    ns    <- dim(biols[[1]]@n)[4] 
+    dimnms <- dimnames(biols[[1]]@n) 
+    nit <- dim(biols[[1]]@n)[6]
+    
     yr <- year
     if(is.character(year)) yr <- which(dimnms[[2]] %in% year)
     if(length(yr) == 0) stop('The year is outside object time range')  
@@ -55,209 +74,61 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     restriction <- ifelse(length(fleets.ctrl[[flnm]]$restriction) == 1, fleets.ctrl[[flnm]]$restriction, fleets.ctrl[[flnm]]$restriction[year])
     if(!(restriction %in% c('catch', 'landings')))
         stop("fleets.ctrl[[f]]$restriction must be equal to 'catch' or 'landings'")
-     
-
-    # Dimensions.
-    stnms <- catchNames(fleets[[flnm]])
-    nst <- length(stnms)          
-    ns  <- dim(biols[[1]]@n)[4]
-    it  <- dim(biols[[1]]@n)[6]
-    flnms <- names(fleets)
+    
+    
+    # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
+    list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
+                                biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
+                                flnm = flnm, yr = yr, ss = ss, iters = 1:nit), environment())
     
     # Advice season for each stock
     adv.ss <- setNames( rep(NA,nst), stnms)
-    for (st in stnms) adv.ss[st] <- ifelse( is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
-    
-    # Data
-    B    <- matrix(t(sapply(stnms, function(x){   # biomass in the middle of the season  [nst,it]
-                                if(dim(biols[[x]]@n)[1] > 1)
-                                    return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss, drop=T])
-                                else{
-                                  if(biols.ctrl[[x]][['growth.model']] == 'fixedPopulation'){
-                                    return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss, drop=T])
-                                  }
-                                  else{
-                                    return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss, drop=T])
-                                  }
-                                  
-                                } })) , nst,it, dimnames = list(stnms, 1:it))
+    for (st in stnms) adv.ss[st] <- ifelse(is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
 
-    N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
-                                if(dim(biols[[x]]@n)[1] > 1)
-                                    return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss, drop = FALSE])
-                                else{
-                                  if(biols.ctrl[[x]] == 'fixedPopulation'){
-                                    return((biols[[x]]@n)[,yr,,ss, drop=F])
-                                  }
-                                  else{
-                                    return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=F])
-                                  } } })
-    
-    names(N) <- stnms
-    
-
-                      
-    # Quota share          
-    QS   <- lapply(stnms, function(x){           # list of stocks, each stock [nf,it]
-                            # Calculate QS by fleet for the year and season
-                            yr.share    <- advice$quota.share[[x]][,yr,, drop=T]        # [nf,it]
-                            ss.share    <- fleets.ctrl$seasonal.share[[x]][,yr,,ss, drop=T]   # [nf,it]
-                            quota.share <- matrix(yr.share*ss.share, length(flnms), it, dimnames = list(flnms, 1:it))
-                            quota.share[is.na(quota.share)] <- 0
-                            return(quota.share)})         
-    names(QS) <- stnms
-    
-    # If TAC >= B*alpha => TAC = B*alpha.
-    TAC.yr  <- matrix(advice$TAC[stnms,yr,drop=T], nst, it, dimnames = list(stnms, 1:it))   # [nst,it]
     
     # when advice season is different to ns: 
-    for (st in stnms)
+    for (st in sts)
       if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
-    
-    rho       <- fleets.ctrl$catch.threshold[,yr,,ss, drop=T]  # [ns,it]
-    
-    # if rho is a numeric => there is only one stock and one iteration wihout names => name it
-    if(is.null(dim(rho)) & is.null(names(rho))) names(rho) <- stnms
-      
-    QS.ss    <- matrix(t(sapply(stnms, function(x) apply(QS[[x]],2,sum))), nst,it, dimnames = list(stnms, 1:it))  # [nst,it]
+  
                             
-    for(stknm in  stnms){
+    for(stknm in  sts){
         tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
-        if(is.null(tacos.fun))   alpha <- rep(1,it)
+        if(is.null(tacos.fun))   alpha <- rep(1,nit)
         else{
             alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
         }
         TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
-
     }
-    
-    if(it > 1){    
-      if(length(stnms) == 1) rho <- matrix(rho, 1,it, dimnames = list(stnms, 1:it))
-      
-      TAC <- ifelse(B[stnms,]*rho[stnms,] < TAC.yr[stnms,]*QS.ss[stnms,], B[stnms,]*rho[stnms,], TAC.yr[stnms,]*QS.ss[stnms,])
-    }
-    else TAC <- ifelse(B[stnms,]*rho[stnms] < TAC.yr[stnms,]*QS.ss[stnms,], B[stnms,]*rho[stnms], TAC.yr[stnms,]*QS.ss[stnms,])
-
-    TAC <- matrix(TAC, length(stnms),it,dimnames = list(stnms, 1:it))
-    
-    # Re-scale QS to fleet share within the season instead of season-fleet share within year.
-    QS   <- lapply(stnms, function(x){          # list of stocks, each stock [nf,it]
-                            res <- sweep(QS[[x]], 2, apply(QS[[x]],2, sum), "/")
-                            res[is.na(res)] <- 0 
-                            return(res)})      
-    names(QS) <- stnms
-
-    fl    <- fleets[[flnm]]
-    
-    sts   <- catchNames(fl)
-    
-    # The effort is restricted only by the stocks in 'stocks.restr'    
-    # Remove the NA-s if any
-    # if(any(fleets.ctrl[[flnm]][['stocks.restr']])){
-    #   cat(paste("warning: there is at least one NA in  fleets.ctrl[['",flnm,"']][['stocks.restr']], and it has been removed, only the values different to NA will be maintained.\n", sep=""))
-    #   
-    #   fleets.ctrl[[flnm]][['stocks.restr']] <- fleets.ctrl[[flnm]][['stocks.restr']][!is.na(fleets.ctrl[[flnm]][['stocks.restr']])]
-    # }
-    # If the restrictors are missing => all the stocks restrict.
-    if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
-      fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
-    }  
-      
-    sts <- fleets.ctrl[[flnm]][['stocks.restr']]
-    
-    
-    mtnms <- names(fl@metiers)
-    
-    # flinfo: matrix with information on which metier catch which stock.
-    fl.        <- FLFleetsExt(fl)
-    names(fl.) <- flnm
-    flinfo     <- stock.fleetInfo(fl.)
-    flinfo <-  strsplit(apply(flinfo, 1,function(x) names(which(x == 1))[1]), '&&')
-
-
-    efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
-                    length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
-    effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
-    Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
-
-    q.m <- alpha.m <- beta.m  <- ret.m <- wd.m <- wl.m <-vector('list', length(sts))
-    names(q.m) <- names(alpha.m) <- names(beta.m) <- names(ret.m) <- names(wl.m) <- names(wd.m) <- sts
-
-   
-    # For combined TAC we need to fill the stock data beforehand
-    for(st in sts){
-      # identify the first metier that catch stock st
-      mtst <- flinfo[[st]][2]
-    
-      Cr.f[st,] <- TAC[st,]*QS[[st]][flnm,]
-    
-      if (length(fleets.ctrl[[flnm]]$LandObl)==1){
-        LO<-fleets.ctrl[[flnm]]$LandObl
-      }else{
-        LO<-fleets.ctrl[[flnm]]$LandObl[yr]
-      }
-    
-      if(LO){
-        if(fleets.ctrl[[flnm]]$LandObl_yearTransfer[yr-1] == TRUE){ # If landing Obligation = TRUE discount possible quota transfer from previous year.
-          Cr.f[st,] <- Cr.f[st,] - fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,]
-          Cr.f[st,] <- ifelse(Cr.f[st,]<0, 0, Cr.f[st,])  # if lower than 0 , set it to 0.
-        }
-      }
-      
-      age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
-      age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
-      age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
-      
-      unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
-      unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
-      unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
-      
-      q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q), length(unit.q),it),     dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
-      alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
-      beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-      ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-      wl.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-      wd.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-      
-      
-      for(mt in mtnms){
-        
-        if(!(st %in% names(fl@metiers[[mt]]@catches))) next
-        
-        q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, drop = TRUE] 
-        alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, drop = TRUE] 
-        beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, drop = TRUE] 
-        ret.m[[st]][mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, drop = TRUE] 
-        wl.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@landings.wt[,yr,,ss, drop = TRUE]
-        wd.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, drop = TRUE]
-      }    
-    }
-    
     
     
     
      for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
-        for(i in 1:it){
-          
-    #   if(flnm == 'OT8_SP')   browser()
+        for(i in 1:nit){
           
            if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
            else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
  
-           # Extract the i-th element form the lists. 
-            Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+           # Extract the i-th element from the lists. 
+            Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,2)],1)))
             q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
             beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
             alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
             ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
             wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
             wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
-            
+        
+            Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+            Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+            Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+            Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+            Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
+    
             effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
-                                alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,
-                                restriction = restriction, stknm = st, QS.groups = fleets.ctrl[[flnm]][['QS.groups']]))
+                                alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
+                                restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
+                                tac=TAC[,i,drop=F], Cyr_1 = Cyri_1, Nyr_1 = Nyri_1, Myr_1 = Myri_1,  M = Mi, Cfyr_1 = Cfyri_1))
         }
     }
     
@@ -268,25 +139,24 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         }else{
           rule=fleets.ctrl[[flnm]]$effort.restr[yr]
         }
-        eff <- effRule.SMFB(effs = effs, prev.eff = matrix(fl@effort[,yr-1,,ss,drop=T],1,it), rule = rule)
+        eff <- effRule.SMFB(effs = effs, prev.eff = matrix(fl@effort[,yr-1,,ss,drop=T],1,nit), rule = rule)
         # Capacity restrictions.  
         eff <- capacityRest.SMFB(eff, c(fl@capacity[,yr,,ss,drop=T]))                                   
-#         fleets[[flnm]]@effort[,yr,,ss] <- eff 
         fl@effort[,yr,,ss] <- eff 
     }
     else{ # landObl == TRUE
-      eff <- numeric(it)
-      discount_yrtransfer <- matrix(0,nst,it, dimnames = list(sts,1:it))
+      eff <- numeric(nit)
+      discount_yrtransfer <- matrix(0,nst,nit, dimnames = list(sts,1:nit))
       ret.m.new <- ret.m # retention may change derived from minimis exemption.
       min_ctrl <- rep(FALSE, length(sts))
       names(min_ctrl) <- sts
       
       # Identify the stocks that are unable to 'receive' any extra TAC from others due to overfishing.
-      stks_OF <- overfishing(biols, fleets, advice.ctrl, yr) # matrix[nst,it]
+      stks_OF <- overfishing(biols, fleets, advice.ctrl, yr) # matrix[nst,nit]
       
       
       # Identify the minimum effort and compare with capactity, if > capacity => eff = capacity and the algorithm finish.
-        for(i in 1:it){
+        for(i in 1:nit){
             Emin <- min(effs[,i])
             if(Emin > c(fl@capacity[,yr,,ss,,i,drop=T])){ 
               fl@effort[,yr,,ss,,i] <- fl@capacity[,yr,,ss,,i,drop=T] 
@@ -302,7 +172,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
               
               # Extract the i-th element form the lists. 
-              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,,,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
               q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
               beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
               alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -323,8 +193,26 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                 Cr.f_min_qt <- Cr.f
               
                 for(st in sts){
-         #         browser()
-                  effort.fun <- ifelse(dim(Ni[[st]])[1] == 1, 'CobbDouglasBio.effort', 'CobbDouglasAge.effort')
+
+                  if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+                  else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
+                  
+                  # Extract the i-th element form the lists. 
+                  Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+                  q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
+                  beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
+                  alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
+                  ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
+                  wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
+                  wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+                  
+                  Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+                  Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+                  Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+                  Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+                  Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
+                 
+                  effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
                   # To calculate the final quota, the year transfer % needs to be applied to the original quota before
                   # discounting the quota used the pevious year and then discount this quota.
                   min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
@@ -334,10 +222,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                   Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
                                         fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i]
                   
-                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.mi[[st]], rho =rhoi,
-                                       efs.m = efs.m[,i,drop=F], alpha.m = alpha.mi[[st]], beta.m = beta.mi[[st]],
-                                        ret.m = ret.mi[[st]], wl.m = wl.mi[[st]], wd.m = wd.mi[[st]],
-                                        restriction = restriction)) # the restriction in landing obligation should be catch
+                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
+                                               alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
+                                               restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
+                                               tac=TAC[,i,drop=F], Cyr_1 = Cyri_1, Nyr_1 = Nyri_1, Myr_1 = Myri_1,  M = Mi, Cfyr_1 = Cfyri_1))
+                  
+            
                 }
               }
               E1 <- min(eff_min_qt) # The effort resulting from minimis and year quota transfer examptions.
@@ -370,10 +260,8 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               
               # update ret.m to account for the discards due to minimise exemption.
               for(st in sts){
-              # if(flnm == 'MON_OT' & yr == 41)
-              #  browser()
               # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
-              # otherwise it is increased so that the total discards equal to min_p*Cr.f  
+              # otherwise nit is increased so that the total discards equal to min_p*Cr.f  
                 
                 Cr.f[st,i] <- ifelse(Cr.f[st,i] == 0, 1e-6, Cr.f[st,i])
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
@@ -408,44 +296,60 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
       }
     }
 
-          
-    #    save(advice,alpha.m,B,beta.m,Cr.f,rho,eff,effs,efs.m,fleets.ctrl, 
-    #         q.m,QS,QS.ss,TAC,TAC.yr, file = paste(flnm, file = '.RData', sep = ""))
    
    # Update the quota share of this step and the next one if the 
    # quota share does not coincide with the actual catch. (update next one only if s < ns).
    for(st in sts){
 
         if (adv.ss[st] == ns) {
-          yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-          ss.share <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it)) # [it,ns]
+          yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [nit]
+          ss.share <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, nit)) # [nit,ns]
         } else {
           ss1 <- (adv.ss[st]+1):ns
           ss2 <- 1:adv.ss[st]
           
           if (ss <= adv.ss[st]) {
-            yr.share <- advice$quota.share[[st]][flnm,yr-1,, drop=T]      # [it]
-            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss2, drop=T], length(ss2), it)), 
-                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr-1,,ss1, drop=T], length(ss1), it))) # [it,ns]
+            yr.share <- advice$quota.share[[st]][flnm,yr-1,, drop=T]      # [nit]
+            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss2, drop=T], length(ss2), nit)), 
+                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr-1,,ss1, drop=T], length(ss1), nit))) # [nit,ns]
           } else {
-            yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr+1,,ss2, drop=T], length(ss2), it)), 
-                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss1, drop=T], length(ss1), it))) # [it,ns]
+            yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [nit]
+            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr+1,,ss2, drop=T], length(ss2), nit)), 
+                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss1, drop=T], length(ss1), nit))) # [nit,ns]
           }
         }
      
-        quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
+        quota.share.OR <- matrix(t(yr.share*ss.share), ns, nit)
         
         # The catch.
         catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
-        Nst  <-  array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-        catchD <- eval(call(catchFun, N = Nst,  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
+        
+        catchD <- array(NA, dim=dim(q.m[[st]]))
+        
+        for(i in 1:nit){
+   
+          if(is.null(dim(rho)))   rhoi <- rho
+          if(length(dim(rho))==2) rho <- rho[st,i]
+          Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+          Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+          Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+          Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+          Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
+          
+          #browser()
+          
+           catchD[,,,i] <- eval(call(catchFun, Cr=Cr.f[st,i],N = Ni[[st]],  E = eff[i], efs.m = efs.m[,i,drop=FALSE], q.m = q.m[[st]][,,,i,drop=FALSE], 
+                            alpha.m = alpha.m[[st]][,,,i,drop=FALSE], beta.m = beta.m[[st]][,,,i,drop=FALSE], wd.m = wd.m[[st]][,,,i,drop=FALSE],
+                            wl.m = wl.m[[st]][,,,i,drop=FALSE], ret.m = ret.m[[st]][,,,i,drop=FALSE], rho = rho,
+                            tac=TAC[st,i], Cyr_1 = Cyri_1[[st]], Nyr_1 = Nyri_1[[st]], Myr_1 = Myri_1[[st]],  M = Mi[[st]], 
+                            Cfyr_1 = Cfyri_1[[st]]))
+         }
         itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
         catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
             
-        quota.share     <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss, adv.season = adv.ss[st]) # [ns,it]
+        quota.share     <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss, adv.season = adv.ss[st]) # [ns,nit]
         
-        quota.share.NEW <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it] double 't' to perform correctly the division between matrix and vector. 
+        quota.share.NEW <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,nit] double 't' to perform correctly the division between matrix and vector. 
         
         if (adv.ss[st] == ns) {
           fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- quota.share.NEW

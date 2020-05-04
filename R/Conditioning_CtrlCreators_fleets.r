@@ -277,6 +277,7 @@ create.elasticPrice.ctrl <- function(resfst, fltname, stkname, largs){
 #-------------------------------------------------------------------------------
 #                   ** create.CobbDouglasAge.ctrl **
 #                   ** create.CobbDouglasBio.ctrl **
+#                   ** create.Baranov.ctrl **
 #-------------------------------------------------------------------------------
-create.CobbDouglasAge.ctrl <- create.CobbDouglasBio.ctrl <- function(resfst, fltname, stkname, largs) return(resfst)
+create.CobbDouglasAge.ctrl <- create.CobbDouglasBio.ctrl <- create.Baranov.ctrl <- function(resfst, fltname, stkname, largs) return(resfst)
 
