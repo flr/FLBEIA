@@ -1041,6 +1041,8 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
   fleets <- obj$fleets
   advice <- obj$advice
   
+  fleets.ctrl <- obj$fleets.ctrl
+  
   #  fleets <- lapply(fleets, setUnitsNA)
   
   warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
@@ -1066,7 +1068,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       
       fl   <- fleets[[f]]
       stfl <- catchNames(fl)        
-      sts   <- stknms[stknms %in% stfl]
+      sts  <- stknms[stknms %in% stfl]
       
       for(st in sts){
  
@@ -1074,14 +1076,21 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
         fleet = rep(f, each = prod(Dim))
         stock = rep(st, each = prod(Dim))
         
+        tacshare <- sweep(fleets.ctrl$seasonal.share[[st]][f,], c(1:3,5:6), advice$quota.share[[st]][f,], '*')
+        quota    <- sweep(tacshare, c(1:3,5:6), advice$TAC[st,], '*')
+        
+        # # checks
+        # seasonSums(tacshare) == advice$quota.share[[st]][f,]
+        # seasonSums(quota)    == advice$TAC[st,] * advice$quota.share[[st]][f,]
+        
         res.fl.st <- bind_cols(year=year, season=season,fleet=fleet, stock=stock,iter=iter,
                                catch= c(apply(catchWStock.f(fl, st),c(2,4,6), sum)[,years]),
                                landings= c(apply(landWStock.f(fl, st),c(2,4,6), sum)[,years]),
                                discards= c(apply(discWStock.f(fl, st),c(2,4,6), sum)[,years])) %>% 
           mutate(discRat=discards/catch,
                  price=c(price_flbeia(fl, st)[,years]),
-                 tacshare=c(advice$quota.share[[st]][f,][,years]),
-                 quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
+                 tacshare=c(tacshare[,years]),
+                 quota=c(quota[,years]),
                  quotaUpt=catch/quota)
         res <- bind_rows(res,res.fl.st)
       }}
