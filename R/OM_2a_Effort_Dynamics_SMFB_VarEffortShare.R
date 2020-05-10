@@ -110,8 +110,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     # Update the fleets object with the new effort share
     for(mt in names(fl@metiers))  fl@metiers[[mt]]@effshare[,yr,,ss] <-  efs.m[mt,] 
     
-        
-        
+           
      for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
@@ -389,6 +388,7 @@ gravity.flbeia <- function(Cr,  N, B, q.m, rho, efs.m, alpha.m, beta.m,
   
   ##N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)])) ## now done previously
  # names(N0) <- names(N)
+  N0 <- N
   
   if(fleet.ctrl$gravity.model == 'revenue'){  
     V.m  <- Reduce('+', lapply(names(q.m), function(x) 
