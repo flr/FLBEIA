@@ -607,10 +607,9 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
   res <- efs.m
   res[] <- NA
   
-  for(i in 1:dim(N[[1]])[6]){
+  for(i in 1:dim(N[[1]])[3]){
     ## step 2 
-    
-    Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
+    Ni         <- lapply(N, function(x) x[,,i, drop=F])
     q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
     alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
     beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
@@ -618,6 +617,8 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     wd.m.i     <- lapply(wd.m, function(x) x[,,,i,drop=F])
     ret.m.i    <- lapply(ret.m, function(x) x[,,,i,drop=F])
     pr.m.i     <- lapply(pr.m, function(x) x[,,,i,drop=F])
+      
+    #Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
     
     updated.df <- update_Markov_params(model = fleet.ctrl[['Markov.model']], predict.df = predict.df, 
                                     fleet = fleet, covars = covars, season = season, year = year,
