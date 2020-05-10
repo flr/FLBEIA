@@ -387,8 +387,8 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
 gravity.flbeia <- function(Cr,  N, B, q.m, rho, efs.m, alpha.m, beta.m,
                     ret.m, wl.m, wd.m, pr.m, vc.m, season, year, fleet, fleet.ctrl, restriction = restriction,...){ 
   
-  N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
-  names(N0) <- names(N)
+  ##N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)])) ## now done previously
+ # names(N0) <- names(N)
   
   if(fleet.ctrl$gravity.model == 'revenue'){  
     V.m  <- Reduce('+', lapply(names(q.m), function(x) 
