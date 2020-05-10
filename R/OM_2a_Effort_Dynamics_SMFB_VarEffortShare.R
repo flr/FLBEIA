@@ -432,10 +432,10 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
   res <- efs.m
   res[] <- NA
   
-  for(i in 1:dim(N[[1]])[6]){
+  for(i in 1:dim(N[[1]])[3]){
   ## step 2 
     
-    Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
+    Ni         <- lapply(N, function(x) x[,,i, drop=F])
     q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
     alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
     beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
@@ -522,8 +522,9 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
   
   if(any(sapply(catchNames(fleet), grepl, names(coef(model))))) {
     
-    N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
-    names(N0) <- names(N)
+    #N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
+    #names(N0) <- names(N)
+    N0 <- N
     
     ## This should be the catch rate per stock per metier ??
     CR.m   <- lapply(names(q.m), function(x) 
