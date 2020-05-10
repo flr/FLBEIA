@@ -38,9 +38,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     # else names => get positions.
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
-    
-#if(flnm == 'GNS_FR') browser()
-    
+  
     # 'year' dimension.
     # Dimnsions and fl
     fl    <- fleets[[flnm]]
@@ -386,8 +384,6 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
 gravity.flbeia <- function(Cr,  N, B, q.m, rho, efs.m, alpha.m, beta.m,
                     ret.m, wl.m, wd.m, pr.m, vc.m, season, year, fleet, fleet.ctrl, restriction = restriction,...){ 
   
-  ##N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)])) ## now done previously
- # names(N0) <- names(N)
   N0 <- N
   
   if(fleet.ctrl$gravity.model == 'revenue'){  
@@ -522,8 +518,6 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
   
   if(any(sapply(catchNames(fleet), grepl, names(coef(model))))) {
     
-    #N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
-    #names(N0) <- names(N)
     N0 <- N
     
     ## This should be the catch rate per stock per metier ??
@@ -585,8 +579,6 @@ predict_RUM <- function(model, updated.df) {
   colnames(p_hat) <- updated.df$metier 
   p_hat <- as.data.frame(t(p_hat))
   
-#  cat('Effort Share mlogit: ', p_hat[,1], '\n')
-  
   return(p_hat[,1])
   
 }
@@ -619,8 +611,7 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     ret.m.i    <- lapply(ret.m, function(x) x[,,,i,drop=F])
     pr.m.i     <- lapply(pr.m, function(x) x[,,,i,drop=F])
       
-    #Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
-    
+   
     updated.df <- update_Markov_params(model = fleet.ctrl[['Markov.model']], predict.df = predict.df, 
                                     fleet = fleet, covars = covars, season = season, year = year,
                                     N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
