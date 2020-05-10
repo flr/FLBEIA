@@ -699,9 +699,10 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
   
   if(any(sapply(catchNames(fleet), grepl, model$coefnames))) {
     
-    N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
-    names(N0) <- names(N)
-    
+    #N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))## now done previously
+    #names(N0) <- names(N)
+    N0 <- N
+      
     ## This should be the catch rate per stock per metier ??
     CR.m   <- lapply(names(q.m), function(x) 
       cbind(stock = x,
