@@ -23,16 +23,15 @@
 # Changed: 13/01/2015
 # Changed: 01/04/2015 Itsaso Carmona 
 # Changed: 29/04/2015 Itsaso carmona (LO in some years)
-# Added Effort share models: 20/03/2019 Dorleta 
 #-------------------------------------------------------------------------------
 
 
 #-------------------------------------------------------------------------------
 # SMFB_LO(fleets, biols, covars, fleets.ctrl, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
+SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, advice.ctrl, flnm, year = 1, season = 1,...){
     
-  if(length(year) > 1 | length(season) > 1)
+    if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
 
     # If year/season/iter numerics => indicate position 
@@ -100,7 +99,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
         }
         TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
     }
-           
+    
     ## Update the effort-share using the defined model
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
     efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m, 
@@ -110,8 +109,9 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     cat('Effort share: ', efs.m, ', sum:', apply(efs.m,2,sum), '\n')
     # Update the fleets object with the new effort share
     for(mt in names(fl@metiers))  fl@metiers[[mt]]@effshare[,yr,,ss] <-  efs.m[mt,] 
-
-       
+    
+        
+        
      for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
@@ -377,11 +377,8 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
   
   fleets[[flnm]] <- fl
     
-      
     return(list(fleets = fleets, fleets.ctrl = fleets.ctrl))
 }
-
-
 
 #-------------------------------------------------
 ## GRAVITY MODEL TO UPDATE THE EFFORT SHARE
@@ -768,5 +765,4 @@ predict_Markov <- function(model, updated.df, fleet, season, year) {
   
 }
 
-
-
+                             
