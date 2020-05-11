@@ -463,6 +463,8 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   ## 1. season - note, just return the season for which we're predicting
   seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
+  ## Determine if a factor or numeric
+  seas <- ifelse(all(sapply(coef(model)[grepl("season", mod.coefs)], class) == "numeric"), as.numeric(seas), as.factor(seas))
   
   ## 2. catch or catch rates
   C <- if(any(sapply(catchNames(fleet), grepl, mod.coefs))) {
@@ -481,7 +483,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   ## Construct the dataframe
   predict.df <- expand.grid(metier = fleet@metiers@names, 
                             choice = "yes", 
-                            season = as.numeric(seas), 
+                            season = seas, 
                             vcost = v, 
                             effshare = e,
                             stringsAsFactors = FALSE)
@@ -634,6 +636,7 @@ make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   ## 1. season - note, just return the season for which we're predicting
   seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
+  seas <- ifelse(all(sapply(coef(model)[grepl("season", mod.coefs)], class) == "numeric"), as.numeric(seas), as.factor(seas))
   
   ## 2. catch or catch rates
   C <- if(any(sapply(catchNames(fleet), grepl, mod.coefs))) {
@@ -652,7 +655,7 @@ make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
   ## Construct the dataframe
   ## Note, we need the state from which vessels are coming
   predict.df <- expand.grid(state.tminus1 = fleet@metiers@names,
-                            season = as.numeric(seas), 
+                            season = seas, 
                             vcost = v, 
                             effshare = e,
                             stringsAsFactors = FALSE)
