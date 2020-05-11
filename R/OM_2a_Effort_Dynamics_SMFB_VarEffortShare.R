@@ -466,8 +466,8 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   ## Determine if a factor or numeric
     if(!is.na(seas)) {
         
-    if(any(class(model.frame(model)$season)) == "numeric") { 
-        seas <- as.numeric(seas) else 
+    if(any(class(model.frame(model)$season) == "numeric")) { 
+        seas <- as.numeric(seas) } else { 
         seas <- as.factor(seas)
         }
     }
