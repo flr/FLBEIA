@@ -471,6 +471,11 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
         seas <- as.factor(seas)
         }
     }
+    
+    ## If season is a factor, we need to include the other seasons for contrast
+    if(class(seas) == "factor") {
+    seas <- as.factor(1:max(model.frame(model)$season))
+    }
  
   
   ## 2. catch or catch rates
@@ -565,7 +570,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 
 
 # ** predict_RUM ** : this function does the predictions and returns the effort shares.
-predict_RUM <- function(model, updated.df) {
+predict_RUM <- function(model, updated.df, season) {
   
   ## Extract the model matrix and parameter coefficients
   mod.mat <- model.matrix(model$formula, data = updated.df)
@@ -575,8 +580,12 @@ predict_RUM <- function(model, updated.df) {
   if(any(!colnames(mod.mat) == rownames(beta))) {
     stop("Model matrix and coefficients are not the same")
   }
+    
+  ## If season is a factor, we want to exclude these options and just get the 
+  ## predictions for the relevant season
+  mod.mat <- mod.mat[paste0(mod.mat$season,season)==1,]
   
-  ## linear predictor long
+   ## linear predictor long
   eta_long <- mod.mat %*% beta
   
   ## linear predictor wide
