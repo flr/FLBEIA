@@ -444,7 +444,7 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
                                   fleet = fleet, covars = covars, season = season, year = year,
                                   N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
     ## step 3 
-    res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df)
+    res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df, season)
   }
   
 
@@ -470,12 +470,12 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
         seas <- as.numeric(seas) } else { 
         seas <- as.factor(seas)
         }
-    }
-    
+        
     ## If season is a factor, we need to include the other seasons for contrast
     if(class(seas) == "factor") {
     seas <- as.factor(1:max(as.numeric(as.character(model.frame(model)$season)), na.rm = T))
     }
+        }
  
   
   ## 2. catch or catch rates
@@ -582,10 +582,24 @@ predict_RUM <- function(model, updated.df, season) {
   }
     
   ## If season is a factor, we want to exclude these options and just get the 
-  ## predictions for the relevant season
-  mod.mat <- mod.mat[paste0(mod.mat$season,season)==1,]
-  
-   ## linear predictor long
+  ## predictions for the relevant season. Note if season is a numeric, the model 
+  ## matrix already only includes the right season
+    
+  if(any(grepl("season", colnames(mod.mat)))) {
+      
+  if(any(class(model.frame(model)$season) == "factor")) { 
+      seas <- 1:max(as.numeric(as.character(model.frame(model)$season)),na.rm=T)
+      toRemove <- paste0("season", seas[!seas %in% season])
+      
+      # remove from mod.mat
+      mod.mat <- mod.mat[,!colnames(mod.mat) %in% grep(paste(toRemove, collapse = "|"), colnames(mod.mat), value = T)]
+      # remove from beta
+      beta <- beta[!rownames(beta) %in% grep(paste(toRemove, collapse = "|"), rownames(beta), value = T),]
+  }
+      
+  }
+    
+  ## linear predictor long
   eta_long <- mod.mat %*% beta
   
   ## linear predictor wide
