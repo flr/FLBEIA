@@ -608,7 +608,7 @@ predict_RUM <- function(model, updated.df, season) {
   
   ## convert to a probability
   p_hat <- exp(eta_wide) / rowSums(exp(eta_wide))
-  colnames(p_hat) <- updated.df$metier 
+  colnames(p_hat) <- unique(updated.df$metier)
   p_hat <- as.data.frame(t(p_hat))
   
   return(p_hat[,1])
