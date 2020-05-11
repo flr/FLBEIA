@@ -474,7 +474,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
     
     ## If season is a factor, we need to include the other seasons for contrast
     if(class(seas) == "factor") {
-    seas <- as.factor(1:max(model.frame(model)$season))
+    seas <- as.factor(1:max(as.numeric(as.character(model.frame(model)$season))))
     }
  
   
