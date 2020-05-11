@@ -483,7 +483,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   ## Construct the dataframe
   predict.df <- expand.grid(metier = fleet@metiers@names, 
                             choice = "yes", 
-                            season = seas, 
+                            season = ifelse(is.numeric(seas), as.numeric(seas), as.factor(seas)), 
                             vcost = v, 
                             effshare = e,
                             stringsAsFactors = FALSE)
