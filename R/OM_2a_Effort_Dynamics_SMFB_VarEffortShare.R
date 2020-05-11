@@ -465,7 +465,11 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
   ## Determine if a factor or numeric
     if(!is.na(seas)) {
-    seas <- ifelse(class(model.frame(model)$season) == "numeric", as.numeric(seas), as.factor(seas))
+        
+    if(any(class(model.frame(model)$season)) == "numeric") { 
+        seas <- as.numeric(seas) else 
+        seas <- as.factor(seas)
+        }
     }
  
   
@@ -641,7 +645,7 @@ make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
   seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
   ## Determine if a factor or numeric
     if(!is.na(seas)) {
-    seas <- ifelse(class(model.frame(model)$season) == "numeric", as.numeric(seas), as.factor(seas))
+    seas <- ifelse(any(class(model.frame(model)$season)) == "numeric", as.numeric(seas), as.factor(seas))
     }
     
   ## 2. catch or catch rates
