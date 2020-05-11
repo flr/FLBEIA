@@ -666,10 +666,6 @@ make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   ## 1. season - note, just return the season for which we're predicting
   seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
-  ## Determine if a factor or numeric
-    if(!is.na(seas)) {
-    seas <- ifelse(any(class(model.frame(model)$season)) == "numeric", as.numeric(seas), as.factor(seas))
-    }
     
   ## 2. catch or catch rates
   C <- if(any(sapply(catchNames(fleet), grepl, mod.coefs))) {
@@ -727,8 +723,6 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
   
   if(any(sapply(catchNames(fleet), grepl, model$coefnames))) {
     
-    #N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))## now done previously
-    #names(N0) <- names(N)
     N0 <- N
       
     ## This should be the catch rate per stock per metier ??
