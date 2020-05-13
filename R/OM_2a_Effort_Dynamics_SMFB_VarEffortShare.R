@@ -23,7 +23,6 @@
 # Changed: 13/01/2015
 # Changed: 01/04/2015 Itsaso Carmona 
 # Changed: 29/04/2015 Itsaso carmona (LO in some years)
-# Added Effort share models: 20/03/2019 Dorleta 
 #-------------------------------------------------------------------------------
 
 
@@ -39,10 +38,27 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     # else names => get positions.
     if(length(year) > 1 | length(season) > 1)
         stop('Only one year and season is allowed' )
-    
-    dimnms <- dimnames(biols[[1]]@n) 
-    
+  
     # 'year' dimension.
+    # Dimnsions and fl
+    fl    <- fleets[[flnm]]
+    
+    # The effort is restricted only by the stocks in 'stocks.restr'    
+    # If the restrictors are missing => all the stocks restrict.
+    #-----------------------------------------------------------------------------------
+    if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
+      fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
+    }  
+    sts   <- intersect(fleets.ctrl[[flnm]][['stocks.restr']], catchNames(fl))
+   
+    stnms <- names(biols)
+    mtnms <- names(fl@metiers)
+    nmt   <- length(mtnms)
+    nst   <- length(biols)
+    ns    <- dim(biols[[1]]@n)[4] 
+    dimnms <- dimnames(biols[[1]]@n) 
+    nit <- dim(biols[[1]]@n)[6]
+    
     yr <- year
     if(is.character(year)) yr <- which(dimnms[[2]] %in% year)
     if(length(yr) == 0) stop('The year is outside object time range')  
@@ -56,180 +72,32 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     restriction <- ifelse(length(fleets.ctrl[[flnm]]$restriction) == 1, fleets.ctrl[[flnm]]$restriction, fleets.ctrl[[flnm]]$restriction[year])
     if(!(restriction %in% c('catch', 'landings')))
         stop("fleets.ctrl[[f]]$restriction must be equal to 'catch' or 'landings'")
-     
+    
+    
+    # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
+    list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
+                                biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
+                                flnm = flnm, yr = yr, ss = ss, iters = 1:nit), environment())
+    
+    # Advice season for each stock
+    adv.ss <- setNames( rep(NA,nst), stnms)
+    for (st in stnms) adv.ss[st] <- ifelse(is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
 
-    # Dimensions.
-    stnms <- catchNames(fleets[[flnm]])
-    nst <- length(stnms)          
-    ns  <- dim(biols[[1]]@n)[4]
-    it  <- dim(biols[[1]]@n)[6]
-    flnms <- names(fleets)
     
-    # Data
-    B    <- matrix(t(sapply(stnms, function(x){   # biomass in the middle of the season  [nst,it]
-                                if(dim(biols[[x]]@n)[1] > 1)
-                                    return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss, drop=T])
-                                else{
-                                  if(biols.ctrl[[x]][['growth.model']] == 'fixedPopulation'){
-                                    return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss, drop=T])
-                                  }
-                                  else{
-                                    return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss, drop=T])
-                                  }
-                                  
-                                } })) , nst,it, dimnames = list(stnms, 1:it))
-
-    N   <- lapply(stnms, function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
-                                if(dim(biols[[x]]@n)[1] > 1)
-                                    return((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss, drop = FALSE])
-                                else{
-                                  if(biols.ctrl[[x]] == 'fixedPopulation'){
-                                    return((biols[[x]]@n)[,yr,,ss, drop=F])
-                                  }
-                                  else{
-                                    return((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss, drop=F])
-                                  } } })
-    
-    names(N) <- stnms
-    
-
-                      
-    # Quota share          
-    QS   <- lapply(stnms, function(x){           # list of stocks, each stock [nf,it]
-                            # Calculate QS by fleet for the year and season
-                            yr.share    <- advice$quota.share[[x]][,yr,, drop=T]        # [nf,it]
-                            ss.share    <- fleets.ctrl$seasonal.share[[x]][,yr,,ss, drop=T]   # [nf,it]
-                            quota.share <-  matrix(yr.share*ss.share, length(flnms), it, dimnames = list(flnms, 1:it))
-                            quota.share[is.na(quota.share)] <- 0
-                            return(quota.share)})         
-    names(QS) <- stnms
-        
-    # If TAC >= B*alpha => TAC = B*alpha.
-    TAC.yr  <- matrix(advice$TAC[stnms,yr,drop=T], nst, it, dimnames = list(stnms, 1:it))   # [nst,it]
-    rho       <- fleets.ctrl$catch.threshold[,yr,,ss, drop=T]  # [ns,it]
-    
-    # if rho is a numeric => there is only one stock and one iteration wihout names => name it
-    if(is.null(dim(rho)) & is.null(names(rho))) names(rho) <- stnms
-      
-    QS.ss    <- matrix(t(sapply(stnms, function(x) apply(QS[[x]],2,sum))), nst,it, dimnames = list(stnms, 1:it))  # [nst,it]
+    # when advice season is different to ns: 
+    for (st in sts)
+      if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
+  
                             
-    for(stknm in  stnms){
+    for(stknm in  sts){
         tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
-        if(is.null(tacos.fun))   alpha <- rep(1,it)
+        if(is.null(tacos.fun))   alpha <- rep(1,nit)
         else{
             alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
         }
         TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
-
     }
     
-    if(it > 1){    
-      if(length(stnms) == 1) rho <- matrix(rho, 1,it, dimnames = list(stnms, 1:it))
-      
-      TAC <- ifelse(B*rho[stnms,] < TAC.yr*QS.ss, B*rho[stnms,], TAC.yr*QS.ss)
-    }
-    else TAC <- ifelse(B*rho[stnms] < TAC.yr*QS.ss, B*rho[stnms], TAC.yr*QS.ss)
-
-    # Re-scale QS to fleet share within the season instead of season-fleet share within year.
-    QS   <- lapply(stnms, function(x){          # list of stocks, each stock [nf,it]
-                            res <- sweep(QS[[x]], 2, apply(QS[[x]],2, sum), "/")
-                            res[is.na(res)] <- 0 
-                            return(res)})      
-    names(QS) <- stnms
-
-    fl    <- fleets[[flnm]]
-    
-    sts   <- catchNames(fl)
-    
-    # The effort is restricted only by the stocks in 'stocks.restr'    
-    # Remove the NA-s if any
-    # if(any(fleets.ctrl[[flnm]][['stocks.restr']])){
-    #   cat(paste("warning: there is at least one NA in  fleets.ctrl[['",flnm,"']][['stocks.restr']], and it has been removed, only the values different to NA will be maintained.\n", sep=""))
-    #   
-    #   fleets.ctrl[[flnm]][['stocks.restr']] <- fleets.ctrl[[flnm]][['stocks.restr']][!is.na(fleets.ctrl[[flnm]][['stocks.restr']])]
-    # }
-    # If the restrictors are missing => all the stocks restrict.
-    if(is.null(fleets.ctrl[[flnm]][['stocks.restr']]) |  length(fleets.ctrl[[flnm]][['stocks.restr']]) == 0) {
-      fleets.ctrl[[flnm]][['stocks.restr']] <- catchNames(fleets[[flnm]])
-    }  
-      
-    sts <- fleets.ctrl[[flnm]][['stocks.restr']]
-    
-    
-    mtnms <- names(fl@metiers)
-    
-    # flinfo: matrix with information on which metier catch which stock.
-    fl.        <- FLFleetsExt(fl)
-    names(fl.) <- flnm
-    flinfo     <- stock.fleetInfo(fl.)
-    flinfo <-  strsplit(apply(flinfo, 1,function(x) names(which(x == 1))[1]), '&&')
-
-
-    efs.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@effshare[,yr,,ss, drop=T])), 
-                    length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
-    vc.m <- matrix(t(sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss, drop=T])), 
-                    length(mtnms), it, dimnames = list(metier = mtnms, 1:it))
-    effs <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
-    Cr.f <- matrix(NA,length(sts), it, dimnames = list(sts, 1:it))
-
-    q.m <- alpha.m <- beta.m  <- ret.m <- wd.m <- wl.m <- pr.m <- vector('list', length(sts))
-    names(q.m) <- names(alpha.m) <- names(beta.m) <- names(ret.m) <- names(wl.m) <- names(wd.m) <- names(pr.m) <-sts
-
-    for(st in sts){     # q.m, alpha.m.... by metier but stock specific
-
-        # identify the first metier that catch stock st
-        mtst <- flinfo[[st]][2]
-            
-        age.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[1]]
-        age.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[1]]
-        age.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[1]]
-
-        unit.q     <- dimnames(fl@metiers[[mtst]]@catches[[st]]@catch.q)[[3]]
-        unit.alpha <- dimnames(fl@metiers[[mtst]]@catches[[st]]@alpha)[[3]]
-        unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
-
-        q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q), length(unit.q),it),     dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1:it))
-        alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), it), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1:it))
-        beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-        ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-        wl.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-        wd.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-        pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), it),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta,  iter = 1:it))
-        
-
-        for(mt in mtnms){
-
-            if(!(st %in% names(fl@metiers[[mt]]@catches))) next
-                    
-            q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, drop = TRUE] 
-            alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, drop = TRUE] 
-            beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, drop = TRUE] 
-            ret.m[[st]][mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, drop = TRUE] 
-            wl.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@landings.wt[,yr,,ss, drop = TRUE]
-            wd.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, drop = TRUE]
-            pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr,,ss, drop = TRUE]
-        }    
-        
-        Cr.f[st,] <- TAC[st,]*QS[[st]][flnm,]
-        
-        if (length(fleets.ctrl[[flnm]]$LandObl)==1){
-          LO<-fleets.ctrl[[flnm]]$LandObl
-        }else{
-          LO<-fleets.ctrl[[flnm]]$LandObl[yr]
-        }
-        
-        if(LO){
-          if(fleets.ctrl[[flnm]]$LandObl_yearTransfer[yr-1] == TRUE){ # If landing Obligation = TRUE discount possible quota transfer from previous year.
-            Cr.f[st,] <- Cr.f[st,] - fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,]
-            Cr.f[st,] <- ifelse(Cr.f[st,]<0, 0, Cr.f[st,])  # if lower than 0 , set it to 0.
-          }
-        }
-        
-    }
-    
-    
-  #  browser()
-            
     ## Update the effort-share using the defined model
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
     efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m, 
@@ -240,20 +108,34 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     # Update the fleets object with the new effort share
     for(mt in names(fl@metiers))  fl@metiers[[mt]]@effshare[,yr,,ss] <-  efs.m[mt,] 
     
-    for(st in sts){
-        
-        effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
-        for(i in 1:it){
-          
-           if(!is.null(dim(rho))) rhoi <- rho[st,i,drop=F]
-           else rhoi <- rho[st]
            
-           Nst  <- array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-            
-           effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[st,i],  N = Nst[,,i,drop=F], q.m = q.m[[st]][,,,i,drop=F], rho = rhoi,
-                                efs.m = efs.m[,i,drop=F], alpha.m = alpha.m[[st]][,,,i,drop=F], beta.m = beta.m[[st]][,,,i,drop=F],
-                                ret.m = ret.m[[st]][,,,i,drop=F], wl.m = wl.m[[st]][,,,i,drop=F], wd.m = wd.m[[st]][,,,i,drop=F],
-                                restriction = restriction))
+     for(st in sts){     # q.m, alpha.m.... by metier but stock specific
+
+        effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
+        for(i in 1:nit){
+          
+           if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+           else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
+ 
+           # Extract the i-th element from the lists. 
+            Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,2)],1)))
+            q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
+            beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
+            alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
+            ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
+            wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
+            wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+        
+            Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+            Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+            Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+            Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+            Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
+    
+            effs[st, i] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
+                                alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
+                                restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
+                                tac=TAC[,i,drop=F], Cyr_1 = Cyri_1, Nyr_1 = Nyri_1, Myr_1 = Myri_1,  M = Mi, Cfyr_1 = Cfyri_1))
         }
     }
     
@@ -264,25 +146,24 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
         }else{
           rule=fleets.ctrl[[flnm]]$effort.restr[yr]
         }
-        eff <- effRule.SMFB(effs = effs, prev.eff = matrix(fl@effort[,yr-1,,ss,drop=T],1,it), rule = rule)
+        eff <- effRule.SMFB(effs = effs, prev.eff = matrix(fl@effort[,yr-1,,ss,drop=T],1,nit), rule = rule)
         # Capacity restrictions.  
         eff <- capacityRest.SMFB(eff, c(fl@capacity[,yr,,ss,drop=T]))                                   
-#         fleets[[flnm]]@effort[,yr,,ss] <- eff 
         fl@effort[,yr,,ss] <- eff 
     }
     else{ # landObl == TRUE
-      eff <- numeric(it)
-      discount_yrtransfer <- matrix(0,nst,it, dimnames = list(sts,1:it))
+      eff <- numeric(nit)
+      discount_yrtransfer <- matrix(0,nst,nit, dimnames = list(sts,1:nit))
       ret.m.new <- ret.m # retention may change derived from minimis exemption.
       min_ctrl <- rep(FALSE, length(sts))
       names(min_ctrl) <- sts
       
       # Identify the stocks that are unable to 'receive' any extra TAC from others due to overfishing.
-      stks_OF <- overfishing(biols, fleets, advice.ctrl, yr) # matrix[nst,it]
+      stks_OF <- overfishing(biols, fleets, advice.ctrl, yr) # matrix[nst,nit]
       
       
       # Identify the minimum effort and compare with capactity, if > capacity => eff = capacity and the algorithm finish.
-        for(i in 1:it){
+        for(i in 1:nit){
             Emin <- min(effs[,i])
             if(Emin > c(fl@capacity[,yr,,ss,,i,drop=T])){ 
               fl@effort[,yr,,ss,,i] <- fl@capacity[,yr,,ss,,i,drop=T] 
@@ -293,23 +174,23 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               minimis <- fleets.ctrl[[flnm]]$LandObl_minimis # logical(ny)
               yrtrans <- fleets.ctrl[[flnm]]$LandObl_yearTransfer # logical(ny)
               
-              Ni         <- lapply(N, function(x) array(x[,,,,,i], dim= c(dim(x)[c(1,3)],1)))
-              q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
-              alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
-              beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
-              wl.m.i     <- lapply(wl.m, function(x) x[,,,i,drop=F])
-              wd.m.i     <- lapply(wd.m, function(x) x[,,,i,drop=F])
-              ret.m.i    <- lapply(ret.m, function(x) x[,,,i,drop=F])
+              
+              if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+              else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
+              
+              # Extract the i-th element form the lists. 
+              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+              q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
+              beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
+              alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
+              ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
+              wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
+              wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+              
               K <- c(fl@capacity[,yr,,ss,,i,drop=T])
-              
-              if(!is.null(dim(rho))) rhoi <- rho[st,i]
-              else rhoi <- rho[st]
-              
-              names(Ni) <- names(N)
-              names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m.i) <- names(q.m)
-              
-             Cr.f_min_qt <- Cr.f
-             eff_min_qt <- effs[, i]
+      
+              Cr.f_min_qt <- Cr.f
+              eff_min_qt <- effs[, i]
               # Minimis and Quota transfer.
               if(minimis[yr] == TRUE | yrtrans[yr] == TRUE){
                               
@@ -319,8 +200,26 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
                 Cr.f_min_qt <- Cr.f
               
                 for(st in sts){
-         #         browser()
-                  effort.fun <- ifelse(dim(Ni[[st]])[1] == 1, 'CobbDouglasBio.effort', 'CobbDouglasAge.effort')
+
+                  if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+                  else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
+                  
+                  # Extract the i-th element form the lists. 
+                  Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+                  q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
+                  beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
+                  alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
+                  ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
+                  wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
+                  wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+                  
+                  Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+                  Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+                  Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+                  Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+                  Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
+                 
+                  effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
                   # To calculate the final quota, the year transfer % needs to be applied to the original quota before
                   # discounting the quota used the pevious year and then discount this quota.
                   min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
@@ -330,10 +229,12 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
                   Cr.f_min_qt[st,i] <- (Cr.f[st,i] + fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i])*(1+min_p+yrt_p) - # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
                                         fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[st,yr-1,i]
                   
-                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f_min_qt[st,i],  N = Ni[[st]], q.m = q.m.i[[st]], rho =rhoi,
-                                       efs.m = efs.m[,i,drop=F], alpha.m = alpha.m.i[[st]], beta.m = beta.m.i[[st]],
-                                        ret.m = ret.m.i[[st]], wl.m = wl.m.i[[st]], wd.m = wd.m.i[[st]],
-                                        restriction = restriction)) # the restriction in landing obligation should be catch
+                  eff_min_qt[st] <-  eval(call(effort.fun, Cr = Cr.f[,i, drop=F],  N = Ni, q.m = q.mi, rho = rhoi, efs.m = efs.m[,i,drop=F], 
+                                               alpha.m = alpha.mi, beta.m = beta.mi, ret.m = ret.mi, wl.m = wl.mi, wd.m = wd.mi,stknm=st,
+                                               restriction = restriction,  QS.groups = fleets.ctrl[[flnm]][['QS.groups']],
+                                               tac=TAC[,i,drop=F], Cyr_1 = Cyri_1, Nyr_1 = Nyri_1, Myr_1 = Myri_1,  M = Mi, Cfyr_1 = Cfyri_1))
+                  
+            
                 }
               }
               E1 <- min(eff_min_qt) # The effort resulting from minimis and year quota transfer examptions.
@@ -342,11 +243,11 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               
               
               # Quota Swap
-              if(!is.null(dim(rho))) rhoi <- rho[,i]
-              else rhoi <- rho
+              if(!is.null(dim(rho))) rhoi <- rho[,i,drop=F]
+              else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
               
-              fcube_lo <- QuotaSwap(stknms = sts, E1, Cr.f = Cr.f[,i], Cr.f_exemp = Cr.f_min_qt[,i], N = Ni, B = B[,i,drop=F], efs.m = efs.m[,i,drop=F], q.m = q.m.i, alpha.m = alpha.m.i, beta.m = beta.m.i, 
-                                      wl.m = wl.m.i, wd.m = wd.m.i, ret.m = ret.m.i, K = K, rho = rhoi, flnm = flnm, fleets.ctrl = fleets.ctrl, stks_OF = stks_OF[,i],approach = 'fcube')
+              fcube_lo <- QuotaSwap(stknms = sts, E1, Cr.f = Cr.f[,i], Cr.f_exemp = Cr.f_min_qt[,i], N = Ni, B = B[,i,drop=F], efs.m = efs.m[,i,drop=F], q.m = q.mi, alpha.m = alpha.mi, beta.m = beta.mi, 
+                                      wl.m = wl.mi, wd.m = wd.mi, ret.m = ret.mi, K = K, rho = rhoi, flnm = flnm, fleets.ctrl = fleets.ctrl, stks_OF = stks_OF[,i],approach = 'fcube')
       
               eff[i] <- fcube_lo$E
               fl@effort[,yr,,ss,,i] <- fcube_lo$E
@@ -366,10 +267,8 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               
               # update ret.m to account for the discards due to minimise exemption.
               for(st in sts){
-             # if(flnm == 'MON_OT' & yr == 41)
-              #  browser()
-                # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
-                # otherwise it is increased so that the total discards equal to min_p*Cr.f  
+              # if discards due to size are higher than discards allowed by minimise, ret.m.i is not changed,
+              # otherwise nit is increased so that the total discards equal to min_p*Cr.f  
                 
                 Cr.f[st,i] <- ifelse(Cr.f[st,i] == 0, 1e-6, Cr.f[st,i])
                 min_p <- fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] # matrix(st,ny)
@@ -404,27 +303,72 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
       }
     }
 
-          
-    #    save(advice,alpha.m,B,beta.m,Cr.f,rho,eff,effs,efs.m,fleets.ctrl, 
-    #         q.m,QS,QS.ss,TAC,TAC.yr, file = paste(flnm, file = '.RData', sep = ""))
    
    # Update the quota share of this step and the next one if the 
    # quota share does not coincide with the actual catch. (update next one only if s < ns).
    for(st in sts){
 
-        yr.share       <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [it]
-        ss.share       <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, it))# [it,ns]
-        quota.share.OR <- matrix(t(yr.share*ss.share), ns, it)
+        if (adv.ss[st] == ns) {
+          yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [nit]
+          ss.share <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, nit)) # [nit,ns]
+        } else {
+          ss1 <- (adv.ss[st]+1):ns
+          ss2 <- 1:adv.ss[st]
+          
+          if (ss <= adv.ss[st]) {
+            yr.share <- advice$quota.share[[st]][flnm,yr-1,, drop=T]      # [nit]
+            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss2, drop=T], length(ss2), nit)), 
+                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr-1,,ss1, drop=T], length(ss1), nit))) # [nit,ns]
+          } else {
+            yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [nit]
+            ss.share <- cbind( t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr+1,,ss2, drop=T], length(ss2), nit)), 
+                               t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss1, drop=T], length(ss1), nit))) # [nit,ns]
+          }
+        }
+     
+        quota.share.OR <- matrix(t(yr.share*ss.share), ns, nit)
+        
         # The catch.
         catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
-       Nst  <-  array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-        catchD <- eval(call(catchFun, N = Nst,  E = eff, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wd.m = wd.m[[st]], wl.m = wl.m[[st]], ret.m = ret.m[[st]]))
+        
+        catchD <- array(NA, dim=dim(q.m[[st]]))
+        
+        for(i in 1:nit){
+   
+          if(is.null(dim(rho)))   rhoi <- rho
+          if(length(dim(rho))==2) rho <- rho[st,i]
+          Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+          Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+          Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+          Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+          Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
+          
+          #browser()
+          
+           catchD[,,,i] <- eval(call(catchFun, Cr=Cr.f[st,i],N = Ni[[st]],  E = eff[i], efs.m = efs.m[,i,drop=FALSE], q.m = q.m[[st]][,,,i,drop=FALSE], 
+                            alpha.m = alpha.m[[st]][,,,i,drop=FALSE], beta.m = beta.m[[st]][,,,i,drop=FALSE], wd.m = wd.m[[st]][,,,i,drop=FALSE],
+                            wl.m = wl.m[[st]][,,,i,drop=FALSE], ret.m = ret.m[[st]][,,,i,drop=FALSE], rho = rho,
+                            tac=TAC[st,i], Cyr_1 = Cyri_1[[st]], Nyr_1 = Nyri_1[[st]], Myr_1 = Myri_1[[st]],  M = Mi[[st]], 
+                            Cfyr_1 = Cfyri_1[[st]]))
+         }
         itD <- ifelse(is.null(dim(catchD)), 1, length(dim(catchD)))
         catch <- apply(catchD, itD, sum)  # sum catch along all dimensions except iterations.
             
-        quota.share    <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss)        # [ns,it]
-                              
-        fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,it], doble 't' to perform correctly de division between matrix and vector.
+        quota.share     <- updateQS.SMFB(QS = quota.share.OR, TAC = TAC.yr[st,], catch = catch, season = ss, adv.season = adv.ss[st]) # [ns,nit]
+        
+        quota.share.NEW <- t(t(quota.share)/apply(quota.share, 2,sum)) #[ns,nit] double 't' to perform correctly the division between matrix and vector. 
+        
+        if (adv.ss[st] == ns) {
+          fleets.ctrl$seasonal.share[[st]][flnm,yr,,] <- quota.share.NEW
+        } else {
+          if (ss <= adv.ss[st]) {
+            fleets.ctrl$seasonal.share[[st]][flnm,yr-1,,ss1,] <- quota.share.NEW[ss1,]
+            fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss2,]   <- quota.share.NEW[ss2,]
+          } else {
+            fleets.ctrl$seasonal.share[[st]][flnm,yr,,ss1,]   <- quota.share.NEW[ss1,]
+            fleets.ctrl$seasonal.share[[st]][flnm,yr+1,,ss2,] <- quota.share.NEW[ss2,]
+          }
+        }
          
    }
   
@@ -433,8 +377,6 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     return(list(fleets = fleets, fleets.ctrl = fleets.ctrl))
 }
 
-
-
 #-------------------------------------------------
 ## GRAVITY MODEL TO UPDATE THE EFFORT SHARE
 #-------------------------------------------------
@@ -442,8 +384,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
 gravity.flbeia <- function(Cr,  N, B, q.m, rho, efs.m, alpha.m, beta.m,
                     ret.m, wl.m, wd.m, pr.m, vc.m, season, year, fleet, fleet.ctrl, restriction = restriction,...){ 
   
-  N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
-  names(N0) <- names(N)
+  N0 <- N
   
   if(fleet.ctrl$gravity.model == 'revenue'){  
     V.m  <- Reduce('+', lapply(names(q.m), function(x) 
@@ -487,10 +428,10 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
   res <- efs.m
   res[] <- NA
   
-  for(i in 1:dim(N[[1]])[6]){
+  for(i in 1:dim(N[[1]])[3]){
   ## step 2 
     
-    Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
+    Ni         <- lapply(N, function(x) x[,,i, drop=F])
     q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
     alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
     beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
@@ -503,7 +444,7 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
                                   fleet = fleet, covars = covars, season = season, year = year,
                                   N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
     ## step 3 
-    res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df)
+    res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df, season)
   }
   
 
@@ -522,6 +463,20 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   ## 1. season - note, just return the season for which we're predicting
   seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
+  ## Determine if a factor or numeric
+    if(!is.na(seas)) {
+        
+    if(any(class(model.frame(model)$season) == "numeric")) { 
+        seas <- as.numeric(seas) } else { 
+        seas <- as.factor(seas)
+        }
+        
+    ## If season is a factor, we need to include the other seasons for contrast
+    if(class(seas) == "factor") {
+    seas <- as.factor(1:max(as.numeric(as.character(model.frame(model)$season)), na.rm = T))
+    }
+        }
+ 
   
   ## 2. catch or catch rates
   C <- if(any(sapply(catchNames(fleet), grepl, mod.coefs))) {
@@ -540,7 +495,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   ## Construct the dataframe
   predict.df <- expand.grid(metier = fleet@metiers@names, 
                             choice = "yes", 
-                            season = as.numeric(seas), 
+                            season = seas, 
                             vcost = v, 
                             effshare = e,
                             stringsAsFactors = FALSE)
@@ -577,8 +532,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
   
   if(any(sapply(catchNames(fleet), grepl, names(coef(model))))) {
     
-    N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
-    names(N0) <- names(N)
+    N0 <- N
     
     ## This should be the catch rate per stock per metier ??
     CR.m   <- lapply(names(q.m), function(x) 
@@ -616,7 +570,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 
 
 # ** predict_RUM ** : this function does the predictions and returns the effort shares.
-predict_RUM <- function(model, updated.df) {
+predict_RUM <- function(model, updated.df, season) {
   
   ## Extract the model matrix and parameter coefficients
   mod.mat <- model.matrix(model$formula, data = updated.df)
@@ -626,7 +580,25 @@ predict_RUM <- function(model, updated.df) {
   if(any(!colnames(mod.mat) == rownames(beta))) {
     stop("Model matrix and coefficients are not the same")
   }
-  
+    
+  ## If season is a factor, we want to exclude these options and just get the 
+  ## predictions for the relevant season. Note if season is a numeric, the model 
+  ## matrix already only includes the right season
+    
+  if(any(grepl("season", colnames(mod.mat)))) {
+      
+  if(any(class(model.frame(model)$season) == "factor")) { 
+      seas <- 1:max(as.numeric(as.character(model.frame(model)$season)),na.rm=T)
+      toRemove <- paste0("season", seas[!seas %in% season])
+      
+      # remove from mod.mat
+      mod.mat <- mod.mat[,!colnames(mod.mat) %in% grep(paste(toRemove, collapse = "|"), colnames(mod.mat), value = T)]
+      # remove from beta
+      beta <- beta[!rownames(beta) %in% grep(paste(toRemove, collapse = "|"), rownames(beta), value = T),]
+  }
+      
+  }
+    
   ## linear predictor long
   eta_long <- mod.mat %*% beta
   
@@ -636,10 +608,8 @@ predict_RUM <- function(model, updated.df) {
   
   ## convert to a probability
   p_hat <- exp(eta_wide) / rowSums(exp(eta_wide))
-  colnames(p_hat) <- updated.df$metier 
+  colnames(p_hat) <- unique(updated.df$metier)
   p_hat <- as.data.frame(t(p_hat))
-  
-#  cat('Effort Share mlogit: ', p_hat[,1], '\n')
   
   return(p_hat[,1])
   
@@ -662,10 +632,9 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
   res <- efs.m
   res[] <- NA
   
-  for(i in 1:dim(N[[1]])[6]){
+  for(i in 1:dim(N[[1]])[3]){
     ## step 2 
-    
-    Ni         <- lapply(N, function(x) x[,,,,,i, drop=F])
+    Ni         <- lapply(N, function(x) x[,,i, drop=F])
     q.m.i      <- lapply(q.m, function(x) x[,,,i,drop=F])
     alpha.m.i  <- lapply(alpha.m, function(x) x[,,,i,drop=F])
     beta.m.i   <- lapply(beta.m, function(x) x[,,,i,drop=F])
@@ -673,7 +642,8 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     wd.m.i     <- lapply(wd.m, function(x) x[,,,i,drop=F])
     ret.m.i    <- lapply(ret.m, function(x) x[,,,i,drop=F])
     pr.m.i     <- lapply(pr.m, function(x) x[,,,i,drop=F])
-    
+      
+   
     updated.df <- update_Markov_params(model = fleet.ctrl[['Markov.model']], predict.df = predict.df, 
                                     fleet = fleet, covars = covars, season = season, year = year,
                                     N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
@@ -696,7 +666,7 @@ make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   ## 1. season - note, just return the season for which we're predicting
   seas <- if(any(grepl("season", mod.coefs))) { season } else { NA }
-  
+    
   ## 2. catch or catch rates
   C <- if(any(sapply(catchNames(fleet), grepl, mod.coefs))) {
     
@@ -714,7 +684,7 @@ make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
   ## Construct the dataframe
   ## Note, we need the state from which vessels are coming
   predict.df <- expand.grid(state.tminus1 = fleet@metiers@names,
-                            season = as.numeric(seas), 
+                            season = seas, 
                             vcost = v, 
                             effshare = e,
                             stringsAsFactors = FALSE)
@@ -753,9 +723,8 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
   
   if(any(sapply(catchNames(fleet), grepl, model$coefnames))) {
     
-    N0 <- lapply(names(N), function(x) array(N[[x]], dim = dim(N[[x]])[c(1,3,6)]))
-    names(N0) <- names(N)
-    
+    N0 <- N
+      
     ## This should be the catch rate per stock per metier ??
     CR.m   <- lapply(names(q.m), function(x) 
       cbind(stock = x,
@@ -820,5 +789,4 @@ predict_Markov <- function(model, updated.df, fleet, season, year) {
   
 }
 
-
-
+                             
