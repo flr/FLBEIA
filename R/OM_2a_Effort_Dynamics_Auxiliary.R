@@ -29,7 +29,7 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
   nsts <- length(sts)
   nit <- length(iters)
   
-  i <- iters
+  # i <- iters
   
   effort.model <- fleets.ctrl[[flnm]][['effort.model']]
 
@@ -178,7 +178,7 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
       vc.m <- sapply(mtnms, function(x) fl@metiers[[x]]@vcost[,yr,,ss,,iters, drop=T])  #[nmt]
     
       # fixed cost per vessel
-      fc    <- fl@fcost[,yr,,ss,,i, drop=T]*covars$NumbVessels[flnm,yr,,ss,,iters, drop=T] # [1]
+      fc    <- fl@fcost[,yr,,ss,,iters, drop=T]*covars$NumbVessels[flnm,yr,,ss,,iters, drop=T] # [1]
     
       # Crew-share [it]
       crewS <- fl@crewshare[,yr,,ss,,iters, drop=T] # [i]
@@ -213,13 +213,13 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
       unit.beta  <- dimnames(fl@metiers[[mtst]]@catches[[st]]@beta)[[3]]
       unit.pr    <- dimnames(fl@metiers[[mtst]]@catches[[st]]@price)[[3]]
   
-      q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q),     length(unit.q), 1),      dimnames = list(metier = mtnms, age = age.q, unit = unit.q, iter = 1))
-      alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), 1), dimnames = list(metier = mtnms, age = age.q, unit = unit.alpha, iter = 1))
-      beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), 1),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta, iter = 1))
-      ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), 1),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta, iter = 1))
-      wl.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), 1),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta, iter = 1))
-      wd.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), 1),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta, iter = 1))
-      pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta), length(unit.beta), 1),  dimnames = list(metier = mtnms, age = age.beta,unit = unit.beta, iter = 1))
+      q.m[[st]]     <- array(0, dim = c(length(mtnms), length(age.q),     length(unit.q),     nit), dimnames = list(metier = mtnms, age = age.q,    unit = unit.q,     iter = iters))
+      alpha.m[[st]] <- array(0, dim = c(length(mtnms), length(age.alpha), length(unit.alpha), nit), dimnames = list(metier = mtnms, age = age.q,    unit = unit.alpha, iter = iters))
+      beta.m[[st]]  <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta),  nit), dimnames = list(metier = mtnms, age = age.beta, unit = unit.beta,  iter = iters))
+      ret.m[[st]]   <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta),  nit), dimnames = list(metier = mtnms, age = age.beta, unit = unit.beta,  iter = iters))
+      wl.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta),  nit), dimnames = list(metier = mtnms, age = age.beta, unit = unit.beta,  iter = iters))
+      wd.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta),  nit), dimnames = list(metier = mtnms, age = age.beta, unit = unit.beta,  iter = iters))
+      pr.m[[st]]    <- array(0, dim = c(length(mtnms), length(age.beta),  length(unit.beta),  nit), dimnames = list(metier = mtnms, age = age.beta, unit = unit.beta,  iter = iters))
   
   
       # if TAC overshoot is not discarded, it is sold and it contributes to the revenue.
@@ -228,16 +228,16 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
       for(mt in mtnms){
         if(!(st %in% names(fl@metiers[[mt]]@catches))) next
     
-        q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, ,i,drop = TRUE]
-        alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, ,i,drop = TRUE]
-        beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, ,i,drop = TRUE]
-        ret.m[[st]][mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, ,i,drop = TRUE]
-        wl.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@landings.wt[,yr,,ss, ,i,drop = TRUE]
-        wd.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, ,i,drop = TRUE]
+        q.m[[st]][mt,,,]     <- fl@metiers[[mt]]@catches[[st]]@catch.q[,yr,,ss, ,iters,drop = TRUE]
+        alpha.m[[st]][mt,,,] <- fl@metiers[[mt]]@catches[[st]]@alpha[,yr,,ss, ,iters,drop = TRUE]
+        beta.m[[st]][mt,,,]  <- fl@metiers[[mt]]@catches[[st]]@beta[,yr,,ss, ,iters,drop = TRUE]
+        ret.m[[st]][mt,,,]   <- fl@metiers[[mt]]@catches[[st]]@landings.sel[,yr,,ss, ,iters,drop = TRUE]
+        wl.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@landings.wt[,yr,,ss, ,iters,drop = TRUE]
+        wd.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@discards.wt[,yr,,ss, ,iters,drop = TRUE]
     
         # The price is taken from the year before, because price for the current year is updated after catch is produced,
         # if the price was dynamically updated inside this function the optimizer could crash.
-        pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr-1,,ss,,i, drop = TRUE]
+        pr.m[[st]][mt,,,]    <- fl@metiers[[mt]]@catches[[st]]@price[,yr-1,,ss,,iters, drop = TRUE]
       }
       
       
