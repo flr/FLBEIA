@@ -33,6 +33,6 @@ For each fleet, the pdf contains plots of:
 library(FLBEIA)
 library(ggplot2)
 data(res_flbeia)
-plotFLFleets(oneFl,pdfnm='oneFl')
+plotFLFleets(oneRes$fleets,pdfnm='oneFl')
 }
 }

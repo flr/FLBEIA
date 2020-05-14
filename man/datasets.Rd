@@ -64,7 +64,7 @@ Example datasets for the classes defined in FLBEIA.
 \details{
 \itemize{
 
-\item{\code{one}}{: A dataset for running FLBEIA.
+   \item{\code{one}}{: A dataset for running FLBEIA.
                         Example with one stock (age-structured), one fleet, annual steps (one season) and one iteration.}
     \itemize{
       \item{\code{oneBio} (\code{\link{FLBiols}})}

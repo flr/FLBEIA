@@ -244,7 +244,7 @@ stf.TAC <- function( SSB.obj, TACs1.perc, B, BP, G1, G2, M1, M2, S1, S2, tsurv) 
   for (i in 1:nit) {
     fval.opt <- optimize(of, c(0,10), SSB=SSB[i], B=B[i], BP=BP[i], G1=G1[i], G2=G2[i], M1=M1[i], M2=M2[i], S1=S1[i], S2=S2[i], tsurv=tsurv,
                          tol = .Machine$double.eps^0.5)
-    if ( fval.opt$obj > 0.001 ) warning("The optimizer in the function 'stf.gamma' may not have reach a minimum. OBJ=",res.opt$obj )
+    if ( fval.opt$obj > 0.001 ) warning("The optimizer in the function 'stf.gamma' may not have reach a minimum. OBJ=",fval.opt$obj )
     fval[i]  <- fval.opt$min
   }
   

@@ -4,8 +4,17 @@
 \alias{SelAtAge}
 \title{Estimate selectivity at age}
 \usage{
-SelAtAge(biols, fleets, flnm = 1, mtnm = 1, stnm = 1, years,
-  iter = NULL, restriction = 1, ntrials = 3)
+SelAtAge(
+  biols,
+  fleets,
+  flnm = 1,
+  mtnm = 1,
+  stnm = 1,
+  years,
+  iter = NULL,
+  restriction = 1,
+  ntrials = 3
+)
 }
 \arguments{
 \item{biols}{A FLBiols object.}

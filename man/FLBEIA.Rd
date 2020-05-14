@@ -4,9 +4,22 @@
 \alias{FLBEIA}
 \title{Run the FLBEIA bio-economic simulation model}
 \usage{
-FLBEIA(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL,
-  indices = NULL, advice = NULL, main.ctrl, biols.ctrl, fleets.ctrl,
-  covars.ctrl, obs.ctrl, assess.ctrl, advice.ctrl)
+FLBEIA(
+  biols,
+  SRs = NULL,
+  BDs = NULL,
+  fleets,
+  covars = NULL,
+  indices = NULL,
+  advice = NULL,
+  main.ctrl,
+  biols.ctrl,
+  fleets.ctrl,
+  covars.ctrl,
+  obs.ctrl,
+  assess.ctrl,
+  advice.ctrl
+)
 }
 \arguments{
 \item{biols}{An FLBiols object.}

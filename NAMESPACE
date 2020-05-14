@@ -4,11 +4,12 @@ import("methods")
 import("tidyverse")
 import("arrayhelpers")
 importFrom("dplyr", "as.tbl","%>%","bind_cols", "bind_rows", "filter", "full_join", "group_by", "mutate","mutate_at", "select", "summarise_at", "ungroup", "if_else", 
-           "everything","case_when")
+           "everything","case_when","lag")
 importFrom("tidyr", "spread", "gather", "unnest")
 importFrom("grDevices", "dev.off", "pdf")
 importFrom("stats", "aggregate", "anova", "as.formula", "coef", "cor",
-  "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot", "optim", "na.pass")
+  "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot", "optim", "na.pass",
+  "lag", "model.matrix", "setNames")
 importFrom("utils", "data", "installed.packages")
 import("ggplot2")
 importFrom("utils", "read.csv")
@@ -19,6 +20,10 @@ import("Matrix")
 import("plyr")
 importFrom("mvtnorm", "rmvnorm")
 importFrom("triangle", "rtriangle")
+importFrom("mlogit", "mlogit.data")
+importFrom("nloptr", "nloptr")
+#importFrom("nnet", "predict.multinom")
+importFrom("purrr", "map", "partial", "set_names")
 
 export(
 "advSum",

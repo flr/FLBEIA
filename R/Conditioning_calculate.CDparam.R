@@ -136,7 +136,7 @@
     # For age structured models calculate always Fa, to save on computations, for years 1:simyrs[]-1
       yrs <- dimnames(biols[[st]]@n)[[2]]
 
-      if(na > 1) Fa <- Fa_cond_Baranov(biols, fleets, year = yrs, stk = st)
+      if(na > 1) Fa <- Fa_cond_Baranov(biols, fleets, years = yrs, stk = st)
       Ct <- catchStock(fleets,st)
     
      if(na != 1){  # 'Biomass' in numbers because the catch is in numbers, in the middle of the season.

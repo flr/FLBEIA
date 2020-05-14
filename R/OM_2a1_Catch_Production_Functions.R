@@ -470,7 +470,7 @@ Baranov.effort   <- function(Cr,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho
   
   
   fObj <- function(E.f,Cr,wd.m, wl.m, q.m,efs.m,alpha.m,beta.m, ret.m, rho, restriction,
-                   tac, Cyr_1=Cyr_1,Nyr_1=Nyr_1,Myr_1=Myr_1,N=N,M=M,W=W,Cfyr_1=Cfyr_1){
+                   tac, Cyr_1=Cyr_1,Nyr_1=Nyr_1,Myr_1=Myr_1,N=N,M=M,Cfyr_1=Cfyr_1){
     # if catch = TRUE (=> the restriction is catch not landings. )
     
     Ca.m <- Baranov(E = E.f, Cr=Cr, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
@@ -496,7 +496,7 @@ Baranov.effort   <- function(Cr,wl.m, wd.m, ret.m, q.m,efs.m,alpha.m,beta.m, rho
                     efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho,
                     restriction = restriction, ret.m = ret.m,
                     tac=tac, Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1, N = N, M = M,
-                    W = W, Cfyr_1 = Cfyr_1, tol = 1e-4)$root
+                     Cfyr_1 = Cfyr_1, tol = 1e-4)$root
   
   return(effort =  NomEff)
 }

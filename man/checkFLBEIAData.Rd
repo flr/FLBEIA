@@ -10,9 +10,22 @@
 \alias{checkObsctrl}
 \title{Checking inputs of FLBEIA function}
 \usage{
-checkFLBEIAData(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL,
-  indices = NULL, advice = NULL, main.ctrl, biols.ctrl, fleets.ctrl,
-  covars.ctrl, obs.ctrl, assess.ctrl, advice.ctrl)
+checkFLBEIAData(
+  biols,
+  SRs = NULL,
+  BDs = NULL,
+  fleets,
+  covars = NULL,
+  indices = NULL,
+  advice = NULL,
+  main.ctrl,
+  biols.ctrl,
+  fleets.ctrl,
+  covars.ctrl,
+  obs.ctrl,
+  assess.ctrl,
+  advice.ctrl
+)
 
 checkBiols(object)
 

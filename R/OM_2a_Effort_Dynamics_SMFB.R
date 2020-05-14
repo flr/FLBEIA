@@ -76,6 +76,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
         stop("fleets.ctrl[[f]]$restriction must be equal to 'catch' or 'landings'")
     
     
+    # For avoiding errors in R CMD CHECK: 
+    # add variables that will be defined within FLObjs2S3_fleetSTD function call
+    B <- N <- QS <- TAC <- rho <- efs.m <- vc.m <- fc <- crewS <- effs <- Cr.f <- TAC.yr <- 
+      tacos <- q.m <- alpha.m <- beta.m <- pr.m <- ret.m <- wd.m <- wl.m <- K <- 
+      Nyr_1 <- Myr_1 <- M <- Cfyr_1 <- Cyr_1 <- LO <- NULL
+    
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
     list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
                                 biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 

@@ -20,7 +20,7 @@
 #' library(FLBEIA)
 #' library(ggplot2)
 #' data(res_flbeia)
-#' plotFLBiols(oneRes$biols, pdfname='oneRes')
+#' plotFLBiols(oneRes$biols, pdfnm='oneRes')
 #' }
 
 
@@ -49,12 +49,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
        ggtitle("n")+theme(plot.title = element_text(hjust = 0.5)) 
       
     print(p)
@@ -66,12 +66,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("wt")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -82,12 +82,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("m")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -98,12 +98,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("fec")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -114,12 +114,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("mat")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -130,12 +130,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("spwn")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -146,12 +146,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("ssb")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -169,12 +169,12 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[4:(4+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("rec")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)

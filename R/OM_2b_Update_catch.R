@@ -419,7 +419,7 @@ seasonshare.CAA  <- function(fleets, biols, fleets.ctrl, advice, advice.ctrl, ye
   f  <- flnm
   st <- stknm
   
-  ass.ss <- assess.ctrl[[st]][['ass.season']]
+  ass.ss <- assess.ctrl[[st]][['ass.season']] #! Need to be corrected as assess.ctrl is not actually an input in the used call
   if (is.null(ass.ss)) { ass.ss <- ns } else if (is.na(ass.ss)) { ass.ss <- ns }
   
   fleets <- unclass(fleets)

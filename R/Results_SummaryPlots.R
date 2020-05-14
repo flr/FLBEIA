@@ -139,9 +139,9 @@ plotbioSum <- function( obj, stk.nam, Blim=NA, Bpa=NA, proj.yr=NA) {
   d <- subset(bioSumQ(obj), indicator %in% inds)
   d$indicator <- factor( d$indicator, levels=inds)
   d$year <- as.numeric(ac(d$year))
-  p <- ggplot( data=d, aes(x=year, y=q50, color=scenario)) + 
+  p <- ggplot( data=d, aes(x=.data$year, y=.data$q50, color=.data$scenario)) + 
     geom_line() + 
-    geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=scenario), alpha=0.5) + 
+    geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$scenario), alpha=0.5) + 
     facet_wrap(~ indicator, scales="free") + 
     theme_bw() + 
     theme(text=element_text(size=20),
@@ -153,7 +153,7 @@ plotbioSum <- function( obj, stk.nam, Blim=NA, Bpa=NA, proj.yr=NA) {
     p <- p + geom_vline(xintercept = proj.yr, linetype = "longdash")
   if (!is.na(Blim) | !is.na(Bpa))
     p <- p + geom_hline(lty=2, data=data.frame(indicator=rep('ssb',2), Bref=c(Blim,Bpa)), 
-                        aes(yintercept=Bref), color=c('red','orange'))
+                        aes_string(yintercept='Bref'), color=c('red','orange'))
   print(p)
   
 }
@@ -207,9 +207,9 @@ plotfltSum <- function( obj, flt.nam, proj.yr=NA) {
   d <- subset(fltSumQ(obj), indicator %in% inds)
   d$indicator <- factor( d$indicator, levels=inds)
   d$year <- as.numeric(ac(d$year))
-  p <- ggplot( data=d, aes(x=year, y=q50, color=scenario)) + 
+  p <- ggplot( data=d, aes(x=.data$year, y=.data$q50, color=.data$scenario)) + 
     geom_line() + 
-    geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=scenario), alpha=0.5) + 
+    geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$scenario), alpha=0.5) + 
     facet_wrap(~ indicator, scales="free") + 
     # geom_vline(xintercept = oneMainC$sim.years[['initial']], linetype = "longdash") + 
     theme_bw() + 

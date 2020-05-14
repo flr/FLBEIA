@@ -13,7 +13,7 @@ Description: A simulation toolbox that describes a fishery system under
   the advice on the other.
 Depends:
   methods,
-  R(>= 3.2.3),
+  R(>= 3.5.0),
   FLCore (>= 2.6.5),
   FLFleet,
   ggplot2
@@ -25,8 +25,16 @@ Imports:
   Matrix,
   FLash,
   mvtnorm,
-  triangle
-Suggests:    R.rsp, spict, XLConnect
+  mlogit,
+  nloptr,
+  triangle,
+  arrayhelpers,
+  dplyr,
+  plyr,
+  purrr,
+  tidyr,
+  tidyverse
+Suggests: R.rsp, spict, XLConnect
 Additional_repositories: http://flr-project.org/R
 License: GPL (>= 2)
 Language: en-GB
@@ -107,6 +115,7 @@ Collate:
     "OM_1_biol.om.R"
     "OM_1a_Population_Growth_Functions.R"
     "OM_1a1_Stock_Recruitment_functions.R"
+    "OM_1a1_Stock_Recruitment_functions_segregmix.R"
     "OM_2_fleet.om.R"
     "OM_2a_Effort_Dynamics.R"
     "OM_2a_Effort_Dynamics_Auxiliary.R"
@@ -132,4 +141,4 @@ Collate:
     "Results_Summary.R"
     "Results_SummaryPlots.R"
 VignetteBuilder: R.rsp
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0

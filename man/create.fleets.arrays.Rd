@@ -4,13 +4,33 @@
 \alias{create.fleets.arrays}
 \title{Function to generate an FLFleetsExt object given inputs as arrays}
 \usage{
-create.fleets.arrays(stk_objs, caa_objs, caa_objs_path, price_objs,
-  price_objs_path, catch_obj, effort_obj, flt_obj = NULL, stk_nms = NA,
-  flt_nms, flt_mt_nms, flt_mt_stk_nms, ages = NULL, hist.yrs, sim.yrs,
-  mean.yrs, new_hist.yrs = hist.yrs, update_catch_effort = TRUE,
-  update_price = TRUE, update_weight = TRUE,
-  caa_flt_mt_correspondences = NULL, paa_flt_mt_correspondences = NULL,
-  caaOpt, priceOpt, excel = TRUE)
+create.fleets.arrays(
+  stk_objs,
+  caa_objs,
+  caa_objs_path,
+  price_objs,
+  price_objs_path,
+  catch_obj,
+  effort_obj,
+  flt_obj = NULL,
+  stk_nms = NA,
+  flt_nms,
+  flt_mt_nms,
+  flt_mt_stk_nms,
+  ages = NULL,
+  hist.yrs,
+  sim.yrs,
+  mean.yrs,
+  new_hist.yrs = hist.yrs,
+  update_catch_effort = TRUE,
+  update_price = TRUE,
+  update_weight = TRUE,
+  caa_flt_mt_correspondences = NULL,
+  paa_flt_mt_correspondences = NULL,
+  caaOpt,
+  priceOpt,
+  excel = TRUE
+)
 }
 \arguments{
 \item{stk_objs}{A character vector with the names of the files containing the stocks data. See \link{create.biol.arrays} for more detail.

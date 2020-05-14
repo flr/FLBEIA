@@ -21,16 +21,13 @@
 \alias{catchNames<-,FLCatchExt,character}
 \title{FLCatchExt class and the methods to construct it.}
 \usage{
-\S4method{FLCatchExt}{FLQuant}(object, range = "missing", name = "NA",
-  desc = character(0), ...)
+\S4method{FLCatchExt}{FLQuant}(object, range = "missing", name = "NA", desc = character(0), ...)
 
 \S4method{FLCatchExt}{missing}(object, ...)
 
-\S4method{[}{FLCatchExt,ANY,ANY,ANY}(x, i, j, k, l, m, n, ...,
-  drop = FALSE)
+\S4method{[}{FLCatchExt,ANY,ANY,ANY}(x, i, j, k, l, m, n, ..., drop = FALSE)
 
-\S4method{[}{FLCatchExt,ANY,ANY,FLCatchExt}(x, i, j, k, l, m, n,
-  ...) <- value
+\S4method{[}{FLCatchExt,ANY,ANY,FLCatchExt}(x, i, j, k, l, m, n, ...) <- value
 
 catchNames(object, ...) <- value
 

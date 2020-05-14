@@ -78,6 +78,12 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
   
   for(i in dimnms$iter){
     
+    # For avoiding errors in R CMD CHECK: 
+    # add variables that will be defined within FLObjs2S3_fleetSTD function call
+    B <- N <- QS <- TAC <- rho <- efs.m <- vc.m <- fc <- crewS <- effs <- Cr.f <- TAC.yr <- 
+      tacos <- q.m <- alpha.m <- beta.m <- pr.m <- ret.m <- wd.m <- wl.m <- K <- 
+      Nyr_1 <- Myr_1 <- M <- Cfyr_1 <- Cyr_1 <- LO <- NULL
+    
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
     list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
                                 biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
@@ -669,63 +675,63 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
 # 
 #  Effort restriction is always 'min', i.e all the Quotas must be fulfiled.
 #-------------------------------------------------------------------------------
-# 
-# f_MP_LO_nloptr <- function(X, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
-#                            wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K, rho,STRs,STDs, Cr.f.new, tau.old, lambda.lim){
-#   
-#   
-#   E <- X[-(1:length(STRs))]
-#   
-#   tau     <- X[1:length(STRs)]
-#   
-#   nmt <- length(E)
-#   
-#   res <- 0
-#   
-#   Cst <- Lst <-  numeric(length(q.m))
-#   names(Cst) <- names(Lst) <-names(q.m)
-#   
-#   #   cat( '**************************************************************************\n')
-#   
-#   for(st in names(q.m)){
-#     
-#     #     E1  <- array(E,dim = dim(q.m[[st]]))   # [nmt,na,nu]
-#     Nst  <- N[[st]]  # array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-#     
-#     if(dim(Nst)[1] > 1){
-#       Cam <- CobbDouglasAge(E = sum(E), N = Nst, wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]],
-#                             q.m = q.m[[st]], efs.m = matrix(E/sum(E),ncol = 1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], rho = rho[st,]) # only 1 iter, MaxProf is applied by iter.
-#     }
-#     else{
-#       Cam <- CobbDouglasBio(E = sum(E), N = Nst, wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]],
-#                             q.m = q.m[[st]], efs.m = matrix(E/sum(E),ncol = 1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], rho = rho[st,]) # only 1 iter, MaxProf is applied by iter.
-#       Cam <- array(Cam, dim = dim(q.m[[st]]))
-#     }
-#     
-#     Cst[st] <- sum(Cam) # IN LO 'CATCH' IS **ALWAYS** THE RESTRICTOR
-#     #    Lst[st] <- sum(ret.m[[st]]*Cam)  # multiply the retention vector if landing is the restriction.
-#     
-#     # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE).
-#     #   if(catch.restr  != 'catch') Cst[st] <- Lst[st]# The restriction is landings.
-#     
-#     # TAC overshot can be landed or discarded. In the case of landing obligation it is 'discarded' because it does not
-#     # contribute to the revenue but it goes against the TAC => TACOS == TRUE
-#     # IN LO **EVERYTHING** IS LANDED.
-#     #   if(tacos[st] == FALSE) # TAC Overshot is not discarded.
-#     Lrat <- 1
-#     #   else Lrat <- ifelse(Cr.f[st]/Cst[st] > 1, 1, Cr.f[st]/Cst[st])  # TAC Overshot is  discarded.
-#     # The overquota discards are proportional to the catch in all the metiers.
-#     res <- res + sum(ret.m[[st]]*Cam*pr.m[[st]])*Lrat
-#     
-#     
-#   }
-#   
-#   resF <- (1-crewS)*res - sum(vc.m*E) - fc
-#   
-#   # cat('prof: ', resF, ', rev: ',res, ', creWS:', crewS, ', TCS: ', crewS*res, ', Vc: ', sum(vc.m*E), ', FC: ', fc, '\n' )
-#   
-#   return(-resF/1e6)
-# }
+
+f_MP_LO_nloptr <- function(X, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
+                           wl.m, N, B, fc, vc.m,   Cr.f,  crewS, K, rho,STRs,STDs, Cr.f.new, tau.old, lambda.lim){
+
+
+  E <- X[-(1:length(STRs))]
+
+  tau     <- X[1:length(STRs)]
+
+  nmt <- length(E)
+
+  res <- 0
+
+  Cst <- Lst <-  numeric(length(q.m))
+  names(Cst) <- names(Lst) <-names(q.m)
+
+  #   cat( '**************************************************************************\n')
+
+  for(st in names(q.m)){
+
+    #     E1  <- array(E,dim = dim(q.m[[st]]))   # [nmt,na,nu]
+    Nst  <- N[[st]]  # array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+
+    if(dim(Nst)[1] > 1){
+      Cam <- CobbDouglasAge(E = sum(E), N = Nst, wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]],
+                            q.m = q.m[[st]], efs.m = matrix(E/sum(E),ncol = 1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], rho = rho[st,]) # only 1 iter, MaxProf is applied by iter.
+    }
+    else{
+      Cam <- CobbDouglasBio(E = sum(E), N = Nst, wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]],
+                            q.m = q.m[[st]], efs.m = matrix(E/sum(E),ncol = 1), alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], rho = rho[st,]) # only 1 iter, MaxProf is applied by iter.
+      Cam <- array(Cam, dim = dim(q.m[[st]]))
+    }
+
+    Cst[st] <- sum(Cam) # IN LO 'CATCH' IS **ALWAYS** THE RESTRICTOR
+    #    Lst[st] <- sum(ret.m[[st]]*Cam)  # multiply the retention vector if landing is the restriction.
+
+    # The oversized discards are always discarded, but if landing obligation is in place they account in quota (catch == TRUE).
+    #   if(catch.restr  != 'catch') Cst[st] <- Lst[st]# The restriction is landings.
+
+    # TAC overshot can be landed or discarded. In the case of landing obligation it is 'discarded' because it does not
+    # contribute to the revenue but it goes against the TAC => TACOS == TRUE
+    # IN LO **EVERYTHING** IS LANDED.
+    #   if(tacos[st] == FALSE) # TAC Overshot is not discarded.
+    Lrat <- 1
+    #   else Lrat <- ifelse(Cr.f[st]/Cst[st] > 1, 1, Cr.f[st]/Cst[st])  # TAC Overshot is  discarded.
+    # The overquota discards are proportional to the catch in all the metiers.
+    res <- res + sum(ret.m[[st]]*Cam*pr.m[[st]])*Lrat
+
+
+  }
+
+  resF <- (1-crewS)*res - sum(vc.m*E) - fc
+
+  # cat('prof: ', resF, ', rev: ',res, ', creWS:', crewS, ', TCS: ', crewS*res, ', Vc: ', sum(vc.m*E), ', FC: ', fc, '\n' )
+
+  return(-resF/1e6)
+}
 
 #-------------------------------------------------------------------------------
 # Constraints in the swap of quotas in MP.
@@ -736,61 +742,62 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
 #       - Cstd < QNEWstd - tau_new*Qstd  
 #  Effort restriction is always 'min', i.e all the Quotas must be fulfiled.
 #-------------------------------------------------------------------------------
-# g_ineq_MP_LO_nloptr <- function(X, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m, wl.m, N, B, fc, vc.m,
-#                                 Cr.f, crewS, K, rho, STRs,STDs, Cr.f.new, tau.old, lambda.lim){
-#   E <- X[-(1:length(STRs))]
-#   
-#   tau <- X[1:length(STRs)]
-#   names(tau) <- STRs
-#   
-#   # browser()
-#   
-#   nmt <- length(E)
-#   
-#   stnms <- names(N)
-#   
-#   res <- 0
-#   
-#   Cst <- Lst <-  NULL
-#   #   cat( '**************************************************************************\n')
-#   # constraint on catches, comply with all the TACS ('min') or only with one.
-#   
-#   resTAC <- rep(0, length(q.m))  # One resctriction per stock.
-#   names(resTAC) <- names(q.m)
-#   
-#   # NEW quotas for str and std
-#   for(str in STRs){
-#     Cr.f.new[str] <- Cr.f[str] + tau[str]*Cr.f[STDs[,str]]
-#     Cr.f.new[STDs[,str]] <- Cr.f.new[STDs[,str]] - (tau[str] - tau.old[str])*Cr.f[STDs[,str]]
-#   }  
-#   
-#   for(st in names(q.m)){
-#     Nst <- N[[st]] #array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
-#     if(dim(Nst)[1] > 1){
-#       Cam <- CobbDouglasAge(sum(E),Nst, wl.m[[st]], wd.m[[st]],
-#                             ret.m[[st]],q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]],rho[st,])
-#       
-#       resTAC[st] <- sum(Cam)  - Cr.f.new[st]
-#       #   cat(st, ' - ', sum(Cam), '\n')
-#     }
-#     else{
-#       Cm <- CobbDouglasBio(sum(E),Nst, wl.m[[st]], wd.m[[st]],
-#                            q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]], ret.m[[st]],rho[st,])
-#       resTAC[st] <- sum(Cm)  - Cr.f.new[st]
-#       #       cat(st, ' - ', sum(Cm), '\n')
-#     }
-#     
-#   }
-#   #  browser()
-#   lambda <- -lambda.lim
-#   
-#   for(st in unique(STDs[1,])){
-#     strs_std       <- names(STDs[1,which(STDs[1,] == st)])
-#     lambda[st] <- lambda[st] + sum(tau[strs_std] - tau.old[strs_std])
-#   }
-#   
-#   resK <- sum(E)-K
-#   # print(c(resTAC, resK, lambda))
-#   # return(c(lambda))
-#   return(c(resTAC, resK, lambda))
-# }
+g_ineq_MP_LO_nloptr <- function(X, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m, wl.m, N, B, fc, vc.m,
+                                Cr.f, crewS, K, rho, STRs,STDs, Cr.f.new, tau.old, lambda.lim){
+  E <- X[-(1:length(STRs))]
+
+  tau <- X[1:length(STRs)]
+  names(tau) <- STRs
+
+  # browser()
+
+  nmt <- length(E)
+
+  stnms <- names(N)
+
+  res <- 0
+
+  Cst <- Lst <-  NULL
+  #   cat( '**************************************************************************\n')
+  # constraint on catches, comply with all the TACS ('min') or only with one.
+
+  resTAC <- rep(0, length(q.m))  # One resctriction per stock.
+  names(resTAC) <- names(q.m)
+
+  # NEW quotas for str and std
+  for(str in STRs){
+    Cr.f.new[str] <- Cr.f[str] + tau[str]*Cr.f[STDs[,str]]
+    Cr.f.new[STDs[,str]] <- Cr.f.new[STDs[,str]] - (tau[str] - tau.old[str])*Cr.f[STDs[,str]]
+  }
+
+  for(st in names(q.m)){
+    Nst <- N[[st]] #array(N[[st]][drop=T],dim = dim(N[[st]])[c(1,3,6)])
+    if(dim(Nst)[1] > 1){
+      Cam <- CobbDouglasAge(sum(E),Nst, wl.m[[st]], wd.m[[st]],
+                            ret.m[[st]],q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]],rho[st,])
+
+      resTAC[st] <- sum(Cam)  - Cr.f.new[st]
+      #   cat(st, ' - ', sum(Cam), '\n')
+    }
+    else{
+      Cm <- CobbDouglasBio(sum(E),Nst, wl.m[[st]], wd.m[[st]],
+                           q.m[[st]],matrix(E/sum(E),ncol = 1),alpha.m[[st]],beta.m[[st]], ret.m[[st]],rho[st,])
+      resTAC[st] <- sum(Cm)  - Cr.f.new[st]
+      #       cat(st, ' - ', sum(Cm), '\n')
+    }
+
+  }
+  #  browser()
+  lambda <- -lambda.lim
+
+  for(st in unique(STDs[1,])){
+    strs_std       <- names(STDs[1,which(STDs[1,] == st)])
+    lambda[st] <- lambda[st] + sum(tau[strs_std] - tau.old[strs_std])
+  }
+
+  resK <- sum(E)-K
+  # print(c(resTAC, resK, lambda))
+  # return(c(lambda))
+  return(c(resTAC, resK, lambda))
+}
+

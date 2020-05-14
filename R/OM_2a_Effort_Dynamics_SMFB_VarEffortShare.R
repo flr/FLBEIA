@@ -23,6 +23,7 @@
 # Changed: 13/01/2015
 # Changed: 01/04/2015 Itsaso Carmona 
 # Changed: 29/04/2015 Itsaso carmona (LO in some years)
+# Added Effort share models: 20/03/2019 Dorleta 
 #-------------------------------------------------------------------------------
 
 
@@ -102,7 +103,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
     efs.m <- eval(call(effortShare.fun, Cr = Cr.f,  N = N, B = B, q.m = q.m, rho = rho, efs.m = efs.m, alpha.m, 
                        beta.m = beta.m, ret.m = ret.m, wl.m = wl.m, wd.m = wd.m, pr.m = pr.m, vc.m = vc.m,
-                       season = ss, year = yr, fleet = fl, fleet.ctrl = fleets.ctrl[[flnm]], restriction = restriction))
+                       season = ss, year = yr, fleet = fl, fleet.ctrl = fleets.ctrl[[flnm]], restriction = restriction, covars=covars))
     
     cat('Effort share: ', efs.m, ', sum:', apply(efs.m,2,sum), '\n')
     # Update the fleets object with the new effort share
@@ -423,7 +424,7 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
   
   
   ## step 1 
-  predict.df <- make_RUM_predict_df(model = fleet.ctrl[['mlogit.model']], fleet = fleet, s = season)
+  predict.df <- make_RUM_predict_df(model = fleet.ctrl[['mlogit.model']], fleet = fleet, season = season)
   
   res <- efs.m
   res[] <- NA
@@ -512,7 +513,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   predict.df$index <- seq_len(nrow(predict.df)) 
   ## Use mFormula to define model form
-  LD.predict <- mlogit:::mlogit.data(predict.df, choice = "choice", shape = "long",
+  LD.predict <- mlogit::mlogit.data(predict.df, choice = "choice", shape = "long",
                             alt.var = "metier", chid.var = "index")
   
   return(LD.predict)
@@ -554,7 +555,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
   
   # 3. vcost
   if("vcost" %in% colnames(predict.df)) {
-    v <- do.call(rbind, lapply(fl@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season]))))
+    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season]))))
     predict.df$vcost <- v$data
   }
   
@@ -625,9 +626,11 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
                           beta.m, ret.m, wl.m, wd.m, pr.m, vc.m,
                           season, year, fleet, fleet.ctrl, restriction,...){
   
+  args   <- list(...)
+  covars <- args$covars
   
   ## step 1 
-  predict.df <- make_Markov_predict_df(model = fleet.ctrl[['Markov.model']], fleet = fleet, s = season)
+  predict.df <- make_Markov_predict_df(model = fleet.ctrl[['Markov.model']], fleet = fleet, season = season)
   
   res <- efs.m
   res[] <- NA

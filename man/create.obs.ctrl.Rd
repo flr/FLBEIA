@@ -4,8 +4,15 @@
 \alias{create.obs.ctrl}
 \title{obs.ctrl object creator}
 \usage{
-create.obs.ctrl(stksnames, n.stks.inds = NULL, stks.indsnames = NULL,
-  stkObs.models = NULL, indObs.models = NULL, immediate = FALSE, ...)
+create.obs.ctrl(
+  stksnames,
+  n.stks.inds = NULL,
+  stks.indsnames = NULL,
+  stkObs.models = NULL,
+  indObs.models = NULL,
+  immediate = FALSE,
+  ...
+)
 }
 \arguments{
 \item{stksnames}{A vector with the name of the stocks in the OM.}

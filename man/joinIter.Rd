@@ -4,9 +4,15 @@
 \alias{joinIter}
 \title{Joins the iterations of several FLBEIA outputs}
 \usage{
-joinIter(objnam, files, directory = NULL, Niters = 1,
-  elements = "all", advice.ext = "TAC",
-  fleets.ctrl.ext = "seasonal.share")
+joinIter(
+  objnam,
+  files,
+  directory = NULL,
+  Niters = 1,
+  elements = "all",
+  advice.ext = "TAC",
+  fleets.ctrl.ext = "seasonal.share"
+)
 }
 \arguments{
 \item{objnam}{Character. The name of the object that will be joined.

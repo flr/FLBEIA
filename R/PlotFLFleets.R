@@ -142,7 +142,7 @@ total.discards.stock.df <- function(fleet){
 #' library(FLBEIA)
 #' library(ggplot2)
 #' data(res_flbeia)
-#' plotFLFleets(oneFl,pdfnm='oneFl')
+#' plotFLFleets(oneRes$fleets,pdfnm='oneFl')
 #' }
 
 
@@ -178,9 +178,9 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[6:(6+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=species)) + 
+    p <- ggplot( data=res, aes_string(x='year', y='q50', fill='species')) + 
       geom_line() + theme_bw() + geom_point(size=2,shape=21) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=species), alpha=0.3) + 
+      geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='species'), alpha=0.3) + 
       facet_grid(indicator~fleet,scales=c("free_y"))+
       ggtitle("")+
       theme(text=element_text(size=10),
@@ -216,9 +216,9 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[5:(5+length(probs)-1)] <- nms
     res$quant <- as.factor(res$quant)
-    p <- ggplot( data=res, aes(x=year, y=q50, fill=indicator)) + 
+    p <- ggplot( data=res, aes_string(x='year', y='q50', fill='indicator')) + 
       geom_line() + theme_bw() + geom_point(size=2,shape=21)+  
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=indicator), alpha=0.3) + 
+      geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='indicator'), alpha=0.3) + 
       facet_grid(variable~indicator,scales=c("free_y"))+
       ggtitle("")+
       theme(text=element_text(size=10),
@@ -251,9 +251,9 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc"){
       nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
       names(res)[6:(6+length(probs)-1)] <- nms
       res$quant <- as.factor(res$quant)
-      p <- ggplot( data=res, aes(x=year, y=q50, fill=metier)) + 
+      p <- ggplot( data=res, aes_string(x='year', y='q50', fill='metier')) + 
         geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
-        geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=metier), alpha=0.3) + 
+        geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='metier'), alpha=0.3) + 
         facet_grid(indicator~fleet,scales=c("free_y"))+
         ggtitle("")+
         theme(text=element_text(size=10),
@@ -294,9 +294,9 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc"){
         nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
         names(res)[5:(5+length(probs)-1)] <- nms
         res$age <- as.factor(res$age)
-        p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+        p <- ggplot( data=res, aes_string(x='year', y='q50', fill='age')) + 
           geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
-          geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.3) + 
+          geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='age'), alpha=0.3) + 
           facet_grid(indicator~stock,scales=c("free_y"))+
           ggtitle("")+
           theme(text=element_text(size=10),
@@ -325,9 +325,9 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc"){
         nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
         names(res)[5:(5+length(probs)-1)] <- nms
         res$age <- as.factor(res$age)
-        p <- ggplot( data=res, aes(x=year, y=q50, fill=age)) + 
+        p <- ggplot( data=res, aes_string(x='year', y='q50', fill='age')) + 
           geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
-          geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=age), alpha=0.05) + 
+          geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='age'), alpha=0.05) + 
           facet_grid(indicator~stock,scales=c("free_y"))+
           ggtitle("")+
           theme(text=element_text(size=10),

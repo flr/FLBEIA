@@ -4,8 +4,13 @@
 \alias{create.covars.ctrl}
 \title{covars.ctrl object creator}
 \usage{
-create.covars.ctrl(cvrsnames, process.models = NULL, flq,
-  immediate = FALSE, ...)
+create.covars.ctrl(
+  cvrsnames,
+  process.models = NULL,
+  flq,
+  immediate = FALSE,
+  ...
+)
 }
 \arguments{
 \item{cvrsnames}{A vector with the name of the covariates in the OM.}

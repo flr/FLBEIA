@@ -4,10 +4,19 @@
 \alias{create.fleets.ctrl}
 \title{fleets.ctrl object creator}
 \usage{
-create.fleets.ctrl(fls, n.fls.stks, fls.stksnames,
-  catch.threshold = NULL, seasonal.share = NULL,
-  effort.models = NULL, capital.models = NULL, catch.models = NULL,
-  price.models = NULL, flq, ...)
+create.fleets.ctrl(
+  fls,
+  n.fls.stks,
+  fls.stksnames,
+  catch.threshold = NULL,
+  seasonal.share = NULL,
+  effort.models = NULL,
+  capital.models = NULL,
+  catch.models = NULL,
+  price.models = NULL,
+  flq,
+  ...
+)
 }
 \arguments{
 \item{fls}{character vector with fleet names}

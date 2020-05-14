@@ -51,12 +51,12 @@ plotEco <- function(obj,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
     res$fleet <- as.factor(res$fleet)
-    p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50,fill=.data$fleet)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=fleet), alpha=0.3) + 
       ggtitle("Capacity")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -68,12 +68,12 @@ plotEco <- function(obj,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
-    p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50,fill=fleet)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=fleet), alpha=0.3) + 
       ggtitle("Costs")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -84,12 +84,12 @@ plotEco <- function(obj,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
-    p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50,fill=fleet)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=fleet), alpha=0.3) + 
       ggtitle("Effort")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
@@ -101,12 +101,12 @@ plotEco <- function(obj,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
     names(res)[3:(3+length(probs)-1)] <- nms
     res$year <- as.numeric(as.character(res$year))
-    p <- ggplot( data=res, aes(x=year, y=q50,fill=fleet)) + 
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50,fill=fleet)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
-      geom_ribbon(aes(x=year, ymin=q05, ymax=q95, fill=fleet), alpha=0.3) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=fleet), alpha=0.3) + 
       ggtitle("Gross-Surplus")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)

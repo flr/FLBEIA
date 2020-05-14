@@ -4,9 +4,18 @@
 \alias{create.biol.arrays}
 \title{Function to generate an FLBiol object given inputs as arrays}
 \usage{
-create.biol.arrays(filename = NULL, data = NULL, name = NA, ages,
-  hist.yrs, sim.yrs, fbar = NULL, mean.yrs, source = "rdata",
-  unit = list())
+create.biol.arrays(
+  filename = NULL,
+  data = NULL,
+  name = NA,
+  ages,
+  hist.yrs,
+  sim.yrs,
+  fbar = NULL,
+  mean.yrs,
+  source = "rdata",
+  unit = list()
+)
 }
 \arguments{
 \item{filename}{A character vector with the name of the files containing the stock data.

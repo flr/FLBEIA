@@ -29,6 +29,6 @@ For each stock, return a pdf with plots using FLBiols object.
 library(FLBEIA)
 library(ggplot2)
 data(res_flbeia)
-plotFLBiols(oneRes$biols, pdfname='oneRes')
+plotFLBiols(oneRes$biols, pdfnm='oneRes')
 }
 }

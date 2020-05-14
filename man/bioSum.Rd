@@ -12,6 +12,7 @@
 \alias{mtSum}
 \alias{mtSumQ}
 \alias{advSum}
+\alias{advSumQ}
 \alias{riskSum}
 \alias{npv}
 \alias{npvQ}
@@ -21,58 +22,117 @@
 \alias{vesselStkSumQ}
 \title{Summary of the FLBEIA output}
 \usage{
-bioSum(obj, stknms = "all", years = dimnames(obj$biols[[1]]@n)$year,
-  long = FALSE, scenario = "bc", byyear = TRUE, ssb_season = NULL)
+bioSum(
+  obj,
+  stknms = "all",
+  years = dimnames(obj$biols[[1]]@n)$year,
+  long = FALSE,
+  scenario = "bc",
+  byyear = TRUE,
+  ssb_season = NULL
+)
 
-bioSumQ(obj, probs = c(0.95, 0.5, 0.05))
+bioSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-fltSum(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
-  byyear = TRUE, long = FALSE, InterestRate = 0.03,
-  scenario = "bc")
+fltSum(
+  obj,
+  flnms = "all",
+  years = dimnames(obj$biols[[1]]@n)$year,
+  byyear = TRUE,
+  long = FALSE,
+  InterestRate = 0.03,
+  scenario = "bc"
+)
 
 fltSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-fltStkSum(obj, flnms = names(obj$fleets),
+fltStkSum(
+  obj,
+  flnms = names(obj$fleets),
   stknms = catchNames(obj$fleets),
-  years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE,
-  long = FALSE, scenario = "bc")
+  years = dimnames(obj$biols[[1]]@n)[[2]],
+  byyear = TRUE,
+  long = FALSE,
+  scenario = "bc"
+)
 
 fltStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-mtStkSum(obj, flnms = names(obj$fleets),
+mtStkSum(
+  obj,
+  flnms = names(obj$fleets),
   stknms = catchNames(obj$fleets),
-  years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE,
-  long = FALSE, scenario = "bc")
+  years = dimnames(obj$biols[[1]]@n)[[2]],
+  byyear = TRUE,
+  long = FALSE,
+  scenario = "bc"
+)
 
 mtStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-mtSum(obj, flnms = names(obj$fleets),
-  years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE,
-  long = FALSE, scenario = "bc")
+mtSum(
+  obj,
+  flnms = names(obj$fleets),
+  years = dimnames(obj$biols[[1]]@n)[[2]],
+  byyear = TRUE,
+  long = FALSE,
+  scenario = "bc"
+)
 
 mtSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-advSum(obj, stknms = "all", years = dimnames(obj$biols[[1]]@n)$year,
-  long = FALSE, scenario = "bc")
+advSum(
+  obj,
+  stknms = "all",
+  years = dimnames(obj$biols[[1]]@n)$year,
+  long = FALSE,
+  scenario = "bc"
+)
 
-riskSum(obj, stknms = names(obj$biols), Bpa, Blim, Prflim,
-  flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]],
-  scenario = "bc")
+advSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-npv(obj, discF = 0.05, y0, flnms = names(obj$fleets),
-  years = dimnames(obj$biols[[1]]@n)[[2]], scenario = "bc")
+riskSum(
+  obj,
+  stknms = names(obj$biols),
+  Bpa,
+  Blim,
+  Prflim,
+  flnms = names(obj$fleets),
+  years = dimnames(obj$biols[[1]]@n)[[2]],
+  scenario = "bc"
+)
+
+npv(
+  obj,
+  discF = 0.05,
+  y0,
+  flnms = names(obj$fleets),
+  years = dimnames(obj$biols[[1]]@n)[[2]],
+  scenario = "bc"
+)
 
 npvQ(obj, prob = c(0.05, 0.5, 0.95))
 
-vesselSum(obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
-  byyear = TRUE, long = FALSE, scenario = "bc")
+vesselSum(
+  obj,
+  flnms = "all",
+  years = dimnames(obj$biols[[1]]@n)$year,
+  byyear = TRUE,
+  long = FALSE,
+  scenario = "bc"
+)
 
 vesselSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
-vesselStkSum(obj, flnms = names(obj$fleets),
+vesselStkSum(
+  obj,
+  flnms = names(obj$fleets),
   stknms = catchNames(obj$fleets),
-  years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE,
-  long = FALSE, scenario = "bc")
+  years = dimnames(obj$biols[[1]]@n)[[2]],
+  byyear = TRUE,
+  long = FALSE,
+  scenario = "bc"
+)
 
 vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 }
@@ -91,11 +151,11 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
 \item{ssb_season}{If byyear = TRUE, the season in which ssb will be taken.}
 
+\item{prob}{a numeric vector with the probabilities used to calculate the quantiles.}
+
 \item{flnms}{Names of the fleet for which the indicators will be calculated.}
 
 \item{InterestRate}{Capital oportunity cost rate.}
-
-\item{prob}{a numeric vector with the probabilities used to calculate the quantiles.}
 
 \item{Bpa}{named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 

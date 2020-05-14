@@ -4,11 +4,18 @@
 \alias{xtabs2}
 \title{Cross tabulation}
 \usage{
-xtabs2(formula = ~., data = parent.frame(), subset, sparse = FALSE,
-  na.action, exclude = c(NA, NaN), drop.unused.levels = FALSE)
+xtabs2(
+  formula = ~.,
+  data = parent.frame(),
+  subset,
+  sparse = FALSE,
+  na.action,
+  exclude = c(NA, NaN),
+  drop.unused.levels = FALSE
+)
 }
 \arguments{
-\item{formula}{a \link{formula} object with the cross-classifying variables
+\item{formula}{a \link[stats]{formula} object with the cross-classifying variables
     (separated by \code{+}) on the right hand side (or an object which
     can be coerced to a formula).  Interactions are not allowed.  On the
     left hand side, one may optionally give a vector or a matrix of
@@ -17,7 +24,7 @@ xtabs2(formula = ~., data = parent.frame(), subset, sparse = FALSE,
     data have already been tabulated, see the examples below.}
 
 \item{data}{an optional matrix or data frame (or similar: see
-    \code{\link{model.frame}}) containing the variables in the
+    \code{\link[stats]{model.frame}}) containing the variables in the
     formula \code{formula}.  By default the variables are taken from
     \code{environment(formula)}.}
 
@@ -33,7 +40,7 @@ xtabs2(formula = ~., data = parent.frame(), subset, sparse = FALSE,
 
 \item{na.action}{a function which indicates what should happen when
     the data contain \code{\link{NA}}s.  If unspecified, and
-    \code{addNA} is true, this is set to \code{\link{na.pass}}.  When it
+    \code{addNA} is true, this is set to \code{\link[stats]{na.pass}}.  When it
     is \code{na.pass} and \code{formula} has a left hand side (with
     counts), \code{\link{sum}(*, na.rm = TRUE)} is used instead of
     \code{sum(*)} for the counts.}
