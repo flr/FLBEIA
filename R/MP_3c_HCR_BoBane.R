@@ -2,7 +2,7 @@
 #   HCRs for the Bay of Biscay anchovy
 #   - annualTAC.
 #
-# Sonia Sánchez
+# Sonia Sanchez
 # Created: 04/06/2012 15:55:35
 # Changed: 16/10/2013 12:01:18
 #-------------------------------------------------------------------------------
