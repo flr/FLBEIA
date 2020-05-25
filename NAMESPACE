@@ -1,3 +1,4 @@
+import("ggplot2")
 import("FLCore")
 import("FLFleet")
 import("methods")
@@ -11,7 +12,6 @@ importFrom("stats", "aggregate", "anova", "as.formula", "coef", "cor",
   "reshape", "formula", "lm", "mad", "optimize", "terms", "uniroot", "optim", "na.pass",
   "lag", "model.matrix", "setNames")
 importFrom("utils", "data", "installed.packages")
-import("ggplot2")
 importFrom("utils", "read.csv")
 import("FLXSA")
 import("FLa4a")
