@@ -37,11 +37,11 @@ release: build docs
 
 build:
 	cd ..;\
-	R CMD build $(PKGSRC) --compact-vignettes="gs+qpdf" --resave-data
+	R --vanilla CMD build $(PKGSRC) --compact-vignettes="gs+qpdf" --resave-data
 
 buildNV: README.md NEWS
 	cd ..;\
-	R CMD build $(PKGSRC) --no-build-vignettes
+	R --vanilla CMD build $(PKGSRC) --no-build-vignettes
 
 install: build
 	cd ..;\
@@ -49,7 +49,7 @@ install: build
 
 check: build
 	cd ..;\
-	R CMD check $(PKGNAME)_$(PKGVERS).tar.gz --as-cran
+	R --vanilla CMD check $(PKGNAME)_$(PKGVERS).tar.gz --as-cran
 
 clean:
 	cd ..;\

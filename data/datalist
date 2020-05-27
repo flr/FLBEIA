@@ -3,3 +3,4 @@ mur: catch evhoe
 one: oneAdv oneAdvC oneAssC oneBio oneBioC oneCv oneCvC oneFl oneFlC oneIndAge oneIndBio oneMainC oneObsC oneObsCIndAge oneObsCIndBio oneSR
 oneIt: oneItAdv oneItAdvC oneItAssC oneItBio oneItBioC oneItCv oneItCvC oneItFl oneItFlC oneItIndAge oneItIndBio oneItMainC oneItObsC oneItObsCIndAge oneItObsCIndBio oneItSR
 res_flbeia: oneRes oneItRes multiRes
+mixfish: fleets.ctrl.mpro_lo fleets advice.ctrl.ices_lo advice.msmsy obs.ctrl  covars advice biols advice.default main.ctrl fleets.ctrl.trad_lo advice.ctrl.fixed advice.steps biols.ctrl .Random.seed fleets.ctrl.mpro advice.ctrl.msmsy_lo covars.ctrl advice.ctrl.ices fleets.ctrl.trad assess.ctrl SRs
