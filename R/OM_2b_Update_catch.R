@@ -151,7 +151,9 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, yea
     Nst  <- array(N[drop=T],dim = dim(N)[c(1,3,6)])
     
     catch.model <- fleets.ctrl[[flnm]][[st]][['catch.model']]  
-      
+    
+    cat("Bio - ", flnm, "-", stknm, ": ", catch.model,  "\n")
+    
     Cm <- eval(call(catch.model,  E= eff[1,], N = N, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
              efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho))
     
@@ -340,7 +342,7 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year
     Nst     <- array(N[drop=T], dim = dim(N)[c(1,3,6)]) # [na.nu.it]
     M       <- array(M[drop=T], dim = dim(M)[c(1,3,6)]) # [na.nu.it]
 
-
+    cat("Age - ", flnm, "-", stknm, ": ", catch.model,  "\n")
     Cam <- eval(call(catch.model, E = eff[1,], N = Nst, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, q.m = q.m,
                             efs.m = efs.m, alpha.m = alpha.m, beta.m = beta.m, rho = rho,
                              M = M, Fknown = TRUE, Ft = Ft, Ff = Ff))

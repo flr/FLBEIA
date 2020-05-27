@@ -36,10 +36,16 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     # Biomass at age.: B[nst,it]
     #------------------------------
     B    <- matrix(t(sapply(sts, function(x){   # biomass in the middle of the season  [nst,it]
-                                      catch.model <- fleets.ctrl[[flnm]][[x]][['catch.model']]
-                                      if(catch.model == 'CobbDouglasAge') return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss,,iters, drop=T])
-                                      if(biols.ctrl[[x]][['growth.model']] == 'fixedPopulation') return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss,,iters, drop=T])
+                                      catch.model  <- fleets.ctrl[[flnm]][[x]][['catch.model']]
+                                      growth.model <- biols.ctrl[[x]][['growth.model']] 
+                                      
+                                      # 1. CobbDouglass/CobbDouglassComb at age
+                                      if(substr(catch.model, 1,4)  == 'Cobb'  & dim(biols[[x]]@n)[1] > 1) return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt*exp(-biols[[x]]@m/2)))[,yr,,ss,,iters, drop=T])
+                                      # 2. Baranov
                                       if(catch.model == 'Baranov') return(unitSums(quantSums(biols[[x]]@n*biols[[x]]@wt))[,yr,,ss,,iters, drop=T])
+                                      # 3. Biomass populations that are fixed (age pops are all in 1 & 2)                              
+                                      if(growth.model == 'fixedPopulation') return((biols[[x]]@n*biols[[x]]@wt)[,yr,,ss,,iters, drop=T])
+                                      # 4. Biomass populations that have a dyamic growth model.
                                       return((biols[[x]]@n*biols[[x]]@wt + BDs[[x]]@gB)[,yr,,ss,,iters, drop=T])
                                       })), nsts,nit, dimnames = list(sts, iters))
   
@@ -50,14 +56,20 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     N   <- lapply(setNames(sts, sts), function(x){   # biomass at age in the middle  of the season, list elements: [na,1,nu,1,1,it]
                                 na <- dim(biols[[x]]@n)[1]; age <- dimnames(biols[[x]]@n)$age 
                                 nu <- dim(biols[[x]]@n)[3]; uni <- dimnames(biols[[x]]@n)$unit
+                                
                                 catch.model <- fleets.ctrl[[flnm]][[x]][['catch.model']]
-                                if(catch.model == 'CobbDouglasAge')        
+                                growth.model <- biols.ctrl[[x]][['growth.model']]
+                                
+                                # 1. CobbDouglass/CobbDouglassComb at age
+                                if(substr(catch.model, 1,4)  == 'Cobb'  & dim(biols[[x]]@n)[1] > 1)       
                                   return(array((biols[[x]]@n*exp(-biols[[x]]@m/2))[,yr,,ss,,iters, drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))
-                                if(biols.ctrl[[x]] == 'fixedPopulation')   
-                                  return(array(biols[[x]]@n[,yr,,ss,,iters, drop=TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))
+                                # 2. Baranov
                                 if(catch.model == 'Baranov')               
                                   return(array(biols[[x]]@n[,yr,,ss,,iters, drop = TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))
-                                # else   
+                                # 3. Biomass populations that are fixed (age pops are all in 1 & 2)                              
+                                if(growth.model == 'fixedPopulation')   
+                                  return(array(biols[[x]]@n[,yr,,ss,,iters, drop=TRUE], dim = c(na, nu, nit), dimnames = list(age, uni, iters)))
+                                # 4. Biomass populations that have a dyamic growth model.
                                 return(array((biols[[x]]@n + BDs[[x]]@gB)[,yr,,ss,,iters, drop=F], dim = c(1, 1, nit), dimnames = list(age, uni, iters)))})
 
     names(N) <- sts

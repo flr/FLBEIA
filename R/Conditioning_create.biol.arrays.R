@@ -43,7 +43,8 @@
 #' @param hist.yrs A vector with the historical years.
 #' @param sim.yrs  A vector with the simulation years.
 #' @param mean.yrs A vector with the years used to compute the mean to condition the parameters in the projection period.
-#' @param source    Character, 'excel', 'rdata' or 'object'.  'rdata' (default) if an RData object is used,  'excel' if the data is provided in an Excel file and 
+#' @param source    Character, 'excel', 'rdata', 'FLStock' or 'object'.  'rdata' (default) if an RData object is used,  
+#'                'excel' if the data is provided in an Excel file, 'FLStock' if the data is provided in and FLSTock object 
 #'                 and 'object' if the data is an object of the working environment.
 #' @param unit     A list with the units of the different elements included in \code{filename}. Unitless objects must be set to '' or character(1).
 #'                 This parameter is only required if \code{excel==FALSE}. When using Excell files the units are taken from the first row and column (cell A1) of each sheet. 
@@ -74,6 +75,7 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
   
   sheets <- c('n', 'wt', 'mat', 'fec', 'm', 'spwn')
   if(source != 'object'){
+    data0 <- data # in case it is an FLStock store data in a different object. 
     data <- vector('list', 6)
     names(data) <- sheets
   }
@@ -142,6 +144,33 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
       warning('Please remember to set the units for the different slots!')
   }
   if(source == 'object'){
+    nit <- ifelse(is.na(dim(data$n)[3]), 1, dim(data$n)[3])
+    if (is.null(names(unit)))
+      warning('Please remember to set the units for the different slots!')
+  }
+  
+  if(source == 'FLStock'){ # "n"    "m"    "wl"   "wd"   "wt"   "mat"  "fec"  "spwn" "f"    "fd"   "fl"   "caa"  "daa"  "laa" 
+    d <- dim(data0@stock.n)[c(1,2,6)]
+    data$n <- array(data0@stock.n[drop=TRUE], dim = d)
+    data$m <- array(data0@m[drop=TRUE], dim = d)
+    data$wl <- array(data0@landings.wt[drop=TRUE], dim = d)
+    data$wd <- array(data0@discards.wt[drop=TRUE], dim = d)
+    data$wt <- array(data0@stock.wt[drop=TRUE], dim = d)
+    data$mat <- array(data0@mat[drop=TRUE], dim = d)
+    data$fec <- array(1, dim = d)
+    data$spwn <- array(data0@harvest.spwn, dim = d)
+    data$f    <- array(data0@harvest, dim = d)
+    data$fd  <- array(data0@harvest*(data0@discards.n/data0@catch.n), dim = d)
+    data$fl  <- array(data0@harvest*(data0@landings.n/data0@catch.n), dim = d)
+    data$caa  <- array(data0@catch.n, dim = d)
+    data$laa  <- array(data0@landings.n, dim = d)
+    data$daa  <- array(data0@discards.n, dim = d)
+    
+    ages     <- as.numeric(dimnames(data0@m)[[1]]) 
+    hist.yrs <- dimnames(data0@m)[[2]] 
+    fbar     <-  data0@range[6:7]
+    
+    
     nit <- ifelse(is.na(dim(data$n)[3]), 1, dim(data$n)[3])
     if (is.null(names(unit)))
       warning('Please remember to set the units for the different slots!')

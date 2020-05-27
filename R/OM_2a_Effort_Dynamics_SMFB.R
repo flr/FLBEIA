@@ -107,7 +107,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     }
     
     
-    
+#    if(flnm == 'GNS_FR') browser()
      for(st in sts){     # q.m, alpha.m.... by metier but stock specific
 
         effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
