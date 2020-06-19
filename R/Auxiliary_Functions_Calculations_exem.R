@@ -9,7 +9,7 @@
 overfishing <- function(biols, fleets, advice.ctrl, year){
   if(is.numeric(year)) year <- dimnames(biols[[1]]@n)[[2]][year]
   obj <- list(biols = biols, fleets = fleets)
-  f    <- F_flbeia(obj, years = year)
+  f    <- apply(F_flbeia(obj, years = year), c(1,2,4), sum)
   
 
   
