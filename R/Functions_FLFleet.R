@@ -6,20 +6,20 @@
 #'
 #' @details
 #'\itemize{
-#'      \item{landStock.f:} Extract total landings at age of a stock from a FLFleetExt obj.
-#'      \item{discStock.f:} Extract total discards at age of a stock from a FLFleetExt obj. 
-#'      \item{catchStock.f:} Extract total catch at age of a stock from a FLFleetExt obj.    
+#'      \item{landStock.f:} Extract total landings at age in numbers of a stock from a FLFleetExt obj.
+#'      \item{discStock.f:} Extract total discards at age in numbers of a stock from a FLFleetExt obj. 
+#'      \item{catchStock.f:} Extract total catch at age in numbers of a stock from a FLFleetExt obj.    
 #'      \item{landWStock.f:} Extract total landings at age in weight of a stock from a FLFleetExt obj.
 #'      \item{discWStock.f:} Extract total discards at age in weight of a stock from a FLFleetExt obj.
 #'      \item{catchWStock.f:} Extract total catch at age in weight of a stock from a FLFleetExt obj. 
-#'      \item{landStock:} Extract total landings at age of a stock from a FLFleetExts obj.
-#'      \item{discStock:} Extract total discards at age of a stock from a FLFleetExts obj. 
-#'      \item{catchStock:} Extract total catch at age of a stock from a FLFleetExts obj.    
+#'      \item{landStock:} Extract total landings at age in numbers of a stock from a FLFleetExts obj.
+#'      \item{discStock:} Extract total discards at age in numbers of a stock from a FLFleetExts obj. 
+#'      \item{catchStock:} Extract total catch at age in numbers of a stock from a FLFleetExts obj.    
 #'      \item{landWStock:} Extract total landings at age in weight of a stock from a FLFleetExts obj.
 #'      \item{discWStock:} Extract total discards at age in weight of a stock from a FLFleetExts obj.
 #'      \item{catchWStock:} Extract total catch at age in weight of a stock from a FLFleetExts obj.                       
 #'      \item{tlandStock:} Total landings of a stock across fleets and metiers                
-#'      \item{tdiscStock:} Total discard of a stock across fleets and metiers  
+#'      \item{tdiscStock:} Total discards of a stock across fleets and metiers  
 #'}
 
 
