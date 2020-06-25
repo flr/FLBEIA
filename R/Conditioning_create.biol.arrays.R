@@ -168,7 +168,7 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
     
     ages     <- as.numeric(dimnames(data0@m)[[1]]) 
     hist.yrs <- dimnames(data0@m)[[2]] 
-    fbar     <-  data0@range[6:7]
+    fbar     <- unname(data0@range[6:7])
     
     
     nit <- ifelse(is.na(dim(data$n)[3]), 1, dim(data$n)[3])

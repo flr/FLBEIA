@@ -43,8 +43,9 @@ weights at age for catch (wc) are set to the weighted mean of the weights of lan
 
 \item{mean.yrs}{A vector with the years used to compute the mean to condition the parameters in the projection period.}
 
-\item{source}{Character, 'excel', 'rdata' or 'object'.  'rdata' (default) if an RData object is used,  'excel' if the data is provided in an Excel file and 
-and 'object' if the data is an object of the working environment.}
+\item{source}{Character, 'excel', 'rdata', 'FLStock' or 'object'.  'rdata' (default) if an RData object is used,
+'excel' if the data is provided in an Excel file, 'FLStock' if the data is provided in and FLSTock object 
+ and 'object' if the data is an object of the working environment.}
 
 \item{unit}{A list with the units of the different elements included in \code{filename}. Unitless objects must be set to '' or character(1).
 This parameter is only required if \code{excel==FALSE}. When using Excell files the units are taken from the first row and column (cell A1) of each sheet. 

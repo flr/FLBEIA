@@ -529,7 +529,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
         #       cat(st, ' - ', sum(Cm), '\n')
         #
         # resTAC[st] <- 1/(1+2^((-Cr.f[st]+sum(Cm))/0.00005)) this constraint does not work for all the stocks simultaneously
-        resTAC[st] <- log(sum(Cm)/(Cr.f[st,]-sum(Cm)))
+        Ctot <- ifelse( sum(Cm)==0, 1e-08*0.99,sum(Cm))
+        resTAC[st] <- log(Ctot/(Cr.f[st,]-Ctot))
         
       }
       

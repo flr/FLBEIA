@@ -114,6 +114,7 @@ checkFLBEIAData <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL
   
   # - advice
   
+  advice$quota.share <- lapply(advice$quota.share, window, start=sim.years[1]-1, end=sim.years[2])
   checkAdvice(advice)
   
   # - obs.ctrl
