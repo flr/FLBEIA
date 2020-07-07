@@ -28,7 +28,7 @@ QuotaSwap <- function(stknms, E0, Cr.f,Cr.f_exemp, N, B, efs.m, q.m, alpha.m, be
     for(st in stksnms){ 
       catchFun <- fleets.ctrl[[flnm]][[st]][['catch.model']]
       Nst      <- N[[st]]
-      Ca_st[[st]] <-  (eval(call(catchFun, N = Nst, B = B[st], E = E0, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st])))
+      Ca_st[[st]] <-  (eval(call(catchFun, N = Nst, B = B[st], E = E0, efs.m = efs.m, q.m = q.m[[st]], alpha.m = alpha.m[[st]], beta.m = beta.m[[st]], wl.m = wl.m[[st]], wd.m = wd.m[[st]], ret.m = ret.m[[st]], rho = rho[st,])))
       
       if(dim(Ca_st[[st]])[2] == 1) Ca_st[[st]] <- array(Ca_st[[st]], dim = c(dim(Ca_st[[st]])[1:2],1,1), dimnames = list(dimnames(Ca_st[[st]])[[1]],1,1,1)) # unit = iter = 1
       

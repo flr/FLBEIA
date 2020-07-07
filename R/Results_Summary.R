@@ -1042,7 +1042,11 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 #' @aliases fltStkSum
-fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], byyear = TRUE, long = FALSE, scenario = 'bc'){
+fltStkSum <- function(obj, flnms = names(obj$fleets), 
+  stknms = catchNames(obj$fleets), 
+  years = dimnames(obj$biols[[1]]@n)[[2]], 
+  byyear = TRUE, long = FALSE, scenario = 'bc', 
+  verbose = TRUE){
   
   fleets <- obj$fleets
   advice <- obj$advice
@@ -1050,8 +1054,8 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
   fleets.ctrl <- obj$fleets.ctrl
   
   #  fleets <- lapply(fleets, setUnitsNA)
-  
-  warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
+
+  warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend
           removing the units using the setUnitsNA function')
   
   if(flnms[1] == 'all') flnms <- names(fleets)
@@ -1060,9 +1064,8 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
   Dim   <- dim(fleets[[1]]@effort[,years,])[c(2,4,6)]
   Dimnm <- dimnames(fleets[[1]]@effort[,years,])
   
-  res <- NULL
-  
-  
+  resfl <- vector("list", length(flnms))
+  names(resfl) <- flnms
   if(byyear == FALSE){ 
     
     year = rep(years, prod(Dim[2:3])) 
@@ -1076,6 +1079,8 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       stfl <- catchNames(fl)        
       sts  <- stknms[stknms %in% stfl]
       
+      resflst <- vector("list", length(sts))
+      names(resflst) <- sts
       for(st in sts){
  
         # fl <- fleets[[f]]
@@ -1098,8 +1103,12 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                  tacshare=c(tacshare[,years]),
                  quota=c(quota[,years]),
                  quotaUpt=catch/quota)
-        res <- bind_rows(res,res.fl.st)
-      }}
+        resflst[[st]] <- res.fl.st
+        if(verbose){print(paste("| fleet =", f, "|", "stock =", st, "|"))}
+      }
+      resfl[[f]] <- do.call("rbind", resflst)
+    }
+    res <- do.call("rbind", resfl)
   }  else{
     
     year = rep(years, Dim[3]) 
@@ -1111,6 +1120,9 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
       stfl <- catchNames(fl)        
       sts   <- stknms[stknms %in% stfl]
       fleet = rep(f, each = prod(Dim[-2]))
+      
+      resflst <- vector("list", length(sts))
+      names(resflst) <- sts
       
       for(st in sts){
         
@@ -1125,8 +1137,12 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
                  tacshare=c(advice$quota.share[[st]][f,][,years]),
                  quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
                  quotaUpt=catch/quota)
-        res <- bind_rows(res,res.fl.st)
-      }}
+        resflst[[st]] <- res.fl.st
+        if(verbose){print(paste("| fleet =", f, "|", "stock =", st, "|"))}
+      }
+      resfl[[f]] <- do.call("rbind", resflst)
+    }
+    res <- do.call("rbind", resfl)
   }
   
   if(long == TRUE){ # transform res into long format
@@ -1139,7 +1155,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fl
   
   return(res)
 } 
-                               
+
 
 # fltStkSumQ 
 #' @rdname bioSum
