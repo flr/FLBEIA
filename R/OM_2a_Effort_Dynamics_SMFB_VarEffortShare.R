@@ -549,7 +549,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
     for(st in unique(CR$stock)) {
       predict.df[,st] <- CR[CR$stock == st,2] 
     }
-    predict.df[is.na(predict.df)] <- 0
+    predict.df[is.na(predict.df),] <- 0
     
   }
   
