@@ -578,9 +578,9 @@ predict_RUM <- function(model, updated.df, season) {
   beta <- as.matrix(coef(model))
   
   ## Check the model matrix and coefficients are ordered correctly
-  if(any(!colnames(mod.mat) == rownames(beta))) {
-    stop("Model matrix and coefficients are not the same")
-  }
+#  if(any(!colnames(mod.mat) == rownames(beta))) {
+#    stop("Model matrix and coefficients are not the same")
+#  }
     
   ## If season is a factor, we want to exclude these options and just get the 
   ## predictions for the relevant season. Note if season is a numeric, the model 
