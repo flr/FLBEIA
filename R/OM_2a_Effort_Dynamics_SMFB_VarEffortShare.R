@@ -495,7 +495,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   ## Construct the dataframe
   predict.df <- expand.grid(metier = fleet@metiers@names, 
-                            choice = "yes", 
+                            choice = c(TRUE,FALSE), 
                             season = seas, 
                             vcost = v, 
                             effshare = e,
@@ -549,7 +549,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
     for(st in unique(CR$stock)) {
       predict.df[,st] <- CR[CR$stock == st,2] 
     }
-    predict.df[is.na(predict.df)] <- 0
+    predict.df[is.na(predict.df),] <- 0
     
   }
   
@@ -574,7 +574,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 predict_RUM <- function(model, updated.df, season) {
   
   ## Extract the model matrix and parameter coefficients
-  mod.mat <- model.matrix(model$formula, data = updated.df)
+  mod.mat <- model.matrix(model, data = updated.df)
   beta <- as.matrix(coef(model))
   
   ## Check the model matrix and coefficients are ordered correctly
