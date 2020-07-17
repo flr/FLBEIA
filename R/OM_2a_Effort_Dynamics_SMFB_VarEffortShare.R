@@ -574,7 +574,8 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 predict_RUM <- function(model, updated.df, season) {
   
   ## Extract the model matrix and parameter coefficients
-  mod.mat <- model.matrix(model, data = updated.df)
+  mod.mat <- model.matrix(model, data = updated.df[updated.df$choice == TRUE &
+			  updated.df$season == season,])
   beta <- as.matrix(coef(model))
   
   ## Check the model matrix and coefficients are ordered correctly
@@ -612,7 +613,7 @@ predict_RUM <- function(model, updated.df, season) {
   colnames(p_hat) <- unique(updated.df$metier)
   p_hat <- as.data.frame(t(p_hat))
   
-  return(p_hat[,1])
+  return(apply(p_hat,1,mean))
   
 }
 
