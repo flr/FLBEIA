@@ -617,7 +617,7 @@ predict_RUM <- function(model, updated.df, season) {
   colnames(p_hat) <- unique(updated.df$metier)
   p_hat <- as.data.frame(t(p_hat))
   
-  return(apply(p_hat,1,mean))
+  return(p_hat)
   
 }
 
