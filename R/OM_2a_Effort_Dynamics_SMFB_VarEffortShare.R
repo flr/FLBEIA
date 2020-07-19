@@ -574,7 +574,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 predict_RUM <- function(model, updated.df, season) {
   
   ## Extract the model matrix and parameter coefficients
-  mod.mat <- model.matrix(terms(model), data = updated.df[updated.df$choice == TRUE &
+  mod.mat <- model.matrix(mlogit::mFormula(model$formula), data = updated.df[updated.df$choice == TRUE &
 			  updated.df$season == season,])
   beta <- as.matrix(coef(model))
   
