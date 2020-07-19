@@ -572,9 +572,14 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 
 # ** predict_RUM ** : this function does the predictions and returns the effort shares.
 predict_RUM <- function(model, updated.df, season) {
-  
+ 
+
+  ## Just the predictions we're interested in...
+  updated.df <- updated.df[updated.df$choice == TRUE &
+			  updated.df$season == season,]
+
   ## Extract the model matrix and parameter coefficients
-  mod.mat <- model.matrix(model, data = updated.df)
+  mod.mat <- model.matrix(mlogit::mFormula(model$formula), data = updated.df)
   beta <- as.matrix(coef(model))
   
   ## Check the model matrix and coefficients are ordered correctly
