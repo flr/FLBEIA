@@ -444,8 +444,15 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     updated.df <- update_RUM_params(model = fleet.ctrl[['mlogit.model']], predict.df = predict.df, 
                                   fleet = fleet, covars = covars, season = season, year = year,
                                   N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
-    ## step 3 
-    res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df, season)
+    ## step 3
+
+	# If all of the catch.q for a given metier are zero, that metier is closed.
+	# so to work out which metier are closed
+	met.close <- apply(do.call(rbind, lapply(q.m.i, function(x) apply(x==0,1,all))),2,all)
+	met.close <- ifelse(identical(names(which(met.close == TRUE)), character(0)), NA,
+		     names(which(met.close == TRUE)))
+
+     res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df, season, close = met.close)
   }
   
 
@@ -571,7 +578,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 
 
 # ** predict_RUM ** : this function does the predictions and returns the effort shares.
-predict_RUM <- function(model, updated.df, season) {
+predict_RUM <- function(model, updated.df, season, close) {
  
 
   ## Just the predictions we're interested in...
@@ -611,6 +618,9 @@ predict_RUM <- function(model, updated.df, season) {
   ## linear predictor wide
   eta_wide <- matrix(eta_long, ncol = length(unique(updated.df$metier)), byrow = TRUE)
   names(eta_wide) <- updated.df$metier 
+  
+  ## Implement spatial closures
+  eta_wide[names(eta_wide) %in% close] <- -Inf
   
   ## convert to a probability
   p_hat <- exp(eta_wide) / rowSums(exp(eta_wide))
