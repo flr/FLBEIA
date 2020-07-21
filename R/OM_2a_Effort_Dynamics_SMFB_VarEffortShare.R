@@ -666,8 +666,14 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
                                     fleet = fleet, covars = covars, season = season, year = year,
                                     N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
     ## step 3 
-  #  browser()
-    res[,i] <- predict_Markov(model = fleet.ctrl[['Markov.model']], updated.df = updated.df, fleet = fleet, season = season, year = year)
+    
+    # If all of the catch.q for a given metier are zero, that metier is closed.
+    # so to work out which metier are closed
+    met.close <- apply(do.call(rbind, lapply(q.m.i, function(x) apply(x==0,1,all))),2,all)
+    met.close <- ifelse(identical(names(which(met.close == TRUE)), character(0)), NA,
+		     names(which(met.close == TRUE)))
+
+    res[,i] <- predict_Markov(model = fleet.ctrl[['Markov.model']], updated.df = updated.df, fleet = fleet, season = season, year = year, close = met.close)
   }
   
   
@@ -779,12 +785,15 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
 
 
 
-predict_Markov <- function(model, updated.df, fleet, season, year) {
+predict_Markov <- function(model, updated.df, fleet, season, year, close) {
   
   # Transition probs
-# browser()
   p_hat <- cbind(updated.df[c("state.tminus1")], nnet:::predict.multinom(model, updated.df, type = "probs"))
   p_hat_mat <- as.matrix(p_hat[,2:ncol(p_hat)])
+  
+  ## Implement spatial closures
+  p_hat_mat[,colnames(p_hat_mat) %in% close] <- 0
+  p_hat_mat <- p_hat_mat / rowSums(p_hat_mat, na.rm = TRUE)
   
   # past effort
   
