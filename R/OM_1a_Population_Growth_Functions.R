@@ -213,7 +213,7 @@ correct.biomass.ASPG <- function(biol, year, season){
 
 ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
   
-  cat('-----------------ASPG-----------\n')
+  cat('-----------------ASPG_Baranov-----------\n')
   
   if(length(year) > 1 | length(season) > 1)
     stop('Only one year and season is allowed' )
@@ -271,6 +271,7 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
       
     loop.uniroot <- function(i) {
       if(Ca[a,,u,,,i] > Na[a,,u,,,i]) return(10)
+      if(Ca[a,,u,,,i] == 0) return(0) # Ca=0 --> Fa=0 (to avoid Inf when Ma=0)
       return(uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root)
     }
 
@@ -304,6 +305,8 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
     for(u in 1:nu){
       
     loop.uniroot <- function(i) {
+      if(Ca[a,,u,,,i] > Na[a,,u,,,i]) return(10)
+      if(Ca[a,,u,,,i] == 0) return(0) # Ca=0 --> Fa=0 (to avoid Inf when Ma=0)
       uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root
     }
     

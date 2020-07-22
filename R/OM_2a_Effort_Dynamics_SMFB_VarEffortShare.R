@@ -444,8 +444,15 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     updated.df <- update_RUM_params(model = fleet.ctrl[['mlogit.model']], predict.df = predict.df, 
                                   fleet = fleet, covars = covars, season = season, year = year,
                                   N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
-    ## step 3 
-    res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df, season)
+    ## step 3
+
+	# If all of the catch.q for a given metier are zero, that metier is closed.
+	# so to work out which metier are closed
+	met.close <- apply(do.call(rbind, lapply(q.m.i, function(x) apply(x==0,1,all))),2,all)
+	met.close <- ifelse(identical(names(which(met.close == TRUE)), character(0)), NA,
+		     names(which(met.close == TRUE)))
+
+     res[,i] <- predict_RUM(model = fleet.ctrl[['mlogit.model']], updated.df = updated.df, season, close = met.close)
   }
   
 
@@ -495,7 +502,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
   
   ## Construct the dataframe
   predict.df <- expand.grid(metier = fleet@metiers@names, 
-                            choice = "yes", 
+                            choice = c(TRUE,FALSE), 
                             season = seas, 
                             vcost = v, 
                             effshare = e,
@@ -549,7 +556,7 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
     for(st in unique(CR$stock)) {
       predict.df[,st] <- CR[CR$stock == st,2] 
     }
-    predict.df[is.na(predict.df)] <- 0
+    predict.df[is.na(predict.df),] <- 0
     
   }
   
@@ -571,10 +578,15 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
 
 
 # ** predict_RUM ** : this function does the predictions and returns the effort shares.
-predict_RUM <- function(model, updated.df, season) {
-  
+predict_RUM <- function(model, updated.df, season, close) {
+ 
+
+  ## Just the predictions we're interested in...
+  updated.df <- updated.df[updated.df$choice == TRUE &
+			  updated.df$season == season,]
+
   ## Extract the model matrix and parameter coefficients
-  mod.mat <- model.matrix(model$formula, data = updated.df)
+  mod.mat <- model.matrix(mlogit::mFormula(model$formula), data = updated.df)
   beta <- as.matrix(coef(model))
   
   ## Check the model matrix and coefficients are ordered correctly
@@ -606,6 +618,9 @@ predict_RUM <- function(model, updated.df, season) {
   ## linear predictor wide
   eta_wide <- matrix(eta_long, ncol = length(unique(updated.df$metier)), byrow = TRUE)
   names(eta_wide) <- updated.df$metier 
+  
+  ## Implement spatial closures
+  eta_wide[names(eta_wide) %in% close] <- -Inf
   
   ## convert to a probability
   p_hat <- exp(eta_wide) / rowSums(exp(eta_wide))
@@ -651,8 +666,14 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
                                     fleet = fleet, covars = covars, season = season, year = year,
                                     N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
     ## step 3 
-  #  browser()
-    res[,i] <- predict_Markov(model = fleet.ctrl[['Markov.model']], updated.df = updated.df, fleet = fleet, season = season, year = year)
+    
+    # If all of the catch.q for a given metier are zero, that metier is closed.
+    # so to work out which metier are closed
+    met.close <- apply(do.call(rbind, lapply(q.m.i, function(x) apply(x==0,1,all))),2,all)
+    met.close <- ifelse(identical(names(which(met.close == TRUE)), character(0)), NA,
+		     names(which(met.close == TRUE)))
+
+    res[,i] <- predict_Markov(model = fleet.ctrl[['Markov.model']], updated.df = updated.df, fleet = fleet, season = season, year = year, close = met.close)
   }
   
   
@@ -764,12 +785,15 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
 
 
 
-predict_Markov <- function(model, updated.df, fleet, season, year) {
+predict_Markov <- function(model, updated.df, fleet, season, year, close) {
   
   # Transition probs
-# browser()
   p_hat <- cbind(updated.df[c("state.tminus1")], nnet:::predict.multinom(model, updated.df, type = "probs"))
   p_hat_mat <- as.matrix(p_hat[,2:ncol(p_hat)])
+  
+  ## Implement spatial closures
+  p_hat_mat[,colnames(p_hat_mat) %in% close] <- 0
+  p_hat_mat <- p_hat_mat / rowSums(p_hat_mat, na.rm = TRUE)
   
   # past effort
   

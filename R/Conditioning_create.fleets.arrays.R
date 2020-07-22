@@ -245,12 +245,12 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     flfleets <- list() 
       
     eff_flq <- FLQuant(dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(quant = 'all', year = yrs, iter = 1:nit))
-    eff1_flq <- FLQuant(dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(quant = 'all', year = yrs, iter = 1:nit))
-    eff0_flq <- FLQuant(dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(quant = 'all', year = yrs, iter = 1:nit))
+    eff1_flq <- FLQuant(1, dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(quant = 'all', year = yrs, iter = 1:nit))
+    eff0_flq <- FLQuant(0, dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(quant = 'all', year = yrs, iter = 1:nit))
     
     stk_flq <- FLQuant(dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(age = 'all', year = yrs, iter = 1:nit))
-    stk1_flq <- FLQuant(dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(age = 'all', year = yrs, iter = 1:nit))
-    stk0_flq <- FLQuant(dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(age = 'all', year = yrs, iter = 1:nit))
+    stk1_flq <- FLQuant(1, dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(age = 'all', year = yrs, iter = 1:nit))
+    stk0_flq <- FLQuant(0, dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(age = 'all', year = yrs, iter = 1:nit))
     
     flcs <- vector('list', length(stk_objs))
     names(flcs) <- names(stk_nms)
