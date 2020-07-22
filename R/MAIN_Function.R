@@ -344,7 +344,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
     for(yr in sim.years){
       for(ss in seasons){
         cat('############################################################\n')
-        cat('-                   Year: ', yr, ', Season: ',ss, '\n')
+        cat('-                   Year: ', as.numeric(minyear) + yr -1, ', Season: ',ss, '\n')
         cat('############################################################\n')
         #~~~~~~~~~~~~~~~~ OPERATING MODELS (seasonal) ~~~~~~~~~~~~~~~~~~~~~#
         
