@@ -75,29 +75,15 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
         stop("fleets.ctrl[[f]]$restriction must be equal to 'catch' or 'landings'")
     
     
+    # Advice season for each stock
+    adv.ss <- setNames( rep(NA,nst), stnms)
+    for (st in stnms) adv.ss[st] <- ifelse(is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
+    
+    
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
     list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
                                 biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
                                 flnm = flnm, yr = yr, ss = ss, iters = 1:nit), environment())
-    
-    # Advice season for each stock
-    adv.ss <- setNames( rep(NA,nst), stnms)
-    for (st in stnms) adv.ss[st] <- ifelse(is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
-
-    
-    # when advice season is different to ns: 
-    for (st in sts)
-      if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
-  
-                            
-    for(stknm in  sts){
-        tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
-        if(is.null(tacos.fun))   alpha <- rep(1,nit)
-        else{
-            alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
-        }
-        TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
-    }
     
     ## Update the effort-share using the defined model
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]

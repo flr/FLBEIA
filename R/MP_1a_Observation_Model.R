@@ -244,7 +244,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 
     # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
     # reported homogeneously.
-    landings(stck)[]  <- FLQuant(ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings))
+    landings(stck)[]  <- FLQuant(ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings)) #! not adapted to in-year advice
     
     ovrsht.red        <- stck@landings/quantSums(unitSums(seasonSums(stck@landings.n*stck@landings.wt)))  # [1,ny,,,,it]
     
@@ -383,7 +383,7 @@ bio2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck@range <- stck@range[1:7]
 
     landings(stck)     <- Obs.land.bio(fleets, land.bio.error, yr, stknm)
-    landings(stck)     <- FLQuant(ifelse(stck@landings > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it))
+    landings(stck)     <- FLQuant(ifelse(stck@landings > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], stck@landings),dim=c(1,ny,1,1,1,it),dimnames=list(age='all', year=dimnames(stck@m)[[2]], unit='unique', season='all', area='unique', iter=1:it)) #! not adapted to in-year advice
     discards(stck)     <- Obs.disc.bio(fleets, disc.bio.error, yr, stknm)
     catch(stck)        <- stck@landings + stck@discards
 
@@ -459,7 +459,7 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 
     landings(stck)      <- FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
     landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], 
-                                  FLQuant(c(TAC.ovrsht[1,]*advice$TAC[stknm,1:ny]), dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m)), 
+                                  FLQuant(c(TAC.ovrsht[1,]*advice$TAC[stknm,1:ny]), dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m)), #! not adapted to in-year advice
                                   stck@landings)
     discards(stck)      <- FLQuant(Obs.disc.bio(fleets, disc.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
     catch(stck)         <- stck@landings + stck@discards
@@ -642,9 +642,9 @@ bio1plusInd <- function(biol, index, obs.ctrl, year, stknm,...){
 }
 
 #-------------------------------------------------------------------------------    
-# bio1plusnyrInd(biol, index, obs.ctrl, year, stknm)
+# bio1plusfwdInd(biol, index, obs.ctrl, year, stknm)
 #-------------------------------------------------------------------------------   
-bio1plusnyrInd <- function(biol, index, fleets, obs.ctrl, year, stknm,...){
+bio1plusfwdInd <- function(biol, index, fleets, obs.ctrl, year, stknm,...){
   
   it <- dim(biol@n)[6]
   na <- dim(biol@n)[1]
@@ -679,14 +679,27 @@ bio1plusnyrInd <- function(biol, index, fleets, obs.ctrl, year, stknm,...){
                                    catch.n[na - 1, ]) * exp(-biol@m[na - 1, year - 1, , ns]/2) + 
                                 (biol@n[na,  year - 1, , ns] * exp(-biol@m[na, year - 1, , ns]/2) - 
                                    catch.n[na, ]) * exp(-biol@m[na, year - 1, , ns]/2)
+    
+    B1plusfwd <- apply(biol@n[a1plus,year,,sInd,,]*biol@wt[a1plus,year,,sInd,,],c(2,6),sum)
+    
+  } else {
+    
+    catch.n <- catchStock(fleets, name(biol))[, yrnm.1, , sInd - 1]
+    
+    biol@n[-c(1, na), yrnm.1, , sInd] <- (biol@n[-c(na - 1, na), yrnm.1, , sInd - 1] * exp(-biol@m[-c(na - 1, na), yrnm.1, , sInd - 1]/2) - 
+                                          catch.n[-c(na - 1, na), ]) * exp(-biol@m[-c(na - 1, na), yrnm.1, , sInd - 1]/2)
+    
+    biol@n[na, yrnm.1, , sInd] <- (biol@n[na - 1, yrnm.1, , sInd - 1] * exp(-biol@m[na - 1, yrnm.1, , sInd - 1]/2) - 
+                                   catch.n[na - 1, ]) * exp(-biol@m[na - 1, yrnm.1, , sInd - 1]/2) + 
+      (biol@n[na,  yrnm.1, , sInd - 1] * exp(-biol@m[na, yrnm.1, , sInd - 1]/2) - 
+         catch.n[na, ]) * exp(-biol@m[na, yrnm.1, , sInd - 1]/2)
+    
+    B1plusfwd <- apply(biol@n[a1plus,yrnm.1,,sInd,,]*biol@wt[a1plus,yrnm.1,,sInd,,],c(2,6),sum)
+    
   }
-  else 
-    stop("This function is only valid for indices in the 1st season")
   
   
-  B1plusnyr <- apply(biol@n[a1plus,year,,sInd,,]*biol@wt[a1plus,year,,sInd,,],c(2,6),sum)
-  
-  index@index[,yrnm.1] <- B1plusnyr*index@index.q[,yrnm.1]#*index@index.var[,yrnm.1]
+  index@index[,yrnm.1] <- B1plusfwd*index@index.q[,yrnm.1]#*index@index.var[,yrnm.1]
   
   return(index)     
 }
