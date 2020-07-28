@@ -408,7 +408,7 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
                           beta.m, ret.m, wl.m, wd.m, pr.m, vc.m,
                           season, year, fleet, fleet.ctrl, restriction,...){
   
-  
+  browser()
   ## step 1 
   predict.df <- make_RUM_predict_df(model = fleet.ctrl[['mlogit.model']], fleet = fleet, season = season)
   
