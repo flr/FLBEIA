@@ -528,11 +528,11 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
     
     N0 <- N
     
-    ## This should be the catch rate per stock per metier ??
+    ## catch rate per stock per metier 
     CR.m   <- lapply(names(q.m), function(x) 
       cbind(stock = x,
             as.data.frame(
-              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)
+              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]],c(1,4),sum)
             )
       )
     )
@@ -739,7 +739,7 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
     CR.m   <- lapply(names(q.m), function(x) 
       cbind(stock = x,
             as.data.frame(
-              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)
+              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]],c(1,4),sum)
             )
       )
     )
