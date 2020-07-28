@@ -59,6 +59,9 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, yea
     nst   <- length(stnms)
     it    <- dim(biols[[stknm]]@n)[6]
     na    <- dim(biols[[stknm]]@n)[1]
+    nu <- dim(biols[[stknm]]@n)[3]
+    ns    <- dim(biols[[1]]@n)[4]
+
 
     if(na > 1) stop('CobbDouglasBio can only be applied at biomass level')
 
