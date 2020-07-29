@@ -83,7 +83,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
     list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
                                 biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
-                                flnm = flnm, yr = yr, ss = ss, iters = 1:nit), environment())
+                                flnm = flnm, yr = yr, ss = ss, iters = 1:nit, adv.ss), environment())
     
     ## Update the effort-share using the defined model
     effortShare.fun <- fleets.ctrl[[flnm]][['effshare.model']]
@@ -408,7 +408,6 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
                           beta.m, ret.m, wl.m, wd.m, pr.m, vc.m,
                           season, year, fleet, fleet.ctrl, restriction,...){
   
-  
   ## step 1 
   predict.df <- make_RUM_predict_df(model = fleet.ctrl[['mlogit.model']], fleet = fleet, season = season)
   
@@ -429,7 +428,8 @@ mlogit.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     
     updated.df <- update_RUM_params(model = fleet.ctrl[['mlogit.model']], predict.df = predict.df, 
                                   fleet = fleet, covars = covars, season = season, year = year,
-                                  N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
+                                  N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i,
+				  iter = i) 
     ## step 3
 
 	# If all of the catch.q for a given metier are zero, that metier is closed.
@@ -515,7 +515,7 @@ make_RUM_predict_df <- function(model = NULL, fleet = NULL, season) {
 # ** update_RUM_params **: For this I have tried to keep the inputs the same as for the gravity model. 
 #                 Here, we update the data in the predict_df (from 1) with the values to predict over.
 update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, year,
-                              N, q.m, wl.m, beta.m, ret.m, pr.m) {
+                              N, q.m, wl.m, beta.m, ret.m, pr.m, iter) {
   
   ## Update the values in the predict.df
   
@@ -528,11 +528,11 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
     
     N0 <- N
     
-    ## This should be the catch rate per stock per metier ??
+    ## catch rate per stock per metier 
     CR.m   <- lapply(names(q.m), function(x) 
       cbind(stock = x,
             as.data.frame(
-              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)
+              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]],c(1,4),sum)
             )
       )
     )
@@ -548,13 +548,13 @@ update_RUM_params <- function(model = NULL, predict.df, fleet, covars, season, y
   
   # 3. vcost
   if("vcost" %in% colnames(predict.df)) {
-    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season]))))
+    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season,,iter]))))
     predict.df$vcost <- v$data
   }
   
   # 4. effort share - past effort share, y-1
   if("effshare" %in% colnames(predict.df)) {
-    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season]))))
+    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season,,iter]))))
     predict.df$effshare <- e$data
   }
   
@@ -650,7 +650,7 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
    
     updated.df <- update_Markov_params(model = fleet.ctrl[['Markov.model']], predict.df = predict.df, 
                                     fleet = fleet, covars = covars, season = season, year = year,
-                                    N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i) 
+                                    N = Ni, q.m = q.m.i, wl.m = wl.m.i, beta.m = beta.m.i, ret.m = ret.m.i, pr.m = pr.m.i, iter = i) 
     ## step 3 
     
     # If all of the catch.q for a given metier are zero, that metier is closed.
@@ -659,7 +659,7 @@ Markov.flbeia <- function(Cr, N, B, q.m, rho, efs.m, alpha.m,
     met.close <- ifelse(identical(names(which(met.close == TRUE)), character(0)), NA,
 		     names(which(met.close == TRUE)))
 
-    res[,i] <- predict_Markov(model = fleet.ctrl[['Markov.model']], updated.df = updated.df, fleet = fleet, season = season, year = year, close = met.close)
+    res[,i] <- predict_Markov(model = fleet.ctrl[['Markov.model']], updated.df = updated.df, fleet = fleet, season = season, year = year, close = met.close, iter = i)
   }
   
   
@@ -722,7 +722,7 @@ make_Markov_predict_df <- function(model = NULL, fleet = NULL, season) {
 
 
 update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season, year,
-                                 N, q.m, wl.m, beta.m, ret.m, pr.m) {
+                                 N, q.m, wl.m, beta.m, ret.m, pr.m, iter) {
   
   ## Update the values in the predict.df
   
@@ -739,7 +739,7 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
     CR.m   <- lapply(names(q.m), function(x) 
       cbind(stock = x,
             as.data.frame(
-              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]]*pr.m[[x]],c(1,4),sum)
+              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]],c(1,4),sum)
             )
       )
     )
@@ -755,13 +755,13 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
   
   # 3. vcost
   if("vcost" %in% colnames(predict.df)) {
-    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season]))))
+    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season, , iter]))))
     predict.df$vcost <- v$data
   }
   
   # 4. effort share - past effort share, y-1
   if("effshare" %in% colnames(predict.df)) {
-    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season]))))
+    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season, , iter]))))
     predict.df$effshare <- e$data
   }
   
@@ -771,7 +771,7 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
 
 
 
-predict_Markov <- function(model, updated.df, fleet, season, year, close) {
+predict_Markov <- function(model, updated.df, fleet, season, year, close, iter = i) {
   
   # Transition probs
   p_hat <- cbind(updated.df[c("state.tminus1")], nnet:::predict.multinom(model, updated.df, type = "probs"))
@@ -786,12 +786,12 @@ predict_Markov <- function(model, updated.df, fleet, season, year, close) {
   # New year
   if(season == 1) {
     last.season <- dims(fleet)[["season"]]
-    cur.eff <- as.matrix(sapply(fleet@metiers, function(x) x@effshare[,year-1, , last.season]))
+    cur.eff <- as.matrix(sapply(fleet@metiers, function(x) x@effshare[,year-1, , last.season,, iter]))
   }
   
   # Same year
   if(season > 1) {
-    cur.eff <- as.matrix(sapply(fleet@metiers, function(x) x@effshare[, year, , season-1]))
+    cur.eff <- as.matrix(sapply(fleet@metiers, function(x) x@effshare[, year, , season-1,, iter]))
   }
   
   new.share <- apply(p_hat_mat, 2, function(x) x %*% cur.eff)

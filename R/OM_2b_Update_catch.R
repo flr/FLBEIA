@@ -50,7 +50,7 @@ updateCatch <- function(fleets, biols, BDs, advice, biols.ctrl, fleets.ctrl, adv
 #-------------------------------------------------------------------------------
 # aggregated.CobbDoug(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...){
+BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, advice.ctrl, year = 1, season = 1, flnm = 1, stknm = 1, ...){
 
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,,season,drop=T] # [it]
 
@@ -59,6 +59,9 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, yea
     nst   <- length(stnms)
     it    <- dim(biols[[stknm]]@n)[6]
     na    <- dim(biols[[stknm]]@n)[1]
+    nu <- dim(biols[[stknm]]@n)[3]
+    ns    <- dim(biols[[1]]@n)[4]
+
 
     if(na > 1) stop('CobbDouglasBio can only be applied at biomass level')
 
