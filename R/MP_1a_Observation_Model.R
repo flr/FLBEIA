@@ -649,6 +649,7 @@ bio1plusfwdInd <- function(biol, index, fleets, obs.ctrl, year, stknm,...){
   it <- dim(biol@n)[6]
   na <- dim(biol@n)[1]
   ns <- dim(biol@n)[4]
+  nu <- dim(biol@n)[5]
   a1plus <- which(dimnames(biol@n)$age=='1'):dim(biol@n)[1]
   
   # Year  => Character, because the year dimension in indices does not coincide with year dimension in biol.
@@ -672,13 +673,51 @@ bio1plusfwdInd <- function(biol, index, fleets, obs.ctrl, year, stknm,...){
     
     catch.n <- catchStock(fleets, name(biol))[, year - 1, , ns]
     
-    biol@n[-c(1, na), year, , sInd] <- (biol@n[-c(na - 1, na), year - 1, , ns] * exp(-biol@m[-c(na - 1, na), year - 1, , ns]/2) - 
-                                          catch.n[-c(na - 1, na), ]) * exp(-biol@m[-c(na - 1, na), year - 1, , ns]/2)
+    if (biols.ctrl[[name(biol)]]$growth.model == "ASPG") {
+      
+      biol@n[-c(1, na), year, , sInd] <- (biol@n[-c(na - 1, na), year - 1, , ns] * exp(-biol@m[-c(na - 1, na), year - 1, , ns]/2) - 
+                                            catch.n[-c(na - 1, na), ]) * exp(-biol@m[-c(na - 1, na), year - 1, , ns]/2)
+      
+      biol@n[na, year, , sInd] <- (biol@n[na - 1, year - 1, , ns] * exp(-biol@m[na - 1, year - 1, , ns]/2) - 
+                                     catch.n[na - 1, ]) * exp(-biol@m[na - 1, year - 1, , ns]/2) + 
+        (biol@n[na,  year - 1, , ns] * exp(-biol@m[na, year - 1, , ns]/2) - 
+           catch.n[na, ]) * exp(-biol@m[na, year - 1, , ns]/2)
+      
+    } else if (biols.ctrl[[name(biol)]]$growth.model == "ASPG_Baranov") {
+      
+      findF <- function(Fa,Ca, Ma, Na){
+        Ca. <- (Fa/(Fa+Ma))*(1-exp(-Ma-Fa))*Na
+        res <- Ca.-Ca
+        return(res)
+      }
+      
+      Ma <- unname(unclass(biol@m[,year-1,,ns]))
+      Na <- unname(unclass(biol@n[,year-1,,ns]))
+      Ca <- unname(unclass(catch.n))
+      fa <- Ma # the same dimensions as Ma
+      fa[] <- NA
+      
+      for(u in 1:nu){
+        
+        loop.uniroot <- function(i) {
+          if(Ca[a,,u,,,i] > Na[a,,u,,,i]) return(10)
+          if(Ca[a,,u,,,i] == 0) return(0) # Ca=0 --> Fa=0 (to avoid Inf when Ma=0)
+          return(uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root)
+        }
+        
+        for (a in 1:na) fa[a,,u,,,] <- vapply(1:it, loop.uniroot, numeric(1))
+        
+        za <- Ma+fa
+        
+        # middle ages
+        biol@n[-c(1,na),year,u,sInd] <- biol@n[-c(na-1,na),year-1,u,ns]*exp(-za[-c(na-1,na),,u,,,,drop=F])
+        # plusgroup
+        biol@n[na,year,u,sInd]       <- biol@n[na-1,year-1,u,ns]*exp(-za[na-1,,u,,,,drop=F])+biol@n[na,year-1,u,ns]*exp(-za[na,,u,,,,drop=F])
+        # 
+      }
     
-    biol@n[na, year, , sInd] <- (biol@n[na - 1, year - 1, , ns] * exp(-biol@m[na - 1, year - 1, , ns]/2) - 
-                                   catch.n[na - 1, ]) * exp(-biol@m[na - 1, year - 1, , ns]/2) + 
-                                (biol@n[na,  year - 1, , ns] * exp(-biol@m[na, year - 1, , ns]/2) - 
-                                   catch.n[na, ]) * exp(-biol@m[na, year - 1, , ns]/2)
+    } else 
+      stop( "'bio1plusfwdInd' must be applied for growth models: ASPG or ASPG_Baranov.")
     
     B1plusfwd <- apply(biol@n[a1plus,year,,sInd,,]*biol@wt[a1plus,year,,sInd,,],c(2,6),sum)
     
@@ -686,13 +725,48 @@ bio1plusfwdInd <- function(biol, index, fleets, obs.ctrl, year, stknm,...){
     
     catch.n <- catchStock(fleets, name(biol))[, yrnm.1, , sInd - 1]
     
-    biol@n[-c(1, na), yrnm.1, , sInd] <- (biol@n[-c(na - 1, na), yrnm.1, , sInd - 1] * exp(-biol@m[-c(na - 1, na), yrnm.1, , sInd - 1]/2) - 
-                                          catch.n[-c(na - 1, na), ]) * exp(-biol@m[-c(na - 1, na), yrnm.1, , sInd - 1]/2)
-    
-    biol@n[na, yrnm.1, , sInd] <- (biol@n[na - 1, yrnm.1, , sInd - 1] * exp(-biol@m[na - 1, yrnm.1, , sInd - 1]/2) - 
-                                   catch.n[na - 1, ]) * exp(-biol@m[na - 1, yrnm.1, , sInd - 1]/2) + 
-      (biol@n[na,  yrnm.1, , sInd - 1] * exp(-biol@m[na, yrnm.1, , sInd - 1]/2) - 
-         catch.n[na, ]) * exp(-biol@m[na, yrnm.1, , sInd - 1]/2)
+    if (biols.ctrl[[name(biol)]]$growth.model == "ASPG") {
+      
+      biol@n[-c(1, na), yrnm.1, , sInd] <- (biol@n[-c(na - 1, na), yrnm.1, , sInd - 1] * exp(-biol@m[-c(na - 1, na), yrnm.1, , sInd - 1]/2) - 
+                                              catch.n[-c(na - 1, na), ]) * exp(-biol@m[-c(na - 1, na), yrnm.1, , sInd - 1]/2)
+      
+      biol@n[na, yrnm.1, , sInd] <- (biol@n[na - 1, yrnm.1, , sInd - 1] * exp(-biol@m[na - 1, yrnm.1, , sInd - 1]/2) - 
+                                       catch.n[na - 1, ]) * exp(-biol@m[na - 1, yrnm.1, , sInd - 1]/2) + 
+        (biol@n[na,  yrnm.1, , sInd - 1] * exp(-biol@m[na, yrnm.1, , sInd - 1]/2) - 
+           catch.n[na, ]) * exp(-biol@m[na, yrnm.1, , sInd - 1]/2)
+      
+    } else if (biols.ctrl[[name(biol)]]$growth.model == "ASPG_Baranov") {
+      
+      findF <- function(Fa,Ca, Ma, Na){
+        Ca. <- (Fa/(Fa+Ma))*(1-exp(-Ma-Fa))*Na
+        res <- sum(Ca.)-sum(Ca)
+        return(res)
+      }
+      
+      Ma <- unname(unclass(biol@m[,yrnm.1,,sInd-1]))
+      Na <- unname(unclass(biol@n[,yrnm.1,,sInd-1]))
+      Ca <- unname(unclass(catch.n))
+      fa <- Ma # the same dimensions as Ma
+      fa[] <- NA
+      
+      for(u in 1:nu){
+        
+        loop.uniroot <- function(i) {
+          if(Ca[a,,u,,,i] > Na[a,,u,,,i]) return(10)
+          if(Ca[a,,u,,,i] == 0) return(0) # Ca=0 --> Fa=0 (to avoid Inf when Ma=0)
+          uniroot(findF,interval=c(0,2),Ca=Ca[a,,u,,,i],Ma=Ma[a,,u,,,i], Na=Na[a,,u,,,i], tol = 1e-12,extendInt = "yes")$root
+        }
+        
+        for (a in 1:na) fa[a,,u,,,] <- vapply(1:it, loop.uniroot, numeric(1))
+        
+        za <- Ma+fa
+        
+        # middle ages      # for unit == sInd  and age = 1, it will be equal NA but be updated after with SRsim.
+        biol@n[,yrnm.1,u,sInd] <- biol@n[,yrnm.1,u,sInd-1]*exp(-za[,,u,,,,drop=F])
+      }
+      
+    } else 
+      stop( "'bio1plusfwdInd' must be applied for growth models: ASPG or ASPG_Baranov.")
     
     B1plusfwd <- apply(biol@n[a1plus,yrnm.1,,sInd,,]*biol@wt[a1plus,yrnm.1,,sInd,,],c(2,6),sum)
     
