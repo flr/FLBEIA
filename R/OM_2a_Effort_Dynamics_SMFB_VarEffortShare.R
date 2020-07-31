@@ -766,8 +766,9 @@ land$effort <- eff$data[match(land$metier, eff$metier)]
 land$lpue   <- land$data / land$effort 
 
 
-  for(st in catchNames(fleet)) {
-      predict.df[,st] <-land[land$stock == st, "lpue"]
+  for(st in colnames(predict.df)) {
+	  
+     predict.df[,st] <-land[land$stock == st, "lpue"]
      # CR[CR$stock == st,2]  ## This will repeat, to ensure we get for each metier combinations
     }
     predict.df[is.na(predict.df)] <- 0
