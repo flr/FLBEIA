@@ -727,41 +727,61 @@ update_Markov_params <- function(model = NULL, predict.df, fleet, covars, season
   ## Update the values in the predict.df
   
   ## 2. catch / catch rates - on same scale.
-  ## Note, these should be updated based on the biomass increases, so we do a
-  ## similar calculation as for the gravity model
-  ## Here have to be careful as not all metiers may catch all stocks...
+  ## Note, these should NOT be updated based on the biomass increases, 
+  ## we take these from the previous season (as it should of been fitted)
   
   if(any(sapply(catchNames(fleet), grepl, model$coefnames))) {
     
-    N0 <- N
-      
+## old method	  
+#    N0 <- N
     ## This should be the catch rate per stock per metier ??
-    CR.m   <- lapply(names(q.m), function(x) 
-      cbind(stock = x,
-            as.data.frame(
-              apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]],c(1,4),sum)
-            )
-      )
-    )
+#    CR.m   <- lapply(names(q.m), function(x) 
+#      cbind(stock = x,
+#            as.data.frame(
+ #             apply(q.m[[x]]*(sweep(wl.m[[x]], 2:4, N0[[x]], "*")^beta.m[[x]])*ret.m[[x]],c(1,4),sum)
+  #          )
+  #    )
+  #  )
     
-    CR <- do.call(rbind, CR.m)
-    
-    for(st in unique(CR$stock)) {
-      predict.df[,st] <- CR[CR$stock == st,2]  ## This will repeat, to ensure we get for each metier combinations
+ #   CR <- do.call(rbind, CR.m)
+
+ ## New method with lagged data
+# if first season, last season previous year
+  year_lag <- ifelse(season == 1, year-1, year)   
+  seas_lag <- ifelse(season == 1, dim(fleet@effort)[4], season-1)
+
+## Get the landings in last season
+land <- do.call(rbind, lapply(fleet@metiers, function(m) {
+do.call(rbind, lapply(m@catches, function(x) cbind(metier = m@name, stock= x@name,as.data.frame(x@landings[,year_lag,,seas_lag, , iter]))))
+}))
+
+## Get the metier effort last season
+ eff <- do.call(rbind, lapply(fleet@metiers, function(x) { 
+ cbind(metier = x@name,as.data.frame(x@effshare[,year_lag,,seas_lag, , iter]))}))
+
+eff$data <- as.data.frame(fleet@effort[,year_lag,,seas_lag,,iter])$data * eff$data
+
+# combine the effort and landings and calculate the lpue
+land$effort <- eff$data[match(land$metier, eff$metier)]
+land$lpue   <- land$data / land$effort 
+
+
+  for(st in unique(CR$stock)) {
+      predict.df[,st] <-land[land$stock == st, "lpue"]
+     # CR[CR$stock == st,2]  ## This will repeat, to ensure we get for each metier combinations
     }
     predict.df[is.na(predict.df)] <- 0
-    
   }
   
   # 3. vcost
   if("vcost" %in% colnames(predict.df)) {
-    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year,,season, , iter]))))
+    v <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@vcost[,year_lag,,seas_lag, , iter]))))
     predict.df$vcost <- v$data
   }
   
   # 4. effort share - past effort share, y-1
   if("effshare" %in% colnames(predict.df)) {
-    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year-1,,season, , iter]))))
+    e <- do.call(rbind, lapply(fleet@metiers, function(x) cbind(metier = x@name,as.data.frame(x@effshare[,year_lag,,seas_lag, , iter]))))
     predict.df$effshare <- e$data
   }
   
