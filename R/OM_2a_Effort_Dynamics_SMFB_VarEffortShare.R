@@ -767,8 +767,9 @@ land$lpue   <- land$data / land$effort
 
 
   for(st in colnames(predict.df)) {
-	  
-     predict.df[,st] <-land[land$stock == st, "lpue"]
+	 
+     predict.df[predict.df$state.tminus1 %in% land[land$stock == st, "metier"],st] <- land[land$stock == st, "lpue"]
+     #predict.df[,st] <- land[land$stock == st, "lpue"]
      # CR[CR$stock == st,2]  ## This will repeat, to ensure we get for each metier combinations
     }
     predict.df[is.na(predict.df)] <- 0
