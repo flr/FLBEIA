@@ -76,12 +76,17 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, adv
     sts   <- catchNames(fl)
     mtnms <- names(fl@metiers)
     
-    adv.ss <- advice.ctrl[[stknm]][['adv.season']]
+    adv.ss <- ifelse(is.null(advice.ctrl[[stknm]][["adv.season"]]), ns, advice.ctrl[[stknm]][["adv.season"]])
     
     if(!(st %in% sts)) return(fleets)
     
     # catch restriction, if empty => landings.
-    catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
+    if (is.null(fleets.ctrl[[flnm]]$restriction)) {
+      catch.restr <- 'landings'
+    } else 
+      catch.restr <- ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction, 
+                            fleets.ctrl[[flnm]]$restriction[yr])
+    # catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
                                              
     tac <- rep(Inf,it)
     
@@ -93,7 +98,7 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, adv
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0
-        if (adv.ss < ns & ss <= advice.ctrl[[stknm]][['adv.season']]) {
+        if (adv.ss < ns & ss <= adv.ss) {
           tac <- advice$TAC[st,yr-1,drop=T]*QS # it
         } else {
           tac <- advice$TAC[st,yr,drop=T]*QS # it
@@ -234,7 +239,7 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, advi
     sts   <- catchNames(fl)
     mtnms <- names(fl@metiers)
     
-    adv.ss <- advice.ctrl[[stknm]][['adv.season']]
+    adv.ss <- ifelse(is.null(advice.ctrl[[stknm]][["adv.season"]]), ns, advice.ctrl[[stknm]][["adv.season"]])
     
     catch.model <- fleets.ctrl[[flnm]][[stknm]][['catch.model']]
 
@@ -268,7 +273,7 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, advi
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0              
-        if (adv.ss < ns & ss <= advice.ctrl[[stknm]][['adv.season']]) {
+        if (adv.ss < ns & ss <= adv.ss) {
           tac <- (advice$TAC[st,yr-1,drop=T]*QS*(1+yrtr_p)) - yrtr_disc
         } else {
           tac <- (advice$TAC[st,yr,drop=T]*QS*(1+yrtr_p)) - yrtr_disc   # [it], add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
