@@ -84,10 +84,14 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
       tacos <- q.m <- alpha.m <- beta.m <- pr.m <- ret.m <- wd.m <- wl.m <- K <- 
       Nyr_1 <- Myr_1 <- M <- Cfyr_1 <- Cyr_1 <- LO <- NULL
     
+    # Advice season for each stock
+    adv.ss <- setNames( rep(NA,nst), stnms)
+    for (st in stnms) adv.ss[st] <- ifelse(is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
+    
     # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
     list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
                                 biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
-                                flnm = flnm, yr = yr, ss = ss, iters = i), environment())
+                                flnm = flnm, yr = yr, ss = ss, iters = i, adv.ss = adv.ss), environment())
     
     
     # # Correction of efs.m when no TAC for main target species
