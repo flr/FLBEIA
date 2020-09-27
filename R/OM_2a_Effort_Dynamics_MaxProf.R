@@ -46,7 +46,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
   
   # Fleet's info
   fl    <- fleets[[flnm]]
-  sts   <- catchNames(fl)
+  sts   <- intersect(fleets.ctrl[[flnm]][['stocks.restr']], catchNames(fl))
   mtnms <- names(fl@metiers)
   nmt   <- length(mtnms)
   
