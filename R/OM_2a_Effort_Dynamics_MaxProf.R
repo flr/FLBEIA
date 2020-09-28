@@ -190,23 +190,33 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
               wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
               effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
               tacos = tacos, rho = rho, tac=TAC[,i, drop= F], Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1)
+
+    eff_opt <- try(optim(X, f_MP_nloptr_penalized, efs.max = efs.max, 
+      efs.min = efs.min, q.m = q.m, alpha.m = alpha.m, 
+      beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m, 
+      wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m, 
+      Cr.f = Cr.f, crewS = crewS, K = K, effort.restr = effort.restr, 
+      catch.restr = catch.restr, stocks.restr = stocks.restr, 
+      efs.abs = fleets.ctrl[[flnm]]$efs.abs, tacos = tacos, 
+      rho = rho, tac = TAC[, i, drop = F], Cyr_1 = Cyr_1, 
+      Nyr_1 = Nyr_1, Myr_1 = Myr_1, M = M, Cfyr_1 = Cfyr_1, 
+      flnm = flnm, fleets.ctrl = fleets.ctrl), silent = TRUE)
     
-    eff_opt <- optim(X,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
-                     beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
-                     wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
-                     effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
-                     tacos = tacos, rho = rho, 
-                     tac=TAC[,i, drop=F], Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1, flnm = flnm, fleets.ctrl = fleets.ctrl)
-    
-    if (eff_opt$convergence %in% c(1,10) )
-      eff_opt <- optim(eff_opt$par,f_MP_nloptr_penalized, efs.max = efs.max, efs.min = efs.min,q.m = q.m, alpha.m = alpha.m, 
-                       beta.m = beta.m, pr.m = pr.m, ret.m = ret.m, wd.m = wd.m,
-                       wl.m = wl.m, N = N, B = B, fc = fc, vc.m = vc.m,   Cr.f = Cr.f,  crewS = crewS, K = K , 
-                       effort.restr = effort.restr, catch.restr = catch.restr, stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
-                       tacos = tacos, rho = rho, 
-                       tac=TAC[,i, drop=F], Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1,  M = M, Cfyr_1 = Cfyr_1, flnm = flnm, fleets.ctrl = fleets.ctrl, 
-                       control=list(maxit=100000))
-    
+    if(class(eff_opt) != "try-error"){
+      if(eff_opt[["convergence"]] %in% c(1, 10)){
+        eff_opt <- try(optim(eff_opt[["par"]], f_MP_nloptr_penalized, 
+          efs.max = efs.max, efs.min = efs.min, q.m = q.m, 
+          alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m, 
+          ret.m = ret.m, wd.m = wd.m, wl.m = wl.m, N = N, 
+          B = B, fc = fc, vc.m = vc.m, Cr.f = Cr.f, crewS = crewS, 
+          K = K, effort.restr = effort.restr, catch.restr = catch.restr, 
+          stocks.restr = stocks.restr, efs.abs = fleets.ctrl[[flnm]]$efs.abs, 
+          tacos = tacos, rho = rho, tac = TAC[, i, drop = F], 
+          Cyr_1 = Cyr_1, Nyr_1 = Nyr_1, Myr_1 = Myr_1, 
+          M = M, Cfyr_1 = Cfyr_1, flnm = flnm, fleets.ctrl = fleets.ctrl, 
+          control = list(maxit = 1e+05)), silent = TRUE)
+      }
+    }
     
     # eff_nloptr <- nloptr::nloptr(E0,
     #                              eval_f= f_MP_nloptr,
@@ -219,9 +229,17 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
     #                              effort.restr = effort.restr, crewS = crewS, catch.restr = catch.restr, tacos = tacos)
     # Et.res[i]   <- sum(eff_nloptr$solution)
     #! if(Et.res[i]>K) Et.res[i] <- K
-    res <- K/(1+exp(-eff_opt[[1]]))
-    Et.res[i]   <- sum(res)
-    efs.res[,i] <- res/sum(res)
+
+    
+    if(class(eff_opt) != "try-error"){
+      res <- K/(1 + exp(-eff_opt[[1]]))
+    }else{
+      res <- K/(1 + exp(-X))
+    }
+    Et.res[i] <- sum(res)
+    efs.res[, i] <- res/sum(res)
+
+    
     
     # # CHECKS
     # cat('CONVERGENCE: ', eff_opt$convergence, '\n')
@@ -248,8 +266,15 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
     #   cat('  * ',st,' -', Ctot <= Cr.f[st], '\n \n')
     # }
     
-    cat('Effort share: ', efs.res[,i], ', ~~~~~ Effort: ',Et.res[i], ', ~~~~~ Funct. Value: ', eff_opt$value, '\n')
-    
+    if(class(eff_opt) != "try-error"){
+      cat("Effort share: ", efs.res[, i], ", ~~~~~ Effort: ", 
+        Et.res[i], ", ~~~~~ Funct. Value: ", eff_opt$value, 
+        "\n")
+    }else{
+      cat("Optimization was not successful. Original values used. ", "Effort share: ", efs.res[, i], ", ~~~~~ Effort: ", 
+        Et.res[i],   
+        "\n")      
+    } 
     
     # LO: TB checked!!!!!!
     
