@@ -278,7 +278,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
         flmt[[mt]] <- FLMetierExt(name = mt, desc = 'data imported from', effshare = eff1_flq/length(flt_mt_nms[[fl]]), catches = FLCatchesExt(flcs[flt_mt_stk_nms[[fl]][[mt]]]))
         
       }
-      flfleets[[fl]] <- FLFleetExt(name = fl, desc = 'data imported from', effort = eff1_flq, fcost = eff_flq, capacity = eff_flq, crewshare = eff0_flq,
+      flfleets[[fl]] <- FLFleetExt(name = fl, desc = 'data imported from', effort = eff1_flq, fcost = eff_flq, capacity = eff_flq, crewshare = eff_flq,
               metiers = FLMetiersExt(flmt))
     }
   } else{ 

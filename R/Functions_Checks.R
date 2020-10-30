@@ -98,7 +98,7 @@ checkFLBEIAData <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL
   
   # - biols
   
-  checkBiols(window(biols,start=sim.years[1]-1,end=sim.years[2]))
+  checkBiols(lapply(biols,window,start=sim.years[1]-1,end=sim.years[2]))
   
   # - SRs
   

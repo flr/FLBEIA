@@ -9,7 +9,7 @@
 # rho: Check what sonia has done the last days.
 #------------------------------------------------------------------------------------
 
-FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, fleets.ctrl,  flnm, yr, ss,iters){
+FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, fleets.ctrl,  flnm, yr, ss,iters, adv.ss){
   
   # Fleet's info
   fl    <- fleets[[flnm]]
@@ -27,6 +27,7 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
   nmt   <- length(mtnms)
   nst <- length(biols)
   nsts <- length(sts)
+  ns <- dim(biols[[1]]@n)[4]
   nit <- length(iters)
   
   # i <- iters
@@ -132,6 +133,18 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     # [nst,it]
     #------------------------------------------------------------------------------------------
     TAC.yr  <- matrix(advice$TAC[stnms,yr,drop=T], nst, nit, dimnames = list(stnms, iters))   # [nst,it]
+    # when advice season is different to ns: adapt to the advice calendar 
+    for (st in stnms)
+      if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
+    # when tac overshoot
+    for(stknm in  sts){
+      tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
+      if(is.null(tacos.fun))   alpha <- rep(1,nit)
+      else{
+        alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
+      }
+      TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
+    }
     rho       <- fleets.ctrl$catch.threshold[,yr,,ss,,iters,  drop=T]  # [ns,it]
     if(is.null(dim(rho)))  rho <- matrix(rho, length(stnms), nit, dimnames = list(stnms, iters))
   

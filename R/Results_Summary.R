@@ -803,6 +803,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       temp.landings <- lapply(catchNames(fl), function(x) quantSums(unitSums(landWStock.f(fl, x))))
       temp.discards <- lapply(catchNames(fl), function(x) quantSums(unitSums(discWStock.f(fl, x))))
       
+<<<<<<< HEAD
       # dga: I don't know why the code below failed during the mixfish wg and I've to replace 
       # the code by the code below.
       # res.fl <- bind_cols(year=year, season=season,fleet=fleet, iter=iter,
@@ -834,6 +835,19 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                             costs=c(costs_flbeia(fl, covars, f)[,years, ]),
                             grossValue=c(revenue_flbeia(fl)[,years, ]),
                             nVessels = c(covars[['NumbVessels']][f,years]))) %>% 
+=======
+      res.fl <- bind_cols(year=year, season=season,fleet=fleet, iter=iter,
+                          catch=c(Reduce('+',temp.catch)[,years]),
+                          landings=c(Reduce('+',temp.landings)[,years]),
+                          discards=c(Reduce('+',temp.discards)[,years]),
+                          capacity=c(fl@capacity[,years, ]),
+                          effort=c(fl@effort[,years, ]),
+                          fcosts=c(totfcost_flbeia(fl, covars, f)[,years, ]),
+                          vcosts=c(totvcost_flbeia(fl)[,years, ]),
+                          costs=c(costs_flbeia(fl, covars, f)[,years, ]),
+                          grossValue=c(revenue_flbeia(fl)[,years, ]),
+                          nVessels = c(covars[['NumbVessels']][f,years])) %>% 
+>>>>>>> 5c2bf7b61bbdf46ec4ce82f2150929d3f6a5bab3
         mutate(discRat=discards/catch,
                grossSurplus=grossValue-costs,
                price=grossValue/landings,
@@ -875,6 +889,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       temp.landings <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(landWStock.f(fl, x)))))
       temp.discards <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(discWStock.f(fl, x)))))
       
+<<<<<<< HEAD
       # dga: I don't know why the code below failed during the mixfish wg and I've to replace 
       # the code by the code below.
       # res.fl <- bind_cols(year=year,fleet=fleet, iter=iter,
@@ -908,6 +923,20 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
 
                
         res.fl <- res.fl %>%  mutate(discRat = discards/catch,
+=======
+      res.fl <- bind_cols(year=year,fleet=fleet, iter=iter,
+                          catch=c(Reduce('+',temp.catch)[,years]),
+                          landings=c(Reduce('+',temp.landings)[,years]),
+                          discards=c(Reduce('+',temp.discards)[,years]),
+                          capacity=c(seasonSums(fl@capacity[,years, ])),
+                          effort=c(seasonSums(fl@effort[,years, ])),
+                          fcosts=c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ])),
+                          vcosts=c(seasonSums(totvcost_flbeia(fl)[,years, ])),
+                          costs=c(seasonSums(costs_flbeia(fl, covars, f)[,years, ])),
+                          grossValue=c(seasonSums(revenue_flbeia(fl)[,years, ])),
+                          nVessels =c(seasonMeans(covars[['NumbVessels']][f,years]))) %>% 
+        mutate(discRat = discards/catch,
+>>>>>>> 5c2bf7b61bbdf46ec4ce82f2150929d3f6a5bab3
                grossSurplus = grossValue - costs,
                price = grossValue/landings,
                salaries = c(seasonSums(fl@crewshare[,years,])) * grossValue + c(seasonSums(covars[['Salaries']][f,years])),

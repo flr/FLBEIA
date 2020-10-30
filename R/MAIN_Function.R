@@ -303,10 +303,14 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         
         # Advice seasons
         adv.ss[[st]] <- advice.ctrl[[st]][['adv.season']]
-        if (is.null(adv.ss[[st]])) { adv.ss[[st]] <- ns } else if (is.na(adv.ss[[st]])) { adv.ss[[st]] <- ns }
-          # For SSFB required advice season (if different to last one) for calculating season shares appropriately
-          for (fl in names(fleets)) if (fleets.ctrl[[fl]]$effort.model == "SSFB")
-            fleets.ctrl[[fl]][[st]]$adv.season <- adv.ss[[st]]
+        if (is.null(adv.ss[[st]])) { 
+          adv.ss[[st]] <- advice.ctrl[[st]][['adv.season']] <- ns 
+        } else if (is.na(adv.ss[[st]])) { 
+          adv.ss[[st]] <- advice.ctrl[[st]][['adv.season']] <- ns 
+        }
+        # For SSFB required advice season (if different to last one) for calculating season shares appropriately
+        for (fl in names(fleets)) if (fleets.ctrl[[fl]]$effort.model == "SSFB")
+          fleets.ctrl[[fl]][[st]]$adv.season <- adv.ss[[st]]
         if (!(adv.ss[[st]] %in% seasons)) stop("Advice season for: '", st, "' outside season range in the objects")
         
         # Advice year assessment necessary?
@@ -406,6 +410,8 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
   
               # - Advice. 
               cat('----------------- ADVICE -----------------\n')
+              advice.ctrl[[st]][['tac.lag']] <- ifelse (advice.ctrl[[st]][['adv.season']] == ns, 0, 1)
+              
               advice <- advice.mp(stocks = stocks, fleets.obs = fleets.obs, indices = indices, covars = covars, 
                                   advice = advice, advice.ctrl = advice.ctrl, year = yr, season = ss, stknm=st)
       

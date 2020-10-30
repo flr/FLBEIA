@@ -50,7 +50,7 @@ updateCatch <- function(fleets, biols, BDs, advice, biols.ctrl, fleets.ctrl, adv
 #-------------------------------------------------------------------------------
 # aggregated.CobbDoug(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1, ...){
+BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, advice.ctrl, year = 1, season = 1, flnm = 1, stknm = 1, ...){
 
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,,season,drop=T] # [it]
 
@@ -59,6 +59,9 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, yea
     nst   <- length(stnms)
     it    <- dim(biols[[stknm]]@n)[6]
     na    <- dim(biols[[stknm]]@n)[1]
+    nu <- dim(biols[[stknm]]@n)[3]
+    ns    <- dim(biols[[1]]@n)[4]
+
 
     if(na > 1) stop('CobbDouglasBio can only be applied at biomass level')
 
@@ -73,10 +76,17 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, yea
     sts   <- catchNames(fl)
     mtnms <- names(fl@metiers)
     
+    adv.ss <- ifelse(is.null(advice.ctrl[[stknm]][["adv.season"]]), ns, advice.ctrl[[stknm]][["adv.season"]])
+    
     if(!(st %in% sts)) return(fleets)
     
     # catch restriction, if empty => landings.
-    catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
+    if (is.null(fleets.ctrl[[flnm]]$restriction)) {
+      catch.restr <- 'landings'
+    } else 
+      catch.restr <- ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction, 
+                            fleets.ctrl[[flnm]]$restriction[yr])
+    # catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
                                              
     tac <- rep(Inf,it)
     
@@ -87,8 +97,12 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, yea
         yr.share    <- advice$quota.share[[stknm]][flnm,yr,, drop=T]              # [it]
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
-        QS[is.na(QS)] <- 0              
-        tac <- advice$TAC[st,yr,drop=T]*QS # it
+        QS[is.na(QS)] <- 0
+        if (adv.ss < ns & ss <= adv.ss) {
+          tac <- advice$TAC[st,yr-1,drop=T]*QS # it
+        } else {
+          tac <- advice$TAC[st,yr,drop=T]*QS # it
+        }
     }
     
     # biomass in the middle of the season  B[it] if age struc.
@@ -201,7 +215,7 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, yea
 #-------------------------------------------------------------------------------
 # ageBased.CobbDoug(fleets, biols, year = 1, season = 1)
 #-------------------------------------------------------------------------------
-AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year = 1, season = 1, flnm = 1, stknm = 1,...){
+AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, advice.ctrl, year = 1, season = 1, flnm = 1, stknm = 1,...){
 
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,, season,drop=T] # [it]
 
@@ -219,10 +233,13 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year
     st <- stknm
     na <- dim(biols[[stknm]]@n)[1]
     nu <- dim(biols[[stknm]]@n)[3]
+    ns    <- dim(biols[[1]]@n)[4]
     
     fl    <- fleets[[flnm]]
     sts   <- catchNames(fl)
     mtnms <- names(fl@metiers)
+    
+    adv.ss <- ifelse(is.null(advice.ctrl[[stknm]][["adv.season"]]), ns, advice.ctrl[[stknm]][["adv.season"]])
     
     catch.model <- fleets.ctrl[[flnm]][[stknm]][['catch.model']]
 
@@ -239,7 +256,7 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year
     # catch.restr <- ifelse(is.null(fleets.ctrl[[flnm]]$restriction), 'landings',ifelse(length(fleets.ctrl[[flnm]]$restriction)==1, fleets.ctrl[[flnm]]$restriction,fleets.ctrl[[flnm]]$restriction[yr]))
     
  
-    #  quota share % to be upodate du to year transfer.
+    #  quota share % to be updated due to year transfer.
     yrtr_p <- fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[stknm,yr]
     yrtr_p <- ifelse(is.null(yrtr_p), 0,yrtr_p)
     # if year transfer was used in previous year discount it, absolute catch
@@ -256,8 +273,12 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, year
         ss.share    <- fleets.ctrl$seasonal.share[[stknm]][flnm,yr,,ss, drop=T]   # [it]
         QS          <- yr.share*ss.share                                          # [it]
         QS[is.na(QS)] <- 0              
-        tac <- (advice$TAC[st,yr,drop=T]*QS*(1+yrtr_p)) - yrtr_disc   # [it], add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
-                                                                      # the minimise is not added because it is discarded.      
+        if (adv.ss < ns & ss <= adv.ss) {
+          tac <- (advice$TAC[st,yr-1,drop=T]*QS*(1+yrtr_p)) - yrtr_disc
+        } else {
+          tac <- (advice$TAC[st,yr,drop=T]*QS*(1+yrtr_p)) - yrtr_disc   # [it], add yeartransfer in case it is in place, first we increment in % the quota and then we discount the cuota used in previous year. 
+                                                                        # the minimise is not added because it is discarded.
+        }
     }
     
     if(dim(biols[[st]]@n)[1] == 1) stop(st, ' stock has no ages, Cobb Douglas cannot be applied at age level then! correct the "catch.model" argument in "fleets.ctrl" argument!\n')

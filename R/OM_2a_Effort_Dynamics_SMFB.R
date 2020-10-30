@@ -82,30 +82,14 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
       tacos <- q.m <- alpha.m <- beta.m <- pr.m <- ret.m <- wd.m <- wl.m <- K <- 
       Nyr_1 <- Myr_1 <- M <- Cfyr_1 <- Cyr_1 <- LO <- NULL
     
-    # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
-    list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
-                                biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
-                                flnm = flnm, yr = yr, ss = ss, iters = 1:nit), environment())
-    
     # Advice season for each stock
     adv.ss <- setNames( rep(NA,nst), stnms)
     for (st in stnms) adv.ss[st] <- ifelse(is.null(advice.ctrl[[st]][["adv.season"]]), ns, advice.ctrl[[st]][["adv.season"]]) # [nst]
-
     
-    # when advice season is different to ns: 
-    for (st in sts)
-      if (adv.ss[st] < ns & ss <= adv.ss[st]) TAC.yr[st,] <- advice$TAC[st,yr-1,drop=T] # previous year TAC
-  
-                            
-    for(stknm in  sts){
-        tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
-        if(is.null(tacos.fun))   alpha <- rep(1,nit)
-        else{
-            alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
-        }
-        TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
-    }
-    
+    # Transform the FLR objects into list of arrays in order to be able to work with non-FLR
+    list2env(FLObjs2S3_fleetSTD(biols = biols, fleets = fleets, advice = advice, covars = covars, 
+                                biols.ctrl = biols.ctrl, fleets.ctrl = fleets.ctrl, BDs=BDs, 
+                                flnm = flnm, yr = yr, ss = ss, iters = 1:nit, adv.ss = adv.ss), environment())
     
 #    if(flnm == 'GNS_FR') browser()
      for(st in sts){     # q.m, alpha.m.... by metier but stock specific
@@ -306,7 +290,11 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
    # Update the quota share of this step and the next one if the 
    # quota share does not coincide with the actual catch. (update next one only if s < ns).
    for(st in sts){
-
+     
+        # if advice previous to final season and no more year in the object --> do not update
+        if (ss == ns & adv.ss[st] < ns & yr ==  dim(fleets.ctrl$seasonal.share[[st]])[2])
+          next()
+       
         if (adv.ss[st] == ns) {
           yr.share <- advice$quota.share[[st]][flnm,yr,, drop=T]      # [nit]
           ss.share <- t(matrix(fleets.ctrl$seasonal.share[[st]][flnm,yr,,, drop=T], ns, nit)) # [nit,ns]
