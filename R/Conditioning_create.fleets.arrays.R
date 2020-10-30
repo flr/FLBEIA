@@ -253,7 +253,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     stk0_flq <- FLQuant(0, dim = c(1, length(yrs), 1,1,1,nit), dimnames = list(age = 'all', year = yrs, iter = 1:nit))
     
     flcs <- vector('list', length(stk_objs))
-    names(flcs) <- names(stk_nms)
+    names(flcs) <- stk_nms
     for(st in stk_nms){
       stka_flq <- FLQuant(dim = c(nages_stk[[st]], length(yrs), 1,1,1,nit), dimnames = list(age = ages_stk[[st]], year = yrs, iter = 1:nit))
       stka1_flq <- FLQuant(1, dim = c(nages_stk[[st]], length(yrs), 1,1,1,nit), dimnames = list(age = ages_stk[[st]], year = yrs, iter = 1:nit))

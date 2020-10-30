@@ -132,6 +132,7 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
         stop(paste("years in sheet '",sl,"' are different from ",hist.yrs[1],":",hist.yrs[length(hist.yrs)],sep=''))
       data[[sl]] <- as.matrix(readWorksheet(wb, sheet = sl, header = TRUE, startRow = 1, startCol = 2, 
                                                                             endRow = nage + 1, endCol = nyear + 1))
+      colnames(data[[sl]]) <- substr(colnames(data[[sl]]),2,5)
       unit[[sl]] <- readWorksheet(wb, sheet = sl, header = FALSE, startRow = 1, startCol = 1, endRow = 1, endCol = 1)$Col1
     }
     nit  <- 1
@@ -151,20 +152,21 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
   
   if(source == 'FLStock'){ # "n"    "m"    "wl"   "wd"   "wt"   "mat"  "fec"  "spwn" "f"    "fd"   "fl"   "caa"  "daa"  "laa" 
     d <- dim(data0@stock.n)[c(1,2,6)]
-    data$n <- array(data0@stock.n[drop=TRUE], dim = d)
-    data$m <- array(data0@m[drop=TRUE], dim = d)
-    data$wl <- array(data0@landings.wt[drop=TRUE], dim = d)
-    data$wd <- array(data0@discards.wt[drop=TRUE], dim = d)
-    data$wt <- array(data0@stock.wt[drop=TRUE], dim = d)
-    data$mat <- array(data0@mat[drop=TRUE], dim = d)
-    data$fec <- array(1, dim = d)
-    data$spwn <- array(data0@harvest.spwn, dim = d)
-    data$f    <- array(data0@harvest, dim = d)
-    data$fd  <- array(data0@harvest*(data0@discards.n/data0@catch.n), dim = d)
-    data$fl  <- array(data0@harvest*(data0@landings.n/data0@catch.n), dim = d)
-    data$caa  <- array(data0@catch.n, dim = d)
-    data$laa  <- array(data0@landings.n, dim = d)
-    data$daa  <- array(data0@discards.n, dim = d)
+    dmn <- dimnames(data0@stock.n)[c(1,2,6)]
+    data$n <- array(data0@stock.n[drop=TRUE], dim = d, dimnames = dmn)
+    data$m <- array(data0@m[drop=TRUE], dim = d, dimnames = dmn)
+    data$wl <- array(data0@landings.wt[drop=TRUE], dim = d, dimnames = dmn)
+    data$wd <- array(data0@discards.wt[drop=TRUE], dim = d, dimnames = dmn)
+    data$wt <- array(data0@stock.wt[drop=TRUE], dim = d, dimnames = dmn)
+    data$mat <- array(data0@mat[drop=TRUE], dim = d, dimnames = dmn)
+    data$fec <- array(1, dim = d, dimnames = dmn)
+    data$spwn <- array(data0@harvest.spwn, dim = d, dimnames = dmn)
+    data$f    <- array(data0@harvest, dim = d, dimnames = dmn)
+    data$fd  <- array(data0@harvest*(data0@discards.n/data0@catch.n), dim = d, dimnames = dmn)
+    data$fl  <- array(data0@harvest*(data0@landings.n/data0@catch.n), dim = d, dimnames = dmn)
+    data$caa  <- array(data0@catch.n, dim = d, dimnames = dmn)
+    data$laa  <- array(data0@landings.n, dim = d, dimnames = dmn)
+    data$daa  <- array(data0@discards.n, dim = d, dimnames = dmn)
     
     ages     <- as.numeric(dimnames(data0@m)[[1]]) 
     hist.yrs <- dimnames(data0@m)[[2]] 
@@ -194,10 +196,20 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
                   spwn = flq)
   }
   
-  res@n[,hist.yrs]  <- data$n
-  res@m[,hist.yrs]  <- data$m
-  res@wt[,hist.yrs] <- data$wt
-  res@spwn[,hist.yrs]  <- data$spwn
+  if(length(dim(data$n)) > 2){
+    res@n[,hist.yrs]  <- data$n[,hist.yrs,] 
+    res@m[,hist.yrs]  <- data$m[,hist.yrs,] 
+    res@wt[,hist.yrs] <- data$wt[,hist.yrs,] 
+    res@spwn[,hist.yrs]  <- data$spwn[,hist.yrs,] 
+  }
+  if(length(dim(data$n)) == 2){
+    res@n[,hist.yrs]  <- data$n[,hist.yrs] 
+    res@m[,hist.yrs]  <- data$m[,hist.yrs] 
+    res@wt[,hist.yrs] <- data$wt[,hist.yrs] 
+    res@spwn[,hist.yrs]  <- data$spwn[,hist.yrs] 
+  }
+  
+  
   for(sl in c('n', 'wt', 'm', 'spwn')) {
     units(res)[[sl]] <- unit[[sl]]
   }
