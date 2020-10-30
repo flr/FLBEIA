@@ -81,8 +81,8 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     #------------------------------------------------------------------
     if(effort.model == 'MaxProfit'){
       QS   <- sapply(names(biols), function(x){           # 
-                    yr.share    <- advice$quota.share[[x]][,yr,,,,iters, drop=T]           # [nf]
-                    ss.share    <- fleets.ctrl$seasonal.share[[x]][,yr,,ss,,iters, drop=T] # [nf]
+                    yr.share    <- advice$quota.share[[x]][flnms,yr,,,,iters, drop=T]           # [nf]
+                    ss.share    <- fleets.ctrl$seasonal.share[[x]][flnms,yr,,ss,,iters, drop=T] # [nf]
                     quota.share <- yr.share*ss.share # [nf]
                     quota.share[is.na(quota.share)] <- 0
                     return(quota.share)})
@@ -92,8 +92,8 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
     else{
       QS   <- lapply(stnms, function(x){           # list of stocks, each stock [nf,it]
         # Calculate QS by fleet for the year and season
-        yr.share    <- advice$quota.share[[x]][,yr,, drop=T]        # [nf,it]
-        ss.share    <- fleets.ctrl$seasonal.share[[x]][,yr,,ss, drop=T]   # [nf,it]
+        yr.share    <- advice$quota.share[[x]][flnms,yr,, drop=T]        # [nf,it]
+        ss.share    <- fleets.ctrl$seasonal.share[[x]][flnms,yr,,ss, drop=T]   # [nf,it]
         quota.share <- matrix(yr.share*ss.share, length(flnms), nit, dimnames = list(flnms, iters))
         quota.share[is.na(quota.share)] <- 0
         return(quota.share)})         
