@@ -33,7 +33,8 @@ Imports:
   plyr,
   purrr,
   tidyr,
-  tidyverse
+  tidyverse,
+  tibble
 Suggests: R.rsp, spict, XLConnect
 Additional_repositories: http://flr-project.org/R
 License: GPL (>= 2)
@@ -141,4 +142,4 @@ Collate:
     "Results_Summary.R"
     "Results_SummaryPlots.R"
 VignetteBuilder: R.rsp
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

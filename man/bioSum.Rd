@@ -53,7 +53,8 @@ fltStkSum(
   years = dimnames(obj$biols[[1]]@n)[[2]],
   byyear = TRUE,
   long = FALSE,
-  scenario = "bc"
+  scenario = "bc",
+  verbose = TRUE
 )
 
 fltStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
