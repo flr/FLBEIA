@@ -229,6 +229,10 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
   mat(res)[,sim.yrs] <- yearMeans(res@mat$mat[,mean.yrs]) #res@mat$mat[,sim.yrs] <- yearMeans(res@mat$mat[,mean.yrs])
   fec(res)[,sim.yrs] <- yearMeans(res@fec$fec[,mean.yrs]) #res@fec$fec[,sim.yrs] <- yearMeans(res@fec$fec[,mean.yrs])
   
+  # correction for stocks aggregated in biomass age = "all"
+  if (is.na(ages)) 
+    dimnames(res)$age <- "all"
+  
   return(res)
          
 }
