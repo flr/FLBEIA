@@ -671,6 +671,15 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
     mutate_at(vars(c(2,4)), as.character) %>% mutate_at(vars(c(2,4)), as.numeric) %>%
     dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$season, .data$iter) %>% 
     mutate(catch.iyv = catch/dplyr::lag(catch), land.iyv = landings/dplyr::lag(landings), disc.iyv = discards/dplyr::lag(discards)) 
+  
+  # Set consistent classess in summary outputs
+  # lapply(res, class)
+  # "stock"     "year"      "season"    "iter"      "scenario"  "rec":"disc.iyv"
+  # character   numeric     character   numeric     character   numeric
+  
+  res <- res %>% mutate(stock = as.character(stock),
+                        season = as.character(season))
+  
   # year or seasonal?
   if(byyear == TRUE){
     if(length(unique(res$season)) >1){
@@ -921,6 +930,14 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       res<- bind_rows(res,res.fl)
     }
   }
+  
+  # Set consistent classess in summary outputs
+  # lapply(res, class)
+  # "year"        "fleet"    "iter"       "catch":"quotaUpt"
+  #  numeric      factor     numeric      numeric
+  
+  res <- res %>% mutate( year = as.numeric(year),
+                         iter = as.numeric(iter))
   
   if(long == TRUE){ # transform res into long format
     ind <- if_else(byyear == TRUE , 3,4)
@@ -1176,6 +1193,14 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
     res <- do.call("rbind", resfl)
   }
   
+  # Set consistent classess in summary outputs
+  # lapply(res, class)
+  # "year"     "fleet"    "stock"    "iter"     "catch":"quotaUpt"
+  # numeric    character  character  numeric    numeric
+  
+  res <- res %>% mutate( year = as.numeric(year),
+                         iter = as.numeric(iter))
+  
   if(long == TRUE){ # transform res into long format
     ind <- if_else(byyear == TRUE , 4,5)
     indicator.nms <- names(res)[-c(1:ind)]
@@ -1367,6 +1392,14 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
     
   }
   
+  # Set consistent classess in summary outputs
+  # lapply(res, class)
+  # "year"     "fleet"    "metier"   "stock"    "iter"     "landings":"price"
+  # numeric    character  character  character  numeric    numeric
+  
+  res <- res %>% mutate( year = as.numeric(year),
+                         iter = as.numeric(iter))
+  
   if(long == TRUE){ # transform res into long format
     ind <- if_else(byyear == TRUE , 5,6)
     indicator.nms <- names(res)[-c(1:ind)]
@@ -1499,6 +1532,14 @@ mtSum <- function(obj, flnms = names(obj$fleets),
     }
   }
   
+  # Set consistent classess in summary outputs
+  # lapply(res, class)
+  # "year"     "fleet"    "metier"   "iter"     "effshare":"grossValue"
+  # numeric    character  character  numeric    numeric
+  
+  res <- res %>% mutate( year = as.numeric(year),
+                         iter = as.numeric(iter))
+  
   if(long == TRUE){ # transform res into long format
     ind <- if_else(byyear == TRUE , 4,5)
     indicator.nms <- names(res)[-c(1:ind)]
@@ -1577,10 +1618,29 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   x4 <- as.tbl(array2df(obj$advice$TAC, label.x = 'tac')[,c('stock', 'year', 'iter', 'tac')])
                 
   res <- full_join(res, x4, by = c('stock', 'year', 'iter')) %>% mutate(scenario = scenario)
-                
+  
   # Wide format 
   res <- res %>%  dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$iter) %>% mutate(quotaUpt = catch/tac, discRat = discards/catch)
                 
+  # Reorder
+  res <- res %>% select(stock, year, iter, scenario, !c('stock','year','iter','scenario'))
+  
+  # Set consistent classess in summary outputs
+  # lapply(res, class)
+  # "stock"     "year"      "iter"      "scenario"  "catch":"discRat"
+  # character   numeric     numeric      character  numeric
+  
+  res <- res %>% mutate( year = as.numeric(as.character(year)),
+                         iter = as.numeric(as.character(iter)))
+  
+  # Set consistent classess in summary outputs
+  # lapply(res, class)
+  # "stock"    "year"     "iter"     "catch":"discRat"
+  # character   numeric   numeric    numeric
+  
+  res <- res %>% mutate( year = as.numeric(year),
+                         iter = as.numeric(as.character(iter)))
+  
   # reshaping this to the long format
    if(long == TRUE) res <- res %>% gather(key='indicator', value='value', .data$catch, .data$discards, .data$discRat, .data$landings, .data$quotaUpt, .data$tac)
                 
