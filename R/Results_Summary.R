@@ -1086,7 +1086,7 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 
 #------------------------------------------------------------------------------#
 # fltStkSum :: data.frame[scenario, year, season, stock, fleet, iter, ||,|| 
-#        landings, discards, catch, discRat, price, tacshare, quota, quotaUpt] 
+#        landings, discards, catch, discRat, price, tacshare, quota, quotaUpt, choke] 
 #------------------------------------------------------------------------------#
 #' @rdname bioSum
 #' @aliases fltStkSum
@@ -1150,7 +1150,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
                  price=c(price_flbeia(fl, st)[,years]),
                  tacshare=c(tacshare[,years]),
                  quota=c(quota[,years]),
-                 quotaUpt=catch/quota)
+                 quotaUpt=catch/quota, choke = ifelse(round(catch/quota,2)>=1, TRUE, FALSE))
         resflst[[st]] <- res.fl.st
         if(verbose){print(paste("| fleet =", f, "|", "stock =", st, "|"))}
       }
@@ -1184,7 +1184,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
                  price=c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(unitSums(landWStock.f(fl, st)[,years])))/landings),
                  tacshare=c(advice$quota.share[[st]][f,][,years]),
                  quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
-                 quotaUpt=catch/quota)
+                 quotaUpt=catch/quota, choke = ifelse(round(catch/quota,2)>=1, TRUE, FALSE))
         resflst[[st]] <- res.fl.st
         if(verbose){print(paste("| fleet =", f, "|", "stock =", st, "|"))}
       }
@@ -1221,22 +1221,42 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
 fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   
+  
   p_names <- paste("q",ifelse(nchar(substr(prob,3, nchar(prob)))==1, 
                               paste(substr(prob,3, nchar(prob)), 0, sep = ""), 
                               substr(prob,3, nchar(prob))), sep = "")
   
-  
   if(dim(obj)[2] < 10){ # the object is in long format
+    
+    # The choke indicator is treated differently, as it is a logical variable, then when doing summary we calculate the proportion
+    # and not the quantiles.
+    objCh <- obj %>% filter(indicator == 'choke')
+    obj   <- obj %>% filter(indicator != 'choke')
     
     if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season, .data$fleet, .data$stock, .data$indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(.data$value, prob=prob, na.rm = TRUE))) %>% 
         unnest(c(.data$quantiles,.data$value)) %>% tidyr::spread(key='quantiles', value='value')
+      # choke indicator
+      resCh <- objCh %>% dplyr::group_by(.data$scenario,.data$year,.data$season, .data$fleet, .data$stock, .data$indicator) %>%
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+      
+      resCh <- bind_cols(resCh[,1:6],NA, resCh[,7], NA)
+      names(resCh)[7:9] <- names(res)[7:9]
     }else{
       res <- obj %>% dplyr::group_by(.data$scenario,.data$year,.data$fleet, .data$stock, .data$indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(.data$value, prob=prob, na.rm = TRUE))) %>% 
-        unnest(c(.data$quantiles,.data$value))  %>% tidyr::spread(key='quantiles', value='value')}
-  }else{
+        unnest(c(.data$quantiles,.data$value))  %>% tidyr::spread(key='quantiles', value='value')
+      # choke indicator
+      resCh <- objCh %>% dplyr::group_by(.data$scenario,.data$year,.data$fleet, .data$stock, .data$indicator) %>%
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+      
+      resCh <- bind_cols(resCh[,1:5],NA, resCh[,6], NA)
+      names(resCh)[6:8] <- names(res)[6:8]
+    }
+    res   <- bind_rows(res, resCh)
+    
+  }else{ # the object is in wide format
     p_funs <- purrr::map(prob, ~purrr::partial(quantile, prob = .x, na.rm = TRUE)) %>% 
       purrr::set_names(nm = p_names)
     
@@ -1244,12 +1264,24 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       sum.nms <- names(obj)[-c(1:6)]
       res <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season,.data$fleet, .data$stock) %>%  
         summarise_at(c(sum.nms),.funs =  p_funs)
+      
+      # choke indicator
+      res <- res %>% mutate(choke_q95 = NA, choke_q50 = NA, choke_q05 = NA)
+      resCh <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season,.data$fleet, .data$stock) %>%  
+        dplyr::summarise(choke_q50 = sum(choke, na.rm=T)/dplyr:::n()) 
+      res$choke_q50 <- resCh$choke_q50
     }
     else{
       sum.nms <- names(obj)[-c(1:5)]
       res <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$fleet, .data$stock) %>%  
-        summarise_at(c(sum.nms),.funs =  p_funs)      
+        summarise_at(c(sum.nms),.funs =  p_funs)   
+      # choke indicator
+      res <- res %>% mutate(choke_q95 = NA, choke_q50 = NA, choke_q05 = NA)
+      resCh <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$fleet, .data$stock) %>%  
+        dplyr::summarise(choke_q50 = sum(choke, na.rm=T)/dplyr:::n()) 
+      res$choke_q50 <- resCh$choke_q50
     }}
+  
   
   return(res)
 }
