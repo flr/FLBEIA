@@ -17,10 +17,12 @@
 
 #' @title Biological summary functions
 #' 
-#' @description These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. 
+#' @description These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. Also indicators comparing the reference points with the actual values, Bpa, Blim, Bmsy, Fpa, Flim and Fmsy, so the biomass indicators are TRUE if the biomass is above them, and the fishing mortality indicators are TRUE if the fishing mortality is below them. ssb2Bmsy and f2Fmsy return the ratio between SSB and F and the MSY reference point.   
 #' 
 #' @param  obj The output of the FLBEIA function.
 #' @param  years The  years for which the indicators are extracted.
+#' @param  brp a data frame with columns stock, iter and one colums per reference point with the value of the biological reference points per stock and iteration. 
+#' The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.  
 #' 
 #' @return B_flbeia, F_flbeia... return an array with three dimensions (stock, year and iter).
 #' The summary_flbeia function returns an array with 4 dimensions (stock, year, iter, indicator) with the value of all the indicators. 
@@ -653,8 +655,8 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 # bioSum :: data.frame[scenario, year, stock, iter, ||,||
 #        rec, ssb, f, biomass, catch, landings, discards, land.iyv, disc.iyv, catch.iyv]
 #------------------------------------------------------------------------------#
-bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year, long = FALSE, scenario = 'bc', byyear = TRUE, ssb_season = NULL){
- 
+bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year, long = FALSE, scenario = 'bc', byyear = TRUE, ssb_season = NULL, brp){
+  
   # For avoiding warnings in R CMD CHECK
   year <- season <- NULL
   
@@ -693,41 +695,73 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
       res <- full_join(res1, res2, by = c('stock', 'year', 'iter', 'scenario'))
       res <- full_join(res, res3, by = c('stock', 'year', 'iter', 'scenario'))
       res <- res %>% arrange(year) %>%  dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$iter) %>%  mutate(catch.iyv = catch/dplyr::lag(catch), land.iyv = landings/dplyr::lag(landings),
-                                                         disc.iyv = discards/dplyr::lag(discards)) 
+                                                                                                                         disc.iyv = discards/dplyr::lag(discards)) 
     }
     else{
       res <- res %>% ungroup() %>% select(-season)
     }
   }
   
+  # If brp is not provided create them with NAs.
+  if(is.null(brp)) brp <- as_tibble(cbind(expand.grid(stock = unique(res$stock), iter = unique(res$iter)),
+                                          Fmsy = NA, Bmsy = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
+  
+  brp <- as_tibble(brp) %>% ungroup() %>% group_by(stock, iter)
+  res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(res, brp)
+  res <- res %>% mutate(ssb2Bmsy = ssb/Bmsy, f2Fmsy = f/Fmsy,
+                        Bpa  = ifelse(ssb>Bpa, TRUE, FALSE), Fpa = ifelse(f<Fpa, TRUE, FALSE),
+                        Blim = ifelse(ssb>Blim, TRUE, FALSE), Flim = ifelse(f<Flim, TRUE, FALSE),
+                        Bmsy = ifelse(ssb>Bmsy, TRUE, FALSE), Fmsy = ifelse(f<Fmsy, TRUE, FALSE))
+  
   # reshaping this to the long format
   if(long == TRUE)
-  res <- res %>% gather(key='indicator', value='value', .data$biomass, .data$catch, .data$discards, .data$f, .data$landings, .data$rec, .data$ssb, .data$catch.iyv, .data$land.iyv, .data$disc.iyv)
+    res <- res %>% gather(key='indicator', value='value', biomass:f2Fmsy)
   
   return(res)
 }
 
+
 #' @rdname bioSum
 #' @aliases bioSumQ
-bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
+bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
+  
   p_names <- paste("q",ifelse(nchar(substr(prob,3, nchar(prob)))==1, 
                               paste(substr(prob,3, nchar(prob)), 0, sep = ""), 
                               substr(prob,3, nchar(prob))), sep = "")
   
   if(dim(obj)[2] <= 7){ # the object is in long format
     
-    if('season' %in% names(obj))
+    objRP <- obj %>% filter(indicator %in% c('Fpa', 'Flim', 'Bpa', 'Blim', 'Fmsy', 'Bmsy'))
+    obj   <- obj %>% filter(!(indicator %in% c('Fpa', 'Flim', 'Bpa', 'Blim', 'Fmsy', 'Bmsy')))
+    
+    if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$season, .data$indicator) %>%
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(.data$value, prob=prob, na.rm = TRUE))) %>% 
         unnest(c(.data$quantiles,.data$value)) %>% tidyr::spread(key='quantiles', value='value')
-    
-    else
       
+      # BRP indicators
+      resRP <- objRP %>% dplyr::group_by(.data$scenario,.data$year,.data$season, .data$stock, .data$indicator) %>%
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+      
+      resRP <- bind_cols(resRP[,1:5],NA, resRP[,6], NA)
+      names(resRP)[6:8] <- names(res)[6:8]
+      
+    }
+    
+    else{
       res <- obj %>% dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$indicator) %>% 
         dplyr::summarise(quantiles = list(p_names), value=list(quantile(.data$value, prob=prob, na.rm = TRUE))) %>% 
         unnest(c(.data$quantiles,.data$value)) %>% tidyr::spread(key='quantiles', value='value')
-    
+      
+      # BRP indicators
+      resRP <- objRP %>% dplyr::group_by(.data$scenario,.data$year, .data$stock, .data$indicator) %>%
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+      
+      resRP <- bind_cols(resRP[,1:4],NA, resRP[,5], NA)
+      names(resRP)[5:7] <- names(res)[5:7]
+    }
+    res   <- bind_rows(res, resRP)
   }
   else{
     
@@ -737,8 +771,24 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
     if('season' %in% names(obj)){
       
       res <- obj %>% dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$season) %>%  
-        summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
+        summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 
+                       'catch.iyv', 'land.iyv', 'disc.iyv', 'ssb2Bmsy', 'f2Fmsy'),
                      .funs =  p_funs)
+      # RP indicator
+      res <- res %>% mutate(Blim_q95 = NA, Blim_q50 = NA, Blim_q05 = NA,
+                            Bpa_q95 = NA,  Bpa_q50 = NA,  Bpa_q05 = NA,
+                            Bmsy_q95 = NA, Bmsy_q50 = NA, Bmsy_q05 = NA,
+                            Flim_q95 = NA, Flim_q50 = NA, Flim_q05 = NA,
+                            Fpa_q95 = NA,  Fpa_q50 = NA,  Fpa_q05 = NA,
+                            Fmsy_q95 = NA, Fmsy_q50 = NA, Fmsy_q05 = NA)
+      
+      resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season, .data$stock) %>%  
+        dplyr::summarise(Blim_q50 = sum(Blim, na.rm=T)/dplyr:::n(),
+                         Bpa_q50  = sum(Bpa, na.rm=T)/dplyr:::n(),
+                         Bmsy_q50 = sum(Bmsy, na.rm=T)/dplyr:::n(),
+                         Flim_q50 = sum(Flim, na.rm=T)/dplyr:::n(),
+                         Fpa_q50  = sum(Fpa, na.rm=T)/dplyr:::n(),
+                         Fmsy_q50 = sum(Fmsy, na.rm=T)/dplyr:::n())
     }
     else{
       
@@ -746,13 +796,34 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
         summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 'catch.iyv', 'land.iyv', 'disc.iyv'),
                      .funs =  p_funs)
       
+      # RP indicator
+      res <- res %>% mutate(Blim_q95 = NA, Blim_q50 = NA, Blim_q05 = NA,
+                            Bpa_q95 = NA,  Bpa_q50 = NA,  Bpa_q05 = NA,
+                            Bmsy_q95 = NA, Bmsy_q50 = NA, Bmsy_q05 = NA,
+                            Flim_q95 = NA, Flim_q50 = NA, Flim_q05 = NA,
+                            Fpa_q95 = NA,  Fpa_q50 = NA,  Fpa_q05 = NA,
+                            Fmsy_q95 = NA, Fmsy_q50 = NA, Fmsy_q05 = NA)
+      
+      resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$stock) %>%  
+        dplyr::summarise(Blim_q50 = sum(Blim, na.rm=T)/dplyr:::n(),
+                         Bpa_q50  = sum(Bpa, na.rm=T)/dplyr:::n(),
+                         Bmsy_q50 = sum(Bmsy, na.rm=T)/dplyr:::n(),
+                         Flim_q50 = sum(Flim, na.rm=T)/dplyr:::n(),
+                         Fpa_q50  = sum(Fpa, na.rm=T)/dplyr:::n(),
+                         Fmsy_q50 = sum(Fmsy, na.rm=T)/dplyr:::n())
+      
     }
+    res$Blim_q50 <- resRP$Blim_q50
+    res$Bpa_q50  <- resRP$Bpa_q50
+    res$Bmsy_q50 <- resRP$Bmsy_q50
+    res$Flim_q50 <- resRP$Flim_q50
+    res$Fpa_q50  <- resRP$Fpa_q50
+    res$Fmsy_q50 <- resRP$Fmsy_q50
     
   }
   
   return(res)
-  }
-
+}
 
 #------------------------------------------------------------------------------#
 # fltSum :: data.frame[scenario, year, season, fleet, iter, ||,|| 
