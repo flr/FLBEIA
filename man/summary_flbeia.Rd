@@ -40,13 +40,16 @@ summary_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 \item{covars}{List of FLQuants with information on covariates.}
 
 \item{obj}{The output of the FLBEIA function.}
+
+\item{brp}{a data frame with columns stock, iter and one colums per reference point with the value of the biological reference points per stock and iteration. 
+The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.}
 }
 \value{
 B_flbeia, F_flbeia... return an array with three dimensions (stock, year and iter).
 The summary_flbeia function returns an array with 4 dimensions (stock, year, iter, indicator) with the value of all the indicators.
 }
 \description{
-These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators.
+These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. Also indicators comparing the reference points with the actual values, Bpa, Blim, Bmsy, Fpa, Flim and Fmsy, so the biomass indicators are TRUE if the biomass is above them, and the fishing mortality indicators are TRUE if the fishing mortality is below them. ssb2Bmsy and f2Fmsy return the ratio between SSB and F and the MSY reference point.
 }
 \details{
 \itemize{

@@ -29,7 +29,8 @@ bioSum(
   long = FALSE,
   scenario = "bc",
   byyear = TRUE,
-  ssb_season = NULL
+  ssb_season = NULL,
+  brp
 )
 
 bioSumQ(obj, prob = c(0.95, 0.5, 0.05))
@@ -151,6 +152,9 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 \item{byyear}{logical. The indicators should be provided at season or year level? Default TRUE.}
 
 \item{ssb_season}{If byyear = TRUE, the season in which ssb will be taken.}
+
+\item{brp}{a data frame with columns stock, iter and one colums per reference point with the value of the biological reference points per stock and iteration. 
+The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.}
 
 \item{prob}{a numeric vector with the probabilities used to calculate the quantiles.}
 
