@@ -655,7 +655,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 # bioSum :: data.frame[scenario, year, stock, iter, ||,||
 #        rec, ssb, f, biomass, catch, landings, discards, land.iyv, disc.iyv, catch.iyv]
 #------------------------------------------------------------------------------#
-bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year, long = FALSE, scenario = 'bc', byyear = TRUE, ssb_season = NULL, brp){
+bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year, long = FALSE, scenario = 'bc', byyear = TRUE, ssb_season = NULL, brp = NULL){
   
   # For avoiding warnings in R CMD CHECK
   year <- season <- NULL
@@ -702,7 +702,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
     }
   }
   
-  # If brp is not provided create them with NAs.
+  # If brp is not provided create it with NAs.
   if(is.null(brp)) brp <- as_tibble(cbind(expand.grid(stock = unique(res$stock), iter = unique(res$iter)),
                                           Fmsy = NA, Bmsy = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
   
