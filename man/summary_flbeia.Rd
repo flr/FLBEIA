@@ -40,9 +40,6 @@ summary_flbeia(obj, years = dimnames(obj$biols[[1]]@n)$year)
 \item{covars}{List of FLQuants with information on covariates.}
 
 \item{obj}{The output of the FLBEIA function.}
-
-\item{brp}{a data frame with columns stock, iter and one colums per reference point with the value of the biological reference points per stock and iteration. 
-The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.}
 }
 \value{
 B_flbeia, F_flbeia... return an array with three dimensions (stock, year and iter).

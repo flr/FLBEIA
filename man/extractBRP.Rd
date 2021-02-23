@@ -8,14 +8,35 @@ If not, values are set to NA.}
 extractBRP(advice.ctrl, stkn)
 }
 \arguments{
-\item{advice.ctrl}{A list with advice controls as the FLBEIA function argument advice.ctrl.}
+\item{advice.ctrl}{A list with the settings to control the advice model for each stock (the HCR for each stock, the reference points used in the HCR, additional parameters, ...)}
+
+\item{stkn}{Names of the stocks.}
 }
 \value{
-A new FLBEIA output object with all the iterations joined.
+A data frame with columns stock, iter and one colum per reference point with the value 
+        of the biological reference points per stock and iteration. The used reference points are 
+        Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.
 }
 \description{
 The output can be used for the brp argument of \code{bioSum} function.
 }
+\examples{
+\dontrun{
+
+library(FLBEIA)
+
+data(one)
+extractBRP(oneAdvC, stkn = names(oneBio))
+
+data(oneIt)
+extractBRP(oneItAdvC, stkn = names(oneItBio))
+
+data(multi)
+extractBRP(multiAdvC, stkn = names(multiBio))
+                          scenario = 'alternative')
+
+}
+}
 \seealso{
-\code{\link{predictModel}}
+\code{\link{bioSum}}
 }

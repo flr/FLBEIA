@@ -1071,7 +1071,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #' @param fleet An element of FLfleets object.
 #' @param stock An FLStock object.
 #' @param flnm Names of the fleets.
-#' @inheritParams FLBEIA
+# @inheritParams FLBEIA
 #'   
 #' 
 #' @details
