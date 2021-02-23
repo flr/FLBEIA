@@ -20,9 +20,7 @@
 #' @description These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. Also indicators comparing the reference points with the actual values, Bpa, Blim, Bmsy, Fpa, Flim and Fmsy, so the biomass indicators are TRUE if the biomass is above them, and the fishing mortality indicators are TRUE if the fishing mortality is below them. ssb2Bmsy and f2Fmsy return the ratio between SSB and F and the MSY reference point.   
 #' 
 #' @param  obj The output of the FLBEIA function.
-#' @param  years The  years for which the indicators are extracted.
-#' @param  brp a data frame with columns stock, iter and one colums per reference point with the value of the biological reference points per stock and iteration. 
-#' The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.  
+#' @param  years The  years for which the indicators are extracted. 
 #' 
 #' @return B_flbeia, F_flbeia... return an array with three dimensions (stock, year and iter).
 #' The summary_flbeia function returns an array with 4 dimensions (stock, year, iter, indicator) with the value of all the indicators. 
@@ -385,6 +383,9 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @param Prflim named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate economic risk yearly.
 #' @param discF Discount rate.
 #' @param y0 character. Reference year.
+#' @param verbose logical. If TRUE, prints the function steps.
+#' @param  brp a data frame with columns stock, iter and one colum per reference point with the value of the biological reference points per stock and iteration. 
+#' The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy. 
 
 #' @examples
 #'\dontrun{
@@ -707,7 +708,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
                                           Fmsy = NA, Bmsy = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
   
   brp <- as_tibble(brp) %>% ungroup() %>% group_by(stock, iter)
-  res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(res, brp)
+  res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(brp)
   res <- res %>% mutate(ssb2Bmsy = ssb/Bmsy, f2Fmsy = f/Fmsy,
                         Bpa  = ifelse(ssb>Bpa, TRUE, FALSE), Fpa = ifelse(f<Fpa, TRUE, FALSE),
                         Blim = ifelse(ssb>Blim, TRUE, FALSE), Flim = ifelse(f<Flim, TRUE, FALSE),
@@ -742,7 +743,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       
       # BRP indicators
       resRP <- objRP %>% dplyr::group_by(.data$scenario,.data$year,.data$season, .data$stock, .data$indicator) %>%
-        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr::n()) 
       
       resRP <- bind_cols(resRP[,1:5],NA, resRP[,6], NA)
       names(resRP)[6:8] <- names(res)[6:8]
@@ -756,7 +757,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       
       # BRP indicators
       resRP <- objRP %>% dplyr::group_by(.data$scenario,.data$year, .data$stock, .data$indicator) %>%
-        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr::n()) 
       
       resRP <- bind_cols(resRP[,1:4],NA, resRP[,5], NA)
       names(resRP)[5:7] <- names(res)[5:7]
@@ -783,12 +784,12 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                             Fmsy_q95 = NA, Fmsy_q50 = NA, Fmsy_q05 = NA)
       
       resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season, .data$stock) %>%  
-        dplyr::summarise(Blim_q50 = sum(Blim, na.rm=T)/dplyr:::n(),
-                         Bpa_q50  = sum(Bpa, na.rm=T)/dplyr:::n(),
-                         Bmsy_q50 = sum(Bmsy, na.rm=T)/dplyr:::n(),
-                         Flim_q50 = sum(Flim, na.rm=T)/dplyr:::n(),
-                         Fpa_q50  = sum(Fpa, na.rm=T)/dplyr:::n(),
-                         Fmsy_q50 = sum(Fmsy, na.rm=T)/dplyr:::n())
+        dplyr::summarise(Blim_q50 = sum(Blim)/dplyr::n(),
+                         Bpa_q50  = sum(Bpa)/dplyr::n(),
+                         Bmsy_q50 = sum(Bmsy)/dplyr::n(),
+                         Flim_q50 = sum(Flim)/dplyr::n(),
+                         Fpa_q50  = sum(Fpa)/dplyr::n(),
+                         Fmsy_q50 = sum(Fmsy)/dplyr::n())
     }
     else{
       
@@ -805,12 +806,12 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                             Fmsy_q95 = NA, Fmsy_q50 = NA, Fmsy_q05 = NA)
       
       resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$stock) %>%  
-        dplyr::summarise(Blim_q50 = sum(Blim, na.rm=T)/dplyr:::n(),
-                         Bpa_q50  = sum(Bpa, na.rm=T)/dplyr:::n(),
-                         Bmsy_q50 = sum(Bmsy, na.rm=T)/dplyr:::n(),
-                         Flim_q50 = sum(Flim, na.rm=T)/dplyr:::n(),
-                         Fpa_q50  = sum(Fpa, na.rm=T)/dplyr:::n(),
-                         Fmsy_q50 = sum(Fmsy, na.rm=T)/dplyr:::n())
+        dplyr::summarise(Blim_q50 = sum(Blim)/dplyr::n(),
+                         Bpa_q50  = sum(Bpa)/dplyr::n(),
+                         Bmsy_q50 = sum(Bmsy)/dplyr::n(),
+                         Flim_q50 = sum(Flim)/dplyr::n(),
+                         Fpa_q50  = sum(Fpa)/dplyr::n(),
+                         Fmsy_q50 = sum(Fmsy)/dplyr::n())
       
     }
     res$Blim_q50 <- resRP$Blim_q50
@@ -1310,7 +1311,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
         unnest(c(.data$quantiles,.data$value)) %>% tidyr::spread(key='quantiles', value='value')
       # choke indicator
       resCh <- objCh %>% dplyr::group_by(.data$scenario,.data$year,.data$season, .data$fleet, .data$stock, .data$indicator) %>%
-        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr::n()) 
       
       resCh <- bind_cols(resCh[,1:6],NA, resCh[,7], NA)
       names(resCh)[7:9] <- names(res)[7:9]
@@ -1320,7 +1321,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
         unnest(c(.data$quantiles,.data$value))  %>% tidyr::spread(key='quantiles', value='value')
       # choke indicator
       resCh <- objCh %>% dplyr::group_by(.data$scenario,.data$year,.data$fleet, .data$stock, .data$indicator) %>%
-        dplyr::summarise(value = sum(value, na.rm=T)/dplyr:::n()) 
+        dplyr::summarise(value = sum(value, na.rm=T)/dplyr::n()) 
       
       resCh <- bind_cols(resCh[,1:5],NA, resCh[,6], NA)
       names(resCh)[6:8] <- names(res)[6:8]
@@ -1339,7 +1340,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       # choke indicator
       res <- res %>% mutate(choke_q95 = NA, choke_q50 = NA, choke_q05 = NA)
       resCh <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season,.data$fleet, .data$stock) %>%  
-        dplyr::summarise(choke_q50 = sum(choke, na.rm=T)/dplyr:::n()) 
+        dplyr::summarise(choke_q50 = sum(choke, na.rm=T)/dplyr::n()) 
       res$choke_q50 <- resCh$choke_q50
     }
     else{
@@ -1349,7 +1350,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       # choke indicator
       res <- res %>% mutate(choke_q95 = NA, choke_q50 = NA, choke_q05 = NA)
       resCh <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$fleet, .data$stock) %>%  
-        dplyr::summarise(choke_q50 = sum(choke, na.rm=T)/dplyr:::n()) 
+        dplyr::summarise(choke_q50 = sum(choke, na.rm=T)/dplyr::n()) 
       res$choke_q50 <- resCh$choke_q50
     }}
   
@@ -1716,9 +1717,9 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   x3 <- Reduce(rbind, lapply(stknms, function(x)  cbind(stock = x, 
                                                                array2df(apply(discWStock(obj$fleets, x), c(2,6), sum), label.x = 'discards')[,c('year', 'iter', 'discards')])))
   
-  res <- as.tbl(cbind(x1,discards = x3[,4], landings = x3[,4]))
+  res <- as_tibble(cbind(x1,discards = x3[,4], landings = x3[,4]))
                 
-  x4 <- as.tbl(array2df(obj$advice$TAC, label.x = 'tac')[,c('stock', 'year', 'iter', 'tac')])
+  x4 <- as_tibble(array2df(obj$advice$TAC, label.x = 'tac')[,c('stock', 'year', 'iter', 'tac')])
                 
   res <- full_join(res, x4, by = c('stock', 'year', 'iter')) %>% mutate(scenario = scenario)
   
