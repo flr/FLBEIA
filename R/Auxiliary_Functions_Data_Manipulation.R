@@ -161,8 +161,102 @@ setMethod("iter", signature(obj="NULL"),
 
 
 
- 
+#-------------------------------------------------------------------------------
+# extractBRP(advice.ctrl): Extracts reference points from advice.ctrl object
+#                          for calculating summary statistics with bioSum
+#-------------------------------------------------------------------------------
 
+#' Extracts Bpa, Blim, Bmsy, Fpa, Flim and Fmsy reference points from advice.ctrl object (if available),
+#' If not, values are set to NA.
+#' 
+#' The output can be used for the brp argument of \code{bioSum} function.
+#'
+# @param advice.ctrl A list with advice controls as the FLBEIA function argument advice.ctrl.
+#' @param stkn Names of the stocks.
+#' @inheritParams FLBEIA
+#' 
+#' @return A data frame with columns stock, iter and one colum per reference point with the value 
+#'         of the biological reference points per stock and iteration. The used reference points are 
+#'         Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.
+#' 
+#' @seealso \code{\link{bioSum}}
+#' 
 
+#' @examples
+#'\dontrun{
+#'
+#' library(FLBEIA)
+#'
+#' data(one)
+#' extractBRP(oneAdvC, stkn = names(oneBio))
+#' 
+#' data(oneIt)
+#' extractBRP(oneItAdvC, stkn = names(oneItBio))
+#' 
+#' data(multi)
+#' extractBRP(multiAdvC, stkn = names(multiBio))
+#'                           scenario = 'alternative')
+#' 
+#' }
+
+extractBRP <- function(advice.ctrl, stkn) {
+  
+  
+  refpts <- c("Bpa", "Blim", "Bmsy", "Fpa", "Flim", "Fmsy")
+  
+  its <- lapply(advice.ctrl, function(y) dimnames(y$ref.pts)[[2]] %>% as.numeric()) %>% unlist() %>% unique()
+  
+  # check class
+  
+  if (!is.list(advice.ctrl)) stop("advice.ctrl argument must be a list")
+  if (!is.character(stkn))  stop("stkn argument must be a character vector")
+  
+  
+  # check if there is one element per stkn
+  
+  if (any(!stkn %in% names(advice.ctrl))) 
+    stop( paste0("Missing stocks in the list: ", paste(stkn[which(!stkn %in% names(advice.ctrl))], collapse = ", ")))
+  
+  # out <- setNames(data.frame(matrix(ncol = 8, nrow = 0)),c("stock", "iter", refpts))
+  
+  out <- data.frame(stock = character(), iter  = numeric(),
+                    Bpa   = numeric(), Blim  = numeric(), Bmsy  = numeric(), 
+                    Fpa   = numeric(), Flim  = numeric(), Fmsy  = numeric())
+  
+  for (st in stkn) {
+    
+    rp <- advice.ctrl[[st]]$ref.pts 
+    
+    if(is.null(rp) | !any(dimnames(rp)[[1]] %in% refpts)) {
+      
+      rp.df <- data.frame(stock = st, 
+                          iter = its)
+      
+    } else {
+      
+      # check dimensions
+      if (any(as.numeric(dimnames(rp)[[2]]) != its)) 
+        stop( paste("Check iterations in reference points for",st))
+      
+      # extract values
+      rp.df <- rp %>% t() %>% 
+        as.data.frame() %>% 
+        mutate(stock = st, 
+               iter = as.numeric(dimnames(rp)[[2]])) %>% 
+        select(stock, iter, any_of(refpts))
+      
+      rownames(rp.df) <- NULL
+      
+    }
+    
+    out <- out %>% 
+      bind_rows(rp.df)
+    
+  }
+  
+  
+  return(out)
+  
+}
 
 
