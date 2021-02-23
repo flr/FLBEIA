@@ -715,8 +715,10 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
                         Bmsy = ifelse(ssb>Bmsy, TRUE, FALSE), Fmsy = ifelse(f<Fmsy, TRUE, FALSE))
   
   # reshaping this to the long format
-  if(long == TRUE)
-    res <- res %>% gather(key='indicator', value='value', biomass:f2Fmsy)
+  if(long == TRUE){
+    res <- res %>% gather(key='indicator', value='value', c("biomass", "f", "rec", "ssb", "catch", "landings", "discards", "catch.iyv", "land.iyv", "disc.iyv",
+                                                            "Fmsy", "Bmsy", "Flim", "Fpa", "Blim","Bpa",  "ssb2Bmsy", "f2Fmsy"))
+  }
   
   return(res)
 }
