@@ -29,7 +29,8 @@ bioSum(
   long = FALSE,
   scenario = "bc",
   byyear = TRUE,
-  ssb_season = NULL
+  ssb_season = NULL,
+  brp = NULL
 )
 
 bioSumQ(obj, prob = c(0.95, 0.5, 0.05))
@@ -152,11 +153,16 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
 \item{ssb_season}{If byyear = TRUE, the season in which ssb will be taken.}
 
+\item{brp}{a data frame with columns stock, iter and one colum per reference point with the value of the biological reference points per stock and iteration. 
+The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.}
+
 \item{prob}{a numeric vector with the probabilities used to calculate the quantiles.}
 
 \item{flnms}{Names of the fleet for which the indicators will be calculated.}
 
 \item{InterestRate}{Capital oportunity cost rate.}
+
+\item{verbose}{logical. If TRUE, prints the function steps.}
 
 \item{Bpa}{named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 
