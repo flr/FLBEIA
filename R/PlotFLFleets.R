@@ -161,15 +161,12 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
     #TOTAL CATCH, LANDINGS AND DISCARDS
     total.catch.df <- aggregate(data ~ age+year+unit+area+iter+species , total.catch.stock.df(fleet), sum, na.rm=T)
     
-#    total.catch.df <- total.catch.stock.df(fleet)
     total.catch.df$indicator <- 'catch'
 
     total.landings.df <- aggregate(data ~ age+year+unit+area+iter+species ,total.landings.stock.df(fleet), sum, na.rm=T)
-#    total.landings.df <- total.landings.stock.df(fleet)
     total.landings.df$indicator <- 'landings'
 
     total.discards.df <- aggregate(data ~ age+year+unit+area+iter+species ,total.discards.stock.df(fleet), sum, na.rm=T)
-#    total.discards.df <- total.discards.stock.df(fleet)
     total.discards.df$indicator <-'discards'
     
     df <- rbind(total.catch.df,total.landings.df,total.discards.df)
