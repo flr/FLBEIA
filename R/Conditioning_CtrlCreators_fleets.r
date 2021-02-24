@@ -88,7 +88,8 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
     if(is.null(price.models))   price.models    <- rep('fixedPrice', sum(n.fls.stks))  
     
     # check that all flq-s differ only in first (quant) dimension.
-    test.flqs <- lapply(c('flq', names(extra.args)[grep(pattern = 'flq', names(extra.args))]), get)
+    test.flqs <- lapply(c('flq', names(extra.args)[grep(pattern = 'flq', names(extra.args))]), 
+                        function(x) get(x))
     if(length(test.flqs)>1) if(!equal.flq.Dimnames(test.flqs, 2:5)) stop("All the input 'FLquant's must share 'year', 'unit', 'season', 'area' and 'iter' dimensions.")
 
     
