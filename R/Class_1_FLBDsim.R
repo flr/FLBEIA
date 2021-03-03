@@ -384,9 +384,13 @@ setMethod("iter", signature(obj="FLBDsim"),
 		# covar
 		if(length(obj@covar) > 0) slot(obj, 'covar') <- iter(slot(obj, 'covar'), iter)
         
-        #params
-        slot(obj, 'params') <-  slot(obj, 'params')[,,,iter,drop=F]
-        dimnames(slot(obj, 'params'))[[4]] <- 1:length(iter) 
+    #params
+    slot(obj, 'params') <-  slot(obj, 'params')[,,,iter,drop=F]
+    dimnames(slot(obj, 'params'))[[4]] <- 1:length(iter) 
+    
+    #alpha
+    slot(obj, 'alpha') <-  slot(obj, 'alpha')[,,iter,drop=F]
+    dimnames(slot(obj, 'alpha'))[[3]] <- 1:length(iter) 
          
 		return(obj)
 	  }

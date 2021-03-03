@@ -166,8 +166,8 @@ setMethod("iter", signature(obj="NULL"),
 #                          for calculating summary statistics with bioSum
 #-------------------------------------------------------------------------------
 
-#' Extracts Bpa, Blim, Bmsy, Fpa, Flim and Fmsy reference points from advice.ctrl object (if available),
-#' If not, values are set to NA.
+#' Extracts reference points (specifically Bpa, Blim, Bmsy, Fpa, Flim and Fmsy) from advice.ctrl object,
+#' If not available, then values are set to NA.
 #' 
 #' The output can be used for the brp argument of \code{bioSum} function.
 #'

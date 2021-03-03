@@ -2,8 +2,8 @@
 % Please edit documentation in R/Auxiliary_Functions_Data_Manipulation.R
 \name{extractBRP}
 \alias{extractBRP}
-\title{Extracts Bpa, Blim, Bmsy, Fpa, Flim and Fmsy reference points from advice.ctrl object (if available),
-If not, values are set to NA.}
+\title{Extracts reference points (specifically Bpa, Blim, Bmsy, Fpa, Flim and Fmsy) from advice.ctrl object,
+If not available, then values are set to NA.}
 \usage{
 extractBRP(advice.ctrl, stkn)
 }
