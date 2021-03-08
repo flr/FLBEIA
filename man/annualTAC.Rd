@@ -2,6 +2,7 @@
 % Please edit documentation in R/MP_3b_HCRs.R, R/MP_3c_HCR_F2CatchHCR.R,
 %   R/MP_3c_HCR_Froese.R, R/MP_3c_HCR_ICES_MSY.R, R/MP_3c_HCR_neaMAC_ltmp.R,
 %   R/MP_3c_HCRE_ane.R, R/MP_3d_HCR_AnnexIV.R, R/MP_3d_HCR_GHL.R,
+%   R/MP_3d_HCR_ICES_Cat3.R, R/MP_3d_HCR_ICES_Cat3_bsafe_hrcap.R,
 %   R/MP_3e_HCR_SWWMAP.R, R/MP_3f_CFP_MSY_HCR.R, R/MP_3g_MultiStockHCR.R,
 %   R/MP_3h_ModelFreeHCR.R
 \name{annualTAC}
@@ -13,6 +14,8 @@
 \alias{aneHCRE}
 \alias{annexIVHCR}
 \alias{ghlHCR}
+\alias{IcesCat3HCR}
+\alias{IcesCat3HCR_bsafe_hrcap}
 \alias{MAPHCR}
 \alias{CFPMSYHCR}
 \alias{MultiStockHCR}
@@ -36,6 +39,10 @@ aneHCRE(stocks, advice, advice.ctrl, year, stknm, ...)
 annexIVHCR(indices, advice, advice.ctrl, year, stknm, ...)
 
 ghlHCR(indices, advice, advice.ctrl, year, stknm, ...)
+
+IcesCat3HCR(indices, advice, advice.ctrl, year, stknm, ...)
+
+IcesCat3HCR_bsafe_hrcap(indices, advice, advice.ctrl, year, stknm, ...)
 
 MAPHCR(stocks, advice, advice.ctrl, year, stknm, ...)
 
@@ -76,10 +83,11 @@ There are two types of HCRs model-free HCRs and model-Based HCRs.
          Model-free HCRs use abundance indices to generate the advice and hence it use  FLIndices object as input data.
          Model-based HCRs use estimates of stock abundance and stock exploitation level to generate the advice.
 \itemize{
-     \item    Model-Free HCRs: annexIVHCR, ghlHCR, little2011HCR, pidHCR and pidHCRItarg.
+     \item    Model-Free HCRs: annexIVHCR, ghlHCR, little2011HCR, pidHCR, pidHCRItarg, IcesCat3HCR and IcesCat3HCR_bsafe_hrcap.
      \item    Model-Based HCRs: aneHCRE, annualTAC, CFPMSYHCR, F2CatchHCR, FroeseHCR, IcesHCR, MAPHCR, neaMAC_ltmp.  
                          
 }
+Rules' description:
 \itemize{
       \item{aneHCRE:} {The HCR used in the bay of biscay anchovy long term management plan.}
       \item{aneHCRs:} {The HCRs (escapement biomass) tested for the bay of biscay anchovy with different calendars.
@@ -93,6 +101,10 @@ There are two types of HCRs model-free HCRs and model-Based HCRs.
       \item{FroeseHCR:} {The HCR defined in the paper by Froese, Branch et al. in Fish and Fisheries 2011.}
       \item{ghlHCR:} {The model-free HCR used in the management of greenland-halibut}
       \item{IcesHCR:} {The HCR used by ICES to generate TAC advice in the MSY framework.}
+      \item{IcesCat3HCR:} {HCR that implements the ICES HCR for Category 3 DLS stocks 
+                           (see ICES CM 2012/ACOM 68: Category 3 - Method 3.2)}
+      \item{IcesCat3HCR_bsafe_hrcap:} {Alternative approach for IcesCat3HCR with a biomass safeguard and harvest rate caps
+                          (from ICES WKDLSSLS2019)}
       \item{little2011HCR:} {The HCR defined in the paper by Little et al. in ICES Journal of Marine Science 2011.}
       \item{MAPHRC:} {The HCR proposed by the EC in the evaluation on multi-annual management plans in 2015.}
       \item{MultiStockHRC:} {A HCR that produces TAC advice for several stocks simultaneously. It uses a fishing mortality target and an upper bound to conciliate the TAC advices. In the case of stocks without exploitation rate estimates it uses the catch.}
