@@ -708,11 +708,19 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
                                           Ftarget = NA, Btarget = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
   
   brp <- as_tibble(brp) %>% ungroup() %>% group_by(stock, iter)
+<<<<<<< HEAD
   res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(brp)
   res <- res %>% mutate(ssb2Btarget = ssb/Btarget, f2Ftarget = f/Ftarget,
                         lowBpa  = ifelse(ssb<Bpa, TRUE, FALSE), highFpa = ifelse(f>Fpa, TRUE, FALSE),
                         lowBlim = ifelse(ssb<Blim, TRUE, FALSE), highFlim = ifelse(f>Flim, TRUE, FALSE),
                         lowBtarget = ifelse(ssb<Btarget, TRUE, FALSE), highFtarget = ifelse(f>Ftarget, TRUE, FALSE))
+=======
+  res <- res %>%  ungroup() %>% group_by(stock, iter) %>% dplyr::left_join(brp)
+  res <- res %>% mutate(ssb2Bmsy = ssb/Bmsy, f2Fmsy = f/Fmsy,
+                        Bpa  = ifelse(ssb>Bpa, TRUE, FALSE), Fpa = ifelse(f<Fpa, TRUE, FALSE),
+                        Blim = ifelse(ssb>Blim, TRUE, FALSE), Flim = ifelse(f<Flim, TRUE, FALSE),
+                        Bmsy = ifelse(ssb>Bmsy, TRUE, FALSE), Fmsy = ifelse(f<Fmsy, TRUE, FALSE))
+>>>>>>> 04ee7c79556ceb2332709e1a03009582bec890a9
   
   # reshaping this to the long format
   if(long == TRUE){
@@ -759,7 +767,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       
       # BRP indicators
       resRP <- objRP %>% dplyr::group_by(.data$scenario,.data$year, .data$stock, .data$indicator) %>%
-        dplyr::summarise(value = sum(value, na.rm=T)/dplyr::n()) 
+        dplyr::summarise(value = sum(value)/dplyr::n()) 
       
       resRP <- bind_cols(resRP[,1:4],NA, resRP[,5], NA)
       names(resRP)[5:7] <- names(res)[5:7]
