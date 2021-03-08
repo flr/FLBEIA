@@ -32,7 +32,7 @@
 ###############################################################################
 #.......................................................
 #....................FUNCTIONS..........................
-plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
+plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
     
   names.biols <- names(biols)
   path.pdf <- ''
@@ -43,11 +43,11 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
     
     biol <- biols[[i]]
     
-    biol.sl.df <- as.data.frame(biol@n)
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    biol.sl.df <- as.data.frame(biol@n[,,u,ss])
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -55,16 +55,32 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
-       ggtitle("n")+theme(plot.title = element_text(hjust = 0.5)) 
+       ggtitle(paste("n (unit",u,"& season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
       
     print(p)
     
+    biol.sl.df <- as.data.frame(unitSums(biol@n[,,,ss]))
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[3:(3+length(probs)-1)] <- nms
+    res$age <- as.factor(res$age)
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
+      geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
+      theme(text=element_text(size=10),
+            title=element_text(size=10,face="bold"),
+            strip.text=element_text(size=10)) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
+      ggtitle(paste("n (season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
+    
+    print(p)
+    
    
-    biol.sl.df <- as.data.frame(biol@wt)
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    biol.sl.df <- as.data.frame(biol@wt[,,u,ss])
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -72,15 +88,15 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
-      ggtitle("wt")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle(paste("wt (unit",u,"& season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     
-    biol.sl.df <- as.data.frame(biol@m)
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    biol.sl.df <- as.data.frame(biol@m[,,u,ss])
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -88,15 +104,15 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
-      ggtitle("m")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle(paste("m (unit",u,"& season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     
-    biol.sl.df <- as.data.frame(fec(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    biol.sl.df <- as.data.frame(fec(biol)[,,u,ss])
+    res <- aggregate(data ~ year +age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -104,15 +120,15 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
-      ggtitle("fec")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle(paste("fec (unit",u,"& season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     
-    biol.sl.df <- as.data.frame(mat(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    biol.sl.df <- as.data.frame(mat(biol)[,,u,ss])
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -120,15 +136,15 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
-      ggtitle("mat")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle(paste("mat (unit",u,"& season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     
-    biol.sl.df <- as.data.frame(spwn(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    biol.sl.df <- as.data.frame(spwn(biol)[,,u,ss])
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -136,15 +152,15 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
-      ggtitle("spwn")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle(paste("spwn (unit",u,"& season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
  
-    biol.sl.df <- as.data.frame(ssb(biol))
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    biol.sl.df <- as.data.frame(ssb(biol)[,,u,ss])
+    res <- aggregate(data ~ year +age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -152,22 +168,34 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
-      ggtitle("ssb")+theme(plot.title = element_text(hjust = 0.5)) 
+      ggtitle(paste("ssb (unit",u,"& season",ss,")"))+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
     
-    rec <- biol@n[1,,1,1,,]
-    n.ss <- dim(biol@n)[4]
-    n.unit <- dim(biol@n)[3]
-    if(n.ss>2 & n.unit>2){
-      for(k in 2:length(n.ss)){
-        rec <- rec+biol@n[1,,k,k,,]}}
+    biol.sl.df <- as.data.frame(unitSums(ssb(biol)[,,,1]))
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[3:(3+length(probs)-1)] <- nms
+    res$age <- as.factor(res$age)
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
+      geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
+      theme(text=element_text(size=10),
+            title=element_text(size=10,face="bold"),
+            strip.text=element_text(size=10)) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
+      ggtitle("Total ssb (beggining of the year) ")+theme(plot.title = element_text(hjust = 0.5)) 
+    
+    print(p)
+    
+    rec <- biol@n[1,,u,ss,,]
+
     biol.sl.df <- as.data.frame(rec)
 
-    res <- aggregate(data ~ year + season+age, biol.sl.df, quantile, probs = probs, na.rm=T)
-    res <- cbind(res[,1:3], data.frame(res[,4]))
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
     nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
-    names(res)[4:(4+length(probs)-1)] <- nms
+    names(res)[3:(3+length(probs)-1)] <- nms
     res$age <- as.factor(res$age)
     p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
       geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
@@ -176,6 +204,26 @@ plotFLBiols <- function(biols,probs = c(0.95,0.5,0.05),pdfnm="bc"){
             strip.text=element_text(size=10)) + 
       geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
       ggtitle("rec")+theme(plot.title = element_text(hjust = 0.5)) 
+    
+    print(p)
+    
+    
+    rec <-seasonSums(unitSums(biol@n[1,,,,,]))
+    
+    biol.sl.df <- as.data.frame(rec)
+    
+    res <- aggregate(data ~ year + age, biol.sl.df, quantile, probs = probs, na.rm=T)
+    res <- cbind(res[,1:2], data.frame(res[,3]))
+    nms <- paste('q',ifelse(nchar(substr(probs,3, nchar(probs)))==1, paste(substr(probs,3, nchar(probs)), 0, sep = ""), substr(probs,3, nchar(probs))), sep = "")
+    names(res)[3:(3+length(probs)-1)] <- nms
+    res$age <- as.factor(res$age)
+    p <- ggplot( data=res, aes(x=.data$year, y=.data$q50, fill=.data$age)) + 
+      geom_line() +geom_point(size=2,shape=21)+ theme_bw() + 
+      theme(text=element_text(size=10),
+            title=element_text(size=10,face="bold"),
+            strip.text=element_text(size=10)) + 
+      geom_ribbon(aes(x=.data$year, ymin=.data$q05, ymax=.data$q95, fill=.data$age), alpha=0.3) + 
+      ggtitle("Total rec per year")+theme(plot.title = element_text(hjust = 0.5)) 
     
     print(p)
 
