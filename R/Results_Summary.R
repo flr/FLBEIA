@@ -17,7 +17,7 @@
 
 #' @title Biological summary functions
 #' 
-#' @description These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. Also indicators comparing the reference points with the actual values, Bpa, Blim, Bmsy, Fpa, Flim and Fmsy, so the biomass indicators are TRUE if the biomass is above them, and the fishing mortality indicators are TRUE if the fishing mortality is below them. ssb2Bmsy and f2Fmsy return the ratio between SSB and F and the MSY reference point.   
+#' @description These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. Also indicators comparing the reference points with the actual values, Bpa, Blim, Btarget, Fpa, Flim and Ftarget, so the biomass indicators are TRUE if the biomass is above them, and the fishing mortality indicators are TRUE if the fishing mortality is below them. ssb2Btarget and f2Ftarget return the ratio between SSB and F and the target reference point.   
 #' 
 #' @param  obj The output of the FLBEIA function.
 #' @param  years The  years for which the indicators are extracted. 
@@ -380,12 +380,12 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #' @param scenario a character string with the name of the scenario corresponding with obj. Default bc.
 #' @param Bpa named numeric vector with one element per stock in stknms. The precautionary approach stock spawning biomass used in riskSum function to calculate biological risk yearly.
 #' @param Blim named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.
-#' @param Prflim named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate economic risk yearly.
+#' @param ProfRef named numeric vector with one element per fleet in flnms. The reference profit level used in riskSum function to calculate economic risk yearly.
 #' @param discF Discount rate.
 #' @param y0 character. Reference year.
 #' @param verbose logical. If TRUE, prints the function steps.
 #' @param  brp a data frame with columns stock, iter and one colum per reference point with the value of the biological reference points per stock and iteration. 
-#' The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy. 
+#' The used reference points are Bpa, Blim, Btarget, Fpa, Flim and Ftarget. 
 
 #' @examples
 #'\dontrun{
@@ -705,19 +705,19 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   
   # If brp is not provided create it with NAs.
   if(is.null(brp)) brp <- as_tibble(cbind(expand.grid(stock = unique(res$stock), iter = unique(res$iter)),
-                                          Fmsy = NA, Bmsy = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
+                                          Ftarget = NA, Btarget = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
   
   brp <- as_tibble(brp) %>% ungroup() %>% group_by(stock, iter)
   res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(brp)
-  res <- res %>% mutate(ssb2Bmsy = ssb/Bmsy, f2Fmsy = f/Fmsy,
-                        Bpa  = ifelse(ssb>Bpa, TRUE, FALSE), Fpa = ifelse(f<Fpa, TRUE, FALSE),
-                        Blim = ifelse(ssb>Blim, TRUE, FALSE), Flim = ifelse(f<Flim, TRUE, FALSE),
-                        Bmsy = ifelse(ssb>Bmsy, TRUE, FALSE), Fmsy = ifelse(f<Fmsy, TRUE, FALSE))
+  res <- res %>% mutate(ssb2Btarget = ssb/Btarget, f2Ftarget = f/Ftarget,
+                        lowBpa  = ifelse(ssb<Bpa, TRUE, FALSE), highFpa = ifelse(f>Fpa, TRUE, FALSE),
+                        lowBlim = ifelse(ssb<Blim, TRUE, FALSE), highFlim = ifelse(f>Flim, TRUE, FALSE),
+                        lowBtarget = ifelse(ssb<Btarget, TRUE, FALSE), highFtarget = ifelse(f>Ftarget, TRUE, FALSE))
   
   # reshaping this to the long format
   if(long == TRUE){
     res <- res %>% gather(key='indicator', value='value', c("biomass", "f", "rec", "ssb", "catch", "landings", "discards", "catch.iyv", "land.iyv", "disc.iyv",
-                                                            "Fmsy", "Bmsy", "Flim", "Fpa", "Blim","Bpa",  "ssb2Bmsy", "f2Fmsy"))
+                                                            "highFtarget", "lowBtarget", "highFlim", "highFpa", "lowBlim","lowBpa",  "ssb2Btarget", "f2Ftarget"))
   }
   
   return(res)
@@ -735,8 +735,8 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] <= 7){ # the object is in long format
     
-    objRP <- obj %>% filter(indicator %in% c('Fpa', 'Flim', 'Bpa', 'Blim', 'Fmsy', 'Bmsy'))
-    obj   <- obj %>% filter(!(indicator %in% c('Fpa', 'Flim', 'Bpa', 'Blim', 'Fmsy', 'Bmsy')))
+    objRP <- obj %>% filter(indicator %in% c('highFpa', 'highFlim', 'lowBpa', 'lowBlim', 'highFtarget', 'lowBtarget'))
+    obj   <- obj %>% filter(!(indicator %in% c('highFpa', 'highFlim', 'lowBpa', 'lowBlim', 'highFtarget', 'lowBtarget')))
     
     if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$season, .data$indicator) %>%
@@ -775,23 +775,23 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       
       res <- obj %>% dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$season) %>%  
         summarise_at(c('rec', 'ssb', 'f', 'biomass', 'catch', 'landings', 'discards', 
-                       'catch.iyv', 'land.iyv', 'disc.iyv', 'ssb2Bmsy', 'f2Fmsy'),
+                       'catch.iyv', 'land.iyv', 'disc.iyv', 'ssb2Btarget', 'f2Ftarget'),
                      .funs =  p_funs)
       # RP indicator
-      res <- res %>% mutate(Blim_q95 = NA, Blim_q50 = NA, Blim_q05 = NA,
-                            Bpa_q95 = NA,  Bpa_q50 = NA,  Bpa_q05 = NA,
-                            Bmsy_q95 = NA, Bmsy_q50 = NA, Bmsy_q05 = NA,
-                            Flim_q95 = NA, Flim_q50 = NA, Flim_q05 = NA,
-                            Fpa_q95 = NA,  Fpa_q50 = NA,  Fpa_q05 = NA,
-                            Fmsy_q95 = NA, Fmsy_q50 = NA, Fmsy_q05 = NA)
+      res <- res %>% mutate(pBlim_q95 = NA, pBlim_q50 = NA, pBlim_q05 = NA,
+                            pBpa_q95 = NA,  pBpa_q50 = NA,  pBpa_q05 = NA,
+                            pBtarget_q95 = NA, pBtarget_q50 = NA, pBtarget_q05 = NA,
+                            pFlim_q95 = NA, pFlim_q50 = NA, pFlim_q05 = NA,
+                            pFpa_q95 = NA,  pFpa_q50 = NA,  pFpa_q05 = NA,
+                            pFtarget_q95 = NA, pFtarget_q50 = NA, pFtarget_q05 = NA)
       
       resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season, .data$stock) %>%  
-        dplyr::summarise(Blim_q50 = sum(Blim)/dplyr::n(),
-                         Bpa_q50  = sum(Bpa)/dplyr::n(),
-                         Bmsy_q50 = sum(Bmsy)/dplyr::n(),
-                         Flim_q50 = sum(Flim)/dplyr::n(),
-                         Fpa_q50  = sum(Fpa)/dplyr::n(),
-                         Fmsy_q50 = sum(Fmsy)/dplyr::n())
+        dplyr::summarise(pBlim_q50 = sum(lowBlim)/dplyr::n(),
+                         pBpa_q50  = sum(lowBpa)/dplyr::n(),
+                         pBtarget_q50 = sum(lowBtarget)/dplyr::n(),
+                         pFlim_q50 = sum(highFlim)/dplyr::n(),
+                         pFpa_q50  = sum(highFpa)/dplyr::n(),
+                         pFtarget_q50 = sum(highFtarget)/dplyr::n())
     }
     else{
       
@@ -800,28 +800,28 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                      .funs =  p_funs)
       
       # RP indicator
-      res <- res %>% mutate(Blim_q95 = NA, Blim_q50 = NA, Blim_q05 = NA,
-                            Bpa_q95 = NA,  Bpa_q50 = NA,  Bpa_q05 = NA,
-                            Bmsy_q95 = NA, Bmsy_q50 = NA, Bmsy_q05 = NA,
-                            Flim_q95 = NA, Flim_q50 = NA, Flim_q05 = NA,
-                            Fpa_q95 = NA,  Fpa_q50 = NA,  Fpa_q05 = NA,
-                            Fmsy_q95 = NA, Fmsy_q50 = NA, Fmsy_q05 = NA)
+      res <- res %>% mutate(pBlim_q95 = NA, pBlim_q50 = NA, pBlim_q05 = NA,
+                            pBpa_q95 = NA,  pBpa_q50 = NA,  pBpa_q05 = NA,
+                            pBtarget_q95 = NA, pBtarget_q50 = NA, pBtarget_q05 = NA,
+                            pFlim_q95 = NA, pFlim_q50 = NA, pFlim_q05 = NA,
+                            pFpa_q95 = NA,  pFpa_q50 = NA,  pFpa_q05 = NA,
+                            pFtarget_q95 = NA, pFtarget_q50 = NA, pFtarget_q05 = NA)
       
       resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$stock) %>%  
-        dplyr::summarise(Blim_q50 = sum(Blim)/dplyr::n(),
-                         Bpa_q50  = sum(Bpa)/dplyr::n(),
-                         Bmsy_q50 = sum(Bmsy)/dplyr::n(),
-                         Flim_q50 = sum(Flim)/dplyr::n(),
-                         Fpa_q50  = sum(Fpa)/dplyr::n(),
-                         Fmsy_q50 = sum(Fmsy)/dplyr::n())
+        dplyr::summarise(pBlim_q50 = sum(lowBlim)/dplyr::n(),
+                         pBpa_q50  = sum(lowBpa)/dplyr::n(),
+                         pBtarget_q50 = sum(lowBtarget)/dplyr::n(),
+                         pFlim_q50 = sum(highFlim)/dplyr::n(),
+                         pFpa_q50  = sum(highFpa)/dplyr::n(),
+                         pFtarget_q50 = sum(highFtarget)/dplyr::n())
       
     }
-    res$Blim_q50 <- resRP$Blim_q50
-    res$Bpa_q50  <- resRP$Bpa_q50
-    res$Bmsy_q50 <- resRP$Bmsy_q50
-    res$Flim_q50 <- resRP$Flim_q50
-    res$Fpa_q50  <- resRP$Fpa_q50
-    res$Fmsy_q50 <- resRP$Fmsy_q50
+    res$pBlim_q50    <- resRP$pBlim_q50
+    res$pBpa_q50     <- resRP$pBpa_q50
+    res$pBtarget_q50 <- resRP$pBtarget_q50
+    res$pFlim_q50    <- resRP$pFlim_q50
+    res$pFpa_q50     <- resRP$pFpa_q50
+    res$pFtarget_q50 <- resRP$pFtarget_q50
     
   }
   
