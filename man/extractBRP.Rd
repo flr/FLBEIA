@@ -5,12 +5,18 @@
 \title{Extracts reference points (specifically Bpa, Blim, Bmsy, Fpa, Flim and Fmsy) from advice.ctrl object,
 If not available, then values are set to NA.}
 \usage{
-extractBRP(advice.ctrl, stkn)
+extractBRP(advice.ctrl, stkn, Btarget = NULL, Ftarget = NULL)
 }
 \arguments{
-\item{advice.ctrl}{A list with the settings to control the advice model for each stock (the HCR for each stock, the reference points used in the HCR, additional parameters, ...)}
+\item{advice.ctrl}{A list with advice controls as the FLBEIA function argument advice.ctrl.}
 
 \item{stkn}{Names of the stocks.}
+
+\item{Btarget}{Named vector with the name of the target biological reference point for each element in stkn. 
+Default "Bmsy".}
+
+\item{Ftarget}{Named vector with the name of the target fishing mortality reference point for each element in stkn. 
+Default "Fmsy".}
 }
 \value{
 A data frame with columns stock, iter and one colum per reference point with the value 
@@ -33,7 +39,16 @@ extractBRP(oneItAdvC, stkn = names(oneItBio))
 
 data(multi)
 extractBRP(multiAdvC, stkn = names(multiBio))
-                          scenario = 'alternative')
+                          
+# setting targets different to Bmsy and Fmsy
+
+extractBRP(oneAdvC, stkn = names(oneBio),
+           Btarget=setNames("Btrigger","stk1"), Ftarget=setNames("Ftrigger","stk1"))
+
+Btarget <- setNames(c("Btrigger","Bmsy"),names(oneBio))
+Ftarget <- setNames(c("Ftrigger","Fmsy"),names(oneBio))
+
+extractBRP(multiAdvC, stkn = names(multiBio))
 
 }
 }
