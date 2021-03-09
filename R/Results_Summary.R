@@ -708,24 +708,18 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
                                           Ftarget = NA, Btarget = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
   
   brp <- as_tibble(brp) %>% ungroup() %>% group_by(stock, iter)
-<<<<<<< HEAD
+
   res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(brp)
   res <- res %>% mutate(ssb2Btarget = ssb/Btarget, f2Ftarget = f/Ftarget,
-                        lowBpa  = ifelse(ssb<Bpa, TRUE, FALSE), highFpa = ifelse(f>Fpa, TRUE, FALSE),
-                        lowBlim = ifelse(ssb<Blim, TRUE, FALSE), highFlim = ifelse(f>Flim, TRUE, FALSE),
-                        lowBtarget = ifelse(ssb<Btarget, TRUE, FALSE), highFtarget = ifelse(f>Ftarget, TRUE, FALSE))
-=======
-  res <- res %>%  ungroup() %>% group_by(stock, iter) %>% dplyr::left_join(brp)
-  res <- res %>% mutate(ssb2Bmsy = ssb/Bmsy, f2Fmsy = f/Fmsy,
-                        Bpa  = ifelse(ssb>Bpa, TRUE, FALSE), Fpa = ifelse(f<Fpa, TRUE, FALSE),
-                        Blim = ifelse(ssb>Blim, TRUE, FALSE), Flim = ifelse(f<Flim, TRUE, FALSE),
-                        Bmsy = ifelse(ssb>Bmsy, TRUE, FALSE), Fmsy = ifelse(f<Fmsy, TRUE, FALSE))
->>>>>>> 04ee7c79556ceb2332709e1a03009582bec890a9
+                        lowBpa  = ifelse(ssb<Bpa, TRUE, FALSE), higherFpa = ifelse(f>Fpa, TRUE, FALSE),
+                        lowerBlim = ifelse(ssb<Blim, TRUE, FALSE), higherFlim = ifelse(f>Flim, TRUE, FALSE),
+                        lowerBtarget = ifelse(ssb<Btarget, TRUE, FALSE), higherFtarget = ifelse(f>Ftarget, TRUE, FALSE))
+
   
   # reshaping this to the long format
   if(long == TRUE){
     res <- res %>% gather(key='indicator', value='value', c("biomass", "f", "rec", "ssb", "catch", "landings", "discards", "catch.iyv", "land.iyv", "disc.iyv",
-                                                            "highFtarget", "lowBtarget", "highFlim", "highFpa", "lowBlim","lowBpa",  "ssb2Btarget", "f2Ftarget"))
+                                                            "higherFtarget", "lowerBtarget", "higherFlim", "higherFpa", "lowerBlim","lowerBpa",  "ssb2Btarget", "f2Ftarget"))
   }
   
   return(res)
@@ -743,8 +737,8 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
   
   if(dim(obj)[2] <= 7){ # the object is in long format
     
-    objRP <- obj %>% filter(indicator %in% c('highFpa', 'highFlim', 'lowBpa', 'lowBlim', 'highFtarget', 'lowBtarget'))
-    obj   <- obj %>% filter(!(indicator %in% c('highFpa', 'highFlim', 'lowBpa', 'lowBlim', 'highFtarget', 'lowBtarget')))
+    objRP <- obj %>% filter(indicator %in% c('higherFpa', 'higherFlim', 'lowerBpa', 'lowerBlim', 'higherFtarget', 'lowerBtarget'))
+    obj   <- obj %>% filter(!(indicator %in% c('higherFpa', 'higherFlim', 'lowerBpa', 'lowerBlim', 'higherFtarget', 'lowerBtarget')))
     
     if('season' %in% names(obj)){
       res <- obj %>% dplyr::group_by(.data$scenario, .data$stock, .data$year, .data$season, .data$indicator) %>%
@@ -794,12 +788,12 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                             pFtarget_q95 = NA, pFtarget_q50 = NA, pFtarget_q05 = NA)
       
       resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$season, .data$stock) %>%  
-        dplyr::summarise(pBlim_q50 = sum(lowBlim)/dplyr::n(),
-                         pBpa_q50  = sum(lowBpa)/dplyr::n(),
-                         pBtarget_q50 = sum(lowBtarget)/dplyr::n(),
-                         pFlim_q50 = sum(highFlim)/dplyr::n(),
-                         pFpa_q50  = sum(highFpa)/dplyr::n(),
-                         pFtarget_q50 = sum(highFtarget)/dplyr::n())
+        dplyr::summarise(pBlim_q50 = sum(lowerBlim)/dplyr::n(),
+                         pBpa_q50  = sum(lowerBpa)/dplyr::n(),
+                         pBtarget_q50 = sum(lowerBtarget)/dplyr::n(),
+                         pFlim_q50 = sum(higherFlim)/dplyr::n(),
+                         pFpa_q50  = sum(higherFpa)/dplyr::n(),
+                         pFtarget_q50 = sum(higherFtarget)/dplyr::n())
     }
     else{
       
@@ -816,12 +810,12 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                             pFtarget_q95 = NA, pFtarget_q50 = NA, pFtarget_q05 = NA)
       
       resRP <- obj %>% dplyr::group_by(.data$scenario,.data$year, .data$stock) %>%  
-        dplyr::summarise(pBlim_q50 = sum(lowBlim)/dplyr::n(),
-                         pBpa_q50  = sum(lowBpa)/dplyr::n(),
-                         pBtarget_q50 = sum(lowBtarget)/dplyr::n(),
-                         pFlim_q50 = sum(highFlim)/dplyr::n(),
-                         pFpa_q50  = sum(highFpa)/dplyr::n(),
-                         pFtarget_q50 = sum(highFtarget)/dplyr::n())
+        dplyr::summarise(pBlim_q50 = sum(lowerBlim)/dplyr::n(),
+                         pBpa_q50  = sum(lowerBpa)/dplyr::n(),
+                         pBtarget_q50 = sum(lowerBtarget)/dplyr::n(),
+                         pFlim_q50 = sum(higherFlim)/dplyr::n(),
+                         pFpa_q50  = sum(higherFpa)/dplyr::n(),
+                         pFtarget_q50 = sum(higherFtarget)/dplyr::n())
       
     }
     res$pBlim_q50    <- resRP$pBlim_q50
