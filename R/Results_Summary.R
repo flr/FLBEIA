@@ -711,7 +711,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
 
   res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(brp)
   res <- res %>% mutate(ssb2Btarget = ssb/Btarget, f2Ftarget = f/Ftarget,
-                        lowBpa  = ifelse(ssb<Bpa, TRUE, FALSE), higherFpa = ifelse(f>Fpa, TRUE, FALSE),
+                        lowerBpa  = ifelse(ssb<Bpa, TRUE, FALSE), higherFpa = ifelse(f>Fpa, TRUE, FALSE),
                         lowerBlim = ifelse(ssb<Blim, TRUE, FALSE), higherFlim = ifelse(f>Flim, TRUE, FALSE),
                         lowerBtarget = ifelse(ssb<Btarget, TRUE, FALSE), higherFtarget = ifelse(f>Ftarget, TRUE, FALSE))
 
