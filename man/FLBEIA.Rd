@@ -118,9 +118,12 @@ names(s0)
 # The default plot for FLBiol defined in FLCore
 plot(s0$biols[[1]])
 
+# Extract reference points for summaries
+s0_brps <- extractBRP(oneAdvC, stkn = names(oneBio)) 
+
 # Create summary data frames (biological, economic, and catch)
 proj.yr     <- 2013 
-s0_sum      <- bioSum(s0)
+s0_sum      <- bioSum(s0, brp = s0_brps)
 s0$fleets$fl1 <- setUnitsNA(s0$fleets$fl1) # set units to NA to avoid errors in fltSum
 s0_flt      <- fltSum(s0)
 s0_fltStk   <- fltStkSum(s0)
@@ -171,9 +174,12 @@ names(s1)
 # The default plot for FLBiol defined in FLCore
 plot(s1$biols[[1]])
 
+# Extract reference points for summaries
+s1_brps <- extractBRP(oneItAdvC, stkn = names(oneItBio)) 
+
 # Create summary data frames (biological, economic, and catch)
 proj.yr     <- 2013 
-s1_bio     <- bioSum(s1)
+s1_bio     <- bioSum(s1, brp = s1_brps)
 s1$fleets$fl1 <- setUnitsNA(s1$fleets$fl1) # set units to NA to avoid errors in fltSum
 s1_flt     <- fltSum(s1)
 s1_fltStk  <- fltStkSum(s1)
@@ -193,7 +199,7 @@ s1b_fltStkQ <- fltStkSumQ(s1b_fltStk)
 # Create several plots and save them in the working directory using 'pdf' format and 
 # 's1' suffix in the name.
 
-#' plotFLBiols(s1$biols, pdfnm='s1')
+plotFLBiols(s1$biols, pdfnm='s1')
 plotFLFleets(s1$fleets, pdfnm='s1')
 plotEco(s1, pdfnm='s1')
 plotfltStkSum(s1, pdfnm='s1') 
@@ -237,9 +243,12 @@ names(s2)
 # The default plot for FLBiol defined in FLCore
 plot(s2$biols[[1]])
 
+# Extract reference points for summaries
+s2_brps <- extractBRP(multiAdvC, stkn = names(multiBio)) 
+
 # Create summary data frames (biological, economic, and catch)
 
-s2_sum      <- bioSum(s2)
+s2_sum      <- bioSum(s2, brp = s2_brps)
 for (fl in names(s2$fleets))  # set units to NA to avoid errors in fltSum
   s2$fleets[[fl]] <- setUnitsNA(s2$fleets[[fl]])
 s2_flt      <- fltSum(s2)
