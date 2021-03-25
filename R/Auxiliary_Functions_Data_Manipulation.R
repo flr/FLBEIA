@@ -177,7 +177,7 @@ setMethod("iter", signature(obj="NULL"),
 #'                Default "Bmsy".
 #' @param Ftarget Named vector with the name of the target fishing mortality reference point for each element in stkn. 
 #'                Default "Fmsy".
-#' @inheritParams FLBEIA
+# @inheritParams FLBEIA
 #' 
 #' @return A data frame with columns stock, iter and one colum per reference point with the value 
 #'         of the biological reference points per stock and iteration. The used reference points are 

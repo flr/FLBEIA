@@ -139,7 +139,10 @@ export(
   "wtadStock",
   "wtalStock",
   #"XSAboot",
-  "xtabs2")
+  "xtabs2",
+  "brpsson",
+  "plotBRPsson"
+)
 
 exportMethods(
   "dimnames<-", # to be deleted after next FLCore release
