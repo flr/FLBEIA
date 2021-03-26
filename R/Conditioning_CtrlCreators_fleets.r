@@ -53,7 +53,7 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
                                 effort.models = NULL, capital.models = NULL, catch.models = NULL, price.models = NULL, flq, ...){
     
     effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit', 'MaxProfitSeq')
-    catch.models.available   <- c('CobbDouglasAge', 'CobbDouglasBio')
+    catch.models.available   <- c('CobbDouglasAge', 'CobbDouglasBio', 'Baranov')
     price.models.available   <- c('fixedPrice', 'elasticPrice')
     capital.models.available <- c('fixedCapital', 'SCD')
     
