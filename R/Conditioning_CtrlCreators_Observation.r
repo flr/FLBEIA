@@ -28,7 +28,7 @@ create.obs.ctrl <- function(stksnames, n.stks.inds = NULL, stks.indsnames = NULL
     stkObs.models.available <- c("age2ageDat", "age2agePop", "age2bioDat", "age2bioPop",
                                  "bio2bioDat", "bio2bioPop", "NoObsStock", "perfectObs")
   
-    indObs.models.available <- c("bioInd", "ageInd", "ssbInd", "cbbmInd", "NoObsIndex") 
+    indObs.models.available <- c("bioInd", "ageInd", "ssbInd", "cbbmInd", "bio1plusInd", "NoObsIndex") 
     
     res        <- vector('list', length(stksnames))
     names(res) <- stksnames
