@@ -136,7 +136,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
     }
     else{ # landObl == TRUE
       eff <- numeric(nit)
-      discount_yrtransfer <- matrix(0,nst,nit, dimnames = list(sts,1:nit))
+      discount_yrtransfer <- matrix(0,length(sts),nit, dimnames = list(sts,1:nit))
       ret.m.new <- ret.m # retention may change derived from minimis exemption.
       min_ctrl <- rep(FALSE, length(sts))
       names(min_ctrl) <- sts
