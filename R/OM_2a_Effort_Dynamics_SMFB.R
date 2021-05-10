@@ -178,7 +178,7 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               if(minimis[yr] == TRUE | yrtrans[yr] == TRUE){
                               
                 eff_min_qt <- numeric(length(Ni))
-                names(eff_min_qt) <- stnms
+                names(eff_min_qt) <- sts
                 
                 Cr.f_min_qt <- Cr.f
               
