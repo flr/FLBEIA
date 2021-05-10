@@ -166,7 +166,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
               
               # Extract the i-th element form the lists. 
-              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+              Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
               q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
               beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
               alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -192,7 +192,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
                   else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
                   
                   # Extract the i-th element form the lists. 
-                  Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+                  Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
                   q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
                   beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
                   alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -247,10 +247,10 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               catch_Elo <- fcube_lo$catch
               diff      <- catch_Elo[sts]/Cr.f[sts,i] #[nst]
               diff <- ifelse(Cr.f[sts,i]  == 0 & catch_Elo[sts] == 0, 0, diff)
-              discount_yrtransfer[,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr], 0, 
-                                        ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr], 
-                                               (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1),
-                                                fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr]))*Cr.f[,i]
+              discount_yrtransfer[,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr], 0, 
+                                        ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[sts,yr], 
+                                               (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr] - 1),
+                                                fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[sts,yr]))*Cr.f[,i]
               
               # update ret.m to account for the discards due to minimise exemption.
               for(st in sts){
