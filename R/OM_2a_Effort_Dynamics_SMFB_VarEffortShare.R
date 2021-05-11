@@ -286,7 +286,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
            }    
           }
      
-          fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[,yr,] <- discount_yrtransfer
+          fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[sts,yr,] <- discount_yrtransfer
       }
     }
 
