@@ -83,10 +83,11 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
   
       # Convert N to the rigth dimension
       #   browser()
-      Nqs <- lapply(N,function(x) return(array(x[,1,,1,1,], dim = dim(x)[c(1,3,6)])))
-      MP_LO <- QuotaSwap(stknms = sts, E0 = sum(Et1.res), Cr.f = Cr.f, Cr.f_exemp = Cr.f_min_qt, N = Nqs, B = B, efs.m = matrix(efs1.res, nmt), q.m = q.m, 
+   #   Nqs <- lapply(N,function(x) return(array(x[,1,,1,1,], dim = dim(x)[c(1,3,6)])))
+      Nqs  <- N
+      MP_LO <- QuotaSwap(stknms = sts, E0 = sum(Et1.res), Cr.f = Cr.f[sts,], Cr.f_exemp = Cr.f_min_qt[sts,], N = Nqs, B = B, efs.m = matrix(efs1.res, nmt), q.m = q.m, 
                      alpha.m = alpha.m, beta.m = beta.m, pr.m = pr.m, wl.m = wl.m, wd.m = wd.m, ret.m = ret.m, 
-                     fc = fc, vc.m = vc.m, crewS = crewS, K = K, rho = rho, stks_OF = stks_OF[,i],
+                     fc = fc, vc.m = vc.m, crewS = crewS, K = K, rho = rho, stks_OF = stks_OF[,as.numeric(i)],
                      flnm = flnm, fleets.ctrl = fleets.ctrl, approach = 'maxprof')
   
       efs.res[,i] <- MP_LO$efs.m
@@ -98,11 +99,11 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
       # discount_yrtransfer must be discounted from the quota next year.
   
       catch_Elo <- MP_LO$catch
-      diff      <- catch_Elo[sts]/Cr.f[sts] #[nst]
-      discount_yrtransfer[sts,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr], 0, 
-                                       ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr], 
-                                              (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1),
-                                              fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr]))*Cr.f[sts]
+      diff      <- catch_Elo[sts]/Cr.f[sts,] #[nst]
+      discount_yrtransfer[sts,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr], 0, 
+                                       ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[sts,yr], 
+                                              (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr] - 1),
+                                              fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[sts,yr]))*Cr.f[sts,]
   
       # update ret.m to account for the discards due to minimise exemption.
       for(st in sts){
@@ -113,8 +114,8 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
         # otherwise is increase so that the total discards equal to min_p*Cr.f  
         Ca <- MP_LO$Ca[[st]]
         Ds <- sum((1-ret.m[[st]])*Ca*wd.m[[st]])                
-        ret.m.new[[st]] <- ret.m[[st]] - ifelse(Ds/Cr.f[st] > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], 0, fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] - Ds/Cr.f[st])
-        min_ctrl[st] <- ifelse(Ds/Cr.f[st]  > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], FALSE, TRUE)
+        ret.m.new[[st]] <- ret.m[[st]] - ifelse(Ds/Cr.f[st,] > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], 0, fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr] - Ds/Cr.f[st,])
+        min_ctrl[st] <- ifelse(Ds/Cr.f[st,]  > fleets.ctrl[[flnm]]$LandObl_minimis_p[st,yr], FALSE, TRUE)
     }
   
   }
@@ -133,7 +134,7 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
       }    
     }
   
-    fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[,yr,] <- discount_yrtransfer
+    fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[sts,yr,] <- discount_yrtransfer[sts,]
   }
   
   return(list(fleets.ctrl = fleets.ctrl, fl = fl, discount_yrtransfer = discount_yrtransfer, Et.res = Et.res))
