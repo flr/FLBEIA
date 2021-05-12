@@ -37,10 +37,10 @@ MaxProfit_Extra_LO <- function(biols, fleets, advice.ctrl, fleets.ctrl, fl, Et.r
         if(length(min_p)==1) names(min_p) <- sts
         if(length(yrt_p)==1) names(yrt_p) <- sts
     
-        Cr.f_min_qt[sts] <- Cr.f[sts,]*(1+min_p[sts]+yrt_p[sts]) # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
+        Cr.f_min_qt[sts,] <- Cr.f[sts,]*(1+min_p[sts]+yrt_p[sts]) # The quota restriction is enhanced in the proportion allowed by minimis and year transfer.
     
         
-        Cr.f_min_qt[sts]   <- ifelse(Cr.f_min_qt[sts] == 0, 1e-8, Cr.f_min_qt[sts])
+        Cr.f_min_qt[sts,]   <- ifelse(Cr.f_min_qt[sts,] == 0, 1e-8, Cr.f_min_qt[sts,])
         
         efs1.res <- ifelse(efs1.res < efs.min, efs1.res, efs.min*1.01)
         efs1.res <- ifelse(efs1.res > efs.max, efs.max*0.99, efs1.res)
