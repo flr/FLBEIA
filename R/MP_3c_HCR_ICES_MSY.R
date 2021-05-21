@@ -189,7 +189,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
         k <- which(fwd.ctrl@target$year == assyrnumb+1)
         fwd.ctrl@target[k,'val'] <- Ftg
         fwd.ctrl@trgtArray[k, 'val',] <- Ftg
-        stki <- fwdBD(stki, fwd.ctrl, growth.years)
+        stki <- fwdBD(stki, fwd.ctrl, growth.years) 
         
       }
      
