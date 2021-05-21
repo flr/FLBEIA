@@ -47,11 +47,12 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     if(ageStruct == TRUE){
       if(any(stk@catch[,tail(dimnames(stk@catch)$year,3)]<1e-2)){
         stk <- stf_correctSel(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
-        }else{
-         stk <- stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
-    
-      }}else{
-       stk <- stfBD(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3)}
+      }else{
+        stk <- stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
+      }
+    }else{
+      stk <- stfBD(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3)
+    }
     
    # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n
     
@@ -68,102 +69,129 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     # Build fwd.ctrl.
     #-----------------
     # Last SSB (Age structured) OR Biomass (Aggregated) estimate
-    if(ageStruct)
-        b.datyr <- ssb(stk)[,year-1,drop = TRUE] # [it]
-    else
-        b.datyr <- (stk@stock.n*stk@stock.wt)[,year-1,drop = TRUE] # [it]
+    if(ageStruct){
+      b.datyr <- ssb(stk)[,year-1,drop = TRUE] # [it]
+    }else{
+      b.datyr <- (stk@stock.n*stk@stock.wt)[,year-1,drop = TRUE] # [it]
+    }
+        
 
     # Find where the SSB (Age structured) OR Biomass (Aggregated) in relation to reference points.
     b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts[c('Blim', 'Btrigger'),i]))  # [it]
-
     Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',]*b.datyr/ref.pts[ 'Btrigger',], ref.pts['Fmsy',]))
-    
-    print(Ftg)
+    # print(Ftg)
     
     int.yr <- advice.ctrl[[stknm]]$intermediate.year
 
     for(i in 1:iter){
     
-        if(is.na(Ftg[i]) | Ftg[i] == 0){
-            advice[['TAC']][stknm,year+1,,,,i] <- 0
-            next
-        }
-
-        int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
-        
-        if(int.yr == 'Fsq')
-            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg[i]), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
-        else
-            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg[i]), quantity = c( 'catch', 'f')))
-
-        # Refresh the years in fwd!!
-        fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
-        fwd.ctrl@target$rel.year <- fwd.ctrl@target$rel.year + assyrnumb
-    
-        stki <- iter(stk, i)
-
-        # if in <year 0> quantity = catch => set TAC in <year 0> in val
-        if(fwd.ctrl@target[fwd.ctrl@target$year == assyrnumb,'quantity'] == 'catch'){
-            k <- which(fwd.ctrl@target$year == assyrnumb)
-            fwd.ctrl@target[k,'val']     <- advice$TAC[stknm,year,,,,i]
-            fwd.ctrl@trgtArray[k, 'val',] <- advice$TAC[stknm,year,,,,i]
-        }
+      if(is.na(Ftg[i]) | Ftg[i] == 0){
+          advice[['TAC']][stknm,year+1,,,,i] <- 0
+          next
+      }
+  
+      int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
+      
+      if(int.yr == 'Fsq'){
+        fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg[i]), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
+      }else{
+        fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg[i]), quantity = c( 'catch', 'f')))
+      }
+      
+      # Refresh the years in fwd!!
+      fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
+      fwd.ctrl@target$rel.year <- fwd.ctrl@target$rel.year + assyrnumb
+  
+      stki <- iter(stk, i)
+  
+      # if in <year 0> quantity = catch => set TAC in <year 0> in val
+      if(fwd.ctrl@target[fwd.ctrl@target$year == assyrnumb,'quantity'] == 'catch'){
+        k <- which(fwd.ctrl@target$year == assyrnumb)
+        fwd.ctrl@target[k,'val']     <- advice$TAC[stknm,year,,,,i]
+        fwd.ctrl@trgtArray[k, 'val',] <- advice$TAC[stknm,year,,,,i]
+      }
 
      #   if(stknm == 'CMON') browser()
 
-        if(dim(stki@m)[1] > 1){
-            # First estimate/extract the SR model and params.
-            sr.pars  <- advice.ctrl[[stknm]]$sr$params # sr parameters if specified.
-            sr.model <- advice.ctrl[[stknm]]$sr$model  # sr model, mandatory.
-            if(is.null(sr.pars)){                   # if params missing => estimate the parameters using the specified years.
-                if(is.null(advice.ctrl[[stknm]]$sr$years)) sr.yrs <- which(round(quantSums(stocks[[stknm]]@stock.n))!=0)[1]:(year-1)# yr0 missing => use all data years, except the assessment year for which rec is unknown
-                else{
-                    y.rm <- as.numeric(advice.ctrl[[stknm]]$sr$years['y.rm'])
-                    nyrs <- as.numeric(advice.ctrl[[stknm]]$sr$years['num.years'])
-                    sr.yrs <- yrsnames[(year-y.rm-nyrs + 1):(year-y.rm)]
-                }
-                rec <- stki@stock.n[1,sr.yrs]
-                ssb <- ssb(stki)[,sr.yrs]
+      if(dim(stki@m)[1] > 1){
+        # First estimate/extract the SR model and params.
+        sr.pars  <- advice.ctrl[[stknm]]$sr$params # sr parameters if specified.
+        sr.model <- advice.ctrl[[stknm]]$sr$model  # sr model, mandatory.
+        if(is.null(sr.pars)){                   # if params missing => estimate the parameters using the specified years.
+          if(is.null(advice.ctrl[[stknm]]$sr$years)){
+            sr.yrs <- which(round(quantSums(stocks[[stknm]]@stock.n))!=0)[1]:(year-1)# yr0 missing => use all data years, except the assessment year for which rec is unknown
+          }else{
+            y.rm <- as.numeric(advice.ctrl[[stknm]]$sr$years['y.rm'])
+            nyrs <- as.numeric(advice.ctrl[[stknm]]$sr$years['num.years'])
+            sr.yrs <- yrsnames[(year-y.rm-nyrs + 1):(year-y.rm)]
+          }
+          rec <- stki@stock.n[1,sr.yrs]
+          ssb <- ssb(stki)[,sr.yrs]
 
-                # if rec.age != 0 adjust rec and ssb.
-                rec.age <- as.numeric(dimnames(rec)[[1]])
-                if(rec.age != 0){
-                    rec <- rec[, -(1:rec.age),]
-                    ssb <- ssb[, 1:(dim(ssb)[2] - rec.age),]
-                }
+          # if rec.age != 0 adjust rec and ssb.
+          rec.age <- as.numeric(dimnames(rec)[[1]])
+          if(rec.age != 0){
+            rec <- rec[, -(1:rec.age),]
+            ssb <- ssb[, 1:(dim(ssb)[2] - rec.age),]
+          }
                 
-                if(sr.model != 'geomean') sr.pars <- try(params(fmle(FLSR(rec = rec, ssb = ssb, model = sr.model))), silent = TRUE) 
-                
-                if(class(sr.pars) == 'try-error' | sr.model == 'geomean'){
-                    sr.model <- 'geomean'
-                    sr.pars <- 10^6*c(prod(c(rec/10^6))^(1/length(c(rec))))
-                    sr.pars <- FLPar(a = ifelse(is.na(sr.pars), 0, sr.pars))
-                }
-                 
-                sr1 <- sr.pars
-            }
-            else{ # sr.pars not null
-                if(i == 1){
-                   sr1 <- iter(sr.pars,i)
-                }
-                sr1[] <-  iter(sr.pars,i)[]
-
-            }
-
-            stki <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
+          if(sr.model != 'geomean') sr.pars <- try(params(fmle(FLSR(rec = rec, ssb = ssb, model = sr.model))), silent = TRUE) 
+          
+          if(class(sr.pars) == 'try-error' | sr.model == 'geomean'){
+            sr.model <- 'geomean'
+            sr.pars <- 10^6*c(prod(c(rec/10^6))^(1/length(c(rec))))
+            sr.pars <- FLPar(a = ifelse(is.na(sr.pars), 0, sr.pars))
+          }
+           
+          sr1 <- sr.pars
+          
+        }else{ # sr.pars not null
+          if(i == 1){
+            sr1 <- iter(sr.pars,i)
+          }
+          sr1[] <-  iter(sr.pars,i)[]
         }
-        else{
 
-            # Extract the years to calculate the mean historical growth of the stock
-            if(is.null(advice.ctrl[[stknm]]$growth.years))   growth.years <- max(1,(year - 11)):(year-1)
-            else{
-                y.rm <- as.numeric(advice.ctrl[[stknm]]$growth.years['y.rm'])
-                nyrs  <- as.numeric(advice.ctrl[[stknm]]$growth.years['num.years'])
-                growth.years <- yrsnames[(year-y.rm-nyrs + 1):(year-y.rm)]
-            }
-            
-            stki <- fwdBD(stki, fwd.ctrl, growth.years)
+        stki.tmp <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
+        
+        # update advice based on ssb in advice year and run again
+        b.datyr <- ssb(stki.tmp)[, year+1, drop = TRUE]
+        b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts[c('Blim', 'Btrigger'),i]))  # [it]
+        Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',]*b.datyr/ref.pts[ 'Btrigger',], ref.pts['Fmsy',]))
+        print(Ftg)
+        
+        # run stf again with updated Ftg
+        k <- which(fwd.ctrl@target$year == assyrnumb+1)
+        fwd.ctrl@target[k,'val'] <- Ftg
+        fwd.ctrl@trgtArray[k, 'val',] <- Ftg
+        stki <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model = sr.model, params = sr1))
+        
+      }else{
+
+        # Extract the years to calculate the mean historical growth of the stock
+        if(is.null(advice.ctrl[[stknm]]$growth.years)){
+          growth.years <- max(1,(year - 11)):(year-1)
+        }else{
+          y.rm <- as.numeric(advice.ctrl[[stknm]]$growth.years['y.rm'])
+          nyrs  <- as.numeric(advice.ctrl[[stknm]]$growth.years['num.years'])
+          growth.years <- yrsnames[(year-y.rm-nyrs + 1):(year-y.rm)]
         }
+        
+        stki.tmp <- fwdBD(stki, fwd.ctrl, growth.years)
+        
+        # update advice based on ssb in advice year and run again
+        b.datyr <- (stki.tmp@stock.n*stki.tmp@stock.wt)[,year+1,drop = TRUE] # [it]
+        b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts[c('Blim', 'Btrigger'),i]))  # [it]
+        Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',]*b.datyr/ref.pts[ 'Btrigger',], ref.pts['Fmsy',]))
+        print(Ftg)
+        
+        # run stf again with updated Ftg
+        k <- which(fwd.ctrl@target$year == assyrnumb+1)
+        fwd.ctrl@target[k,'val'] <- Ftg
+        fwd.ctrl@trgtArray[k, 'val',] <- Ftg
+        stki <- fwdBD(stki, fwd.ctrl, growth.years)
+        
+      }
      
         yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
      
