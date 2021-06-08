@@ -140,7 +140,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
     }
     else{ # landObl == TRUE
       eff <- numeric(nit)
-      discount_yrtransfer <- matrix(0,nst,nit, dimnames = list(sts,1:nit))
+      discount_yrtransfer <- matrix(0,length(sts),nit, dimnames = list(sts,1:nit))
       ret.m.new <- ret.m # retention may change derived from minimis exemption.
       min_ctrl <- rep(FALSE, length(sts))
       names(min_ctrl) <- sts
@@ -166,7 +166,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
               
               # Extract the i-th element form the lists. 
-              Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+              Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
               q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
               beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
               alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -182,7 +182,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               if(minimis[yr] == TRUE | yrtrans[yr] == TRUE){
                               
                 eff_min_qt <- numeric(length(Ni))
-                names(eff_min_qt) <- stnms
+                names(eff_min_qt) <- sts
                 
                 Cr.f_min_qt <- Cr.f
               
@@ -192,7 +192,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
                   else rhoi <- matrix(rho, length(stnms), 1, dimnames = list(stnms, 1))
                   
                   # Extract the i-th element form the lists. 
-                  Ni       <- lapply(setNames(stnms, stnms), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
+                  Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
                   q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
                   beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
                   alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
@@ -200,11 +200,11 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
                   wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
                   wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
                   
-                  Nyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
-                  Cyri_1   <- lapply(setNames(stnms, stnms), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
-                  Cfyri_1  <- lapply(setNames(stnms, stnms), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
-                  Myri_1   <- lapply(setNames(stnms, stnms), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
-                  Mi       <- lapply(setNames(stnms, stnms), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
+                  Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
+                  Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
+                  Cfyri_1  <- lapply(setNames(sts, sts), function(x) array(Cfyr_1[[x]][,,i,drop=T], dim = c(dim(Cfyr_1[[x]])[c(1,2)],1)))
+                  Myri_1   <- lapply(setNames(sts, sts), function(x) array(Myr_1[[x]][,,i,drop=T], dim = c(dim(Myr_1[[x]])[c(1,2)],1)))
+                  Mi       <- lapply(setNames(sts, sts), function(x) array(M[[x]][,,i,drop=T], dim = c(dim(M[[x]])[c(1,2)],1)))
                  
                   effort.fun <- paste(fleets.ctrl[[flnm]][[st]][['catch.model']], 'effort', sep = '.')
                   # To calculate the final quota, the year transfer % needs to be applied to the original quota before
@@ -247,10 +247,10 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
               catch_Elo <- fcube_lo$catch
               diff      <- catch_Elo[sts]/Cr.f[sts,i] #[nst]
               diff <- ifelse(Cr.f[sts,i]  == 0 & catch_Elo[sts] == 0, 0, diff)
-              discount_yrtransfer[,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr], 0, 
-                                        ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr], 
-                                               (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[,yr] - 1),
-                                                fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[,yr]))*Cr.f[,i]
+              discount_yrtransfer[,i] <- ifelse(diff < 1 + fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr], 0, 
+                                        ifelse((diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr] - 1) < fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[sts,yr], 
+                                               (diff - fleets.ctrl[[flnm]]$LandObl_minimis_p[sts,yr] - 1),
+                                                fleets.ctrl[[flnm]]$LandObl_yearTransfer_p[sts,yr]))*Cr.f[,i]
               
               # update ret.m to account for the discards due to minimise exemption.
               for(st in sts){
@@ -286,7 +286,7 @@ SMFB_ES <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl,
            }    
           }
      
-          fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[,yr,] <- discount_yrtransfer
+          fleets.ctrl[[flnm]]$LandObl_discount_yrtransfer[sts,yr,] <- discount_yrtransfer
       }
     }
 
