@@ -767,6 +767,9 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
       names(resRP)[5:7] <- names(res)[5:7]
     }
     res   <- bind_rows(res, resRP)
+    
+    res$indicator <- dplyr::recode(res$indicator, higherFpa = 'pFpa', higherFlim = 'pFlim', lowerBpa = 'pBpa', 
+                                           lowerBlim = 'pBlim', higherFtarget = 'pFtarget', lowerBtarget = 'pBtarget')
   }
   else{
     

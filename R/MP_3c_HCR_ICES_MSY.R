@@ -67,34 +67,21 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
     # Build fwd.ctrl.
     #-----------------
-    # Last SSB (Age structured) OR Biomass (Aggregated) estimate
-    if(ageStruct)
-        b.datyr <- ssb(stk)[,year-1,drop = TRUE] # [it]
-    else
-        b.datyr <- (stk@stock.n*stk@stock.wt)[,year-1,drop = TRUE] # [it]
-
-    # Find where the SSB (Age structured) OR Biomass (Aggregated) in relation to reference points.
-    b.pos <- apply(matrix(1:iter,1,iter),2, function(i) findInterval(b.datyr[i], ref.pts[c('Blim', 'Btrigger'),i]))  # [it]
-
-    Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',]*b.datyr/ref.pts[ 'Btrigger',], ref.pts['Fmsy',]))
-    
-    print(Ftg)
     
     int.yr <- advice.ctrl[[stknm]]$intermediate.year
 
     for(i in 1:iter){
     
-        if(is.na(Ftg[i]) | Ftg[i] == 0){
-            advice[['TAC']][stknm,year+1,,,,i] <- 0
-            next
-        }
 
         int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
         
+        # For Ftg we first use Fmsy and then rerun fwd using the updated Ftg depending on the value of SSB
+        Ftg <- ref.pts['Fmsy',]
+        
         if(int.yr == 'Fsq')
-            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg[i]), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
         else
-            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg[i]), quantity = c( 'catch', 'f')))
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg), quantity = c( 'catch', 'f')))
 
         # Refresh the years in fwd!!
         fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
@@ -150,7 +137,27 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
             }
 
+            stk.aux <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
+            
+            
+            # SSB in the advice year.
+            b.datyr <- ssb(stk.aux)[,year+1,drop = TRUE] # [1]
+            
+            # Find where the SSB (Age structured) OR Biomass (Aggregated) in relation to reference points.
+            b.pos <- findInterval(b.datyr, ref.pts[c('Blim', 'Btrigger'),i])  # [1]
+            Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',i]*b.datyr/ref.pts[ 'Btrigger',i], ref.pts['Fmsy',i]))
+            
+            print(Ftg)
+            
+            if(is.na(Ftg) | Ftg == 0){
+              advice[['TAC']][stknm,year+1,,,,i] <- 0
+              next
+            }
+            
+            # Update the control and rerun the projection
+            fwd.ctrl@target[2,'val'] <- fwd.ctrl@trgtArray[2,'val',] <- Ftg
             stki <- FLash::fwd(stki, ctrl = fwd.ctrl, sr = list(model =sr.model, params = sr1))
+            
         }
         else{
 
@@ -162,7 +169,22 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                 growth.years <- yrsnames[(year-y.rm-nyrs + 1):(year-y.rm)]
             }
             
+            stk.aux <- fwdBD(stki, fwd.ctrl, growth.years)
+            
+            # SSB in the advice year.
+            b.datyr <- (stk.aux@stock.n*stk.aux@stock.wt)[,year+1,drop = TRUE] # [1]
+            
+            # Find where the SSB (Age structured) OR Biomass (Aggregated) in relation to reference points.
+            b.pos <-  findInterval(b.datyr, ref.pts[c('Blim', 'Btrigger'),i])  # [1]
+            
+            Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',i]*b.datyr/ref.pts[ 'Btrigger',i], ref.pts['Fmsy',i]))
+            
+            print(Ftg)
+            
+            # Update the control and rerun the projection
+            fwd.ctrl@target[2,'val'] <- fwd.ctrl@trgtArray[2,'val',] <- Ftg
             stki <- fwdBD(stki, fwd.ctrl, growth.years)
+            
         }
      
         yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
