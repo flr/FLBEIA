@@ -711,7 +711,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
 
   res <- res %>%  ungroup() %>% group_by(stock, iter) %>% left_join(brp)
   res <- res %>% mutate(ssb2Btarget = ssb/Btarget, f2Ftarget = f/Ftarget,
-                        lowBpa  = ifelse(ssb<Bpa, TRUE, FALSE), higherFpa = ifelse(f>Fpa, TRUE, FALSE),
+                        lowerBpa  = ifelse(ssb<Bpa, TRUE, FALSE), higherFpa = ifelse(f>Fpa, TRUE, FALSE),
                         lowerBlim = ifelse(ssb<Blim, TRUE, FALSE), higherFlim = ifelse(f>Flim, TRUE, FALSE),
                         lowerBtarget = ifelse(ssb<Btarget, TRUE, FALSE), higherFtarget = ifelse(f>Ftarget, TRUE, FALSE))
 
@@ -1724,7 +1724,7 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   x3 <- Reduce(rbind, lapply(stknms, function(x)  cbind(stock = x, 
                                                                array2df(apply(discWStock(obj$fleets, x), c(2,6), sum), label.x = 'discards')[,c('year', 'iter', 'discards')])))
   
-  res <- as_tibble(cbind(x1,discards = x3[,4], landings = x3[,4]))
+  res <- as_tibble(cbind(x1,discards = x3[,4], landings = x3[,3]))
                 
   x4 <- as_tibble(array2df(obj$advice$TAC, label.x = 'tac')[,c('stock', 'year', 'iter', 'tac')])
                 

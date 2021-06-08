@@ -171,9 +171,13 @@ setMethod("iter", signature(obj="NULL"),
 #' 
 #' The output can be used for the brp argument of \code{bioSum} function.
 #'
-# @param advice.ctrl A list with advice controls as the FLBEIA function argument advice.ctrl.
+#' @param advice.ctrl A list with advice controls as the FLBEIA function argument advice.ctrl.
 #' @param stkn Names of the stocks.
-#' @inheritParams FLBEIA
+#' @param Btarget Named vector with the name of the target biological reference point for each element in stkn. 
+#'                Default "Bmsy".
+#' @param Ftarget Named vector with the name of the target fishing mortality reference point for each element in stkn. 
+#'                Default "Fmsy".
+# @inheritParams FLBEIA
 #' 
 #' @return A data frame with columns stock, iter and one colum per reference point with the value 
 #'         of the biological reference points per stock and iteration. The used reference points are 
@@ -195,14 +199,29 @@ setMethod("iter", signature(obj="NULL"),
 #' 
 #' data(multi)
 #' extractBRP(multiAdvC, stkn = names(multiBio))
-#'                           scenario = 'alternative')
+#'                           
+#' # setting targets different to Bmsy and Fmsy
+#' 
+#' extractBRP(oneAdvC, stkn = names(oneBio),
+#'            Btarget=setNames("Btrigger","stk1"), Ftarget=setNames("Ftrigger","stk1"))
+#' 
+#' Btarget <- setNames(c("Btrigger","Bmsy"),names(oneBio))
+#' Ftarget <- setNames(c("Ftrigger","Fmsy"),names(oneBio))
+#' 
+#' extractBRP(multiAdvC, stkn = names(multiBio))
 #' 
 #' }
 
-extractBRP <- function(advice.ctrl, stkn) {
+extractBRP <- function(advice.ctrl, stkn, Btarget=NULL, Ftarget=NULL) {
   
   
-  refpts <- c("Bpa", "Blim", "Bmsy", "Fpa", "Flim", "Fmsy")
+  refpts <- c("Bpa", "Blim", "Btarget", "Fpa", "Flim", "Ftarget")
+  
+  if (is.null(Btarget))
+    Btarget <- setNames( rep("Bmsy", length(stkn)), stkn)
+  
+  if (is.null(Ftarget))
+    Ftarget <- setNames( rep("Fmsy", length(stkn)), stkn)
   
   its <- lapply(advice.ctrl, function(y) dimnames(y$ref.pts)[[2]] %>% as.numeric()) %>% unlist() %>% unique()
   
@@ -210,7 +229,10 @@ extractBRP <- function(advice.ctrl, stkn) {
   
   if (!is.list(advice.ctrl)) stop("advice.ctrl argument must be a list")
   if (!is.character(stkn))  stop("stkn argument must be a character vector")
-  
+  if (!is.character(Btarget) | !all(names(Btarget)==stkn))  
+    stop("Btarget must be a named character vector with one element per stkn")
+  if (!is.character(Ftarget) | !all(names(Ftarget)==stkn))  
+    stop("Ftarget must be a named character vector with one element per stkn")
   
   # check if there is one element per stkn
   
@@ -220,14 +242,16 @@ extractBRP <- function(advice.ctrl, stkn) {
   # out <- setNames(data.frame(matrix(ncol = 8, nrow = 0)),c("stock", "iter", refpts))
   
   out <- data.frame(stock = character(), iter  = numeric(),
-                    Bpa   = numeric(), Blim  = numeric(), Bmsy  = numeric(), 
-                    Fpa   = numeric(), Flim  = numeric(), Fmsy  = numeric())
+                    Bpa   = numeric(), Blim  = numeric(), Btarget  = numeric(), 
+                    Fpa   = numeric(), Flim  = numeric(), Ftarget  = numeric())
   
   for (st in stkn) {
     
+    refpts.st <- c("Bpa", "Blim", Btarget[[st]], "Fpa", "Flim", Ftarget[[st]])
+    
     rp <- advice.ctrl[[st]]$ref.pts 
     
-    if(is.null(rp) | !any(dimnames(rp)[[1]] %in% refpts)) {
+    if(is.null(rp) | !any(dimnames(rp)[[1]] %in% refpts.st)) {
       
       rp.df <- data.frame(stock = st, 
                           iter = its)
@@ -243,9 +267,15 @@ extractBRP <- function(advice.ctrl, stkn) {
         as.data.frame() %>% 
         mutate(stock = st, 
                iter = as.numeric(dimnames(rp)[[2]])) %>% 
-        select(stock, iter, any_of(refpts))
+        select(stock, iter, any_of(refpts.st))
       
       rownames(rp.df) <- NULL
+      
+      if (Btarget[[st]] %in% names(rp.df))
+        rp.df <- rp.df %>% dplyr::rename(Btarget = Btarget[[st]])
+      
+      if (Ftarget[[st]] %in% names(rp.df))
+        rp.df <- rp.df %>% dplyr::rename(Ftarget = Ftarget[[st]])
       
     }
     

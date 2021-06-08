@@ -123,7 +123,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                 
                 if(class(sr.pars) == 'try-error' | sr.model == 'geomean'){
                     sr.model <- 'geomean'
-                    sr.pars <- c(prod(c(rec))^(1/length(c(rec))))
+                    sr.pars <- 10^6*c(prod(c(rec/10^6))^(1/length(c(rec))))
                     sr.pars <- FLPar(a = ifelse(is.na(sr.pars), 0, sr.pars))
                 }
                  
