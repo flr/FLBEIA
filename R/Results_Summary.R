@@ -1724,7 +1724,7 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   x3 <- Reduce(rbind, lapply(stknms, function(x)  cbind(stock = x, 
                                                                array2df(apply(discWStock(obj$fleets, x), c(2,6), sum), label.x = 'discards')[,c('year', 'iter', 'discards')])))
   
-  res <- as_tibble(cbind(x1,discards = x3[,4], landings = x3[,3]))
+  res <- as_tibble(cbind(x1,discards = x3[,4], landings = x2[,4]))
                 
   x4 <- as_tibble(array2df(obj$advice$TAC, label.x = 'tac')[,c('stock', 'year', 'iter', 'tac')])
                 
