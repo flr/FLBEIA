@@ -154,7 +154,7 @@ vesselStkSumQ(obj, prob = c(0.95, 0.5, 0.05))
 \item{ssb_season}{If byyear = TRUE, the season in which ssb will be taken.}
 
 \item{brp}{a data frame with columns stock, iter and one colum per reference point with the value of the biological reference points per stock and iteration. 
-The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.}
+The used reference points are Bpa, Blim, Btarget, Fpa, Flim and Ftarget.}
 
 \item{prob}{a numeric vector with the probabilities used to calculate the quantiles.}
 
@@ -168,11 +168,11 @@ The used reference points are Bpa, Blim, Bmsy, Fpa, Flim and Fmsy.}
 
 \item{Blim}{named numeric vector with one element per stock in stknms. The limit stock spawning biomass used in riskSum function to calculate biological risk yearly.}
 
-\item{Prflim}{named numeric vector with one element per fleet in flnms. The limit profit level used in riskSum function to calculate economic risk yearly.}
-
 \item{discF}{Discount rate.}
 
 \item{y0}{character. Reference year.}
+
+\item{ProfRef}{named numeric vector with one element per fleet in flnms. The reference profit level used in riskSum function to calculate economic risk yearly.}
 }
 \value{
 A data frame with columns for scenario, year, stock, iter, indicator, value,...

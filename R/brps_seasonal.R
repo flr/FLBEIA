@@ -18,13 +18,15 @@
 #'
 #' @param stk An FLStock object.
 #' @param B0 The value of the virgin biomass. 
-#' @param R0 The expected recrutiment in the virgin populatino.
+#' @param R0 The expected recrutiment in the virgin population.
 #' @param rec.ss The recruitment season (numeric). Default value = 1.
 #' @param ssb.ss The spawning season (numeric). Default value = 1.
 #' @param sr_model A character with the name of the model to simulate the recruitment process.
 #' @param sr_params A named vector with the SR parameter values.
-#' @param Fprop A vector with the same length as the number of seasons. By default the same proportion in all the seasons is assumed.
-#' @param Fscan A vector with the F values to be simulated.
+#' @param Fprop A vector with the same length as the number of seasons with the proportion of F by season. 
+#'              By default the same proportion in all the seasons is assumed.
+#' @param Fscan A vector with the F values to be simulated. 
+#'              By default, will scan values between 0 and 4 (by 0.01 increments).
 #' @param oldest The maximum age class to be considered. Default 100.
 #' @param nrun The maximum number of years to project forward until equilibrium.
 #' @param tol The desired accuracy.
@@ -47,14 +49,15 @@
 #'            
 #' @seealso \code{\link{plotBRPsson}}   
 #
-# @examples
-#' 
+#' @examples
+#'
 #' library(FLBEIA)
 #' data(multi)
 #' 
 #' stk <- trim( biolfleets2flstock(biol = multiBio$stk1, fleets = multiFl), year=1990) 
 #' # object with only 1 season, required at least 2
 #' 
+#' # loop for different catch proportions by season
 #' for (p in seq(0.1,0.9,0.1)) {
 #'   fruns <- brpsson( stk, B0=1e+05, R0=27489766, rec.ss=2, ssb.ss=2, 
 #'                     sr_model="bevholt", sr_params=c( a = 29988835.109, b = 9090.909), 
@@ -62,7 +65,7 @@
 #' } 
 #' 
 #' plotBRPsson( fruns, pdfnm="stk_Fbar_vs_SPR.pdf")
-#' 
+#'  
 
 
 #------------------------------------------------------------------------------#
@@ -94,7 +97,7 @@ brpsson <- function( stk, B0, R0, rec.ss=1, ssb.ss=1, sr_model, sr_params,
   ages0 <- as.character(ages)
   ages1 <- as.character((ages[na]+1):(oldest+ages[1]-1))
   ages  <- c(ages0,ages1)
-  sson  <- as.numeric(dimnames(stk)[[4]])
+  if (ns > 1) { sson  <- as.numeric(dimnames(stk)[[4]]) } else sson <- 1
   year  <- 1:nrun
   
   fbar.range <- as.character(stk@range["minfbar"]:stk@range["maxfbar"])
@@ -244,7 +247,7 @@ brpsson <- function( stk, B0, R0, rec.ss=1, ssb.ss=1, sr_model, sr_params,
     Ry     <- R[yr]
     # ssbpr0 <- ssb0/r0   # out %>% mutate(ssbpr0 = ssbpr[F==0])
     ssbpr  <- ssby/Ry
-    fbars  <- apply(fage[fbar.range,], 2, mean)
+    fbars  <- apply(fage[fbar.range,,drop=FALSE], 2, mean)
     fbary  <- sum(fbars)
     fbarp  <- fbars/sum(fbars)
     fbarp[is.nan(fbarp)] <- Fprop
@@ -303,7 +306,7 @@ brpsson <- function( stk, B0, R0, rec.ss=1, ssb.ss=1, sr_model, sr_params,
   
   # Reference points
   
-  aux <- out %>% group_by(fprop_s1, fprop_s2)
+  aux <- out %>% group_by_at(vars(one_of(paste("fprop_s",1:ns,sep = "")))) #group_by(fprop_s1, fprop_s2)
   
   msy.val <- aux %>% filter(abs(slope - 0) == min(abs(slope - 0), na.rm = TRUE))
   f01.val <- aux %>% filter(abs(rslope - 0.1) == min(abs(rslope - 0.1), na.rm = TRUE))
@@ -419,7 +422,7 @@ plotBRPsson <- function( obj, pdfnm="Fbar_vs_SPR.pdf") {
     scale_y_continuous(sec.axis = sec_axis(~.*secaxis.rat, name = "yield")) + 
     scale_color_manual(name = "", values = c("ratioSPR"="black", "yield"="blue")) + 
     labs(y = "%SPR",
-         x = "Fbar (1-3)") + 
+         x = "Fbar") + 
     theme(text=element_text(size=12),
           strip.text=element_text(size=12),
           title=element_text(size=16,face="bold"),

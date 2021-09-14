@@ -24,7 +24,7 @@ brpsson(
 
 \item{B0}{The value of the virgin biomass.}
 
-\item{R0}{The expected recrutiment in the virgin populatino.}
+\item{R0}{The expected recrutiment in the virgin population.}
 
 \item{rec.ss}{The recruitment season (numeric). Default value = 1.}
 
@@ -34,7 +34,8 @@ brpsson(
 
 \item{sr_params}{A named vector with the SR parameter values.}
 
-\item{Fprop}{A vector with the same length as the number of seasons. By default the same proportion in all the seasons is assumed.}
+\item{Fprop}{A vector with the same length as the number of seasons with the proportion of F by season. 
+By default the same proportion in all the seasons is assumed.}
 
 \item{Fscan}{A vector with the F values to be simulated.}
 
@@ -50,8 +51,7 @@ brpsson(
 \description{
 Function to estimate reference points when having a seasonal model
 }
-\seealso{
-\code{\link{plotBRPsson}}   
+\examples{
 
 library(FLBEIA)
 data(multi)
@@ -59,6 +59,7 @@ data(multi)
 stk <- trim( biolfleets2flstock(biol = multiBio$stk1, fleets = multiFl), year=1990) 
 # object with only 1 season, required at least 2
 
+# loop for different catch proportions by season
 for (p in seq(0.1,0.9,0.1)) {
   fruns <- brpsson( stk, B0=1e+05, R0=27489766, rec.ss=2, ssb.ss=2, 
                     sr_model="bevholt", sr_params=c( a = 29988835.109, b = 9090.909), 
@@ -66,4 +67,8 @@ for (p in seq(0.1,0.9,0.1)) {
 } 
 
 plotBRPsson( fruns, pdfnm="stk_Fbar_vs_SPR.pdf")
+ 
+}
+\seealso{
+\code{\link{plotBRPsson}}
 }

@@ -4,7 +4,7 @@
 \alias{plotFLBiols}
 \title{Plots with biological data}
 \usage{
-plotFLBiols(biols, probs = c(0.95, 0.5, 0.05), pdfnm = "bc")
+plotFLBiols(biols, probs = c(0.95, 0.5, 0.05), pdfnm = "bc", u = 1, ss = 1)
 }
 \arguments{
 \item{biols}{A FLBiols object}

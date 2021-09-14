@@ -46,7 +46,7 @@ B_flbeia, F_flbeia... return an array with three dimensions (stock, year and ite
 The summary_flbeia function returns an array with 4 dimensions (stock, year, iter, indicator) with the value of all the indicators.
 }
 \description{
-These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. Also indicators comparing the reference points with the actual values, Bpa, Blim, Bmsy, Fpa, Flim and Fmsy, so the biomass indicators are TRUE if the biomass is above them, and the fishing mortality indicators are TRUE if the fishing mortality is below them. ssb2Bmsy and f2Fmsy return the ratio between SSB and F and the MSY reference point.
+These functions return the biomass (B), fishing mortality (F),  spawning stock biomass (SSB), recruitment (R), catches (C), landings (L) and discards (D) indicators. Also indicators comparing the reference points with the actual values, Bpa, Blim, Btarget, Fpa, Flim and Ftarget, so the biomass indicators are TRUE if the biomass is above them, and the fishing mortality indicators are TRUE if the fishing mortality is below them. ssb2Btarget and f2Ftarget return the ratio between SSB and F and the target reference point.
 }
 \details{
 \itemize{
