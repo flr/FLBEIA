@@ -74,8 +74,9 @@ landStock.f <- function(obj, stock){
             res[is.na(res)] <- 0
             next
         }
-        res <- res + m@catches[[stock]]@landings.n 
-        res[is.na(res)] <- 0
+        resf <- m@catches[[stock]]@landings.n 
+        resf[is.na(resf)] <- 0
+        res <- res + resf
     }
     return(res)
 }
@@ -103,8 +104,9 @@ discStock.f <- function(obj, stock){
             res[is.na(res)] <- 0
             next
         }
-        res <- res + m@catches[[stock]]@discards.n 
-        res[is.na(res)] <- 0
+        resf <- m@catches[[stock]]@discards.n 
+        resf[is.na(resf)] <- 0
+        res <- res + resf
     }
     return(res)
 }
@@ -146,8 +148,9 @@ landWStock.f <- function(obj, stock){
             res[is.na(res)] <- 0
             next
         }
-        res <- res + m@catches[[stock]]@landings.n*m@catches[[stock]]@landings.wt 
-        res[is.na(res)] <- 0
+        resf <- m@catches[[stock]]@landings.n*m@catches[[stock]]@landings.wt 
+        resf[is.na(resf)] <- 0
+        res <- res + resf
     }
 
     return(res)
@@ -175,8 +178,9 @@ discWStock.f <- function(obj, stock){
             res[is.na(res)] <- 0
             next
         }
-        res <- res + m@catches[[stock]]@discards.n*m@catches[[stock]]@discards.wt 
-        res[is.na(res)] <- 0
+        resf <- m@catches[[stock]]@discards.n*m@catches[[stock]]@discards.wt
+        resf[is.na(resf)] <- 0
+        res <- res + resf
     }
     return(res)
 }

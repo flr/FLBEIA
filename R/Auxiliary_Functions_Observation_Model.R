@@ -19,8 +19,9 @@ tlandStock <- function(obj, stknm){
                 res[is.na(res)] <- 0
                 next
             }
-            res <- res + m@catches[[stknm]]@landings
-            res[is.na(res)] <- 0
+            resf <- m@catches[[stknm]]@landings
+            resf[is.na(resf)] <- 0
+            res <- res + resf
         }
     }
     return(res)
@@ -63,8 +64,9 @@ wtalStock <- function(obj, stknm)
              next
              }
            cnt <- cnt + 1
-           res <- res + m@catches[[stknm]]@landings.wt
-           res[is.na(res)] <- 0
+           resf <- m@catches[[stknm]]@landings.wt
+           resf[is.na(resf)] <- 0
+           res <- res + resf
            }
         }
     res <- res/cnt # This is a normal mean ant it should be weighted!!
@@ -89,8 +91,9 @@ tdiscStock <- function(obj, stknm){
                 res[is.na(res)] <- 0
                 next
             }
-            res <- res + m@catches[[stknm]]@discards
-            res[is.na(res)] <- 0
+            resf <- m@catches[[stknm]]@discards 
+            resf[is.na(resf)] <- 0
+            res <- res + resf
         }
     }
     return(res)
@@ -112,8 +115,9 @@ discnStock <- function(obj, stknm){
                 res[is.na(res)] <- 0
                 next
             }
-            res <- res + m@catches[[stknm]]@discards.n
-            res[is.na(res)] <- 0
+            resf <- m@catches[[stknm]]@discards.n
+            resf[is.na(resf)] <- 0
+            res <- res + resf
         }
     }
     return(res)
@@ -152,8 +156,9 @@ wtadStock <- function(obj, stknm)
              next
              }
            cnt <- cnt + 1
-           res <- res + m@catches[[stknm]]@discards.wt
-           res[is.na(res)] <- 0
+           resf <- m@catches[[stknm]]@discards.wt 
+           resf[is.na(resf)] <- 0
+           res <- res + resf
            }
         }
     res <- res/cnt
