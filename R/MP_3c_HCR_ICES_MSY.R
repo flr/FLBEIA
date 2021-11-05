@@ -76,7 +76,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
         int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
         
         # For Ftg we first use Fmsy and then rerun fwd using the updated Ftg depending on the value of SSB
-        Ftg <- ref.pts['Fmsy',]
+        Ftg <- ref.pts['Fmsy',i]
         
         if(int.yr == 'Fsq')
             fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
