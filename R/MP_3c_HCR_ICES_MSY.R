@@ -72,22 +72,31 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
     for(i in 1:iter){
     
+        stki <- iter(stk, i)
 
         int.yr <- ifelse(is.null(int.yr), 'Fsq', int.yr)
         
         # For Ftg we first use Fmsy and then rerun fwd using the updated Ftg depending on the value of SSB
         Ftg <- ref.pts['Fmsy',i]
         
-        if(int.yr == 'Fsq')
-            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(1, Ftg), quantity = c( 'f', 'f'), rel.year = c(-1,NA)))
-        else
+        if(int.yr == 'Fsq') {
+		
+		# Calculate Fsq
+		if(fbar.nyears == 1 | f.rescale) {
+		Fsq <- mean(fbar(stki)[,(year-1)]) 
+		} else {
+		Fsq <- mean(fbar(stki)[,(year-fbar.nyears):(year-1)])
+		}
+
+            fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(Fsq, Ftg), quantity = c( 'f', 'f'), rel.year = c(NA,NA))) 
+	}   else {
             fwd.ctrl <- FLash::fwdControl(data.frame(year = c(0, 1),  val = c(advice$TAC[stknm,year, drop=TRUE][i], Ftg), quantity = c( 'catch', 'f')))
+	}
 
         # Refresh the years in fwd!!
         fwd.ctrl@target$year     <- fwd.ctrl@target$year + assyrnumb
         fwd.ctrl@target$rel.year <- fwd.ctrl@target$rel.year + assyrnumb
     
-        stki <- iter(stk, i)
 
         # if in <year 0> quantity = catch => set TAC in <year 0> in val
         if(fwd.ctrl@target[fwd.ctrl@target$year == assyrnumb,'quantity'] == 'catch'){
