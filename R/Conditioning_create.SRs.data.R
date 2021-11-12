@@ -93,7 +93,7 @@ create.SRs.data <- function(yrs,ns,ni,stks.data){
         stk.unit            <- get(grep(stks.data[[nmstk]],pattern=".unit", value = TRUE))
         stk.rec             <- get(grep(stks.data[[nmstk]],pattern="_rec.flq", value = TRUE))
         stk.ssb             <- get(grep(stks.data[[nmstk]],pattern="_ssb.flq", value = TRUE))
-        stk.params.n        <- get(grep(stks.data[[nmstk]],pattern="_params.n", value = TRUE))
+        stk.params.n        <- get(grep(stks.data[[nmstk]],pattern="_params.n$", value = TRUE))
         stk.params.name     <- get(grep(stks.data[[nmstk]],pattern="_params.name", value = TRUE))
         stk.params          <- get(grep(stks.data[[nmstk]],pattern="_params.array", value = TRUE))
         stk.proportion      <- get(grep(stks.data[[nmstk]],pattern="_proportion.flq", value = TRUE))
