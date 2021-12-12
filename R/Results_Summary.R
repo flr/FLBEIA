@@ -735,7 +735,7 @@ bioSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
                               paste(substr(prob,3, nchar(prob)), 0, sep = ""), 
                               substr(prob,3, nchar(prob))), sep = "")
   
-  if(dim(obj)[2] <= 7){ # the object is in long format
+  if("indicator" %in% names(obj)){ # the object is in long format
     
     objRP <- obj %>% filter(indicator %in% c('higherFpa', 'higherFlim', 'lowerBpa', 'lowerBlim', 'higherFtarget', 'lowerBtarget'))
     obj   <- obj %>% filter(!(indicator %in% c('higherFpa', 'higherFlim', 'lowerBpa', 'lowerBlim', 'higherFtarget', 'lowerBtarget')))
