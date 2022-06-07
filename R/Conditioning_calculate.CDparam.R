@@ -153,43 +153,51 @@
         for(mt in names(fleets[[fl]]@metiers)){
             
           cat(fl, ' - ', mt, ' - ', st, '\n')
+          
+          cobj <- fleets[[fl]]@metiers[[mt]]@catches[[st]]
+          
         #  if(fl == 'GN7_SP' & st == 'HKE') browser()
           
             if(!(st %in% catchNames(fleets[[fl]]@metiers[[mt]]))) next  
           
             catchProd <- fleets.ctrl[[fl]][[st]][['catch.model']] 
               
-            C     <- (fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n + fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n)
-            alpha <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@alpha
-            beta  <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@beta
+            C     <- (cobj@discards.n + cobj@landings.n)
+            alpha <- cobj@alpha
+            beta  <- cobj@beta
             E     <- fleets[[fl]]@effort*fleets[[fl]]@metiers[[mt]]@effshare
             
-            if(na == 1 ) C <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt + 
-                              fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt
+            if(na == 1 ) C <- cobj@discards.n*cobj@discards.wt + 
+              cobj@landings.n*cobj@landings.wt
             
             
             # Cobb-Douglas q
-            if(substr(catchProd,1,11) == 'CobbDouglas') fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q <- C/((E%^%alpha)*(B%^%beta))
+            if(substr(catchProd,1,11) == 'CobbDouglas') cobj@catch.q <- C/((E%^%alpha)*(B%^%beta))
             # Baranov q: First calculate Fa for the whole fishery and then using partial F calculate q = Fap/E^alpha.
             if(catchProd == 'Baranov'){ 
               Fpa <- (C/Ct)*Fa
               
-              fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[] <- Fpa/(E%^%alpha)
+              cobj@catch.q[] <- Fpa/(E%^%alpha)
             }  
            
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel <- fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n/(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n +
+            cobj@landings.sel <- cobj@landings.n/(cobj@landings.n +
                                                                                                                              fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n)
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel <- 1 - fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel
+            cobj@discards.sel <- 1 - cobj@landings.sel
             
             # Fill in the values in the projection.
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[,ac(sim.yrs)] <- yearMeans(fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[,ac(mean.yrs)])
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,ac(sim.yrs)] <- apply(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,ac(mean.yrs)],1,mean,na.rm = TRUE)
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[,ac(sim.yrs)] <- 1-yearMeans(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,ac(mean.yrs)])
+            cobj@catch.q[,ac(sim.yrs)] <- yearMeans(cobj@catch.q[,ac(mean.yrs)])
+            cobj@landings.sel[,ac(sim.yrs)] <- apply(cobj@landings.sel[,ac(mean.yrs)],1,mean,na.rm = TRUE)
+            cobj@discards.sel[,ac(sim.yrs)] <- 1-yearMeans(cobj@landings.sel[,ac(mean.yrs)])
 
             # If there are NA-s replace them by 0 in the case of catch.q & discards.sel and by 1 in the case of landings
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q[is.na(fleets[[fl]]@metiers[[mt]]@catches[[st]]@catch.q)] <- 0
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[is.na(fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel)] <- 1
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[is.na(fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel)] <- 0
+            cobj@catch.q[is.na(cobj@catch.q)] <- 0
+            cobj@landings.sel[is.na(cobj@landings.sel)] <- 1
+            cobj@discards.sel[is.na(cobj@discards.sel)] <- 0
+            
+            mt_idx<-which(names(fleets[[fl]]@metiers)==mt)
+            fleets[[fl]]<-fill_flcatches(fl=fleets[[fl]],cobj=cobj,st=st,mt_idx=mt_idx)
+            rm(cobj)
+            
             }
      }
    }

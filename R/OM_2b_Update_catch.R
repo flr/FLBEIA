@@ -199,7 +199,7 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, adv
         cobj@landings.n[,yr,,ss][is.na(cobj@landings.n[,yr,,ss])] <- 0
         cobj@discards.n[,yr,,ss][is.na(cobj@discards.n[,yr,,ss])] <- 0
 
-        fl@metiers[[mt]]@catches[[st]] <- cobj
+        fl <- fill_flcatches(fl=fl,cobj=cobj,st=st,mt_idx=mt)
 
 
         }
@@ -410,7 +410,7 @@ AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, advi
         cobj@discards[,yr,,ss] <- apply(Ca*dsa/sa,c(2,4,6),sum,na.rm=T)
         cobj@landings[,yr,,ss] <- apply(Ca*lsa/sa,c(2,4,6),sum,na.rm=T)
 
-        fl@metiers[[mt]]@catches[[st]] <- cobj          
+        fl <- fill_flcatches(fl=fl,cobj=cobj,st=st,mt_idx=mt)      
     }
     
     fleets[[flnm]] <- fl
@@ -652,7 +652,8 @@ CorrectCatch <- function(fleets, biols, BDs, biols.ctrl,fleets.ctrl, year = 1, s
 
      #        print(c(cobj@landings.n[14,yr,,ss]))
              
-           fleets[[fl]]@metiers[[mt]]@catches[[st]] <- cobj
+            mt_idx <- which(names(fleets[[fl]]@metiers)==mt)
+            fleets[[fl]] <- fill_flcatches(fl=fleets[[fl]],cobj=cobj,st=st,mt_idx=mt_idx)
         }
         
         

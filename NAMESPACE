@@ -25,6 +25,9 @@ importFrom("nloptr", "nloptr")
 #importFrom("nnet", "predict.multinom")
 importFrom("purrr", "map", "partial", "set_names")
 importFrom("tibble", "tibble")
+importFrom("Rcpp", "sourceCpp")
+
+useDynLib(FLBEIA, .registration = TRUE)
 
 export(
 "advSum",

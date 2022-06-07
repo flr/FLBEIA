@@ -424,9 +424,15 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     for(fl in names(flfleets)){
       for(mt in names(flfleets[[fl]]@metiers)){
         if(!(st %in% catchNames(flfleets[[fl]][[mt]]))) next
+        
+        cobj<-flfleets[[fl]]@metiers[[mt]]@catches[[st]]
+        cobj@landings.wt[, hist.yrs] <- wts.land[[st]][, yrs_nms]
+        cobj@discards.wt[, hist.yrs] <- wts.disc[[st]][, yrs_nms]
+        
+        mt_idx<-which(names(flfleets[[fl]]@metiers)==mt)
+        flfleets[[fl]]<-fill_flcatches(fl=flfleets[[fl]],cobj=cobj,st=st,mt_idx=mt_idx)
+        rm(cobj)
 
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[, hist.yrs] <- wts.land[[st]][, yrs_nms] 
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[, hist.yrs] <- wts.disc[[st]][, yrs_nms] 
       }
     }
     
@@ -447,7 +453,9 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     
     for(mt in names(flfleets[[fl]]@metiers)){
       for(st in names(flfleets[[fl]]@metiers[[mt]]@catches)){
-        xlcFreeMemory()
+        #xlcFreeMemory()
+        cobj<-flfleets[[fl]]@metiers[[mt]]@catches[[st]]
+        
         fltmt <- paste(fl, mt, sep = "_")
         # print(fltmt)
         # print(st)
@@ -469,8 +477,8 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             la.yrs <-  ac(readWorksheet(wb_caa, sheet = mt, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
             da.yrs <-  ac(readWorksheet(wb_caa, sheet = mt, header = FALSE, startRow = nages_stk[st] +  3, startCol = 2, endRow = nages_stk[st] +  3))
             
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,la.yrs] <- la
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,da.yrs] <- da
+            cobj@landings.n[,la.yrs] <- la
+            cobj@discards.n[,da.yrs] <- da
             
           }
           
@@ -500,8 +508,8 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             colnames(la) <- la.yrs
             colnames(da) <- da.yrs
             
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,land_prop_mt_yrs] <- sweep(la[,land_prop_mt_yrs, drop=FALSE],2,land_prop_mt,"*")
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,disc_prop_mt_yrs] <- sweep(da[,disc_prop_mt_yrs, drop=FALSE],2,disc_prop_mt,"*")
+            cobj@landings.n[,land_prop_mt_yrs] <- sweep(la[,land_prop_mt_yrs, drop=FALSE],2,land_prop_mt,"*")
+            cobj@catches[[st]]@discards.n[,disc_prop_mt_yrs] <- sweep(da[,disc_prop_mt_yrs, drop=FALSE],2,disc_prop_mt,"*")
 
           }
         
@@ -549,8 +557,8 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             la.yrs <-  ac(readWorksheet(wb_caa, sheet = fleetSeg, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
             da.yrs <-  ac(readWorksheet(wb_caa, sheet = fleetSeg, header = FALSE, startRow = nages_stk[st] +  3, startCol = 2, endRow = nages_stk[st] +  3))
        
-            law <- flfleets[[fl]][[mt]][[st]]@landings.wt[, substr(colnames(la),2,5), drop=T]
-            daw <- flfleets[[fl]][[mt]][[st]]@discards.wt[, substr(colnames(da),2,5), drop=T] 
+            law <- cobj@landings.wt[, substr(colnames(la),2,5), drop=T]
+            daw <- cobj@discards.wt[, substr(colnames(da),2,5), drop=T] 
             
         #  browser()
             pla <- sweep(la*law, 2, apply(la*law,2,sum), "/") # catch proportions by age
@@ -561,9 +569,9 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             colnames(pla) <- substr(selyrs, 2,5)
             if(dim(pda)[1] != 0) colnames(pda) <- substr(selyrs, 2,5)
             
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,land_mt_yrs] <- sweep(pla[,land_mt_yrs, drop=FALSE],2,land_mt,"*")/flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[,land_mt_yrs,drop=T]
+            cobj@landings.n[,land_mt_yrs] <- sweep(pla[,land_mt_yrs, drop=FALSE],2,land_mt,"*")/cobj@landings.wt[,land_mt_yrs,drop=T]
             if(dim(pda)[1] != 0){ 
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,disc_mt_yrs] <- sweep(pda[,disc_mt_yrs, drop=FALSE],2,disc_mt,"*")/flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[,disc_mt_yrs,drop=T]}
+              cobj@discards.n[,disc_mt_yrs] <- sweep(pda[,disc_mt_yrs, drop=FALSE],2,disc_mt,"*")/cobj@catches[[st]]@discards.wt[,disc_mt_yrs,drop=T]}
             else{flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,disc_mt_yrs] <- 0}
             
           }
@@ -595,8 +603,8 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             colnames(la) <- la.yrs
             colnames(da) <- da.yrs
 
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,land_prop_flmt_yrs] <- sweep(la[,land_prop_flmt_yrs, drop=FALSE],2,land_prop_flmt,"*")
-            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,disc_prop_flmt_yrs] <- sweep(da[,disc_prop_flmt_yrs, drop=FALSE],2,disc_prop_flmt,"*")
+            cobj@landings.n[,land_prop_flmt_yrs] <- sweep(la[,land_prop_flmt_yrs, drop=FALSE],2,land_prop_flmt,"*")
+            cobj@discards.n[,disc_prop_flmt_yrs] <- sweep(da[,disc_prop_flmt_yrs, drop=FALSE],2,disc_prop_flmt,"*")
             
           }
         # The CAA is given at stock level but there is CAA[fl,mt] available in some historical years in the FLFleets obj.
@@ -619,13 +627,17 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           plaa <- yearMeans(law%/%quantSums(law))
           pdaa <- yearMeans(daw%/%quantSums(daw))
           
-          flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,new_hist.yrs] <- quantSums(plaa%*%FLQuant(land_flmt, dim = c(1,length(new_hist.yrs))))
-          flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,new_hist.yrs] <- quantSums(pdaa%*%FLQuant(disc_flmt, dim = c(1,length(new_hist.yrs))))
+          cobj@landings.n[,new_hist.yrs] <- quantSums(plaa%*%FLQuant(land_flmt, dim = c(1,length(new_hist.yrs))))
+          cobj@discards.n[,new_hist.yrs] <- quantSums(pdaa%*%FLQuant(disc_flmt, dim = c(1,length(new_hist.yrs))))
           
         }
         
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,new_hist.yrs][is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n[,new_hist.yrs])] <- 0
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,new_hist.yrs][is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n[,new_hist.yrs])] <- 0
+        cobj@landings.n[,new_hist.yrs][is.na(cobj@landings.n[,new_hist.yrs])] <- 0
+        cobj@discards.n[,new_hist.yrs][is.na(cobj@discards.n[,new_hist.yrs])] <- 0
+        
+        mt_idx<-which(names(flfleets[[fl]]@metiers)==mt)
+        flfleets[[fl]]<-fill_flcatches(fl=flfleets[[fl]],cobj=cobj,st=st,mt_idx=mt_idx)
+        rm(cobj)
       }
     }
   }
@@ -658,7 +670,9 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     
     for(mt in names(flfleets[[fl]]@metiers)){
       for(st in names(flfleets[[fl]]@metiers[[mt]]@catches)){
-        xlcFreeMemory()
+        #xlcFreeMemory()
+        cobj<-flfleets[[fl]]@metiers[[mt]]@catches[[st]]
+        
         fltmt <- paste(fl, mt, sep = "_")
         print(fltmt)
         print(st)
@@ -677,7 +691,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
          
           pa.yrs <-  ac(readWorksheet(wb_price, sheet = mt, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
 
-          flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price[,pa.yrs] <- pa
+          cobj@price[,pa.yrs] <- pa
 
         }
         
@@ -698,7 +712,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           
           pa.yrs <-  ac(readWorksheet(wb_price, sheet = fl, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
           
-          flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price[,pa.yrs] <- pa
+          cobj@price[,pa.yrs] <- pa
 
         }
         
@@ -728,7 +742,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           
           pa.yrs <-  ac(readWorksheet(wb_price, sheet = fleetSeg, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
           
-          flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price[,pa.yrs] <- pa
+          cobj@price[,pa.yrs] <- pa
           
         }
         
@@ -747,9 +761,13 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           
           pa.yrs <-  ac(readWorksheet(wb_price, sheet = st, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
           
-          flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price[,pa.yrs] <- pa
+          cobj@price[,pa.yrs] <- pa
           
         }
+        
+        mt_idx<-which(names(flfleets[[fl]]@metiers)==mt)
+        flfleets[[fl]]<-fill_flcatches(fl=flfleets[[fl]],cobj=cobj,st=st,mt_idx=mt_idx)
+        rm(cobj)
 
       }
     }
@@ -858,48 +876,50 @@ if(update_catch_effort == TRUE){
         
         cat('---------------------', fl,'fleet,',mt,' metier,',st,'stock','---------------------\n')
         
+        cobj<-flfleets[[fl]]@metiers[[mt]]@catches[[st]]
+        
         # landings.wt
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[,sim.yrs,] <- yearMeans(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[,mean.yrs,])
-        if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt)[,mean.yrs,,,,])) {
+        cobj@landings.wt[,sim.yrs,] <- yearMeans(cobj@landings.wt[,mean.yrs,])
+        if(any(is.na(cobj@landings.wt)[,mean.yrs,,,,])) {
           cat(paste("warning: NAs in landings.wt for 'mean.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
-          if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt)[,sim.yrs,,,,]))
+          if(any(is.na(cobj@landings.wt)[,sim.yrs,,,,]))
             cat(paste("warning: NAs in landings.wt for 'sim.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
         }
         
         # landings
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings <- quantSums( flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.n*
-                                                                            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt)
+        cobj@landings <- quantSums( cobj@landings.n*
+                                      cobj@landings.wt)
         
         # landings.sel
-        if (any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel)[,mean.yrs,,,,])) {
+        if (any(is.na(cobj@landings.sel)[,mean.yrs,,,,])) {
           cat(paste("warning: NAs in landings.sel for fleet '", fl, "', metier '", mt, "' and stock '", st,".\n", sep = ''))
                   #  "', these have been replaced by 1 for computing means. \n", sep = ''))
          # flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,mean.yrs,][is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,mean.yrs,])] <- 1
         }
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,sim.yrs,] <- yearMeans(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel[,mean.yrs,])
-        if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.sel)[,sim.yrs,,,,]))
+        cobj@landings.sel[,sim.yrs,] <- yearMeans(cobj@landings.sel[,mean.yrs,])
+        if(any(is.na(cobj@landings.sel)[,sim.yrs,,,,]))
           cat(paste("warning: NAs in landings.sel projection for fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
 
         # discards.wt
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[,sim.yrs,] <- yearMeans(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[,mean.yrs,])
-        if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt)[,mean.yrs,,,,])) {
+        cobj@discards.wt[,sim.yrs,] <- yearMeans(cobj@discards.wt[,mean.yrs,])
+        if(any(is.na(cobj@discards.wt)[,mean.yrs,,,,])) {
           cat(paste("warning: NAs in discards.wt for 'mean.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
-          if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt)[,sim.yrs,,,,]))
+          if(any(is.na(cobj@discards.wt)[,sim.yrs,,,,]))
             cat(paste("warning: NAs in discards.wt for 'sim.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
         }
         
         # discards
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards <- quantSums( flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.n*
-                                                                            flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt)
+        cobj@discards <- quantSums( cobj@discards.n*
+                                      cobj@discards.wt)
         
         # discards.sel
-        if (any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel)[,mean.yrs,,,,])) {
+        if (any(is.na(cobj@discards.sel)[,mean.yrs,,,,])) {
           cat(paste("warning: NAs in discards.sel for fleet '", fl, "', metier '", mt, "' and stock '", st,"\n", sep = ''))
                    # "', these have been replaced by 0 for computing means. \n", sep = ''))
          # flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[,mean.yrs,][is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[,mean.yrs,])] <- 0
         }
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[,sim.yrs,] <- yearMeans(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel[,mean.yrs,])
-        if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.sel)[,sim.yrs,,,,]))
+        cobj@discards.sel[,sim.yrs,] <- yearMeans(cobj@discards.sel[,mean.yrs,])
+        if(any(is.na(cobj@discards.sel)[,sim.yrs,,,,]))
           cat(paste("warning: NAs in discards.sel projection for fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
         
         # alpha
@@ -943,12 +963,16 @@ if(update_catch_effort == TRUE){
         #   cat(paste("warning: NAs in catch.q projection for fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
         # 
         # price
-        flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price[,sim.yrs,] <- yearMeans(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price[,mean.yrs,])
-        if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price)[,mean.yrs,,,,])) {
+        cobj@price[,sim.yrs,] <- yearMeans(cobj@price[,mean.yrs,])
+        if(any(is.na(cobj@price)[,mean.yrs,,,,])) {
           cat(paste("warning: NAs in price for 'mean.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
-          if(any(is.na(flfleets[[fl]]@metiers[[mt]]@catches[[st]]@price)[,sim.yrs,,,,]))
+          if(any(is.na(cobj@price)[,sim.yrs,,,,]))
             cat(paste("warning: NAs in price for 'sim.yrs', fleet '", fl, "', metier '", mt, "' and stock '", st, "' \n", sep = ''))
         }
+        
+        mt_idx<-which(names(flfleets[[fl]]@metiers)==mt)
+        flfleets[[fl]]<-fill_flcatches(fl=flfleets[[fl]],cobj=cobj,st=st,mt_idx=mt_idx)
+        rm(cobj) 
         
       } # END st
       
