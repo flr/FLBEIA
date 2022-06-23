@@ -1,6 +1,6 @@
 Package: FLBEIA
 Title: Bio-Economic Impact Assessment of Management Strategies using FLR
-Version: 1.15.6.16
+Version: 1.15.6.17
 Date: 2022-06-23
 Authors@R: c(person("Dorleta", "Garcia", email = "dgarcia@azti.es", role = c("aut","cre")))
 Description: A simulation toolbox that describes a fishery system under
@@ -148,4 +148,4 @@ Collate:
     "brps_seasonal.R"
     "RcppExports.R"
 VignetteBuilder: R.rsp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

@@ -37,7 +37,8 @@ brpsson(
 \item{Fprop}{A vector with the same length as the number of seasons with the proportion of F by season. 
 By default the same proportion in all the seasons is assumed.}
 
-\item{Fscan}{A vector with the F values to be simulated.}
+\item{Fscan}{A vector with the F values to be simulated. 
+By default, will scan values between 0 and 4 (by 0.01 increments).}
 
 \item{oldest}{The maximum age class to be considered. Default 100.}
 
@@ -54,10 +55,9 @@ Function to estimate reference points when having a seasonal model
 \examples{
 
 library(FLBEIA)
-data(multi)
+data(multistk) # object with 2 seasons and 3 iterations
 
-stk <- trim( biolfleets2flstock(biol = multiBio$stk1, fleets = multiFl), year=1990) 
-# object with only 1 season, required at least 2
+stk <- trim( multistk, year=1, iter = 1) 
 
 # loop for different catch proportions by season
 for (p in seq(0.1,0.9,0.1)) {

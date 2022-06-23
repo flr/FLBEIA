@@ -1,4 +1,5 @@
 multi: multiAdv multiAdvC multiAssC multiBD multiBio multiBioC multiCv multiCvC multiFl multiFlC multiMainC multiObsC multiSR
+multistk: multistk
 mur: catch evhoe
 one: oneAdv oneAdvC oneAssC oneBio oneBioC oneCv oneCvC oneFl oneFlC oneIndAge oneIndBio oneMainC oneObsC oneObsCIndAge oneObsCIndBio oneSR
 oneIt: oneItAdv oneItAdvC oneItAssC oneItBio oneItBioC oneItCv oneItCvC oneItFl oneItFlC oneItIndAge oneItIndBio oneItMainC oneItObsC oneItObsCIndAge oneItObsCIndBio oneItSR

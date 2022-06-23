@@ -52,10 +52,9 @@
 #' @examples
 #'
 #' library(FLBEIA)
-#' data(multi)
+#' data(multistk) # object with 2 seasons and 3 iterations
 #' 
-#' stk <- trim( biolfleets2flstock(biol = multiBio$stk1, fleets = multiFl), year=1990) 
-#' # object with only 1 season, required at least 2
+#' stk <- trim( multistk, year=1, iter = 1) 
 #' 
 #' # loop for different catch proportions by season
 #' for (p in seq(0.1,0.9,0.1)) {

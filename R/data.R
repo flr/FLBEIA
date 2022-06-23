@@ -122,6 +122,12 @@
 #'            {: EVHOE abundance index time series, provided by Ifremer.
 #'               The abundance index is available since 1997 and provides an estimation of the biomass together with a coefficient of variation.}
 #'     }
+#'     
+#'     \item{\code{multistk}}{: A dataset with an FLStock with multiple dimensions.}
+#'     \itemize{
+#'       \item{\code{multistk} (\code{\link{FLStock}})}
+#'            {: FLStock object with 2 seasons and 3 iterations.}
+#'     }
 #' }
 #'
 #' Datasets can be loaded by issuing the \code{data} command, like in:
