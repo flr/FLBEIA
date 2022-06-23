@@ -324,11 +324,11 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         
         # Advice year assessment necessary?
         # assess.ctrl[[st]]$ass.curryr=TRUE if assessment estimates also for advice year are needed
-        if (is.null(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- F } else if (is.na(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- F }
-        if (assess.ctrl[[st]]$ass.curryr==TRUE) obs.ctrl[[st]]$obs.curryr <- T
+        if (is.null(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- FALSE } else if (is.na(assess.ctrl[[st]]$ass.curryr)) { assess.ctrl[[st]]$ass.curryr <- FALSE }
+        if (assess.ctrl[[st]]$ass.curryr==TRUE) obs.ctrl[[st]]$obs.curryr <- TRUE
         # Advice year observations necessary?
         # obs.ctrl[[st]]$obs.curryr=TRUE if observations also for advice year are needed
-        if (is.null(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F } else if (is.na(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- F }
+        if (is.null(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- FALSE } else if (is.na(obs.ctrl[[st]]$obs.curryr)) { obs.ctrl[[st]]$obs.curryr <- FALSE }
         
       }
       

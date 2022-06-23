@@ -19,7 +19,7 @@ observation.mp <- function(biols, fleets, covars, indices, advice, obs.ctrl, yea
      
     st <- stknm
     
-    if (obs.ctrl[[st]]$obs.curryr==T & season==dim(biols[[1]]@n)[4]) year <- year+1
+    if (obs.ctrl[[st]]$obs.curryr==TRUE & season==dim(biols[[1]]@n)[4]) year <- year+1
     
     # Generete the FLStock
     stock <- eval(call(obs.ctrl[[st]][['stkObs']][['stkObs.model']], biol = biols[[st]], fleets = fleets,  advice = advice,

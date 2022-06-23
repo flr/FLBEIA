@@ -80,8 +80,8 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
     names(data) <- sheets
   }
   
-  if (length(ages)==1) {
-    if (ages!='all') {
+  if (length(ages)==1) { # correction for stocks aggregated in biomass: age = "all" & fbar = c(1,1)
+    if (is.na(ages) | ages!='all') {
       ages <- 'all'
       warning("ages has been renamed to 'all'")
     }
@@ -228,10 +228,6 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
   res@spwn[,sim.yrs]    <- yearMeans(res@spwn[,mean.yrs])
   mat(res)[,sim.yrs] <- yearMeans(res@mat$mat[,mean.yrs]) #res@mat$mat[,sim.yrs] <- yearMeans(res@mat$mat[,mean.yrs])
   fec(res)[,sim.yrs] <- yearMeans(res@fec$fec[,mean.yrs]) #res@fec$fec[,sim.yrs] <- yearMeans(res@fec$fec[,mean.yrs])
-  
-  # correction for stocks aggregated in biomass age = "all"
-  if (is.na(ages)) 
-    dimnames(res)$age <- "all"
   
   return(res)
          
