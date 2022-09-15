@@ -235,7 +235,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
      #-----------------------------------------------------------------------------
      #   Section 3.2:      Projection per fleet 
      #-----------------------------------------------------------------------------
-    fl.proj.avg.yrs    <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'_proj.avg.yrs',sep=''), value = TRUE)))
+    fl.proj.avg.yrs    <- ac(get(grep(fls.data[[nmfl]],pattern=paste('^',nmfl,'_proj.avg.yrs',sep=''), value = TRUE)))
 
     effort(fleet)[,proj.yrs,]   <-  yearMeans(effort(fleet)[,fl.proj.avg.yrs,])
     fleet@fcost[,proj.yrs,]     <-  yearMeans(fleet@fcost[,fl.proj.avg.yrs,])
@@ -305,7 +305,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
         #   3.4     Projection per fleet/metier
         #-----------------------------------------------------------------------------
 
-        fl.met.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'_proj.avg.yrs',sep=''), value = TRUE)))
+        fl.met.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste('^',nmfl,'.',nmfl.met,'_proj.avg.yrs',sep=''), value = TRUE)))
 
         #   projection effshare
         # NOTE: the sum of all effshare must be one
@@ -514,7 +514,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
             fl.met.stk.beta     <- CD_param[['beta']]
             fl.met.stk.catch.q  <- CD_param[['catch.q']]
             
-            fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
+            fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste('^',nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
             
             fl.met.stk.alpha[,proj.yrs,]   <- yearMeans(fl.met.stk.alpha[, fl.met.stk.proj.avg.yrs,])
             fl.met.stk.beta[,proj.yrs,]    <- yearMeans(fl.met.stk.beta[, fl.met.stk.proj.avg.yrs,])
@@ -546,7 +546,7 @@ create.fleets.data <- function(yrs,ns,ni,fls.data,stks.data){
           #   3.6     Projection per fleet/metier/stock
           #-----------------------------------------------------------------------------
           
-          fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste(nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
+          fl.met.stk.proj.avg.yrs <- ac(get(grep(fls.data[[nmfl]],pattern=paste('^',nmfl,'.',nmfl.met,'.',nmfl.met.stk,'_proj.avg.yrs',sep=''), value = TRUE)))                  
 
           if(any(is.na(fl.met.stk.landings.sel[, fl.met.stk.proj.avg.yrs]))) {
             cat('warning: NA-s in landings.sel for average years and will be replaced by 1. \n')
