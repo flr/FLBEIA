@@ -133,8 +133,8 @@ s0_fltStk   <- fltStkSum(s0)
 # 's0' suffix in the name.
 
 
-plotFLBiols(s0$biols, pdfnm='s0')
-plotFLFleets(s0$fleets, pdfnm='s0')
+plotFLBiols(s0$biols, pdfnm='s0', ss = 'all')
+plotFLFleets(s0$fleets, pdfnm='s0', ss = 'all')
 plotEco(s0, pdfnm='s0')
 plotfltStkSum(s0, pdfnm='s0')
 
@@ -199,8 +199,8 @@ s1b_fltStkQ <- fltStkSumQ(s1b_fltStk)
 # Create several plots and save them in the working directory using 'pdf' format and 
 # 's1' suffix in the name.
 
-plotFLBiols(s1$biols, pdfnm='s1')
-plotFLFleets(s1$fleets, pdfnm='s1')
+plotFLBiols(s1$biols, pdfnm='s1', ss = 'all')
+plotFLFleets(s1$fleets, pdfnm='s1', ss = 'all')
 plotEco(s1, pdfnm='s1')
 plotfltStkSum(s1, pdfnm='s1') 
 
@@ -260,8 +260,8 @@ s2_fltStk   <- fltStkSum(s2)
 # Create several plots and save them in the working directory using 'pdf' format and 
 # 's2' suffix in the name.
 
-plotFLBiols(s2$biols, pdfnm='s2')
-plotFLFleets(s2$fleets, pdfnm='s2')
+plotFLBiols(s2$biols, pdfnm='s2', ss = 2)
+plotFLFleets(s2$fleets, pdfnm='s2', ss = 2)
 plotEco(s2, pdfnm='s2')
 plotfltStkSum(s2, pdfnm='s2')
 }
