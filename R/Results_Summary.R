@@ -661,7 +661,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   # For avoiding warnings in R CMD CHECK
   year <- season <- NULL
   
-  if(stknms == 'all') stknms <- names(obj$biols)  
+  if(stknms[1] == 'all') stknms <- names(obj$biols)  
   
   if(byyear == TRUE & is.null(ssb_season)) ssb_season <- dimnames(obj$biols[[1]]@n)[[4]][1]
   
@@ -1713,7 +1713,7 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   # for avoiding a warning in R CMD CHECK
   tac <- NULL
   
-  if(stknms == 'all') stknms <- names(obj$biols)  
+  if(stknms[1] == 'all') stknms <- names(obj$biols)  
   
   x1 <- Reduce(rbind, lapply(stknms, function(x)  cbind(stock = x, 
                                                                array2df(apply(catchWStock(obj$fleets, x), c(2,6), sum), label.x = 'catch')[,c('year', 'iter', 'catch')])))
@@ -1798,7 +1798,7 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #----------------------------------------------------------------------
 #' @rdname bioSum
 #' @aliases riskSum
-riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
+riskSum <- function(obj, stknms = 'all', Bpa, Blim, Prflim, flnms = 'all', years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
   
   # For avoiding warnings in R CMD CHECK
   fleet <- grossSurplus <- refp <- year <- NULL
@@ -1806,7 +1806,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   
   # biols
   
-  if (stknms == 'all') { 
+  if (stknms[1] == 'all') { 
     stknms <- names(obj$biols)
   } else if (sum(!stknms %in% names(obj$biols))>0) {
     stop(paste("'stknms' values should be in the following list: ", paste(names(obj$biols), collapse = ", "), sep=''))
@@ -1830,7 +1830,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   
   # fleets
   
-  if (flnms == 'all') { 
+  if (flnms[1] == 'all') { 
     flnms <- names(obj$fleets)
   } else if (sum(!flnms %in% names(obj$fleets))>0) {
     stop(paste("'flnms' values should be in the following list: ", paste(names(obj$fleets), collapse = ", "), sep=''))
