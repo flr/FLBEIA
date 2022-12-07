@@ -661,7 +661,7 @@ bioSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   # For avoiding warnings in R CMD CHECK
   year <- season <- NULL
   
-  if(stknms == 'all') stknms <- names(obj$biols)  
+  if(stknms[1] == 'all') stknms <- names(obj$biols)  
   
   if(byyear == TRUE & is.null(ssb_season)) ssb_season <- dimnames(obj$biols[[1]]@n)[[4]][1]
   
@@ -1806,7 +1806,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   
   # biols
   
-  if (stknms == 'all') { 
+  if (stknms[1] == 'all') { 
     stknms <- names(obj$biols)
   } else if (sum(!stknms %in% names(obj$biols))>0) {
     stop(paste("'stknms' values should be in the following list: ", paste(names(obj$biols), collapse = ", "), sep=''))
@@ -1830,7 +1830,7 @@ riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = n
   
   # fleets
   
-  if (flnms == 'all') { 
+  if (flnms[1] == 'all') { 
     flnms <- names(obj$fleets)
   } else if (sum(!flnms %in% names(obj$fleets))>0) {
     stop(paste("'flnms' values should be in the following list: ", paste(names(obj$fleets), collapse = ", "), sep=''))
