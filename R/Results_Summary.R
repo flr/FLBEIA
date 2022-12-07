@@ -1713,7 +1713,7 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   # for avoiding a warning in R CMD CHECK
   tac <- NULL
   
-  if(stknms == 'all') stknms <- names(obj$biols)  
+  if(stknms[1] == 'all') stknms <- names(obj$biols)  
   
   x1 <- Reduce(rbind, lapply(stknms, function(x)  cbind(stock = x, 
                                                                array2df(apply(catchWStock(obj$fleets, x), c(2,6), sum), label.x = 'catch')[,c('year', 'iter', 'catch')])))
@@ -1798,7 +1798,7 @@ advSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #----------------------------------------------------------------------
 #' @rdname bioSum
 #' @aliases riskSum
-riskSum <- function(obj, stknms = names(obj$biols), Bpa, Blim, Prflim, flnms = names(obj$fleets), years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
+riskSum <- function(obj, stknms = 'all', Bpa, Blim, Prflim, flnms = 'all', years = dimnames(obj$biols[[1]]@n)[[2]], scenario = 'bc'){
   
   # For avoiding warnings in R CMD CHECK
   fleet <- grossSurplus <- refp <- year <- NULL
