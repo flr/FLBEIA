@@ -152,6 +152,8 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
   names.fl <- names(fleets)
   path.pdf <- ''
   
+  ssn <- ifelse(is.numeric(ss)[1], dimnames(fleets[[1]]@effort)$season[ss], ss) 
+  
   for(i in 1:length(names.fl)){
     
     pdf(paste(pdfnm,'_',path.pdf,names.fl[i],'.pdf',sep=''))
@@ -193,15 +195,15 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
     #TOTAL CATCH, LANDINGS AND DISCARDS PER SEASON
 
     total.catch.df <- total.catch.stock.df(fleet)
-    total.catch.df <- total.catch.df[total.catch.df$season==ss,]
+    total.catch.df <- total.catch.df[total.catch.df$season==ssn,]
     total.catch.df$indicator <- 'catch'
     
     total.landings.df <- total.landings.stock.df(fleet)
-    total.landings.df <- total.landings.df[total.landings.df$season==ss,]
+    total.landings.df <- total.landings.df[total.landings.df$season==ssn,]
     total.landings.df$indicator <- 'landings'
     
     total.discards.df <- total.discards.stock.df(fleet)
-    total.discards.df <-  total.discards.df[ total.discards.df$season==ss,]
+    total.discards.df <-  total.discards.df[ total.discards.df$season==ssn,]
     total.discards.df$indicator <-'discards'
     
     df <- rbind(total.catch.df,total.landings.df,total.discards.df)
@@ -218,7 +220,7 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
       geom_line() + theme_bw() + geom_point(size=2,shape=21) + 
       geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='species'), alpha=0.3) + 
       facet_grid(indicator~fleet,scales=c("free_y"))+
-      ggtitle(paste("season ",ss))+
+      ggtitle(paste("season ",ssn))+
       theme(text=element_text(size=10),
             title=element_text(size=10,face="bold"),
             strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 
@@ -404,7 +406,7 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
           geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
           geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='age'), alpha=0.3) + 
           facet_grid(indicator~stock,scales=c("free_y"))+
-          ggtitle(paste("unit ",u," & season ",ss))+
+          ggtitle(paste("unit ",u," & season ",ssn))+
           theme(text=element_text(size=10),
                 title=element_text(size=10,face="bold"),
                 strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 
@@ -435,7 +437,7 @@ plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
           geom_line() + theme_bw() +  geom_point(size=2, shape=21)+ 
           geom_ribbon(aes_string(x='year', ymin='q05', ymax='q95', fill='age'), alpha=0.05) + 
           facet_grid(indicator~stock,scales=c("free_y"))+
-          ggtitle(paste("unit ",u," & season ", ss))+
+          ggtitle(paste("unit ",u," & season ", ssn))+
           theme(text=element_text(size=10),
                 title=element_text(size=10,face="bold"),
                 strip.text=element_text(size=10),plot.title = element_text(hjust = 0.5)) 

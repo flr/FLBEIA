@@ -854,7 +854,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
   
   #  fleets <- lapply(fleets, setUnitsNA)
   
-  warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
+  warning('Due to a problem with the units attribute in some of the slots, sometimes this function crashes. In case it fails, we recommend 
           removing the units using the setUnitsNA function')
   
   if (flnms[1] == "all") flnms <- names(fleets)
@@ -1182,7 +1182,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
   
   #  fleets <- lapply(fleets, setUnitsNA)
 
-  warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend
+  warning('Due to a problem with the units attribute in some of the slots, sometimes this function crashes. In case it fails, we recommend
           removing the units using the setUnitsNA function')
   
   if(flnms[1] == 'all') flnms <- names(fleets)
@@ -1409,7 +1409,7 @@ mtStkSum <- function(obj, flnms = names(obj$fleets), stknms = catchNames(obj$fle
   
   # fleets <- lapply(fleets, setUnitsNA)
   
-  warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
+  warning('Due to a problem with the units attribute in some of the slots, sometimes this function crashes. In case it fails, we recommend 
           removing the units using the setUnitsNA function')
   
   if(flnms[1] == 'all') flnms <- names(fleets)
@@ -1576,7 +1576,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
   
   #  fleets <- lapply(fleets, setUnitsNA)
   
-  warning('Due to a problem with the units attribute in some off the slots, sometimes this function crashes. In case it fails, we recommend 
+  warning('Due to a problem with the units attribute in some of the slots, sometimes this function crashes. In case it fails, we recommend 
           removing the units using the setUnitsNA function')
   
   if (flnms[1] == "all") flnms <- names(fleets)

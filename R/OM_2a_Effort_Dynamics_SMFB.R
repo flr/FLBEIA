@@ -163,12 +163,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
               
               # Extract the i-th element form the lists. 
               Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
-              q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
-              beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
-              alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
-              ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
-              wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
-              wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+              q.mi     <- lapply(setNames(sts, sts), function(x) q.m[[x]][,,,i,drop=F])
+              beta.mi  <- lapply(setNames(sts, sts), function(x) beta.m[[x]][,,,i,drop=F])
+              alpha.mi <- lapply(setNames(sts, sts), function(x) alpha.m[[x]][,,,i,drop=F])
+              ret.mi   <- lapply(setNames(sts, sts), function(x) ret.m[[x]][,,,i,drop=F])
+              wl.mi    <- lapply(setNames(sts, sts), function(x) wl.m[[x]][,,,i,drop=F])
+              wd.mi    <- lapply(setNames(sts, sts), function(x) wd.m[[x]][,,,i,drop=F])
               
               K <- c(fl@capacity[,yr,,ss,,i,drop=T])
       
@@ -189,12 +189,12 @@ SMFB <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctrl, ad
                   
                   # Extract the i-th element form the lists. 
                   Ni       <- lapply(setNames(sts, sts), function(x) array(N[[x]][,,i,drop=T], dim = c(dim(N[[x]])[c(1,3)],1)))
-                  q.mi     <- lapply(setNames(sts, sts),   function(x) q.m[[x]][,,,i,drop=F])
-                  beta.mi  <- lapply(setNames(sts, sts),   function(x) beta.m[[x]][,,,i,drop=F])
-                  alpha.mi <- lapply(setNames(sts, sts),   function(x) alpha.m[[x]][,,,i,drop=F])
-                  ret.mi   <- lapply(setNames(sts, sts),   function(x) ret.m[[x]][,,,i,drop=F])
-                  wl.mi    <- lapply(setNames(sts, sts),   function(x) wl.m[[x]][,,,i,drop=F])
-                  wd.mi    <- lapply(setNames(sts, sts),   function(x) wd.m[[x]][,,,i,drop=F])
+                  q.mi     <- lapply(setNames(sts, sts), function(x) q.m[[x]][,,,i,drop=F])
+                  beta.mi  <- lapply(setNames(sts, sts), function(x) beta.m[[x]][,,,i,drop=F])
+                  alpha.mi <- lapply(setNames(sts, sts), function(x) alpha.m[[x]][,,,i,drop=F])
+                  ret.mi   <- lapply(setNames(sts, sts), function(x) ret.m[[x]][,,,i,drop=F])
+                  wl.mi    <- lapply(setNames(sts, sts), function(x) wl.m[[x]][,,,i,drop=F])
+                  wd.mi    <- lapply(setNames(sts, sts), function(x) wd.m[[x]][,,,i,drop=F])
                   
                   Nyri_1   <- lapply(setNames(sts, sts), function(x) array(Nyr_1[[x]][,,i,drop=T], dim = c(dim(Nyr_1[[x]])[c(1,2)],1)))
                   Cyri_1   <- lapply(setNames(sts, sts), function(x) array(Cyr_1[[x]][,,i,drop=T], dim = c(dim(Cyr_1[[x]])[c(1,2)],1)))
