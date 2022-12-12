@@ -32,8 +32,8 @@
 #'                        Supported formats are Excel (xls and xlsx) and R format (RData), each file can be in different format.
 #'                        The number of required files depend of the value of \code{caaOpt} argument:
 #'                        \itemize{ 
-#'                           \item{\code{caaOpt} = 1 or 2   }{=> one per stock and fleet. Named vector stknm_fltnm}
-#'                           \item{\code{caaOpt} = 3, 4 or 5}{=> one per stock. Named vector stknm}
+#'                           \item{\code{caaOpt} = 1 or 2   }{ => one per stock and fleet. Named vector stknm_fltnm}
+#'                           \item{\code{caaOpt} = 3, 4 or 5}{ => one per stock. Named vector stknm}
 #'                        }
 #'                        If NULL, the function looks for "caa_stknm_flnm.xlsx" in \code{caaOpt} = 1 or 2 and "caa_stknm.xlsx" in \code{caaOpt} = 3 ,4 or 5.
 #' @param caa_objs_path   A character vector with the \code{caa_objs} file path.
@@ -42,8 +42,8 @@
 #'                        Supported formats are Excel (xls and xlsx) and R format (RData), each prices file can be in different format.
 #'                        The number of required files depend of the value of \code{caaOpt} argument:
 #'                        \itemize{ 
-#'                           \item{\code{caaOpt} = 1 or 2   }{=> one per stock and fleet. Named vector stknm_fltnm.}
-#'                           \item{\code{caaOpt} = 3, 4 or 5}{=> one per stock. Named vector stknm.}
+#'                           \item{\code{caaOpt} = 1 or 2   }{ => one per stock and fleet. Named vector stknm_fltnm.}
+#'                           \item{\code{caaOpt} = 3, 4 or 5}{ => one per stock. Named vector stknm.}
 #'                        }
 #' @param price_objs_path A character vector with the price_objs file path.
 #' @param catch_obj       A character vector with the names of the files containing the catch data in Fcube format.
@@ -78,21 +78,21 @@
 #' @param caaOpt          A code number to determine the way in wich catch at age data are provided.
 #'                        The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 #'                        \itemize{ 
-#'                           \item{1}{If catch at age data is available at metier level for all the metiers.}
-#'                           \item{2}{If catch at age data is only available at fleet level.}
-#'                           \item{3}{If catch at age data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
-#'                           \item{4}{If catch at age data is only available at stock level.}
-#'                           \item{5}{If we want to use the data available previously in the \code{FLCatch} objects from \code{flt_obj} to derive catch profiles at age 
+#'                           \item{1}{: If catch at age data is available at metier level for all the metiers.}
+#'                           \item{2}{: If catch at age data is only available at fleet level.}
+#'                           \item{3}{: If catch at age data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
+#'                           \item{4}{: If catch at age data is only available at stock level.}
+#'                           \item{5}{: If we want to use the data available previously in the \code{FLCatch} objects from \code{flt_obj} to derive catch profiles at age 
 #'                                    and then apply \code{caaOpt==3} using only one fleet segment, fseg, which represents all the fleets and metiers.
 #'                                    Note: This approach could lead to a different total catch at age profile derived from the fleets to those in the stocks.}
 #'                        }
 #' @param priceOpt        A code number to determine the way in wich price at age data are provided.
 #'                        The option to be used depends on the data availabiltiy, from data rich to data-poor and the following codes are available:
 #'                        \itemize{ 
-#'                           \item{1}{If price data is available at metier level for all the metiers.}
-#'                           \item{2}{If price data is only available at fleet level.}
-#'                           \item{3}{If price data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
-#'                           \item{4}{If price data is only available at stock level.}
+#'                           \item{1}{: If price data is available at metier level for all the metiers.}
+#'                           \item{2}{: If price data is only available at fleet level.}
+#'                           \item{3}{: If price data is disaggregated but the segments do not correspond exactly with the metiers/fleets considered in the case study.}
+#'                           \item{4}{: If price data is only available at stock level.}
 #'                        }
 #' @param excel           Logical. If \code{TRUE} (default), the data in the Excel file is used to create the stucture of the FLFleets object; whereas 
 #'                        if \code{FALSE}, the \code{flt_obj} object is used instead.
@@ -509,7 +509,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             colnames(da) <- da.yrs
             
             cobj@landings.n[,land_prop_mt_yrs] <- sweep(la[,land_prop_mt_yrs, drop=FALSE],2,land_prop_mt,"*")
-            cobj@catches[[st]]@discards.n[,disc_prop_mt_yrs] <- sweep(da[,disc_prop_mt_yrs, drop=FALSE],2,disc_prop_mt,"*")
+            cobj@discards.n[,disc_prop_mt_yrs] <- sweep(da[,disc_prop_mt_yrs, drop=FALSE],2,disc_prop_mt,"*")
 
           }
         
@@ -642,7 +642,8 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     }
   }
 
-
+  #! CHEQUEAR ESTO CON DORLETA, YA QUE EST? FUERA DEL LOOP PARA st Y NO GUARDA NADA DE LO QUE CALCULA...
+  
   if(caaOpt[st] == 5){ # Correct the landings.n and discards.n of the fleets to equal the CAA in the stk_obj and in the flt_obj.
   
     if(is.null(flt_obj)) stop('Option 5 cannot be used if flt_obj is not provided!')
