@@ -1803,8 +1803,7 @@ riskSum <- function(obj, stknms = 'all', Bpa, Blim, Prflim, flnms = 'all', years
   # For avoiding warnings in R CMD CHECK
   fleet <- grossSurplus <- refp <- year <- NULL
   
-  
-  # biols
+ # biols
   
   if (stknms[1] == 'all') { 
     stknms <- names(obj$biols)
@@ -1815,10 +1814,16 @@ riskSum <- function(obj, stknms = 'all', Bpa, Blim, Prflim, flnms = 'all', years
     stop(paste("Check names for 'Bpa' and 'Blim'. Values should be in the following list: ", paste(stknms, collapse = ", "), sep=''))
   }
   
-  bioS <- bioSum(obj, stknms = stknms, years = years, long = FALSE, scenario = scenario)
+  brp <- as_tibble(cbind(expand.grid(stock = stknms, iter = 1:dims(obj$biols[[1]])$iter),
+                         Ftarget = NA, Btarget = NA, Flim = NA, Fpa = NA, Blim = NA, Bpa = NA))
+  
+  for (st in names(Bpa))  brp[brp$stock == st, "Bpa"]  <- Bpa[st]
+  for (st in names(Blim)) brp[brp$stock == st, "Blim"] <- Blim[st]
+  
+  bioS <- bioSum(obj, stknms = stknms, years = years, long = FALSE, scenario = scenario, brp = brp)
   
   bioS <- bioS %>% dplyr::group_by(.data$scenario, .data$year, .data$stock, .data$iter) %>% 
-    mutate(Bpa = Bpa[stock], Blim = Blim[stock], risk.pa = as.numeric(ssb<Bpa), risk.lim = as.numeric(ssb<Blim))
+    mutate(risk.pa = as.numeric(ssb<Bpa), risk.lim = as.numeric(ssb<Blim))
   
   bioS.pa <- bioS %>% dplyr::group_by(.data$year, .data$stock, .data$scenario) %>% 
     dplyr::summarise(indicator="pBpa", value = sum(.data$risk.pa)/length(.data$risk.pa))
