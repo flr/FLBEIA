@@ -74,9 +74,9 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
   flq <- FLQuant(dimnames = list(fleet = sheets, year = c(hist.yrs, sim.yrs)))
   
   covars <- lapply(list("FuelCost", "CapitalValue", "Salaries", "InvestShare", "NumbVessels", "MaxDays",
-                     "w1","w2", "EmploymentPerVessel", "NewVesselCost"), function(x) return(flq))
+                     "w1","w2", "EmploymentPerVessel", "NewVesselCost", "Depreciation"), function(x) return(flq))
   names(covars) <- c("FuelCost", "CapitalValue", "Salaries", "InvestShare", "NumbVessels", "MaxDays",
-                     "w1","w2", "EmploymentPerVessel", "NewVesselCost")
+                     "w1","w2", "EmploymentPerVessel", "NewVesselCost", "Depreciation")
     
   # Fill the flObj
   for(fl in sheets){
@@ -134,6 +134,7 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
     covars[["w2"]][fl,ac(w2$year)]                   <- w2[,'fleet']
     covars[["NewVesselCost"]][fl,ac(nev$year)]       <- nev[,'fleet']
     covars[["EmploymentPerVessel"]][fl,ac(emp$year)] <- emp[,'fleet']
+    covars[["Depreciation"]][fl,ac(emp$year)]        <- dep[,'fleet']
   }
     
     #---------------------------------------------------------------------------
@@ -155,8 +156,8 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
       }
     }
     #covars object
-    for(cv in c("FuelCost", "CapitalValue", "Salaries", "InvestShare", "NumbVessels",         
-                "MaxDays", "w1", "w2", "EmploymentPerVessel")){
+    for(cv in c("FuelCost", "CapitalValue", "Salaries", "InvestShare", "NumbVessels", "MaxDays", 
+                "w1", "w2", "EmploymentPerVessel", "NewVesselCost", "Depreciation")){ 
       covars[[cv]][, ac(sim.yrs)] <-  yearMeans(covars[[cv]][, ac(mean.yrs)])
     }
   

@@ -11,8 +11,10 @@
 
 
 #' @param biols A FLBiols object 
-#' @param pdfnm The name for the pdf document will be stock's name and pdfnm separated by a line.
 #' @param probs a numeric vector with the probabilities used to calculate the quantiles. 
+#' @param pdfnm The name for the pdf document will be stock's name and pdfnm separated by a line.
+#' @param season The season for which to generate the plots (by default all seasons are plotted, season = "all").
+#' 
 #' @return A pdf for each stock with plots.
 
 #' @examples
