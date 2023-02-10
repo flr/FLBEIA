@@ -50,9 +50,20 @@ aneHCR_JD <- function(indices, advice, advice.ctrl, year, season, stknm,...){
   Btrig2 <- ref.pts['Btrig2',]
   Btrig3 <- ref.pts['Btrig3',]
   
-  # Complete missing values: 
-  alpha  <- ifelse( is.na(alpha), 0, alpha)              # If missing alpha => alpha = 0
-  Btrig3 <- ifelse( is.na(Btrig3), (TACmax-alpha)/gamma, Btrig3) # If missing Btrig3 => Btrig3 = TACmax/gamma
+  if (length(alpha)==1) {
+    alpha  <- ifelse( is.na(alpha), rep(0, iter), rep(alpha, iter))  # If missing alpha => alpha = 0
+    gamma  <- rep(gamma, iter) 
+    TACmin <- rep(TACmin, iter)
+    TACmax <- rep(TACmax, iter)
+    Btrig1 <- rep(Btrig1, iter)
+    Btrig2 <- rep(Btrig2, iter)
+    Btrig3 <- ifelse( is.na(Btrig3), (TACmax-alpha)/gamma, rep(Btrig3, iter)) # If missing Btrig3 => Btrig3 = TACmax/gamma
+  } else 
+    for (i in 1:iter) { 
+      # Complete missing values: 
+      alpha[i]  <- ifelse( is.na(alpha[i]), 0, alpha[i])              # If missing alpha => alpha = 0
+      Btrig3[i] <- ifelse( is.na(Btrig3[i]), (TACmax[i]-alpha[i])/gamma[i], Btrig3[i]) # If missing Btrig3 => Btrig3 = TACmax/gamma
+    }
   
   # Checking reference points
   if ( sum(Btrig1>Btrig2 | Btrig2>Btrig3)>0 )
@@ -66,21 +77,21 @@ aneHCR_JD <- function(indices, advice, advice.ctrl, year, season, stknm,...){
     
     # select the appropriate abundance index
     b.idx <- Id[,year,]                             # [2,it]
-    B     <- quantSums(b.idx)[drop=T]               # [it]
-    BP    <- b.idx[1,drop=T]/B                      # [it]
+    B     <- quantSums(b.idx)[drop=TRUE]            # [it]
+    BP    <- b.idx[1,][drop=TRUE]/B                   # [it]
     # and other parameters
     TACs1.perc <- advice.ctrl[[stknm]]$TACs1.perc   # [1]
     tsurv      <- advice.ctrl[[stknm]]$tsurv        # [1]
     param      <- advice.ctrl[[stknm]]$cbbm.params
-    G1         <- param[['G']][1,year,drop=T]       # [it]
-    G2         <- param[['G']][2,year,drop=T]       # [it]
-    M1         <- param[['M']][1,year,drop=T]       # [it]
-    M2         <- param[['M']][2,year,drop=T]       # [it]
-    S1         <- param[['S']][1,year,drop=T]       # [it]
-    S2         <- param[['S']][2,year,drop=T]       # [it]
+    G1         <- param[['G']][1,year,drop=TRUE]    # [it]
+    G2         <- param[['G']][2,year,drop=TRUE]    # [it]
+    M1         <- param[['M']][1,year,drop=TRUE]    # [it]
+    M2         <- param[['M']][2,year,drop=TRUE]    # [it]
+    S1         <- param[['S']][1,year,drop=TRUE]    # [it]
+    S2         <- param[['S']][2,year,drop=TRUE]    # [it]
         
     # Calculate the TAC.
-    if (alpha==0 & gamma==0){
+    if (all(alpha==0 & gamma==0)){
       
       TAC <- 0
       
@@ -96,28 +107,35 @@ aneHCR_JD <- function(indices, advice, advice.ctrl, year, season, stknm,...){
       ssb.max <- ssb.cbbm( B=B, BP=BP, G1=G1, G2=G2, M1=M1, M2=M2, f=fmax, S1=S1, S2=S2, tsurv=tsurv)
       
       #  Calculate where we are in relation to reference biomasses
-      Brefs <- c(0,Btrig1,Btrig2,Btrig3)
+      Brefs <- rbind(0,Btrig1,Btrig2,Btrig3)
       
       # Find where the SSB is in relation to reference points.
-      bmin.pos <- apply( matrix(1:iter,1,iter), 2, function(i) findInt(ssb.min[i], Brefs))  # [it]
-      bmed.pos <- apply( matrix(1:iter,1,iter), 2, function(i) findInt(ssb.med[i], Brefs))  # [it]
-      bmax.pos <- apply( matrix(1:iter,1,iter), 2, function(i) findInt(ssb.max[i], Brefs))  # [it]
+      bmin.pos <- apply( matrix(1:iter,1,iter), 2, function(i) findInt(ssb.min[i], Brefs[,i]))  # [it]
+      bmed.pos <- apply( matrix(1:iter,1,iter), 2, function(i) findInt(ssb.med[i], Brefs[,i]))  # [it]
+      bmax.pos <- apply( matrix(1:iter,1,iter), 2, function(i) findInt(ssb.max[i], Brefs[,i]))  # [it]
       
-      for (i in 1:iter)
+      TAC <- rep(NA, iter)
+      
+      for (i in 1:iter) {
+        
         if ( bmin.pos[i]==2 & bmed.pos[i]==3 & bmax.pos[i]==4 ) stop("Not able to find a TAC for '", stknm, "' stock")
-
-      # HCR
-      if( bmin.pos == 1) {                        #      0 < (SSB|TACmin) <= Btrig1
-        TAC <- 0
-      } else if (bmin.pos == 2) {                 # Btrig1 < (SSB|TACmin) <= Btrig2
-        TAC <- TACmin
-      } else if (bmin.pos >= 3 & bmed.pos <= 2) { # (SSB|gamma*SSB) <= Btrig2 < (SSB|TACmin)
-        TAC <- stf.TAC(SSB.obj = Btrig2, TACs1.perc = TACs1.perc, B = B, BP = BP, G1 = G1, G2 = G2, M1 = M1, M2 = M2, S1 = S1, S2 = S2, tsurv = tsurv)
-      } else if (bmed.pos == 3) {                 # Btrig2 < (SSB|gamma*SSB) <= Btrig3
-        TAC <- alpha + gamma * ssb.med
-      } else if (bmax.pos == 3 & bmed.pos == 4) { # (SSB|TACmax) <= Btrig3 < (SSB|gamma*SSB)
-        TAC <- stf.TAC(SSB.obj = Btrig3, TACs1.perc = TACs1.perc, B = B, BP = BP, G1 = G1, G2 = G2, M1 = M1, M2 = M2, S1 = S1, S2 = S2, tsurv = tsurv)
-      } else TAC <- TACmax                        # Btrig3 < (SSB|TAcmax)
+        
+        # HCR
+        if( bmin.pos[i] == 1) {                           #      0 < (SSB|TACmin) <= Btrig1
+          TAC[i] <- 0
+        } else if (bmin.pos[i] == 2) {                    # Btrig1 < (SSB|TACmin) <= Btrig2
+          TAC[i] <- TACmin[i]
+        } else if (bmin.pos[i] >= 3 & bmed.pos[i] <= 2) { # (SSB|gamma*SSB) <= Btrig2 < (SSB|TACmin)
+          TAC[i] <- stf.TAC(SSB.obj = Btrig2[i], TACs1.perc = TACs1.perc, 
+                            B = B[i], BP = BP[i], G1 = G1[i], G2 = G2[i], M1 = M1[i], M2 = M2[i], S1 = S1[i], S2 = S2[i], tsurv = tsurv)
+        } else if (bmed.pos[i] == 3) {                    # Btrig2 < (SSB|gamma*SSB) <= Btrig3
+          TAC[i] <- alpha[i] + gamma[i] * ssb.med[i]
+        } else if (bmax.pos[i] == 3 & bmed.pos[i] == 4) { # (SSB|TACmax) <= Btrig3 < (SSB|gamma*SSB)
+          TAC[i] <- stf.TAC(SSB.obj = Btrig3[i], TACs1.perc = TACs1.perc, 
+                            B = B[i], BP = BP[i], G1 = G1[i], G2 = G2[i], M1 = M1[i], M2 = M2[i], S1 = S1[i], S2 = S2[i], tsurv = tsurv)
+        } else TAC[i] <- TACmax[i]                        # Btrig3 < (SSB|TAcmax)
+        
+      }
 
     }
     
@@ -126,7 +144,7 @@ aneHCR_JD <- function(indices, advice, advice.ctrl, year, season, stknm,...){
   # } else {
   #   
   #   # select the appropriate abundance index
-  #   b.idx <- Id[,year,drop=T] # [it]
+  #   b.idx <- Id[,year,drop=TRUE] # [it]
   #   
   #   #  Calcuate where we are in relation to reference biomasses
   #   Brefs <- c(0,Btrig1,Btrig2,Btrig3)
@@ -177,7 +195,7 @@ stf.Fgamma <- function( alpha, gamma, TACs1.perc, B, BP, G1, G2, M1, M2, S1, S2,
   res <- rep(NA,nit)
   
   for (i in 1:nit) {
-    res.opt <- optimize(of, c(0,10), alpha=alpha, gamma=gamma, TACs1.perc=TACs1.perc, B=B[i], BP=BP[i], G1=G1[i], G2=G2[i], M1=M1[i], M2=M2[i], S1=S1[i], S2=S2[i], tsurv=tsurv,
+    res.opt <- optimize(of, c(0,10), alpha=alpha[i], gamma=gamma[i], TACs1.perc=TACs1.perc, B=B[i], BP=BP[i], G1=G1[i], G2=G2[i], M1=M1[i], M2=M2[i], S1=S1[i], S2=S2[i], tsurv=tsurv,
                         tol = .Machine$double.eps^0.5)
     if ( res.opt$obj > 0.001 ) warning("The optimizer in the function 'stf.Fgamma' may not have reach a minimum. OBJ=",res.opt$obj )
     res[i]  <- res.opt$min
