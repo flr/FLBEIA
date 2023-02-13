@@ -80,7 +80,7 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
     
   # Fill the flObj
   for(fl in sheets){
-    dat <- readWorksheet(wb, sheet = fl, header = TRUE, startRow = 1, startCol = 1, endRow =  15)
+    dat <- readWorksheet(wb, sheet = fl, header = TRUE)
     dat$indicator <- tolower(dat$indicator) 
     names(dat)[-(1:3)] <- names(fltObj[[fl]]@metiers)
       

@@ -485,6 +485,9 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stck@mat[]          <- 1
     stck@range[5]       <- stck@range[4]+ny-1
     stck@range[6:7]     <- 0
+    
+    units(stck@harvest) <- 'hr'
+    
     return(stck)
 }
 
@@ -508,10 +511,13 @@ age2bioPop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     
          
     stck              <- age2bioDat(biol, fleets, advice, obs.ctrl, yr, stknm)    
-    stock(stck)[]       <- Obs.stk.bio(biol, stk.bio.error, yr)
-    harvest(stck)[]     <- stck@catch/stck@stock
+    stock(stck)[]     <- Obs.stk.bio(biol, stk.bio.error, yr)
+    harvest(stck)[]   <- stck@catch/stck@stock
     
     stck@range[5]     <- yr-1
+    
+    units(stck@harvest) <- 'hr'
+    
     return(stck)
 }
 
