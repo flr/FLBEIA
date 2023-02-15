@@ -80,17 +80,20 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
     
   # Fill the flObj
   for(fl in sheets){
-    dat <- readWorksheet(wb, sheet = fl, header = TRUE)
+    
+    nmt <- length(fltObj[[fl]]@metiers)
+    
+    dat <- readWorksheet(wb, sheet = fl, header = TRUE, colTypes = c(rep("character",2), rep("numeric", nmt+1)))
     dat$indicator <- tolower(dat$indicator) 
     names(dat)[-(1:3)] <- names(fltObj[[fl]]@metiers)
       
     # check if all the metiers are available, if not stop the function.
-    if(!(identical(names(fltObj[[fl]]@metiers), names(dat)[-(1:3)]))) stop(cat('The names of the metiers in fleet ', fl, ' do not corresponds with the names used in the excel file.\n'))
+    if(!(identical(sort(names(fltObj[[fl]]@metiers)), sort(names(dat)[-(1:3)])))) stop(cat('The names of the metiers in fleet ', fl, ' do not corresponds with the names used in the excel file.\n'))
     
     # We order the data by year and indicator, in the code below it is assumed that there is the same number of years per indicator.
     dat <- dat[order(dat$indicator),]
     dat <- dat[order(dat$year),]
-    for(k in 3:dim(dat)[2]) dat[,k] <- as.numeric(dat[,k])
+    # for(k in 3:dim(dat)[2]) dat[,k] <- as.numeric(dat[,k]) # forced in readWorkSheet
     
     # fleet level
     fcost     <- subset(dat, indicator == 'fixed costs')
