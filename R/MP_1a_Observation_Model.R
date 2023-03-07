@@ -805,7 +805,7 @@ ssbInd <- function(biol, fleets, index, obs.ctrl, year, season,...){
   n.s2 <- biol@n[,yrnm.1,,sInd,]*exp(-biol@m[,yrnm.1,,sInd,])-catchStock(fleets,name(biol))[,yrnm.1,,sInd,]*exp(-biol@m[,yrnm.1,,sInd,]/2)
   fval <- log(biol@n[,yrnm.1,,sInd,]/n.s2) - biol@m[,yrnm.1,,sInd,]
   ssb.stk <- quantSums( biol@n[,yrnm.1,,sInd,]*exp(-(biol@m[,yrnm.1,,sInd,]+fval)*biol@spwn[,yrnm.1,,sInd,])*
-                          biol@wt[,yrnm.1,,sInd,]*fec(biol)[,yrnm.1,,sInd,])
+                          biol@wt[,yrnm.1,,sInd,]*mat(biol)[,yrnm.1,,sInd,])
   
   index@index[,yrnm.1] <- ssb.stk*index@index.q[,yrnm.1]#*index@index.var[,yrnm.1]
   
