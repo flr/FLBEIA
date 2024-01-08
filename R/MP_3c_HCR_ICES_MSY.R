@@ -59,8 +59,10 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     
     ref.pts <- advice.ctrl[[stknm]]$ref.pts # matrix[3,it]  rows = Blim, Btrigger, Fmsy
     Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][year+1] == TRUE, 'catch', 'landings')
-    target <- advice.ctrl[[stknm]]$target # Target when the biomass is above MSY BTrigger, it can be Fupp or Fmsy, or other target in the reference points
-      
+    
+    # Target when the biomass is above MSY BTrigger, it can be Fupp or Fmsy, or other target in the reference points
+    # If the argument is missing the default is Fmsy
+    target <- ifelse(is.null(advice.ctrl[[stknm]]$target), 'Fmsy', advice.ctrl[[stknm]]$target) 
       
     iter     <- dim(stk@m)[6]
     yrsnames <- dimnames(stk@m)[[2]]
