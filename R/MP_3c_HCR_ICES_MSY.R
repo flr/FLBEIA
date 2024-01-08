@@ -43,6 +43,8 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     stk@discards <- computeDiscards(stk)
     
     ageStruct <- ifelse(dim(stk@m)[1] > 1, TRUE, FALSE)
+    
+
 
     if(ageStruct == TRUE){
       if(any(stk@catch[,tail(dimnames(stk@catch)$year,3)]<1e-2)){
@@ -57,7 +59,9 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     
     ref.pts <- advice.ctrl[[stknm]]$ref.pts # matrix[3,it]  rows = Blim, Btrigger, Fmsy
     Cadv <- ifelse(advice.ctrl[[stknm]][['AdvCatch']][year+1] == TRUE, 'catch', 'landings')
-   
+    target <- advice.ctrl[[stknm]]$target # Target when the biomass is above MSY BTrigger, it can be Fupp or Fmsy, or other target in the reference points
+      
+      
     iter     <- dim(stk@m)[6]
     yrsnames <- dimnames(stk@m)[[2]]
     yrsnumbs <- as.numeric(yrsnames)
@@ -186,7 +190,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             # Find where the SSB (Age structured) OR Biomass (Aggregated) in relation to reference points.
             b.pos <-  findInterval(b.datyr, ref.pts[c('Blim', 'Btrigger'),i])  # [1]
             
-            Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',i]*b.datyr/ref.pts[ 'Btrigger',i], ref.pts['Fmsy',i]))
+            Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',i]*b.datyr/ref.pts[ 'Btrigger',i], ref.pts[target,i]))
             
             print(Ftg)
             

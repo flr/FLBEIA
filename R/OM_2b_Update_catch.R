@@ -217,6 +217,8 @@ BioPop.CAA  <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, adv
 #-------------------------------------------------------------------------------
 AgePop.CAA <- function(fleets, biols, BDs, biols.ctrl, fleets.ctrl, advice, advice.ctrl, year = 1, season = 1, flnm = 1, stknm = 1,...){
 
+ # if(flnm == 'OT_WHB_-9') browser()
+  
     rho <- fleets.ctrl[['catch.threshold']][stknm,year,, season,drop=T] # [it]
 
     nf    <- length(fleets)
