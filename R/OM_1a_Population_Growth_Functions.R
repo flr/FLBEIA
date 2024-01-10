@@ -354,7 +354,7 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
 ASPG_DDW <- function(biols, SRs, fleets, year, season, stknm, biols.ctrl,...){
   
   # update wt of stknm
-  ddw.model <- biols.ctrl[[stkm]][['DDW.model']]
+  ddw.model <- biols.ctrl[[stkm]][['growth.model']]
   lfd       <- biols.ctrl[[stkm]][['LFD']]
   a         <- biols.ctrl[[stkm]][['a.lw']]
   lbins     <- as.numeric(colNames(lfd))
