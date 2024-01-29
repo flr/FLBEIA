@@ -160,7 +160,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             
             # Find where the SSB (Age structured) OR Biomass (Aggregated) in relation to reference points.
             b.pos <- findInterval(b.datyr, ref.pts[c('Blim', 'Btrigger'),i])  # [1]
-            Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',i]*b.datyr/ref.pts[ 'Btrigger',i], ref.pts['Fmsy',i]))
+            Ftg <- ifelse(b.pos == 0, 0, ifelse(b.pos == 1, ref.pts['Fmsy',i]*b.datyr/ref.pts[ 'Btrigger',i], ref.pts[target,i]))
             
             print(Ftg)
             
