@@ -137,7 +137,7 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
     covars[["w2"]][fl,ac(w2$year)]                   <- w2[,'fleet']
     covars[["NewVesselCost"]][fl,ac(nev$year)]       <- nev[,'fleet']
     covars[["EmploymentPerVessel"]][fl,ac(emp$year)] <- emp[,'fleet']
-    covars[["Depreciation"]][fl,ac(emp$year)]        <- dep[,'fleet']
+    covars[["Depreciation"]][fl,ac(dep$year)]        <- dep[,'fleet']
   }
     
     #---------------------------------------------------------------------------

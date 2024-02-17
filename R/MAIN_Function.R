@@ -369,6 +369,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         biols <- res$biols
         SRs   <- res$SRs
         BDs   <- res$BDs
+        covars <- res$covars
         
         cat('------------ FLEETS OM ------------\n')
         # - Fleets OM.

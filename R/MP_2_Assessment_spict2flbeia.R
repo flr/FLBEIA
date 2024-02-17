@@ -75,9 +75,9 @@ spict2flbeia <- function(stock, indices, control=NULL,covars=covars){
     
   }
   
-  stock@stock[,years] <- results[[st]][["spict_B"]] #explotable biomass
+  stock@stock[,years] <- results[[st]][["spict_B"]] #exploitable biomass
   stock@stock.n[,years] <- stock@stock/stock@stock.wt
-  stock@harvest[,years] <- results[[st]][["spict_F"]] #explotable biomass
+  stock@harvest[,years] <- results[[st]][["spict_F"]] #fishing mortality
   covars[[st]]$spict_Bmsy[,tail(years,n=1)] <- results[[st]][["spict_Bmsy"]][,tail(years,n=1)]
   covars[[st]]$spict_Fmsy[,tail(years,n=1)] <- results[[st]][["spict_Fmsy"]][,tail(years,n=1)]
   # Returns what?

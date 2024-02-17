@@ -1,7 +1,7 @@
 Package: FLBEIA
 Title: Bio-Economic Impact Assessment of Management Strategies using FLR
-Version: 1.16.1.11
-Date: 2023-03-07
+Version: 1.16.1.13
+Date: 22024-02-16
 Authors@R: c(person("FLBEIA", "Team", email = "flbeia@azti.es", role = c("aut","cre")))
 Description: A simulation toolbox that describes a fishery system under
   a Management Strategy Estrategy approach. The objective of the model is
@@ -121,6 +121,7 @@ Collate:
     "OM_1a_Population_Growth_Functions.R"
     "OM_1a1_Stock_Recruitment_functions.R"
     "OM_1a1_Stock_Recruitment_functions_segregmix.R"
+    "OM_1a2_DensityDependent_weight_functions.R"
     "OM_2_fleet.om.R"
     "OM_2a_Effort_Dynamics.R"
     "OM_2a_Effort_Dynamics_Auxiliary.R"

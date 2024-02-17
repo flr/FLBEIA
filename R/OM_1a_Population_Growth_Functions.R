@@ -32,7 +32,7 @@ fixedPopulation <- function(biols, SRs, fleets, year, season, stknm, ...)  retur
 
 #-------------------------------------------------------------------------------
 # ASPG(biol, SR, fleets, biol.control)
-# - OUTPUT: list(biol = biol, SR = SR) - Upadated FLBiol and FLSRsim objects.
+# - OUTPUT: list(biol = biol, SR = SR) - Updated FLBiol and FLSRsim objects.
 #-------------------------------------------------------------------------------
 
 ASPG <- function(biols, SRs, fleets, year, season, stknm, ...){
@@ -349,29 +349,37 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
 } 
 
     
+#-------------------------------------------------------------------------------
+# ASPG_DDW(biol, SR, fleets, biol.control)
+# - OUTPUT: list(biol = biol, SR = SR, covars = covars) - Updated FLBiol and FLSRsim objects.
+#-------------------------------------------------------------------------------
+
 # Age structured population growth with densodependence
-#### ASPG_DDW ----
-ASPG_DDW <- function(biols, SRs, fleets, year, season, stknm, biols.ctrl,...){
+
+ASPG_DDW <- function(biols, SRs, fleets, stknm, year, season, ctrl, covars, ...){
+  
+  biol <- biols[[stknm]]
+  
+  # check if DDW covars available
+  if (!"DDW" %in% names(covars) | !stknm %in% names(covars[["DDW"]]))
+    covars[["DDW"]][[stknm]] <- biols[[stknm]]@n * 0 + 1
   
   # update wt of stknm
-  ddw.model <- biols.ctrl[[stkm]][['growth.model']]
-  lfd       <- biols.ctrl[[stkm]][['LFD']]
-  a         <- biols.ctrl[[stkm]][['a.lw']]
-  lbins     <- as.numeric(colNames(lfd))
+  ddw.model <- ctrl[[stknm]][['ddw.model']]
+  ddw.ctrl  <- ctrl[[stknm]][['ddw.ctrl']]
   
-  B <- quantSums((biols[[stkm]]@wt*biols[[stkm]]@n)[,year-1])[drop=T]
+  wts <- eval(call(ddw.model, biol = biol, stknm = stknm, year = year, season = season, 
+                  ctrl = ddw.ctrl, covars = covars))
   
-  condF <- predict(LW_lm, data.frame(biomass = B))
-  
-  wy <- a*(lbins)^condF
-  
-  wt <- rowSums(sweep(lfd, 2, wy, "*"))
-  
-  biols[[stkm]]@wt[,year] <- wt
+  # save
+  biols[[stknm]]@wt[,year,,season,]        <- wts$wt
+  covars[["DDW"]][[stknm]][,year,,season,] <- wts$wt.chg
   
   # use normal ASPG to project the population
   
   res <- ASPG(biols, SRs, fleets, year, season, stknm, biols.ctrl,...)
+  
+  res$covars <- covars
   
   return(res)
 }

@@ -27,11 +27,13 @@ biols.om <- function(biols, fleets, SRs, BDs, covars, biols.ctrl, year, season){
          
         biols[[st]] <- res$biol
         
+        if(!is.null(res$covars)) covars <- res$covars
+        
         if(!is.null(SRs[[st]]))  SRs[[st]] <- res$SR
         if(!is.null(BDs[[st]]))  BDs[[st]] <- res$BD
     }
     
-    return(list(biols = biols, SRs = SRs, BDs = BDs))
+    return(list(biols = biols, SRs = SRs, BDs = BDs, covars = covars))
 
 }
 
