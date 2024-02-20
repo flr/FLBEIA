@@ -358,15 +358,18 @@ ASPG_Baranov <- function(biols, SRs, fleets, year, season, stknm, ...){
 
 ASPG_DDW <- function(biols, SRs, fleets, stknm, year, season, ctrl, covars, ...){
   
-  biol <- biols[[stknm]]
+  cat('-----------------ASPG_DDW-----------\n')
   
   # check if DDW covars available
   if (!"DDW" %in% names(covars) | !stknm %in% names(covars[["DDW"]]))
     covars[["DDW"]][[stknm]] <- biols[[stknm]]@n * 0 + 1
   
-  # update wt of stknm
+  # estimate the DD weights
   ddw.model <- ctrl[[stknm]][['ddw.model']]
   ddw.ctrl  <- ctrl[[stknm]][['ddw.ctrl']]
+  
+  if (ddw.model == "ddwAgeCa") # for in-year ssb calculation (nage required)
+    biol <- ASPG(biols, SRs, fleets, year, season, stknm, biols.ctrl,...)$biol
   
   wts <- eval(call(ddw.model, biol = biol, stknm = stknm, year = year, season = season, 
                   ctrl = ddw.ctrl, covars = covars))

@@ -1,4 +1,12 @@
 #~~~~~~~~~~~~~~~~
+# 2024/02/20
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.14
+- Include density-dependent growth function
+- Specific funcion for density-dependent weights for a stock with 4 age classes and linear relationship for weights estimation and abundance (dependent on SSB and SST).
+- Function using length-frequency distribution and previous year abundance is in progress.
+
+#~~~~~~~~~~~~~~~~
 # 2014/10/01
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.65
