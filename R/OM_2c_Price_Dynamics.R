@@ -59,7 +59,7 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, mtnm, year = 1
     # When La = 0 -> Pa = Inf -> set Pa = NA
     Pa <- ifelse( Pa==Inf, NA, Pa)
                                    
-    fms@price[,yr,i,ss] <- Pa
+    fms@price[,yr,,ss] <- Pa
     
 
     fleets[[flnm]]@metiers[[mtnm]]@catches[[stnm]] <- fms
