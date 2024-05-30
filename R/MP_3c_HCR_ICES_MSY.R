@@ -164,6 +164,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             
             print(Ftg)
             
+            
             if(is.na(Ftg) | Ftg == 0){
               advice[['TAC']][stknm,year+1,,,,i] <- 0
               next

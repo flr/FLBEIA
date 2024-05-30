@@ -25,15 +25,15 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
     fleets.ctrl.aux <- fleets.ctrl
     
     
-    # update weights if DDW function applied in any of the stocks
-    if(!(is.null(covars$DDW))) {
+    # update weigths if DDW function applied in any of the stocks
+    if(!(is.null(covars$DDW))){
       for(st in names(covars$DDW)){
-        for(fl in  names(which(sapply(lapply(fleets, catchNames), function(x) (st %in% x))))) {
-          for(mt in names(which(sapply(lapply(fleets[[fl]]@metiers, catchNames), function(x) (st %in% x))))) {
-            mult <- covars[['DDW']][[st]][,year,,season,]
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[,year,,season,] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[,year,,season,]
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[,year,,season,] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[,year,,season,]
-          }
+        for(fl in  names(which(sapply(lapply(fleets, catchNames), function(x) (st %in% x))))){
+          for(mt in names(which(sapply(lapply(fleets[[fl]]@metiers, catchNames), function(x) (st %in% x))))){
+            mult <- covars[['DDW']][[st]][, year]
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[, year] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[, year]
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[, year] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[, year]
+            }
         }
       }
     }
@@ -58,7 +58,7 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
                     year = year, season = season, biols.ctrl=biols.ctrl, fleets.ctrl = fleets.ctrl, covars = covars, 
                     assess.ctrl=assess.ctrl, advice.ctrl = advice.ctrl)) 
          
-        fleets[[fl]]          <- res$fleets[[fl]]
+        fleets[[fl]]         <- res$fleets[[fl]]
         fleets.ctrl.aux[[fl]] <- res$fleets.ctrl[[fl]]
         remove(res)
     }
@@ -76,17 +76,21 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
 
     fleets <- unclass(fleets)
     for(fl in flnms){
-    print(fl)
+      print(fl)
+      mtnms <- names(fleets[[fl]]@metiers)
+      
+      for(mt in mtnms){
+        print(mt)
+        stnms <- names(fleets[[fl]]@metiers[[mt]]@catches)
         
-        sts <- catchNames(fleets[[fl]])
+        for(st in stnms){
+            dyn.model <- fleets.ctrl[[fl]][[mt]][[st]]$price.model  
         
-        for(st in sts){
-            dyn.model <- fleets.ctrl[[fl]][[st]]$price.model  
-        
-            res <- eval(call(dyn.model, fleets = fleets, flnm = fl, stnm = st, year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 
+            res <- eval(call(dyn.model, fleets = fleets, flnm = fl, mtnm = mt, stnm = st, year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 
          
             fleets[[fl]]         <- res[[fl]]
         }
+      }
     }
     fleets <- FLFleetsExt(fleets)
     

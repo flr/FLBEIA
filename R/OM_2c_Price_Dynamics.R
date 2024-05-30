@@ -27,15 +27,15 @@ fixedPrice <- function(fleets, covars, fleets.ctrl, year = 1, season = 1,...){
 # sophisticated function
 #-------------------------------------------------------------------------------
 
-elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, year = 1, season = 1){
+elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, mtnm, year = 1, season = 1){
 
     # Parameters
-    elas     <- fleets.ctrl[[flnm]][[stnm]][['pd.els']][,season,] # [na,it] the price and its parameters depend on season.
-    La0      <- fleets.ctrl[[flnm]][[stnm]][['pd.La0']][,season,] # [na,it] the price and its parameters depend on season.
-    Pa0      <- fleets.ctrl[[flnm]][[stnm]][['pd.Pa0']][,season,] # [na,it] the price and its parameters depend on season.
-    total    <- fleets.ctrl[[flnm]][[stnm]][['pd.total']]         # Logic: The function depends on total landings or fleet's landings
+    elas     <- fleets.ctrl[[flnm]][[mtnm]][[stnm]][['pd.els']][,season,] # [na,it] the price and its parameters depend on season.
+    La0      <- fleets.ctrl[[flnm]][[mtnm]][[stnm]][['pd.La0']][,season,] # [na,it] the price and its parameters depend on season.
+    Pa0      <- fleets.ctrl[[flnm]][[mtnm]][[stnm]][['pd.Pa0']][,season,] # [na,it] the price and its parameters depend on season.
+    total    <- fleets.ctrl[[flnm]][[mtnm]][[stnm]][['pd.total']]         # Logic: The function depends on total landings or fleet's landings
     
-    f <- fleets[[flnm]]
+    fms <- fleets[[flnm]][[mtnm]][[stnm]]
     yr <- year
     ss <- season
     
@@ -45,29 +45,25 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, year = 1, seas
         Lau <- landWStock(fleets, stnm)[,yr,,ss]
 #        print('TOTAL')
     }else{
-        Lau <- landWStock.f(f, stnm)[,yr,,ss]   
+        Lau <- fms@landings.wt 
  #       print('FLEET')
  }
         
     La  <- unitSums(Lau)[drop=T]    # [na,it]
     nu  <- dim(Lau)[3]
 
-    La[La==0] <- 0.1
+    La[La==0] <- 0.001
       
     Pa <- Pa0*(La0/La)^elas    #  [na,it]
     
     # When La = 0 -> Pa = Inf -> set Pa = NA
     Pa <- ifelse( Pa==Inf, NA, Pa)
                                    
-    for(mt in 1:length(f@metiers)){
-        
-        if(!(stnm %in% names(f@metiers[[mt]]@catches))) next
-        
-         for(i in 1:nu)
-            f@metiers[[mt]]@catches[[stnm]]@price[,yr,i,ss] <- Pa
-    }
+    fms@price[,yr,i,ss] <- Pa
+    
 
-    fleets[[flnm]] <- f
+    fleets[[flnm]]@metiers[[mtnm]]@catches[[stnm]] <- fms
+    
     return(fleets)
 }
     
