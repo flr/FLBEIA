@@ -45,7 +45,7 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, mtnm, year = 1
         Lau <- landWStock(fleets, stnm)[,yr,,ss]
 #        print('TOTAL')
     }else{
-        Lau <- fms@landings.wt 
+        Lau <- fms@landings.wt[,yr,,ss] 
  #       print('FLEET')
  }
         
