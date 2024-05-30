@@ -84,8 +84,11 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
         stnms <- names(fleets[[fl]]@metiers[[mt]]@catches)
         
         for(st in stnms){
+          print(st)
             dyn.model <- fleets.ctrl[[fl]][[mt]][[st]]$price.model  
         
+            if(is.null(dyn.model)) next
+            
             res <- eval(call(dyn.model, fleets = fleets, flnm = fl, mtnm = mt, stnm = st, year = year, season = season, fleets.ctrl = fleets.ctrl, covars = covars)) 
          
             fleets[[fl]]         <- res[[fl]]
