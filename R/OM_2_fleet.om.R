@@ -25,15 +25,15 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
     fleets.ctrl.aux <- fleets.ctrl
     
     
-    # update weigths if DDW function applied in any of the stocks
-    if(!(is.null(covars$DDW))){
-      for(st in names(covars$DDW)){
-        for(fl in  names(which(sapply(lapply(fleets, catchNames), function(x) (st %in% x))))){
-          for(mt in names(which(sapply(lapply(fleets[[fl]]@metiers, catchNames), function(x) (st %in% x))))){
-            mult <- covars[['DDW']][[st]][, year]
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[, year] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[, year]
-            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[, year] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[, year]
-            }
+    # update weights if DDW function applied in any of the stocks
+    if(!(is.null(covars$DDW))) {
+      for(st in names(covars$DDW)) {
+        for(fl in  names(which(sapply(lapply(fleets, catchNames), function(x) (st %in% x))))) {
+          for(mt in names(which(sapply(lapply(fleets[[fl]]@metiers, catchNames), function(x) (st %in% x))))) {
+            mult <- covars[['DDW']][[st]][,year,,season,]
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[,year,,season,] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@landings.wt[,year,,season,]
+            fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[,year,,season,] <- mult*fleets[[fl]]@metiers[[mt]]@catches[[st]]@discards.wt[,year,,season,]
+          }
         }
       }
     }
