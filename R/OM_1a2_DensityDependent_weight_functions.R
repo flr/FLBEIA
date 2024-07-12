@@ -97,7 +97,7 @@ ddwAgeLFD <- function(biol, stknm, year, season, ctrl, covars, ...) {
   
   B <- quantSums((biol@wt*biol@n)[,year-1,,season,])[drop=T] 
   
-  condb <- predict(dd_mod, data.frame(biomass = B))                            # Predict the "b" parameter of the length-weight relationship.
+  condb <- predict(dd_mod, data.frame(B = B))                                  # Predict the "b" parameter of the length-weight relationship.
   mx.condb <- matrix(condb, dim(biol@n)[1], dim(biol@n)[6], byrow = TRUE)
   
   wage <- a * mx.lfd^mx.condb/1000 # in tonnes
