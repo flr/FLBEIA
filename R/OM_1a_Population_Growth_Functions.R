@@ -368,9 +368,11 @@ ASPG_DDW <- function(biols, SRs, fleets, stknm, year, season, ctrl, covars, ...)
   ddw.model <- ctrl[[stknm]][['ddw.model']]
   ddw.ctrl  <- ctrl[[stknm]][['ddw.ctrl']]
   
-  if (ddw.model == "ddwAgeCa") # for in-year ssb calculation (nage required)
-    biol <- ASPG(biols, SRs, fleets, year, season, stknm, biols.ctrl,...)$biol
+  biol <- biols[[stknm]]
   
+  if (ddw.model == "ddwAgeCa") # for in-year ssb or total biomass calculation (nage required)
+    biol <- ASPG(biols, SRs, fleets, year, season, stknm, biols.ctrl,...)$biol
+ 
   wts <- eval(call(ddw.model, biol = biol, stknm = stknm, year = year, season = season, 
                   ctrl = ddw.ctrl, covars = covars))
   
@@ -386,4 +388,3 @@ ASPG_DDW <- function(biols, SRs, fleets, stknm, year, season, ctrl, covars, ...)
   
   return(res)
 }
-

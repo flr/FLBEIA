@@ -84,24 +84,33 @@ ddwAgeCa <- function(biol, stknm, year, season, ctrl, covars, ...) {
 # - OUTPUT: list(wt = wage, wt.chg = wt.chg) - vector with estimated weight at age values and relative change
 #-------------------------------------------------------------------------------
 
-# Weights-at-age based on SSB (linear model for estimating LW b parameter) and A LFD
+# Weights-at-age based on total biomass and a length frequency distribution
 
 ddwAgeLFD <- function(biol, stknm, year, season, ctrl, covars, ...) {
   
-  lfd       <- ctrl[['LFD']]
-  a         <- ctrl[['a.lw']]
-  lbins     <- as.numeric(colNames(lfd))
+  lfd         <- ctrl[['LFD']]
+  a           <- ctrl[['a.lw']]
+  dd_mod      <- ctrl[['LFD_model']]
+  excluded.a  <- ctrl[['exc.a']]
   
-  B <- quantSums((biol@wt*biol@n)[,year-1])[drop=T] #! DG needs to consider season dimension
+  mx.lfd = matrix(lfd, dim(biol@n)[1], dim(biol@n)[6])
   
-  condF <- predict(LW_lm, data.frame(biomass = B))  #! DG requires: biols.ctrl[[stknm]][['ddw.ctrl']][['LW_lm']]
+  B <- quantSums((biol@wt*biol@n)[,year-1,,season,])[drop=T] 
   
-  wy <- a*(lbins)^condF
+  condb <- predict(dd_mod, data.frame(biomass = B))  
+  condb_matrix <- matrix(condb, dim(biol@n)[1], dim(biol@n)[6], byrow = TRUE)
   
-  wt. <- rowSums(sweep(lfd, 2, wy, "*"))  #! DG needs to consider also season dimension
-  wt  <- biol@wt[,year,,season,]
+  wage <- a * mx.lfd^condb_matrix/1000 # in tonnes
   
-  return(list(wt = wt., wt.chg = wt./wt))
+  if(!is.null(excluded.a)){
+    excluded.a.pos <- which(biol@range[["min"]]:biol@range[["max"]] %in% excluded.a)  
+    wage[excluded.a.pos,] <- biol@wt[excluded.a.pos,year,,season,drop=TRUE]
+  }
+  
+  # wt change
+  wt.ref <- biol@wt[,year,,season,drop=TRUE]
+  wt.chg <- wage/wt.ref
+  
+  return(list(wt = wage, wt.chg = wt.chg))
   
 }
-
