@@ -88,19 +88,19 @@ ddwAgeCa <- function(biol, stknm, year, season, ctrl, covars, ...) {
 
 ddwAgeLFD <- function(biol, stknm, year, season, ctrl, covars, ...) {
   
-  lfd         <- ctrl[['LFD']]
-  a           <- ctrl[['a.lw']]
-  dd_mod      <- ctrl[['LFD_model']]
-  excluded.a  <- ctrl[['exc.a']]
+  lfd         <- ctrl[['LFD']]                                                 # Mean length-at-age in a numeric vector.
+  a           <- ctrl[['a.lw']]                                                # The "a" parameter of the length-weight relationship.
+  dd_mod      <- ctrl[['LFD_model']]                                           # A function that calculates the "b" parameter of the length-weight relationship based on the total biomass.
+  excluded.a  <- ctrl[['exc.a']]                                               # By default, the weights of all ages are recalculated, but the weight of specific ages can be fixed by indicating here which one they are.
   
   mx.lfd = matrix(lfd, dim(biol@n)[1], dim(biol@n)[6])
   
   B <- quantSums((biol@wt*biol@n)[,year-1,,season,])[drop=T] 
   
-  condb <- predict(dd_mod, data.frame(biomass = B))  
-  condb_matrix <- matrix(condb, dim(biol@n)[1], dim(biol@n)[6], byrow = TRUE)
+  condb <- predict(dd_mod, data.frame(biomass = B))                            # Predict the "b" parameter of the length-weight relationship.
+  mx.condb <- matrix(condb, dim(biol@n)[1], dim(biol@n)[6], byrow = TRUE)
   
-  wage <- a * mx.lfd^condb_matrix/1000 # in tonnes
+  wage <- a * mx.lfd^mx.condb/1000 # in tonnes
   
   if(!is.null(excluded.a)){
     excluded.a.pos <- which(biol@range[["min"]]:biol@range[["max"]] %in% excluded.a)  
