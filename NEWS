@@ -1,4 +1,19 @@
 #~~~~~~~~~~~~~~~~
+# 2024/07/12
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.19
+- XXXXX
+
+
+
+#~~~~~~~~~~~~~~~~
+# 2024/07/09
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.17
+- New price functions available (elasticPriceAge) and previous ones (elasticPrice) include alternative options now.
+
+
+#~~~~~~~~~~~~~~~~
 # 2024/02/20
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.16.1.14
