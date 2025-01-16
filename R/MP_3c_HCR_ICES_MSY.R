@@ -27,7 +27,7 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
     # Fill the 0-s and NA-s with almost 0 values to avoid problems when the fishery is closed for example, or there is no catch...
     stk <- stocks[[stknm]]
-    stk@harvest[stk@harvest < 0] <- 0.00001
+    stk@harvest[stk@harvest < 1e-12 | is.na(stk@harvest)] <- 1e-12
     
     stk@catch.n[is.na(stk@catch.n)] <- 1e-6
     stk@landings.n[is.na(stk@landings.n)] <- 0
@@ -47,13 +47,13 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
 
     if(ageStruct == TRUE){
-      if(any(stk@catch[,tail(dimnames(stk@catch)$year,3)]<1e-2)){
+      if(any(stk@catch[,tail(dimnames(stk@catch)$year,fbar.nyears)]<1e-2)){
         stk <- stf_correctSel(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
         }else{
          stk <- stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
     
       }}else{
-       stk <- stfBD(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3)}
+       stk <- stfBD(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)}
     
    # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n
     
