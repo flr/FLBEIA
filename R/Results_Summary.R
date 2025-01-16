@@ -196,6 +196,8 @@ R_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
             catch <- array(apply(catchStock(obj$fleets, stk),c(2,6), sum)[,years,drop = TRUE], dim = c(ny,ns,it))
             B     <- array((obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,,drop= TRUE], dim = c(ny,ns,it))
             res[stk,-ny,,] <- B[-1,,] - B[-ny,,] + catch[-ny,,]
+            
+            if (length(unique(B)) == 1) {res[stk,,,] <- catch}
         }
     }
     return(res)
