@@ -1,9 +1,9 @@
 #~~~~~~~~~~~~~~~~
-# 2024/07/12
+# 2025/01/16
 #~~~~~~~~~~~~~~~~
-FLBEIA 1.16.1.19
-- XXXXX
-
+FLBEIA 1.16.1.20
+- Minor corrections in summary functions for constant biomass stocks (last year rec = catch)
+- Minor correction in ICES MSY rule
 
 
 #~~~~~~~~~~~~~~~~
