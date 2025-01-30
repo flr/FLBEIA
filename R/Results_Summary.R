@@ -1613,7 +1613,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
           mutate(effort=c((fl@effort[,years,])*effshare),
                  vcost=c(mt@vcost[,years,])*effort,
                  grossValue=c(Reduce('+', lapply(mt@catches, 
-                                                 function(x) unitSums(quantSums(x@landings.n*x@price))[,years]))))
+                                                 function(x) unitSums(quantSums(x@landings.n*x@landings.wt*x@price))[,years]))))
         
         res <- bind_rows(res, res.fl.mt)           
       }
@@ -1639,7 +1639,7 @@ mtSum <- function(obj, flnms = names(obj$fleets),
           mutate(effort=c(seasonSums((fl@effort*mt@effshare)[,years,])),
                  vcost=c(seasonSums(mt@vcost[,years,]))*effort,
                  grossValue=c(Reduce('+', lapply(mt@catches,
-                                                 function(x) seasonSums(unitSums(quantSums(x@landings.n*x@price)))[,years]))))          
+                                                 function(x) seasonSums(unitSums(quantSums(x@landings.n*x@landings.wt*x@price)))[,years]))))          
         res <- bind_rows(res, res.fl.mt)           
       }
     }
