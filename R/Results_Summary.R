@@ -332,7 +332,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #'      \item{fltSum, fltSumQ:} Data frame with the indicators at fleet level. The indicators are:
 #'              "capacity", "catch", "costs", "discards", "discRat", "effort",       
 #'              "fcosts", "gva", "grossValue", "landings", "fep", "nVessels", "price", "grossSurplus",
-#'              "quotaUpt", "salaries", "vcosts" and "profitability".
+#'              "quotaUpt", "salaries", "vcosts" and "profitability", plus "cr_ber" (only if byyear == TRUE).
 #'      \item{fltStkSum, fltStkSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
 #'              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
 #'      \item{npv:} A data frame with the net present value per fleet over the selected range of years.
@@ -999,8 +999,12 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                salaries = c(seasonSums(fl@crewshare[,years,])) * grossValue + c(seasonSums(covars[['Salaries']][f,years])),
                gva = grossValue - costs + salaries,
                profitability = grossSurplus/grossValue,
-               fep = grossSurplus - c(seasonSums(covars[['Depreciation']][f,years])) * nVessels ,
-               netProfit = fep - c(seasonSums(covars[['CapitalCost']][f,years])) * InterestRate * nVessels)
+               deprecCosts = c(seasonSums(covars[['Depreciation']][f,years])) * nVessels,
+               fep = grossSurplus - deprecCosts,
+               netProfit = fep - c(seasonSums(covars[['CapitalCost']][f,years])) * InterestRate * nVessels, 
+               ber = (salaries + fcosts + deprecCosts) / (1 - (vcosts/grossValue)),
+               cr_ber = grossValue/ber) %>% 
+          select(-deprecCosts, -ber)
       
       #quotaUptake depends on the number of seasons
       
@@ -1008,7 +1012,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       temp <- Reduce('+',temp)[,years]
       totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
       res.fl <- res.fl %>% mutate(quotaUpt=c(temp/totTAC))
-      res<- bind_rows(res,res.fl)
+      res <- bind_rows(res,res.fl)
     }
   }
   
