@@ -1,8 +1,17 @@
 #~~~~~~~~~~~~~~~~
+# 2025/03/06
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.23
+- New tax functions (convexTax, quadraticTax)
+- Added taxes in the summary statistics (incorporated to variable costs)
+
+
+#~~~~~~~~~~~~~~~~
 # 2025/02/21
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.16.1.22
 - Added new indicator in FLBEIA summaries (fltSum)
+
 
 #~~~~~~~~~~~~~~~~
 # 2025/01/16
