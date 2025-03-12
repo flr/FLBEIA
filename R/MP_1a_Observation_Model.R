@@ -453,10 +453,9 @@ age2bioDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
       }
              
     biolbio <- setPlusGroupFLBiol(biol,biol@range[1])
-    stck                <- propagate(as(biolbio, "FLStock")[,1:ny], it, fill.iter = TRUE) 
+    stck                <- propagate(as(biolbio, "FLStock")[,1:ny,1,1], it, fill.iter = TRUE) 
     stck@range <- stck@range[1:7]
     dimnames(stck)      <- list(age="all")
-
     landings(stck)      <- FLQuant(Obs.land.bio(fleets, land.bio.error, yr, stknm),dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m))
     landings(stck)      <- ifelse(unclass(stck@landings) > TAC.ovrsht[1,]*advice$TAC[stknm,1:ny], 
                                   FLQuant(c(TAC.ovrsht[1,]*advice$TAC[stknm,1:ny]), dim= c(1,ny,1,1,1,it), dimnames = dimnames(stck@m)), #! not adapted to in-year advice
