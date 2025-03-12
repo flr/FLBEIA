@@ -332,7 +332,7 @@ summary_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
 #'      \item{fltSum, fltSumQ:} Data frame with the indicators at fleet level. The indicators are:
 #'              "capacity", "catch", "costs", "discards", "discRat", "effort",       
 #'              "fcosts", "gva", "grossValue", "landings", "fep", "nVessels", "price", "grossSurplus",
-#'              "quotaUpt", "salaries", "vcosts" and "profitability".
+#'              "quotaUpt", "salaries", "vcosts" and "profitability", plus "cr_ber" (only if byyear == TRUE).
 #'      \item{fltStkSum, fltStkSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
 #'              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
 #'      \item{npv:} A data frame with the net present value per fleet over the selected range of years.
@@ -853,6 +853,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
   
   fleets <- obj$fleets
   covars <- obj$covars
+  advice <- obj$advice
   
   #  fleets <- lapply(fleets, setUnitsNA)
   
@@ -958,6 +959,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
       fleet <- rep(f, each = prod(Dim[-2]))
+      fl.ctrl <- obj$fleets.ctrl[[f]]
       
       temp.catch <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(catchWStock.f(fl, x)))))
       temp.landings <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(landWStock.f(fl, x)))))
@@ -987,8 +989,8 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                             capacity=c(seasonSums(fl@capacity[,years, ])),
                             effort=c(seasonSums(fl@effort[,years, ])),
                             fcosts=c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ])),
-                            vcosts=c(seasonSums(totvcost_flbeia(fl)[,years, ])),
-                            costs=c(seasonSums(costs_flbeia(fl, covars, f)[,years, ])),
+                            vcosts=c(seasonSums(totvcost_flbeia(fl, fl.ctrl, advice)[,years, ])),
+                            costs=c(seasonSums(costs_flbeia(fl, covars, f, fl.ctrl, advice)[,years, ])),
                             grossValue=c(seasonSums(revenue_flbeia(fl)[,years, ])),
                             nVessels =c(seasonMeans(covars[['NumbVessels']][f,years])))) 
 
@@ -999,8 +1001,12 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                salaries = c(seasonSums(fl@crewshare[,years,])) * grossValue + c(seasonSums(covars[['Salaries']][f,years])),
                gva = grossValue - costs + salaries,
                profitability = grossSurplus/grossValue,
-               fep = grossSurplus - c(seasonSums(covars[['Depreciation']][f,years])) * nVessels ,
-               netProfit = fep - c(seasonSums(covars[['CapitalCost']][f,years])) * InterestRate * nVessels)
+               deprecCosts = c(seasonSums(covars[['Depreciation']][f,years])) * nVessels,
+               fep = grossSurplus - deprecCosts,
+               netProfit = fep - c(seasonSums(covars[['CapitalCost']][f,years])) * InterestRate * nVessels, 
+               ber = (salaries + fcosts + deprecCosts) / (1 - (vcosts/grossValue)),
+               cr_ber = grossValue/ber) %>% 
+          select(-deprecCosts, -ber)
       
       #quotaUptake depends on the number of seasons
       
@@ -1008,7 +1014,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       temp <- Reduce('+',temp)[,years]
       totTAC <- Reduce('+',lapply(names(obj$advice$quota.share), function(x) obj$advice$quota.share[[x]][f,years]*obj$advice$TAC[x,years]))
       res.fl <- res.fl %>% mutate(quotaUpt=c(temp/totTAC))
-      res<- bind_rows(res,res.fl)
+      res <- bind_rows(res,res.fl)
     }
   }
   
@@ -1124,11 +1130,15 @@ revenue_flbeia <- function(fleet){
 #' @rdname revenue_flbeia
 #' @aliases costs_flbeia
 #' @param covars List of FLQuants with information on covariates.
-costs_flbeia <- function(fleet, covars, flnm = NULL){
+#' @param fleets.ctrl FLquant with quotas for all the stocks (only required if taxes = TRUE)
+#' @param advice List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)
+costs_flbeia <- function(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice = NULL){
     
-    res <- totvcost_flbeia(fleet) + totfcost_flbeia(fleet, covars, flnm)
-    
-    return(res)               
+    res <- totvcost_flbeia(fleet, fleet.ctrl, advice) + 
+      # taxcost_flbeia(fleet, fleet.ctrl, advice) + # incorporated in variable costs?
+      totfcost_flbeia(fleet, covars, flnm)
+      
+    return(res)
 }
 
 #-------------------------------------------------------------------------------
@@ -1136,7 +1146,7 @@ costs_flbeia <- function(fleet, covars, flnm = NULL){
 #-------------------------------------------------------------------------------
 #' @rdname revenue_flbeia
 #' @aliases totvcost_flbeia
-totvcost_flbeia <- function(fleet){
+totvcost_flbeia <- function(fleet, fleet.ctrl, advice){
     
     mts <- names(fleet@metiers)
     
@@ -1145,11 +1155,14 @@ totvcost_flbeia <- function(fleet){
     for(mt in mts){
         res <- res + fleet@metiers[[mt]]@vcost*fleet@effort*fleet@metiers[[mt]]@effshare
     }
+    
     Rev <- revenue_flbeia(fleet)*fleet@crewshare
+    
+    Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice) # taxes are included in variable costs
     
     units(res) <- units(Rev)
     
-    res <- res + Rev
+    res <- res + Rev + Tax
     
     return(res)               
 }
@@ -1163,6 +1176,68 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
      if(is.null(flnm)) flnm <- 1
      return(fleet@fcost*covars[["NumbVessels"]][flnm, ])            
 }
+
+#-------------------------------------------------------------------------------
+# taxcost_flbeia(fleet, fleet.ctrl, advice)
+#-------------------------------------------------------------------------------
+#' @rdname revenue_flbeia
+#' @aliases taxcost_flbeia
+#' @param fleets.ctl FLquant with quotas for all the stocks (only required if taxes = TRUE)
+#' @param advice     List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)
+taxcost_flbeia <- function(fleet, fleet.ctrl, advice) { 
+  
+  res <- taxes <- FLQuant(0, dimnames = dimnames(fleet@effort))
+  
+  if (is.null(fleet.ctrl) | is.null(advice))
+    return(res)
+  
+  sts <- lapply(catchNames(fleet), function(st) 
+    if(!is.null(fleet.ctrl[[st]][['tax.model']])) st) %>% unlist()
+    
+  if (!is.null(sts)) {
+    
+    for (st in sts) {
+      
+      tax.model <- fleet.ctrl[[st]][['tax.model']]
+      
+      if (tax.model == "convexTax") {
+        
+        cflst <- quantSums(catchWStock.f(fleet, st))
+        qflst <- advice$TAC[st,]*advice$quota.share[[st]][fleet@name,]
+        
+        taxes <- taxes + 
+          # - taxes per tonne caught
+          fleet.ctrl[[st]][['gammaC']] * cflst + 
+          # - taxes per each tonne that exceeds TAC
+          fleet.ctrl[[st]][['gammaOS']] * ifelse(cflst - qflst < 0, 0, cflst - qflst)
+        
+      } else if (tax.model == "linearTax") {
+        
+        stop("Linear tax still not available.")
+        
+      } else if (tax.model == "quadraticTax") {
+        
+        for(st in names(q.m))
+          taxes <- taxes + 
+            # - taxes per tonne caught
+            fleets.ctrl[[flnm]][[st]][['gammaC']] * cflst/qflst + 
+            # - taxes per each tonne that exceeds TAC
+            fleets.ctrl[[flnm]][[st]][['gammaOS']]/2 * qflst * (cflst/qflst)^2
+        
+      }
+      
+    }
+    
+    res <- res + taxes
+    
+    # units(res) <- units(revenue_flbeia(fleet))
+    
+  }
+  
+  return(res)
+  
+}
+
 
 
 #------------------------------------------------------------------------------#
@@ -1613,7 +1688,8 @@ mtSum <- function(obj, flnms = names(obj$fleets),
           mutate(effort=c((fl@effort[,years,])*effshare),
                  vcost=c(mt@vcost[,years,])*effort,
                  grossValue=c(Reduce('+', lapply(mt@catches, 
-                                                 function(x) unitSums(quantSums(x@landings.n*x@landings.wt*x@price))[,years]))))
+                                                 function(x) unitSums(quantSums(ifelse(is.na(x@landings.n*x@landings.wt*x@price), 0, 
+                                                                                       x@landings.n*x@landings.wt*x@price)))[,years]))))
         
         res <- bind_rows(res, res.fl.mt)           
       }
@@ -1639,7 +1715,8 @@ mtSum <- function(obj, flnms = names(obj$fleets),
           mutate(effort=c(seasonSums((fl@effort*mt@effshare)[,years,])),
                  vcost=c(seasonSums(mt@vcost[,years,]))*effort,
                  grossValue=c(Reduce('+', lapply(mt@catches,
-                                                 function(x) seasonSums(unitSums(quantSums(x@landings.n*x@landings.wt*x@price)))[,years]))))          
+                                                 function(x) seasonSums(unitSums(quantSums(ifelse(is.na(x@landings.n*x@landings.wt*x@price),0, 
+                                                                                                  x@landings.n*x@landings.wt*x@price))))[,years]))))          
         res <- bind_rows(res, res.fl.mt)           
       }
     }

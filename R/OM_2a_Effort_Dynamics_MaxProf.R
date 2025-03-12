@@ -169,7 +169,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
       efs.min <- ifelse(efs.m <= efs.min, efs.m*0.99, efs.min)
       efs.m <- ifelse(efs.m >= efs.max, efs.max*0.99, efs.m)
       
-      E0 <- Et*efs.m
+      E0 <- ifelse(Et*efs.m == 0, 1e-8, Et*efs.m)
       
     } else {
       
@@ -202,7 +202,7 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
       Nyr_1 = Nyr_1, Myr_1 = Myr_1, M = M, Cfyr_1 = Cfyr_1, 
       flnm = flnm, fleets.ctrl = fleets.ctrl), silent = TRUE)
     
-    if(class(eff_opt) != "try-error"){
+    if(class(eff_opt) != "try-error"){ #! not recommended use in ?try --> Use if(inherits(res, "try-error")) instead
       if(eff_opt[["convergence"]] %in% c(1, 10)){
         eff_opt <- try(optim(eff_opt[["par"]], f_MP_nloptr_penalized, 
           efs.max = efs.max, efs.min = efs.min, q.m = q.m, 
@@ -415,11 +415,11 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
 #                   stock, each element with the form: array(na_st,nmt,it)
 #    - Ba ~ list with one element per stock, each element with the form: array(na_st,it)
 #
-# q.m,...,vc.m must correspond with one iteration of the variable at metier level
-# and must have dimension  [nmt,na,nu,1]
-# N: alist with one element per stock and each element with dimension [nmt,na,nu]
-# Cr.f:[nst,1] quota share
-# rho: [nst]
+# q.m,...,vc.m : must correspond with one iteration of the variable at metier level
+#                and must have dimension  [nmt,na,nu,1]
+# N            : a list with one element per stock and each element with dimension [nmt,na,nu]
+# Cr.f         : [nst,1] quota share
+# rho          : [nst]
 #-------------------------------------------------------------------------------
 
 f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.m, ret.m, wd.m,
@@ -488,8 +488,58 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   }
   
   resF <- (1-crewS)*res - sum(vc.m*E) - fc
+  
 #  cat('income: ', res,', vcost: ', sum(vc.m*E),', crewS: ', crewS*res, ', fcost: ', fc, '\n')
 #  cat('profits: ', resF,'effort: ', E,'\n')
+  
+  #---------------------------------------------------------------------------
+  # Incorporate taxes
+  #---------------------------------------------------------------------------
+  
+  taxes <- 0
+  
+  if (!is.null(fleets.ctrl[[flnm]][[st]][['tax.model']])) {
+    
+    tax.model <- fleets.ctrl[[flnm]][[st]][['tax.model']]
+    
+    if (tax.model == "convexTax") {
+      
+      # Parameters (same units as prices; e.g. eur/ton)
+      # - taxes per tonne caught
+      gammaC  <- fleets.ctrl[[flnm]][[st]][['gammaC']]
+      # - taxes per each tonne that exceeds TAC
+      gammaOS <- fleets.ctrl[[flnm]][[st]][['gammaOS']]
+      
+      for(st in names(q.m))
+        taxes <- taxes + 
+        gammaC * Cst[st] + gammaOS * ifelse(Cst[st] - Cr.f[st,] < 0, 0, Cst[st] - Cr.f[st,])
+      
+    } else if (tax.model == "linearTax") {
+      
+      stop("Linear tax still not available.")
+      
+    } else if (tax.model == "quadraticTax") {
+      
+      # Alternative by Helge
+      
+      # Parameters (same units as prices; e.g. eur/ton)
+      # - taxes per tonne caught
+      gammaC  <- fleets.ctrl[[flnm]][[st]][['gammaC']]
+      # - taxes per each tonne that exceeds TAC
+      gammaOS <- fleets.ctrl[[flnm]][[st]][['gammaOS']]
+      
+      for(st in names(q.m))
+        taxes <- taxes + 
+          gammaC * Cst[st]/Cr.f[st,] + gammaOS/2 * Cr.f[st,] * (Cst[st]/Cr.f[st,])^2
+      
+    }
+    
+  } else
+    
+  
+  resF <- resF - taxes
+  
+  
   #---------------------------------------------------------------------------
   # constraint on effort-share: absolute or relative values.
   #---------------------------------------------------------------------------
