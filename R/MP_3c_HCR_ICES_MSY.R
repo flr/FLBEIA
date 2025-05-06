@@ -47,13 +47,13 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
 
 
     if(ageStruct == TRUE){
-      if(any(stk@catch[,tail(dimnames(stk@catch)$year,3)]<1e-2)){
+      if(any(stk@catch[,tail(dimnames(stk@catch)$year,fbar.nyears)]<1e-2)){
         stk <- stf_correctSel(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
         }else{
          stk <- stf(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears, f.rescale = f.rescale) #, disc.nyrs = disc.nyears)
     
       }}else{
-       stk <- stfBD(stk, nyears = 3, wts.nyears = 3, fbar.nyears = 3)}
+       stk <- stfBD(stk, nyears = 3, wts.nyears = wts.nyears, fbar.nyears = fbar.nyears)}
     
    # if(dim(stk@m)[1] == 1)    harvest(stk) <- stk@catch.n/stk@stock.n
     
