@@ -24,6 +24,16 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
     fbar.nyears <- ifelse(is.null(advice.ctrl[[stknm]][['fbar.nyears']]), 3, advice.ctrl[[stknm]][['fbar.nyears']])
     f.rescale   <- ifelse(is.null(advice.ctrl[[stknm]][['f.rescale']]), TRUE, advice.ctrl[[stknm]][['f.rescale']])
    # disc.nyears  <- ifelse(is.null(advice.ctrl[[stknm]][['disc.nyears']]), wts.nyears, advice.ctrl[[stknm]][['disc.nyears']])
+  
+    # are there constraints in TAC variability?
+    TACvar <- advice.ctrl[[stknm]][['TACvar']]
+    if(!is.null(TACvar)){
+        if(length(TACvar) == 1) TACvar <- c(-TACvar,TACvar) # Symmetric TAC variability
+        if((TACvar[1] > 0) | (TACvar[2] < 0) ) stop('TACvar must be a vector with two numbers, 
+                      the first negative with the constraint when TAC decreases, and the second one 
+                      positive with the constraint when TAC increases. For a symmetric constraint a single 
+                      positive value can be used.')
+    }
 
     # Fill the 0-s and NA-s with almost 0 values to avoid problems when the fishery is closed for example, or there is no catch...
     stk <- stocks[[stknm]]
@@ -205,8 +215,16 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
      
         yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
      
-        advice[['TAC']][stknm,year+1,,,,i] <- yy # The TAC is given in terms of CATCH.
+        if(!is.null(TACvar) & b.pos == 2){ # If there is constraint and SSB > MSY Btrigger
+          yy0 <- advice[['TAC']][stknm,year,,,,i]
+          int <- findInterval(yy/yy0-1, TACvar) 
+          yy <- ifelse(int == 1, yy, 
+                    ifelse(int == 0, yy0*(1+TACvar[1]), 
+                                     yy0*(1+TACvar[2])))
+        }
 
+        advice[['TAC']][stknm,year+1,,,,i] <- yy # The TAC is given in terms of CATCH.
+        
 #        cat('---------------- HCR------------------------\n')
 #        cat(c(fbar(stki)[,(year-1):year]), '\n')
 #        cat('-------------------------------------------\n')
