@@ -23,16 +23,21 @@ ddwAgeCa <- function(biol, stknm, year, season, ctrl, covars, ...) {
   
   require(nleqslv)
   
-  pars  <- ctrl$params[,,year,season,] # array[npar,nage,nyr,ns,nit]
+  na <- dim(biol@wt)[1]
+  it <- dim(biol@wt)[6]
+  
+  pars  <- ctrl$params[,,year,season,] # array[npar,nage,1,1,nit]
   covnm <- ctrl$covnm                  # name of the covariate
   
-  wt.ref <- biol@wt[,year,,season,drop=TRUE]
-  ssna   <- (n(biol) * mat(biol) * exp(-spwn(biol) * m(biol)))[,year,,season,drop=TRUE] # exclude age0 (inmature)
-  sst    <- covars[[covnm]][stknm,year,,season,drop=TRUE]
+  wt.ref <- biol@wt[,year,,season,drop=TRUE] # [na,nit] or [na]
+  ssna   <- (n(biol) * mat(biol) * exp(-spwn(biol) * m(biol)))[,year,,season,drop=TRUE] # [na,nit] or [na] # to exclude age0 (immature)
+  sst    <- covars[[covnm]][stknm,year,,season,drop=TRUE]  # [nit] 
+  
+  wage <- wt.ref * NA
   
   # ssb.ref <- quantSums(ssna * wt.ref[-1])
   
-  wfun <- function(x) {
+  wfun <- function(x, param, ssna) {
     
     # x[i] is log(wage_i)
     # x[i] = a_i + b_i * log(ssb) + c_i * sst
@@ -44,33 +49,59 @@ ddwAgeCa <- function(biol, stknm, year, season, ctrl, covars, ...) {
     logssb <- log(ssna[1] * exp(x[1]) + ssna[2] * exp(x[2]) +
                     ssna[3] * exp(x[3]) + ssna[4] * exp(x[4]))
     
-    y[1] <- x[1] - pars["b",1] * logssb - pars["a",1] - pars["c",1] * sst
-    y[2] <- x[2] - pars["b",2] * logssb - pars["a",2] - pars["c",2] * sst
-    y[3] <- x[3] - pars["b",3] * logssb - pars["a",3] - pars["c",3] * sst
-    y[4] <- x[4] - pars["b",4] * logssb - pars["a",4] - pars["c",4] * sst
+    y[1] <- x[1] - param["b",1] * logssb - param["a",1] - param["c",1] * sst
+    y[2] <- x[2] - param["b",2] * logssb - param["a",2] - param["c",2] * sst
+    y[3] <- x[3] - param["b",3] * logssb - param["a",3] - param["c",3] * sst
+    y[4] <- x[4] - param["b",4] * logssb - param["a",4] - param["c",4] * sst
     
     return(y)
   }
   
-  lwest <- nleqslv(log(wt.ref), fn = wfun, control = list(btol=1e-08, delta="newton"))
-  
-  if (lwest$termcd != 1)
-    print(paste0(stknm," weights calculation message: ",lwest3$message))
-  
-  if (any(wfun(lwest$x)>1e-08))
-    stop(paste("Issues with mean weight calculation for", stknm))
-  
-  wage <- exp(lwest$x)
-  
-  # check
-  logssb <- sum(ssna * wage)
-  di <- numeric(4)
-  for (i in 1:4) {
-    di[i] <- wage[i] - exp(pars["a",i] + pars["b",i] * logssb + pars["c",i] * sst)
+  if (it == 1) {
+    
+    lwest <- nleqslv(log(wt.ref), fn = wfun, param=pars, ssna=ssna, control = list(btol=1e-08, delta="newton"))
+    
+    if (lwest$termcd != 1)
+      print(paste0(stknm," weights calculation message: ",lwest3$message))
+    
+    if (any(wfun(lwest$x, param=pars, ssna=ssna)>1e-08))
+      stop(paste("Issues with mean weight calculation for", stknm))
+    
+    wage <- exp(lwest$x)
+    
+    # # check
+    # logssb <- sum(ssna * wage)
+    # di <- numeric(na)
+    # for (a in 1:na)
+    #   di[a] <- wage[a] - exp(pars["a",a] + pars["b",a] * logssb + pars["c",a] * sst)
+    # if (any(round(di-wage,4) != 0))
+    #   stop(paste("Issues with density-dependent weights-at-age for",stknm))
+    
+  } else {
+    
+    for (i in 1:it) {
+      
+      lwest <- nleqslv(log(wt.ref[,i]), fn = wfun, param=pars[,,i], ssna=ssna[,i], control = list(btol=1e-08, delta="newton"))
+      
+      if (lwest$termcd != 1)
+        print(paste0(stknm," weights calculation message: ",lwest3$message))
+      
+      if (any(wfun(lwest$x, param=pars[,,i], ssna=ssna[,i])>1e-08))
+        stop(paste("Issues with mean weight calculation for", stknm))
+      
+      wage[,i] <- exp(lwest$x)
+    }
+    
+    # # check
+    # logssb <- apply(ssna * wage, 2, sum)
+    # di <- array(NA, dim=c(na,it))
+    # for (a in 1:na)
+    #   di[a,] <- wage[a,] - exp(pars["a",a,] + pars["b",a,] * logssb + pars["c",a,] * sst)
+    # if (any(round(di-wage,4) != 0))
+    #   stop(paste("Issues with density-dependent weights-at-age for",stknm))
+    
   }
-  if (any(round(di-wage,8) != 0))
-    stop(paste("Issues with density-dependent weights-at-age for",stknm))
-  
+    
   # wt change
   wt.chg <- wage/wt.ref
   
@@ -84,24 +115,33 @@ ddwAgeCa <- function(biol, stknm, year, season, ctrl, covars, ...) {
 # - OUTPUT: list(wt = wage, wt.chg = wt.chg) - vector with estimated weight at age values and relative change
 #-------------------------------------------------------------------------------
 
-# Weights-at-age based on SSB (linear model for estimating LW b parameter) and A LFD
+# Weights-at-age based on total biomass and a length frequency distribution
 
 ddwAgeLFD <- function(biol, stknm, year, season, ctrl, covars, ...) {
   
-  lfd       <- ctrl[['LFD']]
-  a         <- ctrl[['a.lw']]
-  lbins     <- as.numeric(colNames(lfd))
+  lfd         <- ctrl[['LFD']]                                                 # Mean length-at-age in a numeric vector.
+  a           <- ctrl[['a.lw']]                                                # The "a" parameter of the length-weight relationship.
+  dd_mod      <- ctrl[['LFD_model']]                                           # A function that calculates the "b" parameter of the length-weight relationship based on the total biomass.
+  excluded.a  <- ctrl[['exc.a']]                                               # By default, the weights of all ages are recalculated, but the weight of specific ages can be fixed by indicating here which one they are.
   
-  B <- quantSums((biol@wt*biol@n)[,year-1])[drop=T] #! DG needs to consider season dimension
+  mx.lfd = matrix(lfd, dim(biol@n)[1], dim(biol@n)[6])
   
-  condF <- predict(LW_lm, data.frame(biomass = B))  #! DG requires: biols.ctrl[[stknm]][['ddw.ctrl']][['LW_lm']]
+  B <- quantSums((biol@wt*biol@n)[,year-1,,season,])[drop=T] 
   
-  wy <- a*(lbins)^condF
+  condb <- predict(dd_mod, data.frame(B = B))                                  # Predict the "b" parameter of the length-weight relationship.
+  mx.condb <- matrix(condb, dim(biol@n)[1], dim(biol@n)[6], byrow = TRUE)
   
-  wt. <- rowSums(sweep(lfd, 2, wy, "*"))  #! DG needs to consider also season dimension
-  wt  <- biol@wt[,year,,season,]
+  wage <- a * mx.lfd^mx.condb/1000 # in tonnes
   
-  return(list(wt = wt., wt.chg = wt./wt))
+  if(!is.null(excluded.a)){
+    excluded.a.pos <- which(biol@range[["min"]]:biol@range[["max"]] %in% excluded.a)  
+    wage[excluded.a.pos,] <- biol@wt[excluded.a.pos,year,,season,drop=TRUE]
+  }
+  
+  # wt change
+  wt.ref <- biol@wt[,year,,season,drop=TRUE]
+  wt.chg <- wage/wt.ref
+  
+  return(list(wt = wage, wt.chg = wt.chg))
   
 }
-

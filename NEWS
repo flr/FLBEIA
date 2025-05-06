@@ -1,4 +1,34 @@
 #~~~~~~~~~~~~~~~~
+# 2025/03/06
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.23
+- New tax functions (convexTax, quadraticTax)
+- Added taxes in the summary statistics (incorporated to variable costs)
+
+
+#~~~~~~~~~~~~~~~~
+# 2025/02/21
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.22
+- Added new indicator in FLBEIA summaries (fltSum)
+
+
+#~~~~~~~~~~~~~~~~
+# 2025/01/16
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.20
+- Minor corrections in summary functions for constant biomass stocks (last year rec = catch)
+- Minor correction in ICES MSY rule
+
+
+#~~~~~~~~~~~~~~~~
+# 2024/07/09
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.1.17
+- New price functions available (elasticPriceAge) and previous ones (elasticPrice) include alternative options now.
+
+
+#~~~~~~~~~~~~~~~~
 # 2024/02/20
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.16.1.14

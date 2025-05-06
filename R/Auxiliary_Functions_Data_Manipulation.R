@@ -114,6 +114,7 @@ age2unit <- function(A,Q){
     na  <- Dim[1]
     nu  <- Dim[3]   
     ns  <- Dim[4]
+    nmns <- as.numeric(dimnames(Q)[4])
     
     if(dim(A)[1] == Dim[1]){   
         Q[] <- A    
@@ -135,7 +136,7 @@ age2unit <- function(A,Q){
             k1 <- k + pos
             k0 <- 1:na
             
-            if(uu>ss){
+            if(uu> nmns){
                 k1 <- k1[-na]
                 k0 <- 2:na
             }

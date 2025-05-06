@@ -300,7 +300,7 @@ FLBEIA <- function(biols, SRs = NULL, BDs = NULL, fleets, covars = NULL, indices
         adv.yr[[st]] <- advice.ctrl[[st]][['adv.year']] # advice years
         if (is.null(adv.yr[[st]])) { # no value, then advice yearly
           adv.yr[[st]] <- sim.years
-        } else if (adv.yr[[st]]=='all' | is.na(adv.yr[[st]])) {
+        } else if (sum(adv.yr[[st]]=='all' | is.na(adv.yr[[st]]))) {
           adv.yr[[st]] <- sim.years
         } else { # convert advice years into positions
           adv.yr[[st]] <- as.numeric(adv.yr[[st]])
