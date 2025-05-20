@@ -213,10 +213,10 @@ IcesHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
             
         }
      
-        yy <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
-     
-        if(!is.null(TACvar) & b.pos == 2){ # If there is constraint and SSB > MSY Btrigger
-          yy0 <- advice[['TAC']][stknm,year,,,,i]
+        yy  <- ifelse(slot(stki, Cadv)[,year+1] == 0, 1e-6, slot(stki, Cadv)[,year+1])
+        yy0 <- advice[['TAC']][stknm,year,,,,i]
+        
+        if(!is.null(TACvar) & b.pos == 2 & yy0 > 1e-6){ # If there is constraint, TAC[y-1] > 0 and SSB > MSY Btrigger
           int <- findInterval(yy/yy0-1, TACvar) 
           yy <- ifelse(int == 1, yy, 
                     ifelse(int == 0, yy0*(1+TACvar[1]), 
