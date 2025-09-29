@@ -117,7 +117,7 @@ perfectObs <- function(biol, fleets, covars, obs.ctrl, year = 1, season = NULL, 
     catch(res)      <- res@landings + res@discards
     
     # If catch.n = 0 => catch.wt = NaN in the previous line => we set it equ
-    catch.wt(res)[catch.n(res) == 0] <- (landings.wt(res)[landings.n(res) == 0] + landings.wt(res)[landings.n(res) == 0])/2
+    catch.wt(res)[catch.n(res) == 0] <- (landings.wt(res)[catch.n(res) == 0] + landings.wt(res)[catch.n(res) == 0])/2
     
     # harvest: * if age structured calculate it from 'n'.
     #          * if biomass dyn => assume C = q*E*B => C = F*B and F = C/B.
