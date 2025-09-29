@@ -69,7 +69,7 @@ F_flbeia <- function(obj, years = dimnames(obj$biols[[1]]@n)$year){
         
         if(na == 1){
             # Catch:
-            catch <- apply(catchStock(obj$fleets, stk),c(2,4,6), sum)[,years,drop = TRUE] # [ny,ns,it]
+            catch <- apply(catchWStock(obj$fleets, stk),c(2,4,6), sum)[,years,drop = TRUE] # [ny,ns,it]
             B     <- (obj$biols[[stk]]@n*obj$biols[[stk]]@wt)[,years,,,drop= TRUE] # [ny,ns, it] , 1st season biomass
             res[stk,,,] <- (catch/B)
         }
