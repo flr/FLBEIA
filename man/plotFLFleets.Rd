@@ -4,7 +4,13 @@
 \alias{plotFLFleets}
 \title{Plots with fleets data}
 \usage{
-plotFLFleets(fleets, probs = c(0.95, 0.5, 0.05), pdfnm = "bc", u = 1, ss = 1)
+plotFLFleets(
+  fleets,
+  probs = c(0.95, 0.5, 0.05),
+  pdfnm = "bc",
+  u = 1,
+  season = 1
+)
 }
 \arguments{
 \item{fleets}{A FLFleets object.}

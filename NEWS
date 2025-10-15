@@ -1,4 +1,11 @@
 #~~~~~~~~~~~~~~~~
+# 2025/10/15
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.2
+- Now 'unit' can be used not only for seasonal cohorts but also for other segments in the population, sex for example. 
+	the functions age2unit and unit2age are no longer used so all the calculations are done with the FLQuant structure.
+- corrected porblems with taxes in the fltSum function
+#~~~~~~~~~~~~~~~~
 # 2025/05/06
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.16.1.25

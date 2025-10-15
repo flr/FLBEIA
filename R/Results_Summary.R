@@ -889,6 +889,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       fl <- fleets[[f]]
       mts <- names(fl@metiers)
       fleet <- rep(f, each = prod(Dim))
+      fl.ctrl <- obj$fleets.ctrl[[f]]
       
       temp.catch <- lapply(catchNames(fl), function(x) quantSums(unitSums(catchWStock.f(fl, x))))
       temp.landings <- lapply(catchNames(fl), function(x) quantSums(unitSums(landWStock.f(fl, x))))
@@ -919,7 +920,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                             capacity=c(fl@capacity[,years, ]),
                             effort=c(fl@effort[,years, ]),
                             fcosts=c(totfcost_flbeia(fl, covars, f)[,years, ]),
-                            vcosts=c(totvcost_flbeia(fl)[,years, ]),
+                            vcosts=c(totvcost_flbeia(fl, fl.ctrl, advice)[,years, ]),
                             costs=c(costs_flbeia(fl, covars, f)[,years, ]),
                             grossValue=c(revenue_flbeia(fl)[,years, ]),
                             nVessels = c(covars[['NumbVessels']][f,years]))) %>% 
@@ -1146,7 +1147,7 @@ costs_flbeia <- function(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice =
 #-------------------------------------------------------------------------------
 #' @rdname revenue_flbeia
 #' @aliases totvcost_flbeia
-totvcost_flbeia <- function(fleet, fleet.ctrl, advice){
+totvcost_flbeia <- function(fleet, fleet.ctrl, advice, taxes = FALSE){
     
     mts <- names(fleet@metiers)
     
@@ -1158,7 +1159,9 @@ totvcost_flbeia <- function(fleet, fleet.ctrl, advice){
     
     Rev <- revenue_flbeia(fleet)*fleet@crewshare
     
-    Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice) # taxes are included in variable costs
+    # taxes only in specific cases
+    if(taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice)} # taxes are included in variable costs
+    else Tax <- 0
     
     units(res) <- units(Rev)
     

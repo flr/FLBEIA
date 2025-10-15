@@ -147,8 +147,9 @@ total.discards.stock.df <- function(fleet){
 
 
 
-plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,ss=1){
+plotFLFleets <- function(fleets,probs = c(0.95,0.5,0.05),pdfnm="bc",u=1,season=1){
   
+  ss <- season
   names.fl <- names(fleets)
   path.pdf <- ''
   

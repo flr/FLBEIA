@@ -1,7 +1,6 @@
-# stf - prepare an object for a Short Term Forecast
-# FLAssess/R/stf.R
-
 # Copyright 2003-2008 FLR Team. Distributed under the GPL 2 or later
+
+# Function to correct the selectivity in the forecast when the catch is close to 0.
 
 ## stf(FLStock) {{{
 
@@ -24,8 +23,10 @@ stf_correctSel<-  function(object, nyears=3, wts.nyears=3, fbar.nyears=wts.nyear
     
     for(ii in 1:nit){
       years.catch_G0<- which(iter(object@catch,ii)> 1e-2)
-      fbar.years.iters[,ii] <- tail(years.catch_G0,3)
-    }
+      
+      if(length(years.catch_G0)==0) fbar.years.iters[,ii] <- fbar.years
+      else  fbar.years.iters[,ii] <- tail(years.catch_G0,3)
+      }
     
 
     # arith or geometric

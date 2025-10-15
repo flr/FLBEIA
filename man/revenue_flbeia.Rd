@@ -5,16 +5,19 @@
 \alias{costs_flbeia}
 \alias{totvcost_flbeia}
 \alias{totfcost_flbeia}
+\alias{taxcost_flbeia}
 \alias{price_flbeia}
 \title{Economic summary functions.}
 \usage{
 revenue_flbeia(fleet)
 
-costs_flbeia(fleet, covars, flnm = NULL)
+costs_flbeia(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice = NULL)
 
-totvcost_flbeia(fleet)
+totvcost_flbeia(fleet, fleet.ctrl, advice, taxes = FALSE)
 
 totfcost_flbeia(fleet, covars, flnm = NULL)
+
+taxcost_flbeia(fleet, fleet.ctrl, advice)
 
 price_flbeia(fleet, stock)
 }
@@ -25,7 +28,13 @@ price_flbeia(fleet, stock)
 
 \item{flnm}{Names of the fleets.}
 
+\item{advice}{List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)}
+
 \item{stock}{An FLStock object.}
+
+\item{fleets.ctrl}{FLquant with quotas for all the stocks (only required if taxes = TRUE)}
+
+\item{fleets.ctl}{FLquant with quotas for all the stocks (only required if taxes = TRUE)}
 }
 \description{
 These functions provide summary results of costs, prices and revenues. Provided data can be dessagregated by fleet or by metier depending on the selected function.

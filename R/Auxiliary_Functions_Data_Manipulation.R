@@ -103,7 +103,7 @@ unit2age <- function(Q){
 
 
 #-------------------------------------------------------------------------------
-# age2unit(array[na,ny,ns,it]) => FLQuant[na,ny,nu,ns,1,it])
+# age2unit(array[na*nu,ny,ns,it]) => FLQuant[na,ny,nu,ns,1,it])
 #-------------------------------------------------------------------------------
 # A: The array to transform
 # Q: An FLQuant with the dimension and  dimnames we want for the resulting FLQ.
@@ -114,7 +114,7 @@ age2unit <- function(A,Q){
     na  <- Dim[1]
     nu  <- Dim[3]   
     ns  <- Dim[4]
-    nmns <- as.numeric(dimnames(Q)[4])
+    nmns <- as.numeric(dimnames(Q)$season[ns])
     
     if(dim(A)[1] == Dim[1]){   
         Q[] <- A    

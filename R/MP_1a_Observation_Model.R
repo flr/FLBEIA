@@ -280,7 +280,7 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #  ** obs.ctrl in this case is a subset of the original obs.ctrl
 #       obs.ctrl <- obs.ctrl[[stknm]][['stkObs']] when calling to age2age in obs.model function.
 #-------------------------------------------------------------------------------
-age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
+age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm, error = 'harvest',...){
                          
     ages.error        <- obs.ctrl$ages.error
     stk.nage.error    <- obs.ctrl$stk.nage.error
@@ -293,9 +293,11 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     it                <- dim(biol@n)[6]
     
     if(is.null(ages.error)){
-        ages.error <- array(0,dim = c(na, na, ny,it))
+        ages.error <- array(0,dim = c(na, na, ny+1,it)) # ny +`1' because we need survivors after the last data year`
         for(a in 1:na) ages.error[a,a,,] <- 1
     }
+    
+    if(!(error %in% c('harvest', 'stock.n'))) stop("'error' must be equal to 'harvest' or 'stock.n'")
     
     if(dim(ages.error)[1] != na | dim(ages.error)[2] != na)
          stop("ages.error array must have dim[1:2] identical to number of ages in stock")
@@ -320,29 +322,50 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     stock(stck)        <- quantSums(unitSums(seasonSums(stck@stock.n*stck@stock.wt)))
        
     units(stck@harvest) <- 'f'
-   
-    stck@harvest[-c(na-1,na),] <- log(n[-c(na-1,na),-year,]/n[-c(1,na),-1,]) - stck@m[-c(na-1,na),1:ny,,,,1:it,drop=T]
-
- #   n. <- array(stck@stock.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
- #   m. <- array(stck@m[drop=T], dim = c(na,year-1,it))            # [na,ny,it]
-#    c. <- array(stck@catch.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
+    n. <- array(stck@stock.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
+    m. <- array(stck@m[drop=T], dim = c(na,year-1,it))            # [na,ny,it]
     
-     
-#    fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
+    if(error == 'harvest'){ # We cannot use the decay equation here because the catch at age has errors
+                            # We cannot use the decay equation here because the catch at age has errors and we need to account for them in F.
+      c. <- array(stck@catch.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
+    
+        fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
         
-#    for(y in 1:ny){
- #        for(a in (na-1):na){
-#            for(i in 1:it){
-      #      print(i)
-#                 zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
- #                                               uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
-#                        stck@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, c(stck@harvest[na-2,y,,,,i]))            }
-#        }
-#    }
+          for(y in 1:ny){
+              for(a in (na-1):na){
+                  for(i in 1:it){
+                   print(i)
+                       zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
+                                                     uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
+                              stck@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, c(stck@harvest[na-2,y,,,,i]))            }
+              }
+          }
+    }else{ #stock.n
+      # First we need to calculate the  F, the one in the previous calculation  could be subject to error.
+      # For the last two groups we need to resolve the equation numerically.
+      # We take the catches from the fleet object because we need the 'true' numbers. 
+      stck@harvest[-c(na-1,na),] <- log(n[-c(na-1,na),-year,]/n[-c(1,na),-1,]) - stck@m[-c(na-1,na),1:ny,,,,1:it,drop=T]
+      
+      c. <- catchStock(fleets, stknm)  # [na,ny,it]
+      
+      fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
+      
+      for(y in 1:ny){
+        for(a in (na-1):na){
+          for(i in 1:it){
+             print(i)
+             zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
+                             uniroot(fobj, lower = 0, upper = 1e6, n = n.[a,y,i], m=m.[a,y,i], c = c.[a,y,i])$root))  
+             stck@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, c(stck@harvest[na-2,y,,,,i]))            
+       }}}
 
-    stck@harvest[c(na-1,na),] <- 0 
-    stck@harvest[stck@harvest<0] <- 0
-
+      
+      
+      Z <- harvest(stck) + m(stck)
+      stck@stock.n <- catch.n(stck)*(Z/harvest(stck))*(1/(1-exp(-Z)))
+      
+      
+    }
     return(stck)
  }
 

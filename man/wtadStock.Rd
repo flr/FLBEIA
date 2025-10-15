@@ -2,7 +2,7 @@
 % Please edit documentation in R/Auxiliary_Functions_Observation_Model.R
 \name{wtadStock}
 \alias{wtadStock}
-\title{Mean weight at age in discards for a stock across fleets and metiers}
+\title{Mean weight at age in discards for a stock across fleets and metiers (weighted by numbers-at-age)}
 \usage{
 wtadStock(obj, stknm)
 }
@@ -15,7 +15,7 @@ wtadStock(obj, stknm)
 A FLQuant with mean weight-at-age values.
 }
 \description{
-Mean weight at age in discards for a stock across fleets and metiers
+Mean weight at age in discards for a stock across fleets and metiers (weighted by numbers-at-age)
 }
 \seealso{
 \code{\link{wtalStock}}

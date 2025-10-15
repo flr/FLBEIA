@@ -585,36 +585,44 @@ CorrectCatch <- function(fleets, biols, BDs, biols.ctrl,fleets.ctrl, year = 1, s
         
       }})) , nst,it, dimnames = list(stnms, 1:it))
     for(st in stnms){
+      
+      nu <- dim(biols[[st]]@n)[3]
     
    #    print(st)
 
         if(dim(Ba[[st]])[1] > 1){ # age structured
 
             Cat  <- catchStock(fleets, st)[,yr,,ss]
+            K <- Cat; K[] <- 1
+            
+            #* NOTE: DGA we no longer convert units to ages so units can be used to 
+            #* individuals of different age.
             
             # Convert the [age,unit] combination into a continuous age.
-            Ba.  <- unit2age(Ba[[st]]) # [na*nu,1,1,it]
-            Cat. <- unit2age(Cat)
-            K.   <- array(1,dim = dim(Ba.))   # Catch multipliers
+            # Ba.  <- unit2age(Ba[[st]]) # [na*nu,1,1,it]
+            # Cat. <- unit2age(Cat)
+            # K.   <- array(1,dim = dim(Ba.))   # Catch multipliers
 
             # CORRECT Ca if Ca > Ba, the correction is common for all the fleets.
             for(i in 1:it){
+              for(u in nu){
 
-                if(any((Ba[[st]][,,,,,i]*cth[st,i] - Cat[,,,,,i]) < 0)){
+                if(any((Ba[[st]][,,u,,,i]*cth[st,i] - Cat[,,u,,,i]) < 0)){
 
-                    cat('Ba*cth < Ca, for some "a" in stock',st, ', and iteration ', i,  '\n')
+                    cat('Ba*cth < Ca, for some "a" in stock: ',st, ', unit: ', u, ', and iteration: ', i,  '\n')
 
-                    a.minus         <- which(Ba.[,,,i]*cth[st,i] < Cat.[,,,i])
-                    a.plus          <- which(Ba.[,,,i]*cth[st,i] >= Cat.[,,,i])
-                    K.[a.minus,,,i] <- Ba.[a.minus,,,i]*cth[st,i]/Cat.[a.minus,,,i]
+                    a.minus         <- which(Ba[[st]][,,u,,,i]*cth[st,i] < Cat[,,u,,,i])
+                    a.plus          <- which(Ba[[st]][,,u,,,i]*cth[st,i] >= Cat[,,u,,,i])
+                    K[a.minus,,u,,,i] <- Ba[[st]][a.minus,,u,,,i]*cth[st,i]/Cat[a.minus,,u,,,i]
 
-                    # The correction below would correspond with a compensation of the decrease in 'a.minus' ages.
+                    # The correction below would correspond with a compensation of the decrease in 'a.minus' ages, but not applies
                     # K.[a.plus,,,i]  <- (Ct[i] - sum(Ba.[a.minus,,,i]))/sum(Cat.[a.plus,,,i])
                 }
-            }
-            K <- age2unit(K., Ba[[st]])  # [na,1,nu,1,1,it]
-            K[1,,-(1:ss)] <- 1   # This recruits do not exists  yet.
-        }
+            # The correction is now done in the original FLQ format, no unit to age transformation
+            # K <- age2unit(K., Ba[[st]])  # [na,1,nu,1,1,it]
+            # K[1,,-(1:ss)] <- 1   # This recruits do not exists  yet.
+              }
+            }}
         else{ # biomass dynamic.
         #   browser()
             Ct  <- c(catchWStock(fleets, st)[,yr,,ss,drop = F])  #[it]
