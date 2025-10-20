@@ -1147,7 +1147,7 @@ costs_flbeia <- function(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice =
 #-------------------------------------------------------------------------------
 #' @rdname revenue_flbeia
 #' @aliases totvcost_flbeia
-totvcost_flbeia <- function(fleet, fleet.ctrl, advice, taxes = FALSE){
+totvcost_flbeia <- function(fleet, fleet.ctrl, advice){
     
     mts <- names(fleet@metiers)
     

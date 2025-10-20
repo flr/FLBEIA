@@ -242,19 +242,21 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
     m(stck)[]          <- Obs.nmort(biol, ages.error, nmort.error, yr)
     mat(stck)[]        <- Obs.mat(biol, ages.error, fec.error, yr)
 
-    # compare the landings with the advice and depending on TAC.ovrsht report landings. the misresporting is 
-    # reported homogeneously.
-    landings(stck)[]  <- FLQuant(ifelse(unclass(stck@landings) > TAC.ovrsht*advice$TAC[stknm,1:ny], TAC.ovrsht*advice$TAC[stknm,1:ny], stck@landings)) #! not adapted to in-year advice
-    
-    ovrsht.red        <- stck@landings/quantSums(unitSums(seasonSums(stck@landings.n*stck@landings.wt)))  # [1,ny,,,,it]
-    
-    ovrsht.red[is.na(ovrsht.red)] <- 1
-     
-    landings.n(stck)[]   <- sweep(stck@landings.n, 2:6, ovrsht.red, "*") #distributing the overshoot subreporting of bulk landings in biomass equally over ages
-   
     discards.wt(stck)[]  <- Obs.disc.wgt(fleets, ages.error, disc.wgt.error,  yr, stknm)
     stck@discards.wt[is.na(stck@discards.wt)] <- stck@landings.wt[is.na(stck@discards.wt)]
     discards.n(stck)[]   <- Obs.disc.nage(fleets, ages.error, disc.nage.error, stck@discards.wt, yr, stknm)
+    discards(stck)       <- quantSums(seasonSums(stck@discards.n*stck@discards.wt))
+    
+    # compare the catches with the advice and depending on TAC.ovrsht report catches the misresporting is 
+    # reported homogeneously.
+    mult              <- (TAC.ovrsht*advice$TAC[stknm,1:ny])/(stck@landings + stck@discards)
+    mult[is.na(mult)] <- 1
+    mult[mult > 1]    <- 1
+    
+    landings.n(stck)[]   <- sweep(stck@landings.n, 2:6, mult, "*") #distributing the overshoot subreporting of bulk catches in biomass equally over ages
+    discards.n(stck)[]   <- sweep(stck@discards.n, 2:6, mult, "*") #distributing the overshoot subreporting of bulk catches in biomass equally over ages
+    
+    landings(stck)       <- quantSums(seasonSums(stck@landings.n*stck@landings.wt))
     discards(stck)       <- quantSums(seasonSums(stck@discards.n*stck@discards.wt))
     
     catch(stck)        <- stck@landings + stck@discards

@@ -141,7 +141,7 @@ FLObjs2S3_fleetSTD <- function(biols, fleets, BDs, advice, covars, biols.ctrl, f
       tacos.fun <- fleets.ctrl[[flnm]][[stknm]]$TAC.OS.model
       if(is.null(tacos.fun))   alpha <- rep(1,nit)
       else{
-        alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = year, season = season))
+        alpha <- eval(call(tacos.fun, fleets = fleets, TAC = TAC.yr, fleets.ctrl = fleets.ctrl, flnm = flnm, stknm = stknm, year = yr, season = ss))
       }
       TAC.yr[stknm,] <- TAC.yr[stknm,]*alpha 
     }

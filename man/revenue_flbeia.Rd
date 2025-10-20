@@ -13,7 +13,7 @@ revenue_flbeia(fleet)
 
 costs_flbeia(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice = NULL)
 
-totvcost_flbeia(fleet, fleet.ctrl, advice, taxes = FALSE)
+totvcost_flbeia(fleet, fleet.ctrl, advice)
 
 totfcost_flbeia(fleet, covars, flnm = NULL)
 
