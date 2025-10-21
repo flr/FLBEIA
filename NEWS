@@ -1,4 +1,10 @@
 #~~~~~~~~~~~~~~~~
+# 2025/10/21
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.2.1
+- Now through 'error' argument, "age2agePop" function can translate the error in the catches either to 
+  harvest or to numbers at age. Before it was only in harvest. 
+#~~~~~~~~~~~~~~~~
 # 2025/10/15
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.16.2

@@ -282,11 +282,12 @@ age2ageDat <- function(biol, fleets, advice, obs.ctrl, year, stknm,...){
 #  ** obs.ctrl in this case is a subset of the original obs.ctrl
 #       obs.ctrl <- obs.ctrl[[stknm]][['stkObs']] when calling to age2age in obs.model function.
 #-------------------------------------------------------------------------------
-age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm, error = 'harvest',...){
+age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm, ...){
                          
     ages.error        <- obs.ctrl$ages.error
     stk.nage.error    <- obs.ctrl$stk.nage.error
     stk.wgt.error     <- obs.ctrl$stk.wgt.error
+    error             <- obs.ctrl$error
     
     yr <- year 
                                  
@@ -327,14 +328,14 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm, error = 'har
     n. <- array(stck@stock.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
     m. <- array(stck@m[drop=T], dim = c(na,year-1,it))            # [na,ny,it]
     
-    if(error == 'harvest'){ # We cannot use the decay equation here because the catch at age has errors
-                            # We cannot use the decay equation here because the catch at age has errors and we need to account for them in F.
-      c. <- array(stck@catch.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
+    fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
     
-        fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
+    if(error == 'harvest'){ # We cannot use the decay equation here because the 
+                            # catch at age has errors and we need to account for them in F.
+      c. <- array(stck@catch.n[drop=T], dim = c(na,year-1,it))      # [na,ny,it]
         
           for(y in 1:ny){
-              for(a in (na-1):na){
+              for(a in 1:na){
                   for(i in 1:it){
                    print(i)
                        zz <- try(ifelse(n.[a,y,i] == 0 | c.[a,y,i] == 0, 0,
@@ -343,14 +344,12 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm, error = 'har
               }
           }
     }else{ #stock.n
-      # First we need to calculate the  F, the one in the previous calculation  could be subject to error.
+      # First we need to calculate the real F, NOT the one in the previous calculation that is subject to error in the catches.
       # For the last two groups we need to resolve the equation numerically.
       # We take the catches from the fleet object because we need the 'true' numbers. 
       stck@harvest[-c(na-1,na),] <- log(n[-c(na-1,na),-year,]/n[-c(1,na),-1,]) - stck@m[-c(na-1,na),1:ny,,,,1:it,drop=T]
       
-      c. <- catchStock(fleets, stknm)  # [na,ny,it]
-      
-      fobj <- function(f,n,m,c){ return( f/(f+m)* (1-exp(-(f+m)))*n -c)}
+      c. <- catchStock(fleets, stknm)  # [na,ny,it], real catches from fleet objects.
       
       for(y in 1:ny){
         for(a in (na-1):na){
@@ -361,8 +360,6 @@ age2agePop <- function(biol, fleets, advice, obs.ctrl, year, stknm, error = 'har
              stck@harvest[a,y,,,,i] <- ifelse(is.numeric(zz), zz, c(stck@harvest[na-2,y,,,,i]))            
        }}}
 
-      
-      
       Z <- harvest(stck) + m(stck)
       stck@stock.n <- catch.n(stck)*(Z/harvest(stck))*(1/(1-exp(-Z)))
       
