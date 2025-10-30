@@ -1131,8 +1131,8 @@ revenue_flbeia <- function(fleet){
 #' @rdname revenue_flbeia
 #' @aliases costs_flbeia
 #' @param covars List of FLQuants with information on covariates.
-#' @param fleets.ctrl FLquant with quotas for all the stocks (only required if taxes = TRUE)
-#' @param advice List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)
+#' @param fleets.ctrl FLquant with quotas for all the stocks (only required if fleets.ctrl[[flnm]]$taxes == TRUE)
+#' @param advice List of two FLquants, with TAC and quota share for all the stocks (only required if fleets.ctrl[[flnm]]$taxes == TRUE)
 costs_flbeia <- function(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice = NULL){
     
     res <- totvcost_flbeia(fleet, fleet.ctrl, advice) + 
@@ -1160,6 +1160,7 @@ totvcost_flbeia <- function(fleet, fleet.ctrl, advice){
     Rev <- revenue_flbeia(fleet)*fleet@crewshare
     
     # taxes only in specific cases
+    taxes <- ifelse(is.null(fleet.ctrl$taxes), FALSE, fleet.ctrl$taxes)
     if(taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice)} # taxes are included in variable costs
     else Tax <- 0
     
@@ -1189,7 +1190,7 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 #' @param advice     List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)
 taxcost_flbeia <- function(fleet, fleet.ctrl, advice) { 
   
-  res <- taxes <- FLQuant(0, dimnames = dimnames(fleet@effort))
+  taxes <- FLQuant(0, dimnames = dimnames(fleet@effort))
   
   if (is.null(fleet.ctrl) | is.null(advice))
     return(res)
@@ -1205,39 +1206,24 @@ taxcost_flbeia <- function(fleet, fleet.ctrl, advice) {
       
       if (tax.model == "convexTax") {
         
-        cflst <- quantSums(catchWStock.f(fleet, st))
-        qflst <- advice$TAC[st,]*advice$quota.share[[st]][fleet@name,]
+        cat.flst <- quantSums(catchWStock.f(fleet, st))
+        tac.st   <- advice$TAC[st,]
+        qsh.flst <- advice$quota.share[[st]][fleet@name,]
         
         taxes <- taxes + 
-          # - taxes per tonne caught
-          fleet.ctrl[[st]][['gammaC']] * cflst + 
-          # - taxes per each tonne that exceeds TAC
-          fleet.ctrl[[st]][['gammaOS']] * ifelse(cflst - qflst < 0, 0, cflst - qflst)
+          fleet.ctrl[[st]][['beta']] * (cat.flst - tac.st * qsh.flst) + 
+          fleet.ctrl[[st]][['gamma']]/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.st^2 * qsh.flst)
         
-      } else if (tax.model == "linearTax") {
+      } else
+        stop("Only 'convexTax' available at the moment.")
         
-        stop("Linear tax still not available.")
-        
-      } else if (tax.model == "quadraticTax") {
-        
-        for(st in names(q.m))
-          taxes <- taxes + 
-            # - taxes per tonne caught
-            fleets.ctrl[[flnm]][[st]][['gammaC']] * cflst/qflst + 
-            # - taxes per each tonne that exceeds TAC
-            fleets.ctrl[[flnm]][[st]][['gammaOS']]/2 * qflst * (cflst/qflst)^2
-        
-      }
-      
     }
-    
-    res <- res + taxes
-    
-    # units(res) <- units(revenue_flbeia(fleet))
     
   }
   
-  return(res)
+  # units(taxes) <- units(revenue_flbeia(fleet))
+  
+  return(taxes)
   
 }
 

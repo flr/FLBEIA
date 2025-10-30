@@ -498,41 +498,30 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   
   taxes <- 0
   
-  if (!is.null(fleets.ctrl[[flnm]][[st]][['tax.model']])) {
-    
-    tax.model <- fleets.ctrl[[flnm]][[st]][['tax.model']]
+  tax.model <- fleets.ctrl[[flnm]][[st]][['tax.model']]
+  
+  if (!is.null(tax.model)) {
     
     if (tax.model == "convexTax") {
       
       # Parameters (same units as prices; e.g. eur/ton)
-      # - taxes per tonne caught
-      gammaC  <- fleets.ctrl[[flnm]][[st]][['gammaC']]
-      # - taxes per each tonne that exceeds TAC
-      gammaOS <- fleets.ctrl[[flnm]][[st]][['gammaOS']]
+      betaT  : fleet.ctrl[[st]][['beta']]
+      gammaT : fleet.ctrl[[st]][['gamma']]
+      
+      # FORMULATION
+      # tax.flst = taxes - subsidies = 
+      #   = beta * (cat.flst - tac.st * qsh.flst) + 
+      #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
+      # used formulation where: Cr.f = QS * tac
+      QS <- Cr.f/tac
       
       for(st in names(q.m))
         taxes <- taxes + 
-        gammaC * Cst[st] + gammaOS * ifelse(Cst[st] - Cr.f[st,] < 0, 0, Cst[st] - Cr.f[st,])
+          fleet.ctrl[[st]][['beta']] * (Cst[st] - tac[st,] * QS[st,]) + 
+          fleet.ctrl[[st]][['gamma']]/2 * ((Cst[st]/QS[st,])^2 * QS[st,] - tac[st,]^2 * QS[st,])
       
-    } else if (tax.model == "linearTax") {
-      
-      stop("Linear tax still not available.")
-      
-    } else if (tax.model == "quadraticTax") {
-      
-      # Alternative by Helge
-      
-      # Parameters (same units as prices; e.g. eur/ton)
-      # - taxes per tonne caught
-      gammaC  <- fleets.ctrl[[flnm]][[st]][['gammaC']]
-      # - taxes per each tonne that exceeds TAC
-      gammaOS <- fleets.ctrl[[flnm]][[st]][['gammaOS']]
-      
-      for(st in names(q.m))
-        taxes <- taxes + 
-          gammaC * Cst[st]/Cr.f[st,] + gammaOS/2 * Cr.f[st,] * (Cst[st]/Cr.f[st,])^2
-      
-    }
+    } else 
+      stop("Only 'convexTax' available at the moment.")
     
   } else
     
