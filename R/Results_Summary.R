@@ -1810,16 +1810,9 @@ advSum <- function(obj, stknms = 'all', years = dimnames(obj$biols[[1]]@n)$year,
   # character   numeric     numeric      character  numeric
   
   res <- res %>% mutate( year = as.numeric(as.character(year)),
-                         iter = as.numeric(as.character(iter)))
-  
-  # Set consistent classess in summary outputs
-  # lapply(res, class)
-  # "stock"    "year"     "iter"     "catch":"discRat"
-  # character   numeric   numeric    numeric
-  
-  res <- res %>% mutate( year = as.numeric(year),
-                         iter = as.numeric(as.character(iter)))
-  
+                         iter = as.numeric(as.character(iter)),
+                         landings = as.numeric(as.character(landings)))
+
   # reshaping this to the long format
    if(long == TRUE) res <- res %>% gather(key='indicator', value='value', .data$catch, .data$discards, .data$discRat, .data$landings, .data$quotaUpt, .data$tac)
                 
