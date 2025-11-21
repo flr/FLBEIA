@@ -1329,7 +1329,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
                  price=c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(unitSums(landWStock.f(fl, st)[,years])))/landings),
                  tacshare=c(advice$quota.share[[st]][f,][,years]),
                  quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
-                 quotaUpt=catch/quota, choke = ifelse(ifelse(round(catch/quota,12) >=1, TRUE, FALSE))
+                 quotaUpt=catch/quota, choke = ifelse(round(catch/quota,12) >=1, TRUE, FALSE))
         resflst[[st]] <- res.fl.st
         if(verbose){print(paste("| fleet =", f, "|", "stock =", st, "|"))}
       }
