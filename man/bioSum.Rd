@@ -95,11 +95,11 @@ advSumQ(obj, prob = c(0.95, 0.5, 0.05))
 
 riskSum(
   obj,
-  stknms = names(obj$biols),
+  stknms = "all",
   Bpa,
   Blim,
   Prflim,
-  flnms = names(obj$fleets),
+  flnms = "all",
   years = dimnames(obj$biols[[1]]@n)[[2]],
   scenario = "bc"
 )
@@ -201,7 +201,7 @@ Summarize the results of the simulation in data frames.
      \item{fltSum, fltSumQ:} Data frame with the indicators at fleet level. The indicators are:
              "capacity", "catch", "costs", "discards", "discRat", "effort",       
              "fcosts", "gva", "grossValue", "landings", "fep", "nVessels", "price", "grossSurplus",
-             "quotaUpt", "salaries", "vcosts" and "profitability".
+             "quotaUpt", "salaries", "vcosts" and "profitability", plus "cr_ber" (only if byyear == TRUE).
      \item{fltStkSum, fltStkSumQ:} Data frame with the indicators at fleet and stock level. The indicators are:
              "landings", "discards", "catch", "price",  "quotaUpt", "tacshare", "discRat" and  "quota".   
      \item{npv:} A data frame with the net present value per fleet over the selected range of years.

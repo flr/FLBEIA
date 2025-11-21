@@ -36,12 +36,12 @@ tlandStock <- function(obj, stknm){
 #obj : an object of class FlFleetsExt
 #stknm : character, the name of the stock
 
-#' Mean weight at age in landings for a stock across fleets and metiers
+#' Mean weight at age in landings for a stock across fleets and metiers (weighted by numbers-at-age)
 #' 
 #' @param obj An object of class FlFleetsExt.
 #' @param stknm Character. The name of the stock for which we want to calculate mean weight-at-age.
 #
-#' @return A FLQuant with mean weight-at-age values. 
+#' @return A FLQuant with mean weight-at-age values . 
 #' 
 #' @seealso \code{\link{wtadStock}} 
 #' 
@@ -49,25 +49,30 @@ tlandStock <- function(obj, stknm){
 wtalStock <- function(obj, stknm)
     {
     aux <- 0
-    cnt <- 1
+    # cnt <- 1
     for(f in obj)
         {
         for(m in f@metiers)
-           {
-           if(!(stknm %in% catchNames(m)))
-             next
-           if(aux == 0)
-             {
-             aux <- 1
-             res <- m@catches[[stknm]]@landings.wt
-             res[is.na(res)] <- 0
-             next
-             }
-           cnt <- cnt + 1
-           resf <- m@catches[[stknm]]@landings.wt
-           resf[is.na(resf)] <- 0
-           res <- res + resf
-           }
+            {
+            if(!(stknm %in% catchNames(m)))
+                next
+            if(aux == 0)
+            {
+                aux <- 1
+                res <- m@catches[[stknm]]@landings.wt * m@catches[[stknm]]@landings.n
+                res[is.na(res)] <- 0
+                cnt <- m@catches[[stknm]]@landings.n
+                cnt[is.na(cnt)] <- 0
+                next
+            }
+            # cnt <- cnt + 1
+            resf <- m@catches[[stknm]]@landings.wt * m@catches[[stknm]]@landings.n
+            resf[is.na(resf)] <- 0
+            res <- res + resf
+            cnf <- m@catches[[stknm]]@landings.n
+            cnf[is.na(cnf)] <- 0
+            cnt <- cnt + cnf
+            }
         }
     res <- res/cnt # This is a normal mean ant it should be weighted!!
     return(res)
@@ -128,7 +133,7 @@ discnStock <- function(obj, stknm){
 #obj : an object of class FlFleetsExt
 #stknm : character, the name of the stock
 
-#' Mean weight at age in discards for a stock across fleets and metiers
+#' Mean weight at age in discards for a stock across fleets and metiers (weighted by numbers-at-age)
 #' 
 #' @param obj An object of class FlFleetsExt.
 #' @param stknm Character. The name of the stock for which we want to calculate mean weight-at-age.
@@ -141,7 +146,7 @@ discnStock <- function(obj, stknm){
 wtadStock <- function(obj, stknm)
     {
     aux <- 0
-    cnt <- 1
+    # cnt <- 1
     for(f in obj)
         {
         for(m in f@metiers)
@@ -151,14 +156,19 @@ wtadStock <- function(obj, stknm)
            if(aux == 0)
              {
              aux <- 1
-             res <- m@catches[[stknm]]@discards.wt
+             res <- m@catches[[stknm]]@discards.wt * (m@catches[[stknm]]@discards.n + 1e-36)
              res[is.na(res)] <- 0
+             cnt <- m@catches[[stknm]]@discards.n + 1e-36
+             cnt[is.na(cnt)] <- 1e-36
              next
              }
-           cnt <- cnt + 1
-           resf <- m@catches[[stknm]]@discards.wt 
+           # cnt <- cnt + 1
+           resf <- m@catches[[stknm]]@discards.wt * (m@catches[[stknm]]@discards.n + 1e-36)
            resf[is.na(resf)] <- 0
            res <- res + resf
+           cnf <- m@catches[[stknm]]@discards.n + 1e-36
+           cnf[is.na(cnf)] <- 1e-36
+           cnt <- cnt + cnf
            }
         }
     res <- res/cnt

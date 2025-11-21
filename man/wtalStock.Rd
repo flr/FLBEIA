@@ -2,7 +2,7 @@
 % Please edit documentation in R/Auxiliary_Functions_Observation_Model.R
 \name{wtalStock}
 \alias{wtalStock}
-\title{Mean weight at age in landings for a stock across fleets and metiers}
+\title{Mean weight at age in landings for a stock across fleets and metiers (weighted by numbers-at-age)}
 \usage{
 wtalStock(obj, stknm)
 }
@@ -12,10 +12,10 @@ wtalStock(obj, stknm)
 \item{stknm}{Character. The name of the stock for which we want to calculate mean weight-at-age.}
 }
 \value{
-A FLQuant with mean weight-at-age values.
+A FLQuant with mean weight-at-age values .
 }
 \description{
-Mean weight at age in landings for a stock across fleets and metiers
+Mean weight at age in landings for a stock across fleets and metiers (weighted by numbers-at-age)
 }
 \seealso{
 \code{\link{wtadStock}}
