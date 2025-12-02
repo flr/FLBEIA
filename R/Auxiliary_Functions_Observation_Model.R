@@ -59,18 +59,18 @@ wtalStock <- function(obj, stknm)
             if(aux == 0)
             {
                 aux <- 1
-                res <- m@catches[[stknm]]@landings.wt * m@catches[[stknm]]@landings.n
+                res <- m@catches[[stknm]]@landings.wt * (m@catches[[stknm]]@landings.n + 1e-36)
                 res[is.na(res)] <- 0
-                cnt <- m@catches[[stknm]]@landings.n
-                cnt[is.na(cnt)] <- 0
+                cnt <- m@catches[[stknm]]@landings.n + 1e-36
+                cnt[is.na(cnt)] <- 1e-36
                 next
             }
             # cnt <- cnt + 1
-            resf <- m@catches[[stknm]]@landings.wt * m@catches[[stknm]]@landings.n
+            resf <- m@catches[[stknm]]@landings.wt * (m@catches[[stknm]]@landings.n + 1e-36)
             resf[is.na(resf)] <- 0
             res <- res + resf
-            cnf <- m@catches[[stknm]]@landings.n
-            cnf[is.na(cnf)] <- 0
+            cnf <- m@catches[[stknm]]@landings.n + 1e-36
+            cnf[is.na(cnf)] <- 1e-36
             cnt <- cnt + cnf
             }
         }
