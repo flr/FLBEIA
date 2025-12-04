@@ -9,11 +9,12 @@
 # Crewcost: FixedCost(Salaries) + VariableCost(CrewShare).
 # Crewshare = % of the total landing value that belongs to the crew.
 
-SCD <- function(fleets, covars, fleets.ctrl, flnm, year = 1, season = 1,...){
+SCD <- function(fleets, covars, fleets.ctrl, flnm, advice, year = 1, season = 1,...){
     
    
     
     fleet <- fleets[[flnm]]
+    fleet.ctrl <- fleets.ctrl[[flnm]]
     
     ny <- dim(fleet@effort)[2]
     ns <- dim(fleet@effort)[4]
