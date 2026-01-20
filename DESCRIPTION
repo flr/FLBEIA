@@ -28,6 +28,7 @@ Imports:
   mvtnorm,
   mlogit,
   nloptr,
+  nleqslv,
   triangle,
   arrayhelpers,
   dplyr,
@@ -130,6 +131,7 @@ Collate:
     "OM_2a_Effort_Dynamics_MaxProf.R"
     "OM_2a_Effort_Dynamics_SMFB.R"
     "OM_2a_Effort_Dynamics_SMFB_VarEffortShare.R"
+    "OM_2a_b_Effort_Dynamics_Catch_update_Baranov_SMFB.R"
     "OM_2a1_Catch_Production_Functions.R"
     "OM_2a1_catchability2zero.R"
     "OM_2b_EffDyn_TAC_OverS_Func.R"
