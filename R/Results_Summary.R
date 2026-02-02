@@ -1147,15 +1147,29 @@ costs_flbeia <- function(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice =
 #-------------------------------------------------------------------------------
 #' @rdname revenue_flbeia
 #' @aliases totvcost_flbeia
-totvcost_flbeia <- function(fleet, fleet.ctrl, advice){
+#dga: include fuel cost in the calculation.
+totvcost_flbeia <- function(fleet, fleet.ctrl, advice, covars = NULL){
     
     mts <- names(fleet@metiers)
     
-    res <- FLQuant(0, dimnames = dimnames(fleet@effort))
+    res <- aux <- FLQuant(0, dimnames = dimnames(fleet@effort))
+    
+    taxes <- ifelse(is.null(fleet.ctrl$taxes), FALSE, fleet.ctrl$taxes)
+    
+    flnm <- fleet@name
+    
     
     for(mt in mts){
-        res <- res + fleet@metiers[[mt]]@vcost*fleet@effort*fleet@metiers[[mt]]@effshare
-    }
+    
+        efm <- fleet@effort*fleet@metiers[[mt]]@effshare
+        
+        if(is.null(covars[['FuelCost']][flnm,]) | all(is.na(covars[['FuelCost']][flnm,]))){
+          fuelCost <- aux }
+          else{fuelCost <- covars[['FuelCost']][flnm,]} 
+          
+        res <- res + efm*(fleet@metiers[[mt]]@vcost + fuelCost)
+        
+          }
     
     Rev <- revenue_flbeia(fleet)*fleet@crewshare
     
@@ -1177,8 +1191,17 @@ totvcost_flbeia <- function(fleet, fleet.ctrl, advice){
 #' @rdname revenue_flbeia
 #' @aliases totfcost_flbeia
 totfcost_flbeia <- function(fleet, covars, flnm = NULL){
-     if(is.null(flnm)) flnm <- 1
-     return(fleet@fcost*covars[["NumbVessels"]][flnm, ])            
+     
+  if(is.null(flnm)) flnm <- 1
+     
+     salaries <- covars[["Salaries"]][flnm, ]*covars[["EmploymentPerVessel"]][flnm, ]
+     
+     if(is.null(salaries) | all(is.na(salaries))){
+       salaries <- fleet@fcost
+       salaries[] <- 0
+     } 
+       
+     return(fleet@fcost*covars[["NumbVessels"]][flnm, ] + salaries)           
 }
 
 #-------------------------------------------------------------------------------
@@ -1295,7 +1318,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
                  price=c(price_flbeia(fl, st)[,years]),
                  tacshare=c(tacshare[,years]),
                  quota=c(quota[,years]),
-                 quotaUpt=catch/quota, choke = ifelse(round(catch/quota,12) == 1, TRUE, FALSE))
+                 quotaUpt=catch/quota, choke = ifelse(round(catch/quota,2) == 1, TRUE, FALSE))
         resflst[[st]] <- res.fl.st
         if(verbose){print(paste("| fleet =", f, "|", "stock =", st, "|"))}
       }
@@ -1329,7 +1352,7 @@ fltStkSum <- function(obj, flnms = names(obj$fleets),
                  price=c(seasonMeans(price_flbeia(fl, st)[,years]*quantSums(unitSums(landWStock.f(fl, st)[,years])))/landings),
                  tacshare=c(advice$quota.share[[st]][f,][,years]),
                  quota=c((advice$TAC[st,]*advice$quota.share[[st]][f,])[,years]),
-                 quotaUpt=catch/quota, choke = ifelse(round(catch/quota,12) == 1, TRUE, FALSE))
+                 quotaUpt=catch/quota, choke = ifelse(round(catch/quota,2) == 1, TRUE, FALSE))
         resflst[[st]] <- res.fl.st
         if(verbose){print(paste("| fleet =", f, "|", "stock =", st, "|"))}
       }

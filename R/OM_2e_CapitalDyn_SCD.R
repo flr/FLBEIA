@@ -8,10 +8,15 @@
 
 # Crewcost: FixedCost(Salaries) + VariableCost(CrewShare).
 # Crewshare = % of the total landing value that belongs to the crew.
+# We calculate BER following the formula in COM 2014, 545 final
+# BER = (Fixed Cost)/[1-(variable Cost)/Revenue]
+# In the code below
+# Fixed cost = Fixed Cost + Capital Cost
+# Variable cost = FuelCost + Other variable cost
 
 SCD <- function(fleets, covars, fleets.ctrl, flnm, advice, year = 1, season = 1,...){
-    
-   
+  
+
     
     fleet <- fleets[[flnm]]
     fleet.ctrl <- fleets.ctrl[[flnm]]
@@ -31,16 +36,13 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, advice, year = 1, season = 1,
     # Revenue
     Rev <- revenue_flbeia(fleet)[,year]
     Rev <- ifelse(Rev == 0, 1e-16, Rev)
-    # CrC
-    CrC <- seasonSums((Rev*fleet@crewshare[,year]  +  covars[['Salaries']][flnm,year]))
-    
+       
     Rev <- seasonSums(Rev)
     
-    x1 <- FuC/Rev
-    x2 <- VaC/Rev
+    x1 <- VaC/Rev
     
-    a <- CrC + FxC + CaC
-    b <- 1 - x1 - x2
+    a <- FxC + CaC
+    b <- 1 - x1
     
     BER <- a/b
     

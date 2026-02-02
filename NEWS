@@ -1,4 +1,14 @@
 #~~~~~~~~~~~~~~~~
+# 2026/02/02
+#~~~~~~~~~~~~~~~~
+FLBEIA 1.16.5
+- SCD function revisited, corrected based on what FLBEIA treats as fixed and variable cost.
+- totvcost_flbeia now takes fuelCost from covars. If fuelCost is not in covars => in only uses @vcost in FLFLeets object. So, if fuelCost in covars, vcost should not include fuel cost and if fuelCost not in covars @vcost refers to ALL variable costs.
+- totfcost_flbeia now includes the fixed part of the salaries in the fixed costs, if they exists in covars, if not, only the variable part is used.
+
+
+
+#~~~~~~~~~~~~~~~~
 # 2025/10/21
 #~~~~~~~~~~~~~~~~
 FLBEIA 1.16.3

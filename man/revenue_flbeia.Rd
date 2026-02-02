@@ -13,7 +13,7 @@ revenue_flbeia(fleet)
 
 costs_flbeia(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice = NULL)
 
-totvcost_flbeia(fleet, fleet.ctrl, advice)
+totvcost_flbeia(fleet, fleet.ctrl, advice, covars = NULL)
 
 totfcost_flbeia(fleet, covars, flnm = NULL)
 
@@ -32,7 +32,7 @@ price_flbeia(fleet, stock)
 
 \item{stock}{An FLStock object.}
 
-\item{fleets.ctrl}{FLquant with quotas for all the stocks (only required if taxes = TRUE)}
+\item{fleets.ctrl}{FLquant with quotas for all the stocks (only required if fleets.ctrl[[flnm]]$taxes == TRUE)}
 
 \item{fleets.ctl}{FLquant with quotas for all the stocks (only required if taxes = TRUE)}
 }
