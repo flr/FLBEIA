@@ -125,7 +125,9 @@ MaxProfit <- function(fleets, biols, BDs,covars, advice, biols.ctrl, fleets.ctrl
     
     qsum.stk <- sapply(names(q.m), function(x) sum(q.m[[x]]))
     
-    Et  <- 0.9*ifelse(effort.restr == 'min', min(effs[qsum.stk>0]), effs[effort.restr])[1] 
+    Et  <- 0.9*ifelse(effort.restr == 'min', min(effs[qsum.stk>0]), 
+                  ifelse(effort.restr == 'none', mean(effs[stocks.restr]),
+                         effs[effort.restr]))[1] 
     Et <- ifelse(Et < K, Et, K*0.9)
     
     
@@ -442,7 +444,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   names(resTAC) <- rownames(B)
   
   #   cat( '**************************************************************************\n')
-  
+
   for(st in names(q.m)){
     
     #     E1  <- array(E,dim = dim(q.m[[st]]))   # [nmt,na,nu]
@@ -498,37 +500,34 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   
   taxes <- 0
   
-  tax.model <- fleets.ctrl[[flnm]][[st]][['tax.model']]
-  
-  if (!is.null(tax.model)) {
+  if(fleets.ctrl[[flnm]][['taxes']] == TRUE){
     
-    if (tax.model == "convexTax") {
+    for(st in names(q.m)){
       
-      # Parameters (same units as prices; e.g. eur/ton)
-      betaT  : fleet.ctrl[[st]][['beta']]
-      gammaT : fleet.ctrl[[st]][['gamma']]
-      
-      # FORMULATION
-      # tax.flst = taxes - subsidies = 
-      #   = beta * (cat.flst - tac.st * qsh.flst) + 
-      #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
-      # used formulation where: Cr.f = QS * tac
-      QS <- Cr.f/tac
-      
-      for(st in names(q.m))
-        taxes <- taxes + 
-          fleet.ctrl[[st]][['beta']] * (Cst[st] - tac[st,] * QS[st,]) + 
-          fleet.ctrl[[st]][['gamma']]/2 * ((Cst[st]/QS[st,])^2 * QS[st,] - tac[st,]^2 * QS[st,])
-      
-    } else 
-      stop("Only 'convexTax' available at the moment.")
-    
-  } else
-    
+        tax.model <- fleets.ctrl[[flnm]][[st]][['tax.model']]
+        
+        if (is.null(tax.model)) next
+        if (tax.model != "convexTax") stop("Only 'convexTax' available at the moment.")
+          
+        # Parameters (same units as prices; e.g. eur/ton)
+        betaT  <- fleets.ctrl[[flnm]][[st]][['beta']]
+        gammaT <- fleets.ctrl[[flnm]][[st]][['gamma']]
+            
+        # FORMULATION
+        # tax.flst = taxes - subsidies = 
+        #   = beta * (cat.flst - tac.st * qsh.flst) + 
+        #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
+        # used formulation where: Cr.f = QS * tac
+        # Taxes should only apply when there is an overhoot, but the undershoot, shouldbe rewarded.
+        QS <- Cr.f/tac
+        taxes_st <- betaT * (Cst[st] - tac[st,] * QS[st,]) + 
+          gammaT /2 * ((Cst[st]/QS[st,])^2 - (tac[st,] * QS[st,])^2)
+        
+        if(taxes_st > 0) taxes <- taxes + taxes_st
+    }
+  }
   
   resF <- resF - taxes
-  
-  
   #---------------------------------------------------------------------------
   # constraint on effort-share: absolute or relative values.
   #---------------------------------------------------------------------------

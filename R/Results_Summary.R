@@ -1233,9 +1233,14 @@ taxcost_flbeia <- function(fleet, fleet.ctrl, advice) {
         tac.st   <- advice$TAC[st,]
         qsh.flst <- advice$quota.share[[st]][fleet@name,]
         
-        taxes <- taxes + 
-          fleet.ctrl[[st]][['beta']] * (cat.flst - tac.st * qsh.flst) + 
-          fleet.ctrl[[st]][['gamma']]/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.st^2 * qsh.flst)
+        taxes_st <- fleet.ctrl[[st]][['beta']] * (cat.flst - tac.st * qsh.flst) + 
+          fleet.ctrl[[st]][['gamma']]/2 * (cat.flst^2 - (tac.st * qsh.flst)^2)
+        
+        # convert negative taxes in 0 
+        taxes_st[taxes_st < 0] <- 0
+        
+        taxes <- taxes + taxes_st
+          
         
       } else
         stop("Only 'convexTax' available at the moment.")
