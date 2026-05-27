@@ -114,7 +114,7 @@ F2CatchHCR <- function(stocks, advice, advice.ctrl, year, stknm,...){
                 
                 if(class(sr.pars) == 'try-error' | sr.model == 'geomean'){
                     sr.model <- 'geomean'
-                    sr.pars <- c(prod(c(rec))^(1/length(c(rec))))
+                    sr.pars <- exp(mean(log(rec)))
                     sr.pars <- FLPar(a = ifelse(is.na(sr.pars), 0, sr.pars))
                 }
                  
