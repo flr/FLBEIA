@@ -68,7 +68,7 @@ ecoSum_damara <- function (fleets, flnms = "all", years, covars = NULL)
         res[k:(k + prod(Dim) - 1), "effort"] <- c(fl@effort[,
             years, ])
         if(!is.null(covars)) res[k:(k + prod(Dim) - 1), "costs"] <- c(costs_flbeia(fl, covars, f)[,years, ])
-        res[k:(k + prod(Dim) - 1), "profits"] <- c(revenue_flbeia(fl)[,
+        res[k:(k + prod(Dim) - 1), "profits"] <- c(revenue_flbeia(fl, fl.ctrl, advice)[,
             years, ]) - res[k:(k + prod(Dim) - 1), "costs"]
         ## Additional DAMARA outputs    
         if(!is.null(covars)) {

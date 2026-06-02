@@ -896,33 +896,16 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       temp.discards <- lapply(catchNames(fl), function(x) quantSums(unitSums(discWStock.f(fl, x))))
       
 
-      # dga: I don't know why the code below failed during the mixfish wg and I've to replace 
-      # the code by the code below.
-      # res.fl <- bind_cols(year=year, season=season,fleet=fleet, iter=iter,
-      #                     catch=c(Reduce('+',temp.catch)[,years]),
-      #                     landings=c(Reduce('+',temp.landings)[,years]),
-      #                     discards=c(Reduce('+',temp.discards)[,years]),
-      #                     capacity=c(fl@capacity[,years, ]),
-      #                     effort=c(fl@effort[,years, ]),
-      #                     fcosts=c(totfcost_flbeia(fl, covars, f)[,years, ]),
-      #                     vcosts=c(totvcost_flbeia(fl)[,years, ]),
-      #                     costs=c(costs_flbeia(fl, covars, f)[,years, ]),
-      #                     fcosts=c(totfcost_flbeia(fl, covars, f)[,years, ]),
-      #                     vcosts=c(totvcost_flbeia(fl)[,years, ]),
-      #                     costs=c(costs_flbeia(fl, covars, f)[,years, ]),
-      #                     grossValue=c(revenue_flbeia(fl)[,years, ]),
-      #                     nVessels = c(covars[['NumbVessels']][f,years])) %>% 
-      
       res.fl <- tibble(data.frame(year=year, season=season,fleet=fleet, iter=iter,
                             catch=c(Reduce('+',temp.catch)[,years]),
                             landings=c(Reduce('+',temp.landings)[,years]),
                             discards=c(Reduce('+',temp.discards)[,years]),
                             capacity=c(fl@capacity[,years, ]),
                             effort=c(fl@effort[,years, ]),
-                            fcosts=c(totfcost_flbeia(fl, covars, f)[,years, ]),
-                            vcosts=c(totvcost_flbeia(fl, fl.ctrl, advice)[,years, ]),
-                            costs=c(costs_flbeia(fl, covars, f)[,years, ]),
-                            grossValue=c(revenue_flbeia(fl)[,years, ]),
+                            fcosts=c(totfcost_flbeia(fleet = fl, covars = covars, flnm = f)[,years, ]),
+                            vcosts=c(totvcost_flbeia(fleet = fl, fleet.ctrl = fl.ctrl, advice = advice, covars = covars)[,years, ]),
+                            costs=c(costs_flbeia(fleet = fl, covars = covars, flnm = f, fleet.ctrl = fl.ctrl)[,years, ]),
+                            grossValue=c(revenue_flbeia(fl, fl.ctrl, advice)[,years, ]),
                             nVessels = c(covars[['NumbVessels']][f,years]))) %>% 
         mutate(discRat=discards/catch,
                grossSurplus=grossValue-costs,
@@ -967,32 +950,17 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
       temp.discards <- lapply(catchNames(fl), function(x) seasonSums(quantSums(unitSums(discWStock.f(fl, x)))))
       
 
-      # dga: I don't know why the code below failed during the mixfish wg and I've to replace 
-      # the code by the code below.
-      # res.fl <- bind_cols(year=year,fleet=fleet, iter=iter,
-      #                     catch=c(Reduce('+',temp.catch)[,years]),
-      #                     landings=c(Reduce('+',temp.landings)[,years]),
-      #                     discards=c(Reduce('+',temp.discards)[,years]),
-      #                     capacity=c(seasonSums(fl@capacity[,years, ])),
-      #                     effort=c(seasonSums(fl@effort[,years, ])),
-      #                     fcosts=c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ])),
-      #                     vcosts=c(seasonSums(totvcost_flbeia(fl)[,years, ])),
-      #                     costs=c(seasonSums(costs_flbeia(fl, covars, f)[,years, ])),
-      #                     fcosts=c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ])),
-      #                     vcosts=c(seasonSums(totvcost_flbeia(fl)[,years, ])),
-      #                     costs=c(seasonSums(costs_flbeia(fl, covars, f)[,years, ])),
-      #                     grossValue=c(seasonSums(revenue_flbeia(fl)[,years, ])),
-      #                     nVessels =c(seasonMeans(covars[['NumbVessels']][f,years]))) %>%
+
         res.fl <- tibble(data.frame(year=year,fleet=fleet, iter=iter,
                             catch=c(Reduce('+',temp.catch)[,years]),
                             landings=c(Reduce('+',temp.landings)[,years]),
                             discards=c(Reduce('+',temp.discards)[,years]),
                             capacity=c(seasonSums(fl@capacity[,years, ])),
                             effort=c(seasonSums(fl@effort[,years, ])),
-                            fcosts=c(seasonSums(totfcost_flbeia(fl, covars, f)[,years, ])),
-                            vcosts=c(seasonSums(totvcost_flbeia(fl, fl.ctrl, advice)[,years, ])),
-                            costs=c(seasonSums(costs_flbeia(fl, covars, f, fl.ctrl, advice)[,years, ])),
-                            grossValue=c(seasonSums(revenue_flbeia(fl)[,years, ])),
+                            fcosts=c(seasonSums(totfcost_flbeia(fleet = fl, covars = covars, flnm = f)[,years, ])),
+                            vcosts=c(seasonSums(totvcost_flbeia(fleet = fl, fleet.ctrl = fl.ctrl, advice = advice, covars = covars)[,years, ])),
+                            costs=c(seasonSums(costs_flbeia(fleet = fl, covars = covars, flnm = f, fleet.ctrl = fl.ctrl, advice = advice)[,years, ])),
+                            grossValue=c(seasonSums(revenue_flbeia(fl, fl.ctrl, advice)[,years, ])),
                             nVessels =c(seasonMeans(covars[['NumbVessels']][f,years])))) 
 
                
@@ -1104,7 +1072,8 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 
 #' @rdname revenue_flbeia
-revenue_flbeia <- function(fleet){
+#' # fleets.ctrl and advice only needed if taxes are used
+revenue_flbeia <- function(fleet, fleet.ctrl, advice){
     
     sts <- catchNames(fleet)
     mts <- names(fleet@metiers)
@@ -1121,6 +1090,16 @@ revenue_flbeia <- function(fleet){
             res <- res + FLQuant(apply(dat@landings.n*dat@landings.wt*dat@price, c(2,4,6),sum, na.rm=TRUE), dim = D)
         }
     }
+    
+    # If the overshoot is taxed use the following code
+    Tax <- 0
+    if(!is.null(fleet.ctrl$taxes)){ 
+        if(fleet.ctrl$taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice)} 
+    }
+    
+    res <- res - Tax
+    
+    
     return(res)               
 }
 
@@ -1132,12 +1111,11 @@ revenue_flbeia <- function(fleet){
 #' @aliases costs_flbeia
 #' @param covars List of FLQuants with information on covariates.
 #' @param fleets.ctrl FLquant with quotas for all the stocks (only required if fleets.ctrl[[flnm]]$taxes == TRUE)
-#' @param advice List of two FLquants, with TAC and quota share for all the stocks (only required if fleets.ctrl[[flnm]]$taxes == TRUE)
-costs_flbeia <- function(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice = NULL){
+costs_flbeia <- function(fleet, advice, covars, fleet.ctrl, flnm = NULL){
     
-    res <- totvcost_flbeia(fleet, fleet.ctrl, advice) + 
+    res <- totvcost_flbeia(fleet = fleet, covars = covars, fleet.ctrl = fleet.ctrl, advice = advice) + 
       # taxcost_flbeia(fleet, fleet.ctrl, advice) + # incorporated in variable costs?
-      totfcost_flbeia(fleet, covars, flnm)
+      totfcost_flbeia(fleet = fleet, covars = covars, flnm = flnm)
       
     return(res)
 }
@@ -1148,13 +1126,12 @@ costs_flbeia <- function(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice =
 #' @rdname revenue_flbeia
 #' @aliases totvcost_flbeia
 #dga: include fuel cost in the calculation.
-totvcost_flbeia <- function(fleet, fleet.ctrl, advice, covars = NULL){
+totvcost_flbeia <- function(fleet, advice, covars, fleet.ctrl){
     
     mts <- names(fleet@metiers)
     
     res <- aux <- FLQuant(0, dimnames = dimnames(fleet@effort))
     
-    taxes <- ifelse(is.null(fleet.ctrl$taxes), FALSE, fleet.ctrl$taxes)
     
     flnm <- fleet@name
     
@@ -1171,16 +1148,12 @@ totvcost_flbeia <- function(fleet, fleet.ctrl, advice, covars = NULL){
         
           }
     
-    Rev <- revenue_flbeia(fleet)*fleet@crewshare
+    Rev <- revenue_flbeia(fleet, fleet.ctrl, advice)*fleet@crewshare
     
-    # taxes only in specific cases
-    taxes <- ifelse(is.null(fleet.ctrl$taxes), FALSE, fleet.ctrl$taxes)
-    if(taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice)} # taxes are included in variable costs
-    else Tax <- 0
     
     units(res) <- units(Rev)
     
-    res <- res + Rev + Tax
+    res <- res + Rev 
     
     return(res)               
 }

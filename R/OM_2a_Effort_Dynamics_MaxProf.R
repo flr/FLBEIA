@@ -489,45 +489,18 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
     
   }
   
-  resF <- (1-crewS)*res - sum(vc.m*E) - fc
+  # Calculate taxes if there is overshoot
+  Tax <- 0
+  if(!is.null(fleet.ctrl$taxes)){ 
+    if(fleet.ctrl$taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice)} 
+  }
+  
+  resF <- (1-crewS)*(res-Tax) - sum(vc.m*E) - fc
   
 #  cat('income: ', res,', vcost: ', sum(vc.m*E),', crewS: ', crewS*res, ', fcost: ', fc, '\n')
 #  cat('profits: ', resF,'effort: ', E,'\n')
   
-  #---------------------------------------------------------------------------
-  # Incorporate taxes
-  #---------------------------------------------------------------------------
   
-  taxes <- 0
-  
-  if(fleets.ctrl[[flnm]][['taxes']] == TRUE){
-    
-    for(st in names(q.m)){
-      
-        tax.model <- fleets.ctrl[[flnm]][[st]][['tax.model']]
-        
-        if (is.null(tax.model)) next
-        if (tax.model != "convexTax") stop("Only 'convexTax' available at the moment.")
-          
-        # Parameters (same units as prices; e.g. eur/ton)
-        betaT  <- fleets.ctrl[[flnm]][[st]][['beta']]
-        gammaT <- fleets.ctrl[[flnm]][[st]][['gamma']]
-            
-        # FORMULATION
-        # tax.flst = taxes - subsidies = 
-        #   = beta * (cat.flst - tac.st * qsh.flst) + 
-        #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
-        # used formulation where: Cr.f = QS * tac
-        # Taxes should only apply when there is an overhoot, but the undershoot, shouldbe rewarded.
-        QS <- Cr.f/tac
-        taxes_st <- betaT * (Cst[st] - tac[st,] * QS[st,]) + 
-          gammaT /2 * ((Cst[st]/QS[st,])^2 - (tac[st,] * QS[st,])^2)
-        
-        if(taxes_st > 0) taxes <- taxes + taxes_st
-    }
-  }
-  
-  resF <- resF - taxes
   #---------------------------------------------------------------------------
   # constraint on effort-share: absolute or relative values.
   #---------------------------------------------------------------------------
