@@ -49,9 +49,9 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, mtnm, year = 1
     ss <- season
     
     # Parameters 
-    elsa     <- fms.ctrl[['pd.elsa']][,ss,,,]                                     # [na,it] Price-landing elasticity.
-    La0      <- fms.ctrl[['pd.La0']][,ss,,,]                                      # [na,it] Base landings.
-    Pa0      <- fms.ctrl[['pd.Pa0']][,ss,,,]                                      # [na,it] Base price.
+    elsa     <- fms.ctrl[['pd.elsa']][,yr,,ss,]                                   # [na,it] Price-landing elasticity.
+    La0      <- fms.ctrl[['pd.La0']][,yr,,ss,]                                    # [na,it] Base landings.
+    Pa0      <- fms.ctrl[['pd.Pa0']][,yr,,ss,]                                    # [na,it] Base price.
     type     <- fms.ctrl[["type"]]                                                # [n,it]  Numeric vector 
     total    <- fms.ctrl[['pd.total']]                                            # Logic:  If TRUE, the function depends on total landings, and if FALSE on the landings of the fleet in question.
     
@@ -80,11 +80,11 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, mtnm, year = 1
     # Type
     if(type == 1) { P <- Pa0*(La0/La_f)^elsa }
     
-    if(type == 2 | type == 3 | type == 4) {  
+    if(type == 2 | type == 3 | type == 4) { 
       els    <- quantMeans(elsa)                                                  # [n,it]
       L_f    <- sum(La_f)                                                         # [n,it]
       L_init <- sum(La_init)                                                      # [n,it]
-      L_hist <- colSums(La_hist)                                                  # [n,it]
+      L_hist <- apply(Lau_hist, c(2,3,4,5,6), sum, drop = FALSE)                  # [n,it]
       P_init <- quantMeans(fms@price[, yr-1, , ss])                               # [n,it]
       
       if(L_f == 0){P <- NA                                                        # When L_f = 0 -> set P = NA
@@ -121,7 +121,7 @@ elasticPrice <- function(fleets, covars, fleets.ctrl, stnm, flnm, mtnm, year = 1
       P <- P*(1+addRP)^nyr
     }
     
-    fms@price[, yr, , ss] <- P 
+    fms@price[, yr, , ss] <- P
     
     fleets[[flnm]]@metiers[[mtnm]]@catches[[stnm]] <- fms
     
@@ -141,9 +141,9 @@ elasticPriceAge <- function(fleets, covars, fleets.ctrl, stnm, flnm, mtnm, year 
     ss <- season
     
     # Parameters
-    elsa    <- fms.ctrl[['pd.elsa']][,ss,,,]                                      # [na,it] Price-landing elasticity.
-    La0     <- fms.ctrl[['pd.La0']][,ss,,,]                                       # [na,it] Base landings.
-    Pa0     <- fms.ctrl[['pd.Pa0']][,ss,,,]                                       # [na,it] Base price.
+    elsa    <- fms.ctrl[['pd.elsa']][,yr,,ss,]                                      # [na,it] Price-landing elasticity.
+    La0     <- fms.ctrl[['pd.La0']][,yr,,ss,]                                     # [na,it] Base landings.
+    Pa0     <- fms.ctrl[['pd.Pa0']][,yr,,ss,]                                     # [na,it] Base price.
     type    <- fms.ctrl[["type"]]                                                 # [na,it] Numeric vector: The type depend on age.
     total   <- fms.ctrl[['pd.total']]                                             # Logic: If TRUE, the function depends on total landings, and if FALSE on the landings of the fleet in question.
     
