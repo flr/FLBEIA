@@ -63,8 +63,8 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
   
   flObj <- unlist(fltObj)
   
-  wb <- loadWorkbook(file, create = FALSE)
-  sheets <- getSheets(wb)
+  wb <- loadWorkbook(file)
+  sheets <- getSheetNames(file)
   sheets <- sheets[!(sheets == 'readme')]
 
   fltnms <- names(fltObj)
@@ -83,7 +83,11 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
     
     nmt <- length(fltObj[[fl]]@metiers)
     
-    dat <- readWorksheet(wb, sheet = fl, header = TRUE, colTypes = c(rep("character",2), rep("numeric", nmt+1)))
+    dat <- read.xlsx(wb, sheet = fl, colNames = TRUE)
+    
+    dat[, 1:2] <- lapply(dat[, 1:2], as.character)
+    dat[, 3:(nmt+3)] <- lapply(dat[, 3:(nmt+3)], as.numeric)
+    
     dat$indicator <- tolower(dat$indicator) 
     names(dat)[-(1:3)] <- names(fltObj[[fl]]@metiers)
       
@@ -93,7 +97,7 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
     # We order the data by year and indicator, in the code below it is assumed that there is the same number of years per indicator.
     dat <- dat[order(dat$indicator),]
     dat <- dat[order(dat$year),]
-    # for(k in 3:dim(dat)[2]) dat[,k] <- as.numeric(dat[,k]) # forced in readWorkSheet
+    # for(k in 3:dim(dat)[2]) dat[,k] <- as.numeric(dat[,k]) 
     
     # fleet level
     fcost     <- subset(dat, indicator == 'fixed costs')
@@ -176,8 +180,7 @@ create.ecoData <- function(file, fltObj, hist.yrs, mean.yrs, sim.yrs){
 # TEST
 #
 # load("~/OneDrive - AZTI/BoB/02_MixedFisheries/data/FLR_Objs.RData")
-# library(XLConnectJars)
-# library(XLConnect)
+# library(openxlsx)
 # library(FLBEIA)
 # res <- create.ecoData('C:/use/OneDrive - AZTI/BoB/03_Economics/input/eco/economic_data.xlsx', fleets, 2005:2017, 2017, 2018:2025)
 

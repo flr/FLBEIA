@@ -108,38 +108,43 @@ create.biol.arrays <- function(filename = NULL, data = NULL, name = NA, ages, hi
   if(source == 'excel'){
     if (!is.null(names(unit))) 
       stop('units must be set in the Excel file')
-    wb <- loadWorkbook(filename, create = FALSE)
-    wb_sheets <- getSheets(wb)
+    wb <- loadWorkbook(filename)
+    wb_sheets <- getSheetNames(filename)
     # check that all required sheets are available
     if ( any(!sheets[sheets!="fec"] %in% wb_sheets))
       stop(paste("Sheets: ", paste(sheets[sheets!="fec"], collapse = ", "), " are required in file: '", filename, "'", sep=''))
     for(sl in sheets)  {
+      
       if (sl=='fec' & (!sl %in% wb_sheets)) { # if missing fec --> set equal to 1
         data[[sl]] <- data[['mat']]*0+1
         unit[[sl]] <- ''
         next
       }
+      
       # check ages
-      aa <- readWorksheet(wb, sheet = sl, header = FALSE, startRow = 2, startCol = 1, endCol = 1)$Col1
+      aa <- suppressMessages(suppressWarnings(read.xlsx(wb, sheet = sl, colNames = TRUE)[, 1]))
       if (length(ages)!=length(aa)) {
         stop(paste("check age range in sheet '",sl,"' as it is different from 'ages'"),sep='')
       } else if (length(ages)>1 & sum(ages!=aa)>0) 
         stop(paste("ages in sheet '",sl,"' are different from ",ages[1],":",ages[length(ages)],sep=''))
       # check years
-      yy <- unlist(readWorksheet(wb, sheet = sl, header = FALSE, startRow = 1, startCol = 2, 
-                                                          endRow = 1, endCol = nyear + 1))
+      yy <- unlist(suppressMessages(suppressWarnings(read.xlsx(wb, sheet = sl, colNames = FALSE, rows = 1, cols = 2:(nyear + 1)))))
+      
       if (sum(hist.yrs!=yy)>0) 
         stop(paste("years in sheet '",sl,"' are different from ",hist.yrs[1],":",hist.yrs[length(hist.yrs)],sep=''))
-      data[[sl]] <- as.matrix(readWorksheet(wb, sheet = sl, header = TRUE, startRow = 1, startCol = 2, 
-                                                                            endRow = nage + 1, endCol = nyear + 1))
-      colnames(data[[sl]]) <- substr(colnames(data[[sl]]),2,5)
-      unit[[sl]] <- readWorksheet(wb, sheet = sl, header = FALSE, startRow = 1, startCol = 1, endRow = 1, endCol = 1)$Col1
+      data[[sl]] <- as.matrix(suppressMessages(suppressWarnings(read.xlsx(wb, sheet = sl, colNames = TRUE,rows = 1:(nage + 1), cols = 2:(nyear + 1)))))
+      
+      unit[[sl]] <- suppressMessages(suppressWarnings(read.xlsx(wb, sheet = sl, colNames = FALSE,rows = 1, cols = 1)[1, 1]))
+      
     }
     nit  <- 1
     unit <- lapply( unit, function(x) ifelse( is.na(x), 'NA', ifelse( x==1 | x=='1', '', as.character(x))))
   }
   if(source == 'rdata'){
-    data <- loadToEnv(filename)[["data"]]
+    tmp <- new.env()
+    obj_name <- load(filename, envir = tmp)
+    data <- tmp[[obj_name]]
+    
     nit <- ifelse(is.na(dim(data$n)[3]), 1, dim(data$n)[3])
     if (is.null(names(unit)))
       warning('Please remember to set the units for the different slots!')

@@ -152,7 +152,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     if(fmt %in% c('xls', 'xlsx')){
       catch_wb  <- loadWorkbook(catch_obj)
       effort_wb <- loadWorkbook(effort_obj)
-      catch  <- readWorksheet(catch_wb, sheet = 1)
+      catch <- read.xlsx(catch_wb, sheet = 1, colNames = TRUE)
       # check that all required columns are available
       if (!all(c("year","fleet","metier","stock","category","catch") %in% names(catch)))
         stop(paste("Columns 'year', 'fleet', 'metier', 'stock', 'category' and 'catch' are required in ", catch_obj, " file",sep=''))
@@ -161,7 +161,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
       catch$metier   <- as.character(catch$metier)
       catch$stock    <- as.character(catch$stock)
       catch$category <- as.character(catch$category)
-      effort <- readWorksheet(effort_wb, sheet = 1)
+      effort <- read.xlsx(effort_wb, sheet = 1, colNames = TRUE)
       # check that all required columns are available
       if (!all(c("year","fleet","metier","effort") %in% names(effort)))
         stop(paste("Columns 'year', 'fleet', 'metier' and 'effort' are required in ", effort_obj, " file",sep=''))
@@ -383,16 +383,16 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     fmt_stk <- strsplit(stk_objs[[st]], '.', fixed = TRUE)[[1]][length(strsplit(stk_objs[[st]], '.', fixed = TRUE)[[1]])]
     print(st)
     if(fmt_stk %in% c('xls', 'xlsx')){
-      wb <- loadWorkbook(stk_objs[[st]], create = FALSE)
-      sheets <- getSheets(wb)
+      wb <- loadWorkbook(stk_objs[[st]])
+      sheets <- getSheetNames(stk_objs[[st]])
       wl <- ifelse('wl' %in% sheets, 'wl', 'wt')
       wd <- ifelse('wd' %in% sheets, 'wd', wl)
       
-      wts.land[[st]] <- as.matrix(readWorksheet(wb, sheet = wl, header = TRUE, startRow = 1, startCol = 2, 
-                                                endRow = nages_stk[[st]] + 1))
-      wts.disc[[st]] <- as.matrix(readWorksheet(wb, sheet = wd, header = TRUE, startRow = 1, startCol = 2, 
-                                                endRow = nages_stk[[st]]  + 1))
-      yrs_nms <- paste('X', hist.yrs, sep = "")
+      wts.land[[st]] <- as.matrix(read.xlsx(wb, sheet = wl, colNames = TRUE,rows = 1:(nages_stk[[st]] + 1))[ , -1])
+      
+      wts.disc[[st]] <- as.matrix(read.xlsx(wb, sheet = wd, colNames = TRUE,rows = 1:(nages_stk[[st]] + 1))[ , -1])
+      
+      yrs_nms <- hist.yrs
     }
     else{
       if(fmt_stk == 'RData'){
@@ -448,7 +448,6 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
   cat('All to do with catches \n') 
   cat('--------------------------------------------------------------------\n') 
   
- # browser()
   for(fl in names(flfleets)){
     
     for(mt in names(flfleets[[fl]]@metiers)){
@@ -466,16 +465,16 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
 
             caa_obj    <- paste("caa_", fl, "_", st, ".xlsx", sep = "")
             wb_caa     <- loadWorkbook(file.path(caa_objs_path, caa_obj))
-            sheets_caa <- getSheets(wb_caa)
+            sheets_caa <- getSheetNames(file.path(caa_objs_path, caa_obj))
             
             if(!mt %in% sheets_caa)
               stop(paste("Sheet '", mt, "' missing in file: '", caa_obj, "'", sep=''))
             
-            la <- as.matrix(readWorksheet(wb_caa, sheet = mt, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[st] + 1))
-            da <- as.matrix(readWorksheet(wb_caa, sheet = mt, header = TRUE, startRow = nages_stk[st] +  3, startCol = 2, endRow = 2*nages_stk[st] + 3))
+            la <- as.matrix(read.xlsx(wb_caa, sheet = mt, colNames = TRUE,rows = 1:(nages_stk[st] + 1))[ , -1])
+            da <- as.matrix(read.xlsx(wb_caa, sheet = mt, colNames = TRUE,rows = (nages_stk[st] + 3):(2*nages_stk[st] + 3))[ , -1])
             
-            la.yrs <-  ac(readWorksheet(wb_caa, sheet = mt, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
-            da.yrs <-  ac(readWorksheet(wb_caa, sheet = mt, header = FALSE, startRow = nages_stk[st] +  3, startCol = 2, endRow = nages_stk[st] +  3))
+            la.yrs <- ac(read.xlsx(wb_caa, sheet = mt, colNames = FALSE, rows = 1)[1, -1])
+            da.yrs <- ac(read.xlsx(wb_caa, sheet = mt, colNames = FALSE, rows = nages_stk[st] + 3)[1, -1])
             
             cobj@landings.n[,la.yrs] <- la
             cobj@discards.n[,da.yrs] <- da
@@ -488,7 +487,7 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             
             caa_obj    <- paste("caa_", fl, "_", st, ".xlsx", sep = "")
             wb_caa     <- loadWorkbook(file.path(caa_objs_path, caa_obj))
-            sheets_caa <- getSheets(wb_caa)
+            sheets_caa <- getSheetNames(file.path(caa_objs_path, caa_obj))
             
             if(!fl %in% sheets_caa)
               stop(paste("Sheet '", fl, "' missing in file: '", caa_obj, "'", sep=''))
@@ -499,11 +498,11 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             land_prop_mt_yrs <- as.character(subset(catch, stock == st & category == 'landings' & metier == mt & fleet == fl)$year)
             disc_prop_mt_yrs <- as.character(subset(catch, stock == st & category == 'discards' & metier == mt & fleet == fl)$year)
             
-            la <- as.matrix(readWorksheet(wb_caa, sheet = fl, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[[st]] + 1))
-            da <- as.matrix(readWorksheet(wb_caa, sheet = fl, header = TRUE, startRow = nages_stk[[st]] + 3, startCol = 2, endRow = 2*nages_stk[[st]] + 3))
+            la <- as.matrix(read.xlsx(wb_caa, sheet = fl, colNames = TRUE,rows = 1:(nages_stk[[st]] + 1))[ , -1])
+            da <- as.matrix(read.xlsx(wb_caa, sheet = fl, colNames = TRUE,rows = (nages_stk[[st]] + 3):(2*nages_stk[[st]] + 3))[ , -1])
             
-            la.yrs <-  readWorksheet(wb_caa, sheet = fl, header = FALSE, startRow = 1, startCol = 2, endRow = 1)
-            da.yrs <-  readWorksheet(wb_caa, sheet = fl, header = FALSE, startRow = nages_stk[[st]] +  3, startCol = 2, endRow = nages_stk[[st]] +  3)
+            la.yrs <- ac(read.xlsx(wb_caa, sheet = fl, colNames = FALSE,rows = 1)[1, -1])
+            da.yrs <- ac(read.xlsx(wb_caa, sheet = fl, colNames = FALSE,rows = nages_stk[[st]] + 3)[1, -1])
             
             colnames(la) <- la.yrs
             colnames(da) <- da.yrs
@@ -518,14 +517,14 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           if(caaOpt[st] == 3){
             
             wb_corres     <- loadWorkbook(caa_flt_mt_correspondences)
-            sheets_corres <- getSheets(wb_corres)
+            sheets_corres <- getSheetNames(caa_flt_mt_correspondences)
             
             # identify the fleet_segment that corresponds for stock 'st' with fleet 'fl' and metier 'mt'.
-            corres_st <-  readWorksheet(wb_corres, sheet = st, header = TRUE)
+            corres_st <- read.xlsx(wb_corres, sheet = st, colNames = TRUE)
             
             caa_obj    <- paste("caa_", st, ".xlsx", sep = "")
             wb_caa     <- loadWorkbook(file.path(caa_objs_path,caa_obj))
-            sheets_caa <- getSheets(wb_caa)
+            sheets_caa <- getSheetNames(file.path(caa_objs_path,caa_obj))
             
             fleetSeg  <- subset(corres_st, fleet_flbeia == fl & metier_flbeia == mt)[,3]
             
@@ -544,21 +543,21 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             cat(fl, mt, st, '\n')
           #  browser()
             
-            la <- as.matrix(readWorksheet(wb_caa, sheet = fleetSeg, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[st] + 1))
-            da <- as.matrix(readWorksheet(wb_caa, sheet = fleetSeg, header = TRUE, startRow = nages_stk[st] +  3, startCol = 2, endRow = 2*nages_stk[st] + 3))
+            la <- as.matrix(read.xlsx(wb_caa, sheet = fleetSeg, colNames = TRUE,rows = 1:(nages_stk[[st]] + 1))[ , -1])
+            da <- as.matrix(read.xlsx(wb_caa, sheet = fleetSeg, colNames = TRUE,rows = (nages_stk[[st]] + 3):(2*nages_stk[[st]] + 3))[ , -1])
             
             dy <- colnames(la)
-            hy <- paste('X', hist.yrs, sep="")
+            hy <- hist.yrs
             selyrs <- dy[which(dy %in% hy)]
             
             la <- la[,selyrs]
             if(dim(da)[1]!= 0) da <- da[,selyrs]
               
-            la.yrs <-  ac(readWorksheet(wb_caa, sheet = fleetSeg, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
-            da.yrs <-  ac(readWorksheet(wb_caa, sheet = fleetSeg, header = FALSE, startRow = nages_stk[st] +  3, startCol = 2, endRow = nages_stk[st] +  3))
-       
-            law <- cobj@landings.wt[, substr(colnames(la),2,5), drop=T]
-            daw <- cobj@discards.wt[, substr(colnames(da),2,5), drop=T] 
+            la.yrs <- ac(read.xlsx(wb_caa, sheet = fleetSeg, colNames = FALSE,rows = 1)[1, -1])
+            da.yrs <- ac(read.xlsx(wb_caa, sheet = fleetSeg, colNames = FALSE,rows = nages_stk[st] + 3)[1, -1])
+            
+            law <- cobj@landings.wt[, , drop=T]
+            daw <- cobj@discards.wt[, , drop=T] 
             
         #  browser()
             pla <- sweep(la*law, 2, apply(la*law,2,sum), "/") # catch proportions by age
@@ -566,8 +565,8 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             else  {pda <- sweep(da, 2, apply(da,2,sum), "/")}
             
             
-            colnames(pla) <- substr(selyrs, 2,5)
-            if(dim(pda)[1] != 0) colnames(pda) <- substr(selyrs, 2,5)
+            colnames(pla) <- selyrs
+            if(dim(pda)[1] != 0) colnames(pda) <- selyrs
             
             cobj@landings.n[,land_mt_yrs] <- sweep(pla[,land_mt_yrs, drop=FALSE],2,land_mt,"*")/cobj@landings.wt[,land_mt_yrs,drop=T]
             if(dim(pda)[1] != 0){ 
@@ -583,28 +582,45 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
             
             caa_obj    <- paste("caa_", st, ".xlsx", sep = "")
             wb_caa     <- loadWorkbook(file.path(caa_objs_path, caa_obj))
-            sheets_caa <- getSheets(wb_caa)
+            sheets_caa <- getSheetNames(file.path(caa_objs_path, caa_obj))
             
             if(!st %in% sheets_caa)
               stop(paste("Sheet '", st, "' missing in file: '", caa_obj, "'", sep=''))
             
-            land_prop_flmt <- subset(catch, stock == st & category == 'landings' & metier == mt & fleet == fl)$prop_flmt
-            disc_prop_flmt <- subset(catch, stock == st & category == 'discards' & metier == mt & fleet == fl)$prop_flmt
-
-            land_prop_flmt_yrs <- as.character(subset(catch, stock == st & category == 'landings' & metier == mt & fleet == fl)$year)
-            disc_prop_flmt_yrs <- as.character(subset(catch, stock == st & category == 'discards' & metier == mt & fleet == fl)$year)
-
-            la <- as.matrix(readWorksheet(wb_caa, sheet = st, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[[st]] + 1))
-            da <- as.matrix(readWorksheet(wb_caa, sheet = st, header = TRUE, startRow = nages_stk[[st]] + 3, startCol = 2, endRow = 2*nages_stk[[st]] + 3))
-
-            la.yrs <-  readWorksheet(wb_caa, sheet = st, header = FALSE, startRow = 1, startCol = 2, endRow = 1)
-            da.yrs <-  readWorksheet(wb_caa, sheet = st, header = FALSE, startRow = nages_stk[[st]] +  3, startCol = 2, endRow = nages_stk[[st]] +  3)
-
-            colnames(la) <- la.yrs
-            colnames(da) <- da.yrs
-
-            cobj@landings.n[,land_prop_flmt_yrs] <- sweep(la[,land_prop_flmt_yrs, drop=FALSE],2,land_prop_flmt,"*")
-            cobj@discards.n[,disc_prop_flmt_yrs] <- sweep(da[,disc_prop_flmt_yrs, drop=FALSE],2,disc_prop_flmt,"*")
+            land_rows <- subset(catch, stock == st & category == "landings" & metier == mt & fleet == fl)
+            disc_rows <- subset(catch, stock == st & category == "discards" & metier == mt & fleet == fl)
+            
+            land_prop_flmt     <- land_rows$prop_flmt
+            land_prop_flmt_yrs <- as.character(land_rows$year)
+            
+            if (nrow(disc_rows) > 0) {
+              disc_prop_flmt     <- disc_rows$prop_flmt
+              disc_prop_flmt_yrs <- as.character(disc_rows$year)
+            } else {
+              disc_prop_flmt     <- NULL
+              disc_prop_flmt_yrs <- NULL
+            }
+            
+            la <- as.matrix(read.xlsx(wb_caa, sheet = st, colNames = TRUE, rows = 1:(nages_stk[[st]] + 1)))[ , -1]
+            
+            # Convert to numeric
+            la <- apply(la, 2, function(x) as.numeric(gsub("\\s+", "", x)))
+            
+            cobj@landings.n[, land_prop_flmt_yrs] <- sweep(la[, land_prop_flmt_yrs, drop = FALSE], 2, land_prop_flmt, "*")
+            
+            ## Only read and use discards if they exist
+            if (nrow(disc_rows) > 0) {
+              
+              da <- as.matrix(read.xlsx(wb_caa, sheet = st, colNames = TRUE,rows = (nages_stk[[st]] + 3):(2*nages_stk[[st]] + 3)))[ , -1]
+              
+              # Convert to numeric
+              da <- apply(da, 2, function(x) as.numeric(gsub("\\s+", "", x)))
+              
+              cobj@discards.n[, disc_prop_flmt_yrs] <- sweep(da[, disc_prop_flmt_yrs, drop = FALSE], 2, disc_prop_flmt, "*")
+              
+            } else {
+              cobj@discards.n[,] <- 0
+            }
             
           }
         # The CAA is given at stock level but there is CAA[fl,mt] available in some historical years in the FLFleets obj.
@@ -649,10 +665,14 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
     if(is.null(flt_obj)) stop('Option 5 cannot be used if flt_obj is not provided!')
   
     wb_caa <- loadWorkbook(file.path(caa_objs_path, paste('caa_', st, ".xlsx", sep = "")))
-    la <- as.matrix(readWorksheet(wb_caa, sheet = st, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[[st]] + 1))
-    da <- as.matrix(readWorksheet(wb_caa, sheet = st, header = TRUE, startRow = nages_stk[[st]] + 3, startCol = 2, endRow = 2*nages_stk[[st]] + 3))
-    la.yrs <-  readWorksheet(wb_caa, sheet = st, header = FALSE, startRow = 1, startCol = 2, endRow = 1)
-    da.yrs <-  readWorksheet(wb_caa, sheet = st, header = FALSE, startRow = nages_stk[[st]] +  3, startCol = 2, endRow = nages_stk[[st]] +  3)
+    
+    la <- as.matrix(read.xlsx(wb_caa, sheet = st, colNames = TRUE,rows = 1:(nages_stk[[st]] + 1))[ , -1])
+    da <- as.matrix(read.xlsx(wb_caa, sheet = st, colNames = TRUE,rows = (nages_stk[[st]] + 3):(2*nages_stk[[st]] + 3))[ , -1])
+    
+    la.yrs <- ac(read.xlsx(wb_caa, sheet = st, colNames = FALSE,rows = 1)[1, -1])
+    da.yrs <- ac(read.xlsx(wb_caa, sheet = st, colNames = FALSE,rows = nages_stk[[st]] + 3)[1, -1])
+    
+    
     colnames(la) <- la.yrs
     colnames(da) <- da.yrs
 }}
@@ -683,15 +703,15 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           
           price_obj    <- paste("price_", fl, "_", st, ".xlsx", sep = "")
           wb_price     <- loadWorkbook(file.path(price_objs_path, price_obj))
-          sheets_price <- getSheets(wb_price)
+          sheets_price <- getSheetNames(file.path(price_objs_path, price_obj))
 
           if(!mt %in% sheets_price)
             stop(paste("Sheet '", mt, "' missing in file: '", price_obj, "'", sep=''))
           
-          pa <- as.matrix(readWorksheet(wb_price, sheet = mt, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[st] + 1))
-         
-          pa.yrs <-  ac(readWorksheet(wb_price, sheet = mt, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
-
+          pa <- as.matrix(read.xlsx(wb_price, sheet = mt, colNames = TRUE,rows = 1:(nages_stk[st] + 1))[ , -1])
+          
+          pa.yrs <- ac(read.xlsx(wb_price, sheet = mt, colNames = FALSE,rows = 1)[1, -1])
+          
           cobj@price[,pa.yrs] <- pa
 
         }
@@ -704,14 +724,14 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           
           price_obj    <- paste("price_", fl, "_", st, ".xlsx", sep = "")
           wb_price     <- loadWorkbook(file.path(price_objs_path, price_obj))
-          sheets_price <- getSheets(wb_price)
+          sheets_price <- getSheetNames(file.path(price_objs_path, price_obj))
           
           if(!fl %in% sheets_price)
             stop(paste("Sheet '", fl, "' missing in file: '", price_obj, "'", sep=''))
           
-          pa <- as.matrix(readWorksheet(wb_price, sheet = fl, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[[st]] + 1))
+          pa <- as.matrix(read.xlsx(wb_price, sheet = fl, colNames = TRUE,rows = 1:(nages_stk[[st]] + 1))[ , -1])
           
-          pa.yrs <-  ac(readWorksheet(wb_price, sheet = fl, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
+          pa.yrs <- ac(read.xlsx(wb_price, sheet = fl, colNames = FALSE,rows = 1)[1, -1])
           
           cobj@price[,pa.yrs] <- pa
 
@@ -722,14 +742,15 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
         if(priceOpt[st] == 3){
           
           wb_corres     <- loadWorkbook(paa_flt_mt_correspondences)
-          sheets_corres <- getSheets(wb_corres)
+          sheets_corres <- getSheetNames(paa_flt_mt_correspondences)
           
           # identify the fleet_segment that corresponds for stock 'st' with fleet 'fl' and metier 'mt'.
-          corres_st <-  readWorksheet(wb_corres, sheet = st, header = TRUE)
+          corres_st <- read.xlsx(wb_corres, sheet = st, colNames = TRUE)
+          
           
           price_obj    <- paste("price_", st, ".xlsx", sep = "")
-          wb_price     <- loadWorkbook(file.path(price_objs_path, price_obj))
-          sheets_price <- getSheets(wb_price)
+          wb_price <- loadWorkbook(file.path(price_objs_path, price_obj))
+          sheets_price <- getSheetNames(file.path(price_objs_path, price_obj))
           
           fleetSeg  <- subset(corres_st, fleet_flbeia == fl & metier_flbeia == mt)[,3]
           
@@ -739,9 +760,9 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
           if(!fleetSeg %in% sheets_price)
             stop(paste("Sheet '", fleetSeg, "' missing in file: '", price_obj, "'", sep=''))
           
-          pa <- as.matrix(readWorksheet(wb_price, sheet = fleetSeg, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[st] + 1))
+          pa <- as.matrix(read.xlsx(wb_price, sheet = fleetSeg, colNames = TRUE,rows = 1:(nages_stk[st] + 1))[ , -1])
           
-          pa.yrs <-  ac(readWorksheet(wb_price, sheet = fleetSeg, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
+          pa.yrs <- ac(read.xlsx(wb_price, sheet = fleetSeg, colNames = FALSE,rows = 1)[1, -1])
           
           cobj@price[,pa.yrs] <- pa
           
@@ -753,14 +774,15 @@ create.fleets.arrays <- function(stk_objs,  caa_objs, caa_objs_path, price_objs,
 
           price_obj    <- paste("price_", st, ".xlsx", sep = "")
           wb_price <- loadWorkbook(file.path(price_objs_path, price_obj))
-          sheets_price <- getSheets(wb_price)
+          sheets_price <- getSheetNames(file.path(price_objs_path, price_obj))
           
           if(!st %in% sheets_price)
             stop(paste("Sheet '", st, "' missing in file: '", price_obj, "'", sep=''))
           
-          pa <- as.matrix(readWorksheet(wb_price, sheet = st, header = TRUE, startRow = 1, startCol = 2, endRow = nages_stk[[st]] + 1))
+          pa <- as.matrix(read.xlsx(wb_price, sheet = st, colNames = TRUE,rows = 1:(nages_stk[[st]] + 1))[ , -1])
           
-          pa.yrs <-  ac(readWorksheet(wb_price, sheet = st, header = FALSE, startRow = 1, startCol = 2, endRow = 1))
+          pa.yrs <- ac(read.xlsx(wb_price, sheet = st, colNames = FALSE, rows = 1)[1, -1])
+          
           
           cobj@price[,pa.yrs] <- pa
           
