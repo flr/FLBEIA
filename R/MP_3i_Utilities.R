@@ -22,12 +22,20 @@ stf_correctSel<-  function(object, nyears=3, wts.nyears=3, fbar.nyears=wts.nyear
     fbar.years.iters <- matrix(0,nrow=3,ncol=nit)
     
     for(ii in 1:nit){
-      years.catch_G0<- which(iter(object@catch,ii)> 1e-2)
       
-      if(length(years.catch_G0)==0) fbar.years.iters[,ii] <- fbar.years
-      else  fbar.years.iters[,ii] <- tail(years.catch_G0,3)
+      yr.all.catch <- dimnames(iter(object@catch, ii))$year
+      years.catch_G0<- yr.all.catch[which(iter(object@catch, ii) > 1e-2)]
+      
+      if (length(years.catch_G0) == 0) {
+        
+        fbar.years.iters[, ii] <- fbar.years
+        yrs_fbar.catch_G0 <-  fbar.years # define, to use later in seq_along(yrs_fbar.catch_G0)
+      } else {
+        yrs_fbar.catch_G0 <- tail(years.catch_G0, 3)
+        fbar.years.iters[, ii] <- NA
+        fbar.years.iters[seq_along(yrs_fbar.catch_G0), ii] <- yrs_fbar.catch_G0
       }
-    
+    }
 
     # arith or geometric
     if(arith.mean)
@@ -54,7 +62,7 @@ stf_correctSel<-  function(object, nyears=3, wts.nyears=3, fbar.nyears=wts.nyear
     # first f get the dimensions and after harvest as mean over fbar.years.iter
     f <-apply(slot(res, 'harvest')[, wts.years], c(1,3:6), fmean, na.rm=na.rm)
     for(ii in 1:nit){
-      iter(f,ii)  <-apply(iter(slot(res, 'harvest'),ii)[,fbar.years.iters[,ii]], c(1,3:6), fmean, na.rm=na.rm)}
+      iter(f,ii)  <-apply(iter(slot(res, 'harvest'),ii)[,fbar.years.iters[seq_along(yrs_fbar.catch_G0),ii]], c(1,3:6), fmean, na.rm=na.rm)}
       
     for (i in years)
        slot(res, 'harvest')[,i] <- f
@@ -69,9 +77,9 @@ stf_correctSel<-  function(object, nyears=3, wts.nyears=3, fbar.nyears=wts.nyear
                         na.rm=na.rm)
       
       for(ii in 1:nit){
-        iter(fbar,ii)[]  <- mean(apply(iter(slot(res, 'harvest'),ii)[fbar.ages, fbar.years.iters[,ii]], c(2:6), mean,
+        iter(fbar,ii)[]  <- mean(apply(iter(slot(res, 'harvest'),ii)[fbar.ages, fbar.years.iters[seq_along(yrs_fbar.catch_G0),ii]], c(2:6), mean,
                                      na.rm=na.rm))
-        iter(lastfbar,ii)[] <- apply(iter(slot(res, 'harvest'),ii)[fbar.ages, tail(fbar.years.iters[,ii],1)], 3:6, mean,
+        iter(lastfbar,ii)[] <- apply(iter(slot(res, 'harvest'),ii)[fbar.ages, tail(fbar.years.iters[seq_along(yrs_fbar.catch_G0),ii],1)], 3:6, mean,
                           na.rm=na.rm)
         iter(slot(res, 'harvest'),ii)[, years] <- sweep(iter(slot(res, 'harvest'),ii)[, years], 3:6,iter(fbar,ii), '/')
         iter(slot(res, 'harvest'),ii)[, years] <- sweep(iter(slot(res, 'harvest'),ii)[, years], 3:6, iter(lastfbar,ii), '*')
@@ -87,6 +95,5 @@ stf_correctSel<-  function(object, nyears=3, wts.nyears=3, fbar.nyears=wts.nyear
       # slot(res, 'harvest')[, years] <- sweep(slot(res, 'harvest')[, years], 3:6, lastfbar, '*')
     }
     return(res)
-  }
+    }
  # }}}
-
