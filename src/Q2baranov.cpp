@@ -19,11 +19,11 @@ NumericVector Q2baranov(NumericVector e, List inputs, IntegerVector idx) {
   int fl_idx_i_1 = 0;
   for(int i = 0; i < n_fl_mt; i++){
     if(idx(fl_idx(i)) >= 0){
-      if(fl_idx(i) > fl_idx_i_1){
+      fl_idx_i_1 = fl_idx(i);          // fleet corresponding to métier
+      if(fl_idx(i) > fl_idx_i_1){      // if new fleet; increment the effort index
         ctr_e += 1;
       }
-      E(i) = e(ctr_e) * eshare(i);
-      fl_idx_i_1 = fl_idx(i);
+      E(i) = e(ctr_e) * eshare(i);     // update the métier effort
     } else {
       E(i) = fixedEffort(fl_idx(i)) *  eshare(i);
     }
