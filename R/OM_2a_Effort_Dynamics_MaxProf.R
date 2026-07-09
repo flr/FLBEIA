@@ -489,7 +489,7 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
     
   }
   
-  # Calculate taxes if there is overshoot
+  # Calculate taxes (if taxation system implemented)
   Tax <- 0
   if(!is.null(fleet.ctrl$taxes)){ 
     if(fleet.ctrl$taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice)} 
@@ -497,8 +497,9 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   
   resF <- (1-crewS)*(res-Tax) - sum(vc.m*E) - fc
   
-#  cat('income: ', res,', vcost: ', sum(vc.m*E),', crewS: ', crewS*res, ', fcost: ', fc, '\n')
-#  cat('profits: ', resF,'effort: ', E,'\n')
+#  cat('income: ', res, 'taxes (if <0 --> subsidies): ', Tax, '\n')
+#  cat('vcost: ', sum(vc.m*E),', crewS: ', crewS*res, ', fcost: ', fc, '\n')
+#  cat('profits: ', resF, 'effort: ', E,'\n')
   
   
   #---------------------------------------------------------------------------

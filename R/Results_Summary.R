@@ -1206,11 +1206,29 @@ taxcost_flbeia <- function(fleet, fleet.ctrl, advice) {
         tac.st   <- advice$TAC[st,]
         qsh.flst <- advice$quota.share[[st]][fleet@name,]
         
-        taxes_st <- fleet.ctrl[[st]][['beta']] * (cat.flst - tac.st * qsh.flst) + 
-          fleet.ctrl[[st]][['gamma']]/2 * (cat.flst^2 - (tac.st * qsh.flst)^2)
+        # Given:
+        # - Quadratic Tax Instrument: 
+        #     T(h,beta,gamma) = beta * h + gamma/2 * h^2
+        #   with h=harvest, beta>=0, gamma>=0
+        # - For specific fleet and stock (i)
+        #   * Taxes    : Ti = si * T(hi/si,beta,gamma)
+        #           si = quota share (percent)
+        #           hi = individual catch
+        #   * Subsidies: R(si) = si * T(TAC,beta,gamma)
+        #  If compliance (i.e. hi=TAC*si) --> Taxes - Subsidies = 0 
+        #
+        # FORMULATION
+        # tax.flst = taxes - subsidies = 
+        #   = beta * (cat.flst - tac.st * qsh.flst) + 
+        #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
+        # used formulation where: Cr.f = QS * tac
+        # Taxes should only apply when there is an overshoot, but the undershoot, should be rewarded (subsidies).
         
-        # convert negative taxes in 0 
-        taxes_st[taxes_st < 0] <- 0
+        taxes_st <- fleet.ctrl[[st]][['beta']] * (cat.flst - tac.st * qsh.flst) + 
+          fleet.ctrl[[st]][['gamma']]/2 * (cat.flst^2 / qsh.flst - (tac.st)^2 * qsh.flst)
+        
+        # negative taxes allowed --> rewarded when undercatch their quota
+        # taxes_st[taxes_st < 0] <- 0
         
         taxes <- taxes + taxes_st
           
