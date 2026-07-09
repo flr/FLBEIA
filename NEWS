@@ -1,3 +1,17 @@
+
+#~~~~~~~~~~~~~~~~
+# 2026/07/07
+#~~~~~~~~~~~~~~~~
+
+FLBEIA 1.16.3.2
+
+- taxcost_flbeia function corrected
+- tax costs included in the gross revenues (before in the variable costs)
+- Corrections in stf_correctSel: now using years instead of positions and correctly handles cases when fewer than 3 years satisfy the condition iter(object@catch, ii) > 1e-2.
+- Moved from XLConnect to openxlsx
+- F2CatchHCR corrected
+
+
 #~~~~~~~~~~~~~~~~
 # 2026/02/02
 #~~~~~~~~~~~~~~~~

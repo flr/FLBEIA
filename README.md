@@ -1,6 +1,6 @@
 # FLBEIA
-- Version: 1.16.1.28
-- Date: 2025-10-12
+- Version: 1.16.3.2
+- Date: 2026-07-09
 - Author: Dorleta GARCIA <dgarcia@azti.es>; FLBEIA Team <flbeia@azti.es>
 - Maintainer: Dorleta GARCIA, AZTI & FLBEIA Team
 - Repository: <https://github.com/flr/FLBEIA/>
@@ -11,7 +11,7 @@ Provides a simulation toolbox which facilitates the development of bio-economic 
 
 To install this package, start R and enter:
 
-	install.packages(c("ggplot2", "Matrix", "nloptr", "mvtnorm", "triangle", "XLConnect"))
+	install.packages(c("ggplot2", "Matrix", "nloptr", "mvtnorm", "triangle", "openxlsx"))
 
 	install.packages("FLBEIA", repos="http://flr-project.org/R")
 
