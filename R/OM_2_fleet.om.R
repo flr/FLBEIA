@@ -21,7 +21,6 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
    
     flnms <- names(fleets)
     
-    fleets         <- unclass(fleets) # unclass fleets to speed up the algorithm
     fleets.ctrl.aux <- fleets.ctrl
     
     
@@ -38,12 +37,32 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
       }
     }
     
-    # 1. Calculate effort. 
-    print('~~~~~~~~~~ EFFORT ~~~~~~~~')
+
+    effort.models      <- unlist(lapply(fleets.ctrl[flnms],"[[","effort.model"))
+    catch.models       <- unlist(lapply(fleets.ctrl[flnms], function(f){unlist(lapply(f, function(x){if("catch.model" %in% names(x)) x$catch.model else NULL}))}))
     
-    for(fl in flnms){
+    isBaranov          <- all(catch.models == "Baranov")
+    isSMFB_fixedE      <- all(effort.models %in% c("SMFB","fixedEffort"))
+    isAnnualTimeStep   <- dims(fleets[[1]])$season == 1
+    isSingleArea       <- dims(fleets[[1]])$area == 1
     
-    print(fl)
+    if(isBaranov & isSMFB_fixedE & isAnnualTimeStep & isSingleArea){  ## don't step in fleet loop
+      dyn.model  <- "Baranov_simulatneous" 
+      
+      print("~~~~~~~~~~ UPDATE EFFORT & CATCH SIMULTANEOUS FOR ALL FLEETS ~~~~~~~~")
+      res        <- eval(call(dyn.model, biols = biols, fleets = fleets, BDs = BDs, advice = advice,
+                              year = year, season = season, biols.ctrl=biols.ctrl, fleets.ctrl = fleets.ctrl, covars = covars, 
+                              assess.ctrl=assess.ctrl, advice.ctrl = advice.ctrl)) 
+      fleets     <- res$fleets
+      
+    } else {
+      fleets         <- unclass(fleets) # unclass fleets to speed up the algorithm
+      # 1. Calculate effort. 
+      print('~~~~~~~~~~ EFFORT ~~~~~~~~')
+      
+      for(fl in flnms){
+        
+        print(fl)
         
         dyn.model <- fleets.ctrl[[fl]]$effort.model
         
@@ -53,23 +72,25 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
         
         if (!is.null(fleets.ctrl[[fl]]$q2zero)) 
           fleets <- catchability2zero(fleets = fleets, flnm = fl, advice = advice, fleets.ctrl = fleets.ctrl, year = year)
-             
+        
         res <- eval(call(dyn.model, biols = biols, fleets = fleets, BDs = BDs, flnm = fl, advice = advice,
-                    year = year, season = season, biols.ctrl=biols.ctrl, fleets.ctrl = fleets.ctrl, covars = covars, 
-                    assess.ctrl=assess.ctrl, advice.ctrl = advice.ctrl)) 
-         
+                         year = year, season = season, biols.ctrl=biols.ctrl, fleets.ctrl = fleets.ctrl, covars = covars, 
+                         assess.ctrl=assess.ctrl, advice.ctrl = advice.ctrl)) 
+        
         fleets[[fl]]         <- res$fleets[[fl]]
         fleets.ctrl.aux[[fl]] <- res$fleets.ctrl[[fl]]
         remove(res)
+      }
+      
+      fleets.ctrl <- fleets.ctrl.aux
+      
+      # 2. Update landings and discards (total and at age).  [seasonal].
+      
+      print('~~~~~~ UPDATE CATCH ~~~~~~')
+      
+      fleets <- updateCatch(fleets, biols, BDs, advice, biols.ctrl, fleets.ctrl, advice.ctrl, year = year, season = season)
+      
     }
-    
-    fleets.ctrl <- fleets.ctrl.aux
-    
-    # 2. Update landings and discards (total and at age).  [seasonal].
-
-     print('~~~~~~ UPDATE CATCH ~~~~~~')
-
-    fleets <- updateCatch(fleets, biols, BDs, advice, biols.ctrl, fleets.ctrl, advice.ctrl, year = year, season = season)
     
     #  3. Calculate price. [seasonal].
     print('~~~~~~~~~~ PRICE ~~~~~~~~~~')
@@ -80,11 +101,11 @@ fleets.om <- function(fleets, biols, BDs, covars, advice, biols.ctrl, fleets.ctr
       mtnms <- names(fleets[[fl]]@metiers)
       
       for(mt in mtnms){
-        print(mt)
+        # print(mt)
         stnms <- names(fleets[[fl]]@metiers[[mt]]@catches)
         
         for(st in stnms){
-          print(st)
+          # print(st)
             dyn.model <- fleets.ctrl[[fl]][[mt]][[st]]$price.model  
         
             if(is.null(dyn.model)) next

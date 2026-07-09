@@ -10,6 +10,33 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// Q2baranov
+NumericVector Q2baranov(NumericVector e, List inputs, IntegerVector idx);
+RcppExport SEXP _FLBEIA_Q2baranov(SEXP eSEXP, SEXP inputsSEXP, SEXP idxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type e(eSEXP);
+    Rcpp::traits::input_parameter< List >::type inputs(inputsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type idx(idxSEXP);
+    rcpp_result_gen = Rcpp::wrap(Q2baranov(e, inputs, idx));
+    return rcpp_result_gen;
+END_RCPP
+}
+// update_catch_effort_FLFleets
+S4 update_catch_effort_FLFleets(NumericMatrix effort, S4 fleets, List inputs, int year);
+RcppExport SEXP _FLBEIA_update_catch_effort_FLFleets(SEXP effortSEXP, SEXP fleetsSEXP, SEXP inputsSEXP, SEXP yearSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type effort(effortSEXP);
+    Rcpp::traits::input_parameter< S4 >::type fleets(fleetsSEXP);
+    Rcpp::traits::input_parameter< List >::type inputs(inputsSEXP);
+    Rcpp::traits::input_parameter< int >::type year(yearSEXP);
+    rcpp_result_gen = Rcpp::wrap(update_catch_effort_FLFleets(effort, fleets, inputs, year));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fill_flcatches
 S4 fill_flcatches(S4 fl, S4 cobj, CharacterVector st, int mt_idx);
 RcppExport SEXP _FLBEIA_fill_flcatches(SEXP flSEXP, SEXP cobjSEXP, SEXP stSEXP, SEXP mt_idxSEXP) {
@@ -26,6 +53,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_FLBEIA_Q2baranov", (DL_FUNC) &_FLBEIA_Q2baranov, 3},
+    {"_FLBEIA_update_catch_effort_FLFleets", (DL_FUNC) &_FLBEIA_update_catch_effort_FLFleets, 4},
     {"_FLBEIA_fill_flcatches", (DL_FUNC) &_FLBEIA_fill_flcatches, 4},
     {NULL, NULL, 0}
 };
