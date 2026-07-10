@@ -491,8 +491,8 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   
   # Calculate taxes (if taxation system implemented)
   Tax <- 0
-  if(!is.null(fleet.ctrl$taxes)){ 
-    if(fleet.ctrl$taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleet.ctrl, advice)} 
+  if(!is.null(fleets.ctrl[[flnm]]$taxes)){ 
+    if(fleets.ctrl[[flnm]]$taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleets.ctrl, advice)} 
   }
   
   resF <- (1-crewS)*(res-Tax) - sum(vc.m*E) - fc

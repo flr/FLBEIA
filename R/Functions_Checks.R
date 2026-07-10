@@ -211,6 +211,11 @@ checkFleets <- function(object, ctrl=NULL) {
   
   for (fl in names(object)) {
     
+    # consistency in fleets' names
+    if (fl != name(object[[fl]]))
+      stop(paste0( "Name mismatch in fleet '", fl, "': ", 
+                   "the list key is '", fl, "' but @name slot contains '", name(object[[fl]]), "'"))
+    
     # capacity: only NA if "fixedEffort"
     if ( any(is.na(object[[fl]]@capacity)) )
       if (!is.null(ctrl)) {

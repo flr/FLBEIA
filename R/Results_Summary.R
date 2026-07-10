@@ -906,6 +906,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                             vcosts=c(totvcost_flbeia(fleet = fl, fleet.ctrl = fl.ctrl, advice = advice, covars = covars)[,years, ]),
                             costs=c(costs_flbeia(fleet = fl, covars = covars, flnm = f, fleet.ctrl = fl.ctrl)[,years, ]),
                             grossValue=c(revenue_flbeia(fl, fl.ctrl, advice)[,years, ]),
+                            taxes=c(taxcost_flbeia(fl, fl.ctrl, advice)[,years, ]),
                             nVessels = c(covars[['NumbVessels']][f,years]))) %>% 
         mutate(discRat=discards/catch,
                grossSurplus=grossValue-costs,
@@ -961,6 +962,7 @@ fltSum <- function (obj, flnms = "all", years = dimnames(obj$biols[[1]]@n)$year,
                             vcosts=c(seasonSums(totvcost_flbeia(fleet = fl, fleet.ctrl = fl.ctrl, advice = advice, covars = covars)[,years, ])),
                             costs=c(seasonSums(costs_flbeia(fleet = fl, covars = covars, flnm = f, fleet.ctrl = fl.ctrl, advice = advice)[,years, ])),
                             grossValue=c(seasonSums(revenue_flbeia(fl, fl.ctrl, advice)[,years, ])),
+                            taxes=c(seasonSums(taxcost_flbeia(fl, fl.ctrl, advice)[,years, ])),
                             nVessels =c(seasonMeans(covars[['NumbVessels']][f,years])))) 
 
                
@@ -1050,11 +1052,11 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 #' Economic summary functions.
 #' 
-#' These functions provide summary results of costs, prices and revenues. Provided data can be dessagregated by fleet or by metier depending on the selected function.
+#' These functions provide summary results of costs, prices and revenues. Provided data can be disaggregated by fleet or by metier depending on the selected function.
 #' 
-#' @param fleet An element of FLfleets object.
-#' @param stock An FLStock object.
-#' @param flnm Names of the fleets.
+#' @param fleet      An element of a FLFleetsExt object (FLFleetExt).
+#' @param fleet.ctrl List with tax-related controls (requires fleet.ctrl$taxes = TRUE/FALSE and tax function with corresponding parameters by stock).
+#' @param advice     List of two FLQuants, with TAC and quota share for all the stocks.
 # @inheritParams FLBEIA
 #'   
 #' 
@@ -1062,7 +1064,8 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #'  
 #'\itemize{
 #'       \item{revenue_flbeia}{ computes the revenue by fleet and metier. The revenue is computed as
-#'        landings (weight) multiplied by the price.}
+#'        landings (weight) multiplied by the price, minus taxes.}
+#'       \item{taxcost_flbeia}{ computes taxes (to be deducted from the revenue).}
 #'       \item{costs_flbeia}{ computes total costs as the sum of fixed and variable costs.}
 #'       \item{totvcost_flbeia}{ computes the variable costs including crew share costs .}
 #'       \item{totfcost_flbeia}{ computes the total costs by vessel.}
@@ -1072,8 +1075,6 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 
 #' @rdname revenue_flbeia
-
-# fleets.ctrl and advice only needed if taxes are used
 revenue_flbeia <- function(fleet, fleet.ctrl, advice){
     
     sts <- catchNames(fleet)
@@ -1111,7 +1112,7 @@ revenue_flbeia <- function(fleet, fleet.ctrl, advice){
 #' @rdname revenue_flbeia
 #' @aliases costs_flbeia
 #' @param covars List of FLQuants with information on covariates.
-#' @param fleets.ctrl FLquant with quotas for all the stocks (only required if fleets.ctrl[[flnm]]$taxes == TRUE)
+#' @param flnm   Name of the fleet.
 costs_flbeia <- function(fleet, advice, covars, fleet.ctrl, flnm = NULL){
     
     res <- totvcost_flbeia(fleet = fleet, covars = covars, fleet.ctrl = fleet.ctrl, advice = advice) + 
@@ -1183,8 +1184,6 @@ totfcost_flbeia <- function(fleet, covars, flnm = NULL){
 #-------------------------------------------------------------------------------
 #' @rdname revenue_flbeia
 #' @aliases taxcost_flbeia
-#' @param fleets.ctl FLquant with quotas for all the stocks (only required if taxes = TRUE)
-#' @param advice     List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)
 taxcost_flbeia <- function(fleet, fleet.ctrl, advice) { 
   
   taxes <- FLQuant(0, dimnames = dimnames(fleet@effort))
@@ -1232,7 +1231,6 @@ taxcost_flbeia <- function(fleet, fleet.ctrl, advice) {
         # taxes_st[taxes_st < 0] <- 0
         
         taxes <- taxes + taxes_st
-          
         
       } else
         stop("Only 'convexTax' available at the moment.")
@@ -1456,6 +1454,7 @@ fltStkSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #-------------------------------------------------------------------------------
 #' @rdname revenue_flbeia
 #' @aliases price_flbeia
+#' @param stock An FLStock object.
 price_flbeia <- function(fleet, stock){
 
     mts <- names(fleet@metiers)

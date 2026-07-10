@@ -22,27 +22,26 @@ taxcost_flbeia(fleet, fleet.ctrl, advice)
 price_flbeia(fleet, stock)
 }
 \arguments{
-\item{fleet}{An element of FLfleets object.}
+\item{fleet}{An element of a FLFleetsExt object (FLFleetExt).}
 
-\item{advice}{List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)}
+\item{fleet.ctrl}{List with tax-related controls (requires fleet.ctrl$taxes = TRUE/FALSE and tax function with corresponding parameters by stock).}
+
+\item{advice}{List of two FLQuants, with TAC and quota share for all the stocks.}
 
 \item{covars}{List of FLQuants with information on covariates.}
 
-\item{flnm}{Names of the fleets.}
+\item{flnm}{Name of the fleet.}
 
 \item{stock}{An FLStock object.}
-
-\item{fleets.ctrl}{FLquant with quotas for all the stocks (only required if fleets.ctrl[[flnm]]$taxes == TRUE)}
-
-\item{fleets.ctl}{FLquant with quotas for all the stocks (only required if taxes = TRUE)}
 }
 \description{
-These functions provide summary results of costs, prices and revenues. Provided data can be dessagregated by fleet or by metier depending on the selected function.
+These functions provide summary results of costs, prices and revenues. Provided data can be disaggregated by fleet or by metier depending on the selected function.
 }
 \details{
 \itemize{
       \item{revenue_flbeia}{ computes the revenue by fleet and metier. The revenue is computed as
-       landings (weight) multiplied by the price.}
+       landings (weight) multiplied by the price, minus taxes.}
+      \item{taxcost_flbeia}{ computes taxes (to be deducted from the revenue).}
       \item{costs_flbeia}{ computes total costs as the sum of fixed and variable costs.}
       \item{totvcost_flbeia}{ computes the variable costs including crew share costs .}
       \item{totfcost_flbeia}{ computes the total costs by vessel.}
