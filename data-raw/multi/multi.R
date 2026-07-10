@@ -527,7 +527,25 @@ rm(list=ls())
   
   flq.stk1 <- FLQuant(dimnames = list(age = 'all', year = first.yr:last.yr, unit = stk1.unit, 
                                       season = 1:ns, iter = 1:ni)) 
-  fleets.ctrl <- create.fleets.ctrl(fls=fls,n.fls.stks=n.fls.stks,fls.stksnames=fls.stksnames,
+  
+  flts.mets.stksnames <- NULL
+  
+  for(fl in names(fleets)) {
+    
+    for(mt in names(fleets[[fl]]@metiers)) {
+      
+      stks <- catchNames(fleets[[fl]]@metiers[[mt]])
+      
+      flts.mets.stksnames <- c(flts.mets.stksnames, stks)
+      
+      names(flts.mets.stksnames)[
+        (length(flts.mets.stksnames) - length(stks) + 1):
+          length(flts.mets.stksnames)
+      ] <- paste0(fl, "::", mt, "::", stks)
+    }
+  }
+  
+  fleets.ctrl <- create.fleets.ctrl(fls=fls,fls.mets.stksnames=flts.mets.stksnames,
                                     effort.models= effort.models, catch.models=catch.models,
                                     capital.models=capital.models, price.models=price.models,flq=flq.stk1,
                                     effort.restr.fl2 = effort.restr.fl2, restriction.fl2 = restriction.fl2)
@@ -622,14 +640,14 @@ rm(list=ls())
   multiAdvC  <- advice.ctrl 
   multiAssC  <- assess.ctrl
   multiBD    <- BDs
-  multiBio   <-  biols       
+  multiBio   <- biols       
   multiBioC  <- biols.ctrl  
   multiCv    <- covars
   multiCvC   <- covars.ctrl
   multiFl    <- fleets      
   multiFlC   <- fleets.ctrl 
   multiMainC <- main.ctrl  
-  multiObsC  <-  obs.ctrl
+  multiObsC  <- obs.ctrl
   multiSR    <- SRs
   
   

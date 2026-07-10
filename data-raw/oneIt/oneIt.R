@@ -424,7 +424,24 @@
   capital.models   <- 'fixedCapital'       
   flq.stk1<- FLQuant(dimnames = list(age = 'all', year = first.yr:last.yr, unit = stk1.unit, 
                                      season = 1:ns, iter = 1:ni)) 
-  fleets.ctrl      <- create.fleets.ctrl(fls=fls,n.fls.stks=n.fls.stks,fls.stksnames=fls.stksnames,
+  
+  flts.mets.stksnames <- NULL
+  
+  for(fl in names(fleets)) {
+    
+    for(mt in names(fleets[[fl]]@metiers)) {
+      
+      stks <- catchNames(fleets[[fl]]@metiers[[mt]])
+      
+      flts.mets.stksnames <- c(flts.mets.stksnames, stks)
+      
+      names(flts.mets.stksnames)[
+        (length(flts.mets.stksnames) - length(stks) + 1):
+          length(flts.mets.stksnames)
+      ] <- paste0(fl, "::", mt, "::", stks)
+    }
+  }
+  fleets.ctrl      <- create.fleets.ctrl(fls=fls,fls.mets.stksnames=flts.mets.stksnames,
                                          effort.models= effort.models, catch.models=catch.models,
                                          capital.models=capital.models, flq=flq.stk1,
                                          effort.restr.fl1 = effort.restr.fl1, restriction.fl1 = restriction.fl1)
