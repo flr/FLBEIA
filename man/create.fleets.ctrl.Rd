@@ -6,8 +6,7 @@
 \usage{
 create.fleets.ctrl(
   fls,
-  n.fls.stks,
-  fls.stksnames,
+  fls.mets.stksnames,
   catch.threshold = NULL,
   seasonal.share = NULL,
   effort.models = NULL,
@@ -21,13 +20,7 @@ create.fleets.ctrl(
 \arguments{
 \item{fls}{character vector with fleet names}
 
-\item{n.fls.stks}{numeric vector with the same length as fls with the  declaration of the number of stocks caugth by each of the fleets.}
-
-\item{fls.stksnames}{character vector with length = sum(n.fls.stks), with the names of the stocks caught by the fleet, the vector must follow the order used in the previous argument. 
-\itemize{ 
-   \item the  first n.fls.stks[1] elements correspond to the stocks caught by the first fleet in fls
-   \item the  following n.fls.stks[2] elements correspond to the stocks caught by the second fleet in fls
-   \item and so on.}}
+\item{fls.mets.stksnames}{character vector containing the names of the stocks caught by each fleet–metier combination. The names attribute identifies the corresponding fleet, metier, and stock, using the format fleet::metier::stock.}
 
 \item{catch.threshold}{if(NULL) => 0.9 for all the stocks (NULL is the default)
 else it must be an FLQuant with dim = c(nstks,ny,1,ns,nit)}

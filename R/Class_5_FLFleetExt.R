@@ -49,7 +49,6 @@ validFLFleetExt <- function(object) {
 #' 
 #' @name FLFleetExt
 #' @aliases FLFleetExt-class FLFleetExt FLFleetExt-methods
-#' FLFleetExt,FLFleetExt-method
 #' 
 #' @title  FLFleetExt class and the methods to construct it.
 #'

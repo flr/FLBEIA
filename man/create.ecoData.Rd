@@ -2,7 +2,7 @@
 % Please edit documentation in R/Conditioning_create.ecoData.arrays.R
 \name{create.ecoData}
 \alias{create.ecoData}
-\title{Function to generate the covar object neccesary to compute economic indicators and fills in economic slots in FLFleets object}
+\title{Function to generate the covar object neccesary to compute economic indicators and fills in economic slots in FLFleets object.}
 \usage{
 create.ecoData(file, fltObj, hist.yrs, mean.yrs, sim.yrs)
 }

@@ -13,9 +13,7 @@
 
 # create.ecoData {{{
 
-#' @title Function to generate the covar object neccesary to compute economic indicators and fills in economic slots in FLFleets object 
-#' 
-#'
+#' @title Function to generate the covar object neccesary to compute economic indicators and fills in economic slots in FLFleets object.
 #' @description This function generates an covar object with the economic indicators and fills in vcost, fcost, capacity and crewshare 
 #'             slots in FLFleets object. The data is given in excel File (xls and xlsx).
 #'

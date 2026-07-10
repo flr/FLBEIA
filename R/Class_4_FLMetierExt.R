@@ -42,7 +42,6 @@ validFLMetierExt <- function(object) {
 #' 
 #' @name FLMetierExt
 #' @aliases FLMetierExt-class FLMetierExt FLMetierExt-methods
-#' FLMetierExt,FLMetierExt-method  FLMetiersExt,FLMetiersExt-methods
 #' 
 #' @title  FLMetierExt class and the methods to construct it.
 #'

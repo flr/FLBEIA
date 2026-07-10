@@ -5,7 +5,6 @@
 \alias{FLCatchExt}
 \alias{FLCatchExt-class}
 \alias{FLCatchExt-methods}
-\alias{FLQuant,FLCatchExt-method}
 \alias{FLCatchExt,FLQuant-method}
 \alias{FLCatchExt,missing-method}
 \alias{FLCatchExt-missing}

@@ -32,21 +32,25 @@
 #' @param tol The desired accuracy.
 #
 #' @return A list with 2 elements runs and refpts
-##'\itemize{
-#'      \item{runs: is a data.frame containing a summary of the simulation results (year by year until equilibrium reached): 
-#'          target F (ftgt), initial proportion of F in each season (fprop), expected biomass, B1+, ssb, recruitment, 
-#'          spawning biomass per recruit (ssbpr), global fishing mortality (fbar), global F proportion by season (pF_s), 
-#'          expected yields and their seasonal proportions by season (pY_s), yield per recruit (YPR), 
-#'          harvest rates (hr_b1plus=catch/b1plus and hr_ssb=catch/ssb), covergence (TRUE or FALSE), 
-#'          virgin status levels (rec0, ssb0, ssbpr0), status relative to virgin levels (ratioR, ratioB, ratioSPR), 
-#'          slope (msy: slope = 0 at equilibrium) and rslope (f01: rslope = 0.1 at equilibrium).} 
-#'      \item{refpts: is a data.frame with the different reference points estimates, giving equilibrium values for 
-#'          some variables (ftgt, fprop_s1, fprop_s2, biomass, b1plus, ssb, rec, ssbpr, fbar).
-#'          Showed reference levels are: msy, f0.1, %spr (spr.p), 
-#'          and %B0 (F.pB0) for different percentages (p values) and F leading to 50%R0 (F.50R0).}
-#'}
-#'          
-#'            
+#' @return A list with two elements:
+#' \itemize{
+#'   \item{\code{runs}}{A data.frame containing a summary of the simulation
+#'   results (year by year until equilibrium is reached): target F (ftgt),
+#'   initial proportion of F in each season (fprop), expected biomass, B1+,
+#'   SSB, recruitment, spawning biomass per recruit (ssbpr), global fishing
+#'   mortality (fbar), global F proportion by season (pF_s), expected yields
+#'   and their seasonal proportions (pY_s), yield per recruit (YPR), harvest
+#'   rates (hr_b1plus = catch/b1plus and hr_ssb = catch/ssb), convergence
+#'   status (TRUE/FALSE), virgin status levels (rec0, ssb0, ssbpr0), status
+#'   relative to virgin levels (ratioR, ratioB, ratioSPR), slope (MSY:
+#'   slope = 0 at equilibrium) and rslope (F0.1: rslope = 0.1 at equilibrium).}
+#'
+#'   \item{\code{refpts}}{A data.frame containing the estimated reference
+#'   points and equilibrium values for selected variables (ftgt, fprop_s1,
+#'   fprop_s2, biomass, b1plus, ssb, rec, ssbpr, fbar). Reported reference
+#'   levels include MSY, F0.1, \%SPR (spr.p), \%B0 (F.pB0) for different
+#'   percentages, and the fishing mortality leading to 50\%R0 (F.50R0).}
+#' }
 #' @seealso \code{\link{plotBRPsson}}   
 #
 #' @examples
@@ -380,8 +384,7 @@ brpsson <- function( stk, B0, R0, rec.ss=1, ssb.ss=1, sr_model, sr_params,
 #'            output list of brpsson function.
 #' @param pdfnm The name of the pdf document where plots are going to be saved.
 #
-#' @return A pdf for each stock with plots.
-#'          
+#' @return A pdf for each stock with plots.       
 #' @seealso \code{\link{brpsson}}          
 #
 # @examples

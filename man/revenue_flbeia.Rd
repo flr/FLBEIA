@@ -9,11 +9,11 @@
 \alias{price_flbeia}
 \title{Economic summary functions.}
 \usage{
-revenue_flbeia(fleet)
+revenue_flbeia(fleet, fleet.ctrl, advice)
 
-costs_flbeia(fleet, covars, flnm = NULL, fleet.ctrl = NULL, advice = NULL)
+costs_flbeia(fleet, advice, covars, fleet.ctrl, flnm = NULL)
 
-totvcost_flbeia(fleet, fleet.ctrl, advice, covars = NULL)
+totvcost_flbeia(fleet, advice, covars, fleet.ctrl)
 
 totfcost_flbeia(fleet, covars, flnm = NULL)
 
@@ -24,11 +24,11 @@ price_flbeia(fleet, stock)
 \arguments{
 \item{fleet}{An element of FLfleets object.}
 
+\item{advice}{List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)}
+
 \item{covars}{List of FLQuants with information on covariates.}
 
 \item{flnm}{Names of the fleets.}
-
-\item{advice}{List of two FLquants, with TAC and quota share for all the stocks (only required if taxes = TRUE)}
 
 \item{stock}{An FLStock object.}
 

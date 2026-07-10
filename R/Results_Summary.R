@@ -1072,7 +1072,8 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 
 
 #' @rdname revenue_flbeia
-#' # fleets.ctrl and advice only needed if taxes are used
+
+# fleets.ctrl and advice only needed if taxes are used
 revenue_flbeia <- function(fleet, fleet.ctrl, advice){
     
     sts <- catchNames(fleet)

@@ -5,8 +5,6 @@
 \alias{FLMetierExt}
 \alias{FLMetierExt-class}
 \alias{FLMetierExt-methods}
-\alias{FLMetierExt,FLMetierExt-method}
-\alias{FLMetiersExt,FLMetiersExt-methods}
 \alias{FLMetierExt,FLCatchExt-method}
 \alias{FLMetierExt,FLCatchesExt-method}
 \alias{FLMetierExt,FLQuant-method}

@@ -51,7 +51,6 @@ validFLCatchExt <- function(object)
 #' 
 #' @name FLCatchExt
 #' @aliases FLCatchExt-class FLCatchExt FLCatchExt-methods
-#' FLQuant,FLCatchExt-method
 #' 
 #' @title  FLCatchExt class and the methods to construct it.
 #'
