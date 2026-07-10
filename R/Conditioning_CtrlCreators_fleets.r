@@ -12,12 +12,7 @@
 #   :: ARGUMENTS ::
 #
 #' @param fls character vector with fleet names
-#' @param n.fls.stks numeric vector with the same length as fls with the  declaration of the number of stocks caugth by each of the fleets.
-#' @param fls.stksnames character vector with length = sum(n.fls.stks), with the names of the stocks caught by the fleet, the vector must follow the order used in the previous argument. 
-#'      \itemize{ 
-#'         \item the  first n.fls.stks[1] elements correspond to the stocks caught by the first fleet in fls
-#'         \item the  following n.fls.stks[2] elements correspond to the stocks caught by the second fleet in fls
-#'         \item and so on.}
+#' @param fls.mets.stksnames character vector containing the names of the stocks caught by each fleet–metier combination. The names attribute identifies the corresponding fleet, metier, and stock, using the format fleet::metier::stock.
 #' @param catch.threshold if(NULL) => 0.9 for all the stocks (NULL is the default)  
 #'                   else it must be an FLQuant with dim = c(nstks,ny,1,ns,nit)
 #' @param seasonal.share an FLQuant with dimension [num. fleets, num. years, 1,num. seasons, 1, num. iterations] with elements between 0 and 1 to indicate how the quota of each fleet is distributed along seasons. The sum along seasons (seasonSums) must return an FLQuant with all elements equal to 1.  
@@ -49,15 +44,64 @@
 #' @return A list of lists with the basic structure of the fleets.ctrl object.
 #' 
  
-create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
+create.fleets.ctrl <- function(fls, fls.mets.stksnames, catch.threshold = NULL,  seasonal.share = NULL, 
                                 effort.models = NULL, capital.models = NULL, catch.models = NULL, price.models = NULL, flq, ...){
-    
+ 
     effort.models.available  <- c('fixedEffort', 'SMFB', 'SSFB', 'MaxProfit', 'MaxProfitSeq')
     catch.models.available   <- c('CobbDouglasAge', 'CobbDouglasBio', 'Baranov')
-    price.models.available   <- c('fixedPrice', 'elasticPrice')
+    price.models.available   <- c('fixedPrice', 'elasticPrice', 'elasticPriceAge')
     capital.models.available <- c('fixedCapital', 'SCD')
     
+    ## create hierarquical information fleet-metier-stock
+    ids <- names(fls.mets.stksnames)
+    
+    fleet  <- sub("::.*", "", ids)
+    metier <- sub("^[^:]+::(.*)::[^:]+$", "\\1", ids)
+    stock  <- sub(".*::", "", ids)
+    
+    # n.fls.mets.stks
+    fleet.metier <- paste(fleet, metier, sep = "::")
+    fleet.metier.order <- unique(fleet.metier)
+    n.fls.mets.stks <- table(
+      factor(fleet.metier, levels = fleet.metier.order)
+    )
+    n.fls.mets.stks <- as.vector(n.fls.mets.stks)
+    names(n.fls.mets.stks) <- fleet.metier.order
+    
+    # fls.metsnames
+    idx <- !duplicated(fleet.metier)
+    fls.metsnames <- setNames(
+      metier[idx],
+      fleet.metier[idx]
+    )
+    
+    # fls.stksnames
+    fleet.stock <- paste(fleet, stock, sep = "::")
+    idx <- !duplicated(fleet.stock)
+    fls.stksnames <- setNames(
+      stock[idx],
+      fleet.stock[idx]
+    )
+    
+    # n.fls.stks
+    idx <- !duplicated(fleet.stock)
+    n.fls.stks <- table(
+      factor(fleet[idx], levels = unique(fleet))
+    )
+    n.fls.stks <- as.vector(n.fls.stks)
+    names(n.fls.stks) <- unique(fleet)
+    
+    
+    # n.flts.mets
+    idx <- !duplicated(fleet.metier)
+    n.fls.mets <- table(
+      factor(fleet[idx], levels = unique(fleet))
+    )
+    n.fls.mets <- as.vector(n.fls.mets)
+    names(n.fls.mets) <- unique(fleet)
+    
     nfls <- length(fls) 
+    nmets <- length(fls.metsnames)
     res  <- vector('list', nfls + 2)
     names(res) <- c('catch.threshold', 'seasonal.share', fls)
     stknms <- unique(fls.stksnames)
@@ -85,7 +129,7 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
     if(is.null(effort.models))  effort.models   <- rep('fixedEffort', nfls)                                                                      
     if(is.null(capital.models)) capital.models  <- rep('fixedCapital', nfls)  
     if(is.null(catch.models))   catch.models    <- rep('CobbDouglasAge', sum(n.fls.stks)) 
-    if(is.null(price.models))   price.models    <- rep('fixedPrice', sum(n.fls.stks))  
+    if(is.null(price.models))   price.models    <- rep('fixedPrice', length(fls.mets.stksnames))  
     
     # check that all flq-s differ only in first (quant) dimension.
     test.flqs <- lapply(c('flq', names(extra.args)[grep(pattern = 'flq', names(extra.args))]), 
@@ -107,7 +151,7 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
         warning(paste(unique(wmod), collapse = ', ')," in 'catch.models' is not an internal FLBEIA catch model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
     }
     # price models.
-    if(length(price.models) != sum(n.fls.stks)) stop("'price.models' must be NULL or must have the same length as stknames'")
+    if(length(price.models) != length(fls.mets.stksnames)) stop("'price.models' must be NULL or must have the same length as fleet-metier-stknames combination'")
     if(!all(price.models %in% price.models.available)){ 
         wmod <- price.models[which(!(price.models %in% price.models.available))]  
         warning(paste(unique(wmod), collapse = ', ')," in 'price.models' is not an internal FLBEIA price model. If you want to use create.fleets.ctrl you must create, ", paste(paste('create', unique(wmod) ,'ctrl', sep = "."), collapse = ", ")," function.")
@@ -121,22 +165,24 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
     
     
     # Some check to test if declared number of stocks coincide with that used in the name declaration-
-#    if(length(nflsts.mtrs) != nfls) stop("The length of 'fls' and 'nfls.mtrs' must coincide")
-#    if(sum(nfls.mtrs) != length(fls.mtrsnames)) stop("The total number of metiers declared in 'nfls.mtrs' must be equal to the length of 'fls.mtrsnames'.")
+    # if(length(nflsts.mtrs) != nfls) stop("The length of 'fls' and 'nfls.mtrs' must coincide")
+    # if(sum(nfls.mtrs) != length(fls.mtrsnames)) stop("The total number of metiers declared in 'nfls.mtrs' must be equal to the length of 'fls.mtrsnames'.")
     if(sum(n.fls.stks) != length(fls.stksnames)) stop("The total number of stocks declared in 'n.fls.stks' must be equal to the length of 'fls.stksnames'.")
     if(length(effort.models) != nfls) stop("The length of 'effort.models' must coincide with the number of fleets")
     if(length(capital.models) != nfls) stop("The length of 'capital.models' must coincide with the number of fleets")
     
-  
     names(effort.models)  <- fls
     names(capital.models) <- fls
     names(n.fls.stks)    <- fls
-    names(price.models)   <- fls.stksnames
+    names(price.models)   <- fls.mets.stksnames
     names(catch.models)   <- fls.stksnames
     
-    # Create the fleet/metier/stock GENERAL structure in res. 
+    # Create the fleet/stock and/or fleet/metier/stock GENERAL structure in res. 
     k1 <- 1
     k2 <- 1
+    k3 <- 1
+    k4 <- 1
+    k5 <- 1
     for(f in fls){  # fleet structure
         
         res[[f]]        <- vector('list', n.fls.stks[f] + 2) # minimum length
@@ -147,18 +193,30 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
         
         
         for(st in fls.stksnames[k1:(k1+n.fls.stks[f]-1)]){ # stock structure.  
-            res[[f]][[st]] <- vector('list', 2) # minimun length
-            names(res[[f]][[st]])  <- c('catch.model', 'price.model')
-            res[[f]][[st]][['catch.model']] <- unname(catch.models[k2])
-            res[[f]][[st]][['price.model']] <- unname(price.models[k2])
+            # res[[f]][[st]] <- vector('list', 1) # minimun length
+            # names(res[[f]][[st]])  <- 'catch.model'
+            # res[[f]][[st]][['catch.model']] <- unname(catch.models[k2])
+            res[[f]][[st]] <- list(catch.model = catch.models[[k2]])
             k2 <- k2 + 1
         }
         k1 <- k1 + n.fls.stks[f]
+        
+        for(met in fls.metsnames[k3:(k3+n.fls.mets[f]-1)]){ # metier structure.  
+
+          for(st in fls.mets.stksnames[k4:(k4+n.fls.mets.stks[paste0(f, "::", met)]-1)]){ # stock structure.  
+            res[[f]][[met]][[st]] <- list(price.model = price.models[[k5]])
+            k5 <- k5 + 1
+          }
+        k4 <- k4 + n.fls.mets.stks[paste0(f, "::", met)]
+        }
+        k3 <- k3 + n.fls.mets[f]
     }
     
-    # Add the function specific elements by fleet/stock.
+    # Add the function specific elements by fleet/stock and/or fleet/metier/stock.
     k1 <- 1
-    jf <- 1
+    k2 <- 1
+    k3 <- 1
+    
     for(f in fls){  # fleet level functions; effort and capital models
       
         
@@ -168,17 +226,25 @@ create.fleets.ctrl <- function(fls,  n.fls.stks, fls.stksnames, catch.threshold 
         res[[f]] <- eval(call(effmodcreator, resf = res[[f]], fltname = f, largs = extra.args))
         res[[f]] <- eval(call(capmodcreator, resf = res[[f]], fltname = f, largs = extra.args))
                 
-        for(st in fls.stksnames[k1:(k1+n.fls.stks[jf]-1)]){ # stock level functios: catch and price models.  
+        for(st in fls.stksnames[k1:(k1+n.fls.stks[f]-1)]){ # stock level functios: catch models.  
                 
             catchmodcreator <- paste('create', catch.models[k1], 'ctrl', sep = '.')
-            pricemodcreator <- paste('create', price.models[k1], 'ctrl', sep = '.')
             
             res[[f]][[st]] <- eval(call(catchmodcreator, resfst = res[[f]][[st]], fltname = f, stkname = st, largs = extra.args))
-            res[[f]][[st]] <- eval(call(pricemodcreator, resfst = res[[f]][[st]], fltname = f, stkname = st, largs = extra.args))
             
             k1 <- k1 + 1
         }
-        jf <- jf + 1
+        for(met in fls.metsnames[k2:(k2+n.fls.mets[f]-1)]){ # metier-stock level functios: price models.  
+          
+          for(st in fls.mets.stksnames[k3:(k3+n.fls.mets.stks[paste0(f, "::", met)]-1)]){ # metier-stock level functios: price models.  
+          pricemodcreator <- paste('create', price.models[k3], 'ctrl', sep = '.')
+          
+          res[[f]][[met]][[st]] <- eval(call(pricemodcreator, resfmetst = res[[f]][[met]][[st]], fltname = f, stkname = st, metname = met, largs = extra.args))
+          
+          k3 <- k3 + 1
+          }
+          k2 <- k2 + 1
+        }
     }
     
     return(res) 
@@ -254,25 +320,27 @@ create.SCD.ctrl <- function(resf,fltname,largs) return(resf)
 #-------------------------------------------------------------------------------
 #                   ** create.fixedPrice.ctrl **
 #-------------------------------------------------------------------------------
-create.fixedPrice.ctrl <- function(resfst, fltname, stkname, largs) return(resfst)
+create.fixedPrice.ctrl <- function(resfmetst, fltname, metname, stkname, largs) return(resfmetst)
 
 
 #-------------------------------------------------------------------------------
 #                   ** create.elasticPrice.ctrl **
 # extra args: flq.stkname
 #-------------------------------------------------------------------------------
-create.elasticPrice.ctrl <- function(resfst, fltname, stkname, largs){
+create.elasticPrice.ctrl <- function(resfmetst, fltname, metname, stkname, largs){
     
     flq.stk <- largs[[paste('flq', stkname,sep = ".")]]
-    resfst[["pd.els"]]   <- flq.stk
-    resfst[["pd.La0"]]   <- flq.stk
-    resfst[["pd.Pa0"]]   <- flq.stk
-    resfst[["pd.total"]] <- TRUE
+    resfmetst[["pd.elsa"]]  <- flq.stk
+    resfmetst[["pd.La0"]]   <- flq.stk
+    resfmetst[["pd.Pa0"]]   <- flq.stk
+    resfmetst[["pd.total"]] <- TRUE
+    resfmetst[["type"]]     <- 1 # by default
     
-    warning( "You have selected 'elasticPrice' price model for fleet, '", fltname, "', and stock, '", stkname, 
-        "'.\n Thus, you have to fill 'pd.els', 'pd.La0' and 'pd.Pa0' FLQuants in fleets.ctrl[['", fltname,"']][['", stkname,"']].\n", sep = "")
+    warning( "You have selected 'elasticPrice' price model for fleet, '", fltname, "',' metier", metname, "', and stock, '", stkname, 
+             "'.\n Thus, you have to fill 'pd.elsa', 'pd.La0' and 'pd.Pa0' FLQuants in fleets.ctrl[['", fltname,"']][['", metname,"']][['", stkname,"']].\n",
+             "'By default, the 'elasticPrice' model uses type 1. Select a different type if you want to apply another price model.\n ", sep = "")
 
-    return(resfst)
+    return(resfmetst)
 }
 
 #-------------------------------------------------------------------------------
