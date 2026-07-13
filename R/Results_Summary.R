@@ -1065,7 +1065,7 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #'\itemize{
 #'       \item{revenue_flbeia}{ computes the revenue by fleet and metier. The revenue is computed as
 #'        landings (weight) multiplied by the price, minus taxes.}
-#'       \item{taxcost_flbeia}{ computes taxes (to be deducted from the revenue).}
+#'       \item{taxcost_flbeia}{ computes taxes in case of overshoot, or rewards when undershoot (to be deducted from or added to the revenue, respectively).}
 #'       \item{costs_flbeia}{ computes total costs as the sum of fixed and variable costs.}
 #'       \item{totvcost_flbeia}{ computes the variable costs including crew share costs .}
 #'       \item{totfcost_flbeia}{ computes the total costs by vessel.}
@@ -1218,11 +1218,11 @@ taxcost_flbeia <- function(fleet, fleet.ctrl, advice) {
         #  If compliance (i.e. hi=TAC*si) --> Taxes - Subsidies = 0 
         #
         # FORMULATION
-        # tax.flst = taxes - subsidies = 
+        # tax.flst = taxes - rewards = 
         #   = beta * (cat.flst - tac.st * qsh.flst) + 
         #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
         # used formulation where: Cr.f = QS * tac
-        # Taxes should only apply when there is an overshoot, but the undershoot, should be rewarded (subsidies).
+        # Taxes should only apply when there is an overshoot, but the undershoot, should be rewarded (i.e. subsidies).
         
         taxes_st <- fleet.ctrl[[st]][['beta']] * (cat.flst - tac.st * qsh.flst) + 
           fleet.ctrl[[st]][['gamma']]/2 * (cat.flst^2 / qsh.flst - (tac.st)^2 * qsh.flst)
