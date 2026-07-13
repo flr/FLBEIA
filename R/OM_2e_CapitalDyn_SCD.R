@@ -26,7 +26,7 @@ SCD <- function(fleets, covars, fleets.ctrl, flnm, advice, year = 1, season = 1,
     it <- dim(fleet@effort)[6]
     
     # VaC
-    VaC <- seasonSums(totvcost_flbeia(fleet = fleet, advice = advice, fleet.ctrl = fleet.ctrl)[,year]) # total annual variable costs
+    VaC <- seasonSums(totvcost_flbeia(fleet = fleet, advice = advice, fleet.ctrl = fleet.ctrl, covars = covars)[,year]) # total annual variable costs
     # FxC
     FxC <- seasonSums(covars[["NumbVessels"]][flnm, ] * fleet@fcost)[, year]
     # FuC  # per unit of effort, we asume common cost for all the metiers.
