@@ -1,3 +1,14 @@
+#~~~~~~~~~~~~~~~~
+# 2026/0x/0x
+#~~~~~~~~~~~~~~~~
+
+FLBEIA 1.16.3.x
+
+- 
+- Correct error in Obs.stk.nage
+- Corrections related to taxes
+
+
 
 #~~~~~~~~~~~~~~~~
 # 2026/07/07
@@ -41,7 +52,7 @@ FLBEIA 1.16.2.1
 FLBEIA 1.16.2
 - Now 'unit' can be used not only for seasonal cohorts but also for other segments in the population, sex for example. 
 	the functions age2unit and unit2age are no longer used so all the calculations are done with the FLQuant structure.
-- corrected porblems with taxes in the fltSum function
+- corrected problems with taxes in the fltSum function
 
 #~~~~~~~~~~~~~~~~
 # 2025/05/06

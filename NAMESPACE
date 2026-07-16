@@ -131,6 +131,7 @@ export(
   "summary_flbeia",
   "tdiscStock",
   "tlandStock",
+  "taxcost_flbeia",
   "totfcost_flbeia", 
   "totvcost_flbeia",
   "updateFLBiols",

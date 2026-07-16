@@ -492,7 +492,11 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   # Calculate taxes (if taxation system implemented)
   Tax <- 0
   if(!is.null(fleets.ctrl[[flnm]]$taxes)){ 
-    if(fleets.ctrl[[flnm]]$taxes == TRUE){ Tax <- taxcost_flbeia(fleet, fleets.ctrl, advice)} 
+    if(fleets.ctrl[[flnm]]$taxes == TRUE){ 
+      Tax <- eval(call(fleets.ctrl[[flnm]][[st]][['tax.model']], 
+                       cat.flst = Cst[st], qsh.flst = Cr.f[st,]/tac[st,], tac.st = tac[st,], 
+                       beta = fleets.ctrl[[flnm]][[st]][['beta']], gamma = fleets.ctrl[[flnm]][[st]][['gamma']]))
+    }
   }
   
   resF <- (1-crewS)*(res-Tax) - sum(vc.m*E) - fc
