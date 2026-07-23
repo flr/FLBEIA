@@ -42,14 +42,22 @@ convexTax <- function(cat.flst, qsh.flst, tac.st,
   #  If compliance (i.e. hi=TAC*si) --> Taxes - Subsidies = 0 
   #
   # FORMULATION
-  # tax.flst = taxes - rewards = 
-  #   = beta * (cat.flst - tac.st * qsh.flst) + 
-  #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
+  # tax.flst = taxes - rewards
+  # where:
+  #      taxes   = beta * cat.flst + gamma/2 * cat.flst^2/qsh.flst
+  #      rewards = beta * tac.st * qsh.flst + gamma/2 * tac.st^2 * qsh.flst
+  #
   # used formulation where: Cr.f = QS * tac
   # Taxes should only apply when there is an overshoot, but the undershoot, should be rewarded (i.e. subsidies).
   
-  tax <- beta * (cat.flst - tac.st * qsh.flst) + 
-    gamma/2 * (cat.flst^2 / qsh.flst - (tac.st)^2 * qsh.flst)
+  taxes <- beta * cat.flst + gamma/2 * (cat.flst^2 / qsh.flst)
+  
+  if (tax.rewards == TRUE) {
+    rewards <- beta * tac.st * qsh.flst + gamma/2 * (tac.st)^2 * qsh.flst
+  } else
+    rewards <- 0
+  
+  tax <- taxes - rewards
   
   return(tax)
   
