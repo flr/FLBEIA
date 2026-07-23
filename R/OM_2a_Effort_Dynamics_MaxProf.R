@@ -490,12 +490,27 @@ f_MP_nloptr_penalized <- function(X, efs.min, efs.max, q.m, alpha.m, beta.m, pr.
   }
   
   # Calculate taxes (if taxation system implemented)
+  
+  # (with/without rewards)
+  
+  ctrl.flst <- fleets.ctrl[[flnm]][[st]]
+  tax.rw  <- ctrl.flst[['tax.rewards']]
+  tax.rwo <- ctrl.flst[['tax.rewards.opt']]
+  
+  if (isFALSE(tax.rw) && isTRUE(tax.rwo))
+    stop("For convexTax: if tax.rewards == FALSE, tax.rewards.opt must also be FALSE")
+  
+  if (!is.null(tax.rwo)) tax.rewards <- tax.rwo else 
+    if (!is.null(tax.rw)) tax.rewards <- tax.rw else 
+      tax.rewards <- TRUE
+  
   Tax <- 0
   if(!is.null(fleets.ctrl[[flnm]]$taxes)){ 
     if(fleets.ctrl[[flnm]]$taxes == TRUE){ 
-      Tax <- eval(call(fleets.ctrl[[flnm]][[st]][['tax.model']], 
+      Tax <- eval(call(ctrl.flst[['tax.model']], 
                        cat.flst = Cst[st], qsh.flst = Cr.f[st,]/tac[st,], tac.st = tac[st,], 
-                       beta = fleets.ctrl[[flnm]][[st]][['beta']], gamma = fleets.ctrl[[flnm]][[st]][['gamma']]))
+                       beta = ctrl.flst[['beta']], gamma = ctrl.flst[['gamma']], 
+                       tax.rewards = tax.rewards))
     }
   }
   

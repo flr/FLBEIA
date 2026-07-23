@@ -1055,7 +1055,8 @@ fltSumQ <- function(obj,  prob = c(0.95,0.5,0.05)){
 #' These functions provide summary results of costs, prices and revenues. Provided data can be disaggregated by fleet or by metier depending on the selected function.
 #' 
 #' @param fleet      An element of a FLFleetsExt object (FLFleetExt).
-#' @param fleet.ctrl List with tax-related controls (requires fleet.ctrl$taxes = TRUE/FALSE and tax function with corresponding parameters by stock).
+#' @param fleet.ctrl List with tax-related controls. Requires fleet.ctrl$taxes = TRUE/FALSE and tax function with corresponding parameters by stock.
+#'                   (For convexTax: beta, gamma and tax.rewards parameters are required by stock).
 #' @param advice     List of two FLQuants, with TAC and quota share for all the stocks.
 # @inheritParams FLBEIA
 #'   
@@ -1218,19 +1219,24 @@ taxcost_flbeia <- function(fleet, fleet.ctrl, advice) {
         #  If compliance (i.e. hi=TAC*si) --> Taxes - Subsidies = 0 
         #
         # FORMULATION
-        # tax.flst = taxes - rewards = 
-        #   = beta * (cat.flst - tac.st * qsh.flst) + 
-        #     + gamma/2 * ((cat.flst/qsh.flst)^2 * qsh.flst - tac.flst^2 * qflst)
+        # tax.flst = taxes - rewards
+        # where:
+        #      taxes   = beta * cat.flst + gamma/2 * cat.flst^2/qsh.flst
+        #      rewards = beta * tac.st * qsh.flst + gamma/2 * tac.st^2 * qsh.flst
+        #
         # used formulation where: Cr.f = QS * tac
         # Taxes should only apply when there is an overshoot, but the undershoot, should be rewarded (i.e. subsidies).
         
-        taxes_st <- fleet.ctrl[[st]][['beta']] * (cat.flst - tac.st * qsh.flst) + 
-          fleet.ctrl[[st]][['gamma']]/2 * (cat.flst^2 / qsh.flst - (tac.st)^2 * qsh.flst)
+        taxes_st <- fleet.ctrl[[st]][['beta']] * cat.flst + 
+          fleet.ctrl[[st]][['gamma']]/2 * (cat.flst^2 / qsh.flst)
         
-        # negative taxes allowed --> rewarded when undercatch their quota
-        # taxes_st[taxes_st < 0] <- 0
+        if (fleet.ctrl[[st]][['tax.rewards']] == TRUE) {
+          rewards_st <- fleet.ctrl[[st]][['beta']] * tac.st * qsh.flst + 
+            fleet.ctrl[[st]][['gamma']]/2 * (tac.st)^2 * qsh.flst
+        } else
+          rewards_st <- 0
         
-        taxes <- taxes + taxes_st
+        taxes <- taxes + (taxes_st-rewards_st)
         
       } else
         stop("Only 'convexTax' available at the moment.")

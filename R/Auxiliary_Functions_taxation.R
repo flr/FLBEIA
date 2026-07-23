@@ -18,8 +18,17 @@
 #-------------------------------------------------------------------------------
 # convexTax(fleet, fleet.ctrl, advice)
 #-------------------------------------------------------------------------------
+# Parameters:
+# - cat.flst    : fleet's catches of a specific stock.
+# - qsh.flst    : fleet's quota share for the stock.
+# - tac.st      : stock's TAC.
+# - beta        : convex taxation's beta parameter (for this fleet and stock).
+# - gamma       : convex taxation's gamma parameter (for this fleet and stock). 
+# - tax.rewards : TRUE(default)/FALSE. Indicates if int the convex taxation rewards part should be included or not.
+
 convexTax <- function(cat.flst, qsh.flst, tac.st, 
-                      beta = fleet.ctrl[[st]][['beta']], gamma = fleet.ctrl[[st]][['gamma']]) { 
+                      beta = fleet.ctrl[[st]][['beta']], gamma = fleet.ctrl[[st]][['gamma']], 
+                      tax.rewards = fleet.ctrl[[st]][['tax.rewards']]) { 
   
   # Given:
   # - Quadratic Tax Instrument: 
