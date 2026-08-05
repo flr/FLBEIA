@@ -11,23 +11,23 @@ NumericVector Q2baranov(NumericVector e, List inputs, IntegerVector idx) {
   int n_fl_mt = fleet_inputs["n_fl_mt"];
   NumericVector eshare = fleet_inputs["eshare"];
   IntegerVector fl_idx = fleet_inputs["fl_idx"];
+  int n_fleet = fixedEffort.size();
   
-  
-  // combine estimated and fixed effort in a single vector and multiply with effort shares 
-  NumericVector E(n_fl_mt); 
+  // update effort by fleet
   int ctr_e = 0; 
-  int fl_idx_i_1 = 0;
-  for(int i = 0; i < n_fl_mt; i++){
-    if(idx(fl_idx(i)) >= 0){
-      if(fl_idx(i) > fl_idx_i_1){      // if new fleet; increment the effort index
-        ctr_e += 1;
-      }
-      E(i) = e(ctr_e) * eshare(i);     // update the métier effort
-      fl_idx_i_1 = fl_idx(i);          // update current fleet state
-    } else {
-      E(i) = fixedEffort(fl_idx(i)) *  eshare(i);
+  for(int i = 0; i < n_fleet; i++){
+    if(idx(i)>0) {
+      fixedEffort(i) = e(ctr_e);
+      ctr_e += 1;
     }
+  }
+  
+  // compute effort by métier 
+  NumericVector E(n_fl_mt); 
+  for(int i = 0; i < n_fl_mt; i++){
+     E(i) = fixedEffort(fl_idx(i)) *  eshare(i);
   } 
+  
   
   List stock_inputs = inputs["stock_inputs"];
   int n_fleets = idx.length();
