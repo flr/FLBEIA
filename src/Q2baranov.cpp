@@ -16,7 +16,7 @@ NumericVector Q2baranov(NumericVector e, List inputs, IntegerVector idx) {
   // update effort by fleet
   int ctr_e = 0; 
   for(int i = 0; i < n_fleet; i++){
-    if(idx(i)>0) {
+    if(idx(i)>=0) {
       fixedEffort(i) = e(ctr_e);
       ctr_e += 1;
     }
