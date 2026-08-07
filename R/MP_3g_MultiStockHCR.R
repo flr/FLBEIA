@@ -162,7 +162,7 @@ MultiStockHCR <- function(stocks, indices, advice, advice.ctrl, year, stknm,...)
     if(any(Fadv0 < Flow)){#if((approach == 'min') & any(Fadv0 < Flow)){
       lambda2 <- apply(Flow/Fadv0,2,max) #[it]
       upps <- Fupp/Fadv0
-      comp1 <- colSums((1/sweep(upps,1,lambda2,"/")) >1) # [it]
+      comp1 <- colSums((1/sweep(upps,2,lambda2,"/")) >1) # [it]
       # The correction will be always the minimum of the Fupp/Fadv0 ratios, because for NONE of the stock we can be above.
       pos <- apply(upps,2,which.min) # [it]
       # If comp1 == 0, for this iteration non of the stocks is above Fupp
