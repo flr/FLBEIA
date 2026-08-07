@@ -130,8 +130,7 @@ get_Baranov_inputs <- function(biols,                            ## biols input 
       ## catchabilities
       qsm   <- do.call("rbind",lapply(fleets[[j]]@metiers, function(x){
         if(i %in% names(x@catches)){
-          x@catches[[i]]@catch.q@.Data[,year,unit_idx,season_idx,area_idx,iter]
-          res <- x@catches[[i]]@catch.q@.Data[,"2023",1,1,1,1]
+          res <- x@catches[[i]]@catch.q@.Data[,year,unit_idx,season_idx,area_idx,iter]
           names(res) <- colnames(q)
           res
         } else {
