@@ -324,10 +324,10 @@ find_effort_choke_Baranov <- function(idx, baranov_inputs, fleets.ctrl.ls, estar
     
     # use previous effort as start value
     estart <- res$x
-    res    <- nleqslv(estart, Q2baranov, control=list(btol=.01), inputs = nleqslv_inputs, idx = idx, method = "Newton", global = "qline")
+    res    <- nleqslv(estart, Q2baranov,  inputs = nleqslv_inputs, idx = idx, method = "Newton", global = "qline")
     
     # compute quota minus catch to compute stop conditions
-    catch <- do.call('rbind',lapply(0:(length(stocks)-1), function(x) {
+    catch <- do.call('rbind',lapply(0:(length(nleqslv_inputs$stock_inputs)-1), function(x) {
       idx_stock_x <- rep(x,length(idx))
       idx_stock_x[idx < 0] <- -1
       Q2baranov(res$x, nleqslv_inputs, idx_stock_x)
